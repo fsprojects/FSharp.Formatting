@@ -393,7 +393,21 @@ let rec parseChars acc input (ctx: ParsingContext) =
                             EndColumn = n.EndColumn - e }
                 | None -> None
 
-            yield InlineCode(String(Array.ofList body).Trim(), rng)
+            // Per CommonMark spec: line endings in code spans are treated as spaces.
+            // Then strip one leading and one trailing space only if the content
+            // both starts and ends with a space and is not entirely spaces.
+            let codeBody = (String(Array.ofList body)).Replace('\r', ' ').Replace('\n', ' ')
+
+            let normalizedCode =
+                if codeBody.Length > 0
+                   && codeBody.[0] = ' '
+                   && codeBody.[codeBody.Length - 1] = ' '
+                   && codeBody.TrimStart(' ').Length > 0 then
+                    codeBody.Substring(1, codeBody.Length - 2)
+                else
+                    codeBody
+
+            yield InlineCode(normalizedCode, rng)
             yield! parseChars [] rest ctx
 
         // Display Latex inline math mode
@@ -522,15 +536,39 @@ let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
 
     parseChars [] (s.ToCharArray() |> List.ofArray) ctx |> List.ofSeq
 
-let rec trimSpaces numSpaces (s: string) =
-    if numSpaces <= 0 then
-        s
-    elif s.StartsWith ' ' then
-        trimSpaces (numSpaces - 1) (s.Substring(1))
-    elif s.StartsWith '\t' then
-        trimSpaces (numSpaces - 4) (s.Substring(1))
+/// Expands leading tab characters in a string to spaces based on column position.
+/// Only expands leading tabs (stops at first non-tab character).
+let rec private expandLeadingTabs col (s: string) =
+    if s.StartsWith '\t' then
+        let tabStop = (col / 4 + 1) * 4
+        String.replicate (tabStop - col) " " + expandLeadingTabs tabStop (s.Substring(1))
     else
         s
+
+/// Trims virtual spaces from the start of a string, column-aware for tab expansion.
+/// When a tab is only partially consumed, it expands the tab and any following leading
+/// tabs to spaces (using original column positions) and prepends the remaining spaces.
+let trimSpaces numSpaces (s: string) =
+    let rec loop numSpaces col (s: string) =
+        if numSpaces <= 0 then
+            s
+        elif s.StartsWith ' ' then
+            loop (numSpaces - 1) (col + 1) (s.Substring(1))
+        elif s.StartsWith '\t' then
+            let tabStop = (col / 4 + 1) * 4
+            let tabWidth = tabStop - col
+
+            if tabWidth <= numSpaces then
+                loop (numSpaces - tabWidth) tabStop (s.Substring(1))
+            else
+                // Tab partially consumed: prepend remaining virtual spaces and expand any
+                // further leading tabs using original column positions
+                let remaining = tabWidth - numSpaces
+                String.replicate remaining " " + expandLeadingTabs tabStop (s.Substring(1))
+        else
+            s
+
+    loop numSpaces 0 s
 
 // --------------------------------------------------------------------------------------
 // Parsing of Markdown - second part handles paragraph-level formatting (headings, etc.)
@@ -618,8 +656,8 @@ let (|FencedCodeBlock|_|) lines =
         ->
         let mutable fenceString = String.replicate num start
 
-        if header.Contains(start) then
-            None // info string cannot contain backspaces
+        if start = "`" && header.Contains(start) then
+            None // info string for backtick fences cannot contain backticks
         else
             let codeLines, rest =
                 lines
@@ -710,11 +748,31 @@ let (|SkipSomeNumbers|_|) (input: string, _n: MarkdownRange) =
 /// Returns the rest of the line, together with the indent.
 let (|ListStart|_|) =
     function
-    | StringPosition.TrimStartAndCount(startIndent,
-                                       _spaces,
-                                       // NOTE: a tab character after +, * or - isn't supported by the reference implementation
-                                       // (it will be parsed as paragraph for 0.22)
-                                       (StringPosition.StartsWithAny [ "+ "; "* "; "- " (*; "+\t"; "*\t"; "-\t"*) ] as item)) ->
+    // Unordered list: tab as separator after the marker (e.g. "-\t").
+    // Only 1 virtual space of the tab counts as the required separator; excess
+    // virtual spaces from tab expansion become leading indentation for the item body.
+    | StringPosition.TrimStartAndCount(_charLen,
+                                       virtualLeadingSpaces,
+                                       (StringPosition.StartsWithAny [ "+\t"; "*\t"; "-\t" ] as item)) ->
+        let mkrRange = snd item
+        let colAfterMkr = virtualLeadingSpaces + 1 // column of the separator tab
+        let sepTabStop = (colAfterMkr / 4 + 1) * 4
+        let excessVirtual = sepTabStop - colAfterMkr - 1 // minus 1 consumed as separator
+        let rawBody = (fst item).Substring(2)
+        let adjustedBody = System.String(' ', excessVirtual) + expandLeadingTabs sepTabStop rawBody
+        let li = (adjustedBody, { mkrRange with StartColumn = mkrRange.StartColumn + 2 })
+        let (StringPosition.TrimStartAndCount(bodyIndent, _bSpaces, _)) = li
+
+        let endIndent =
+            sepTabStop
+            + if bodyIndent >= 5 then 1 else bodyIndent
+
+        Some(Unordered, virtualLeadingSpaces, endIndent, li)
+    // Unordered list: space as separator after the marker.
+    // Uses virtual (tab-expanded) leading indent so tab-indented markers nest correctly.
+    | StringPosition.TrimStartAndCount(_charLen,
+                                       virtualLeadingSpaces,
+                                       (StringPosition.StartsWithAny [ "+ "; "* "; "- " ] as item)) ->
         let range = snd item
 
         let li =
@@ -725,27 +783,23 @@ let (|ListStart|_|) =
         let (StringPosition.TrimStartAndCount(startIndent2, _spaces2, _)) = li
 
         let endIndent =
-            startIndent
+            virtualLeadingSpaces
             + 2
-            +
-            // Handle case of code block
-            if startIndent2 >= 5 then 1 else startIndent2
+            + if startIndent2 >= 5 then 1 else startIndent2
 
-        Some(Unordered, startIndent, endIndent, li)
-    | StringPosition.TrimStartAndCount(startIndent,
-                                       _spaces,
+        Some(Unordered, virtualLeadingSpaces, endIndent, li)
+    | StringPosition.TrimStartAndCount(_charLen,
+                                       virtualLeadingSpaces,
                                        (SkipSomeNumbers(skipNumCount, '.' :: ' ' :: List.AsString item))) ->
         let (StringPosition.TrimStartAndCount(startIndent2, _spaces2, _)) = (item, MarkdownRange.zero)
 
         let endIndent =
-            startIndent
+            virtualLeadingSpaces
             + 2
             + skipNumCount
-            +
-            // Handle case of code block
-            if startIndent2 >= 5 then 1 else startIndent2
+            + if startIndent2 >= 5 then 1 else startIndent2
 
-        Some(Ordered, startIndent, endIndent, (item, MarkdownRange.zero))
+        Some(Ordered, virtualLeadingSpaces, endIndent, (item, MarkdownRange.zero))
     | _ -> None
 
 /// Splits input into lines until whitespace or starting of a list and the rest.
@@ -1022,22 +1076,34 @@ let (|EmacsTableBlock|_|) (lines) =
 
 /// Recognizes a start of a blockquote
 let (|BlockquoteStart|_|) (line: string, n: MarkdownRange) =
-    let regex =
-        "^ {0,3}" // Up to three leading spaces
-        + ">" // Blockquote character
-        + "\s?" // Maybe one whitespace character
-        + "(.*)" // Capture everything else
+    // Pattern: optional leading spaces (up to 3), >, optional space/tab, rest of line
+    let pat = Regex.Match(line, @"^( {0,3})>([ \t]?)(.*)")
 
-    let match' = Regex.Match(line, regex)
+    if pat.Success then
+        let indentBeforeGt = pat.Groups.[1].Value
+        let delimiterChar = pat.Groups.[2].Value
+        let lineRemainder = pat.Groups.[3].Value
+        let remainderGroup = pat.Groups.[3]
 
-    if match'.Success then
-        let group = match'.Groups.Item(1)
+        // When delimiter after '>' is a tab: the tab occupies more than 1 virtual space,
+        // but only 1 virtual space is the optional delimiter. Any excess virtual spaces
+        // become the start of the blockquote content. Also expand any subsequent leading
+        // tabs in the remainder at their correct original column positions.
+        let quotedContent =
+            if delimiterChar = "\t" then
+                let colOfGt = indentBeforeGt.Length
+                let colOfTab = colOfGt + 1
+                let stopOfTab = (colOfTab / 4 + 1) * 4
+                let extraSpaces = stopOfTab - colOfTab - 1 // minus the 1 consumed as delimiter
+                String.replicate extraSpaces " " + expandLeadingTabs stopOfTab lineRemainder
+            else
+                lineRemainder
 
         Some(
-            group.Value,
+            quotedContent,
             { n with
-                StartColumn = n.StartColumn + group.Index
-                EndColumn = n.StartColumn + group.Index + group.Length }
+                StartColumn = n.StartColumn + remainderGroup.Index
+                EndColumn = n.StartColumn + remainderGroup.Index + remainderGroup.Length }
         )
     else
         None
