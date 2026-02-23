@@ -1287,6 +1287,47 @@ module Serve =
 
         startWebServerAsync serverConfig app |> snd |> Async.Start
 
+/// Helpers for generating llms.txt and llms-full.txt content.
+module internal LlmsTxt =
+
+    /// Build a section of llms.txt from a set of search index entries.
+    /// When <c>withContent</c> is true, entry content is appended after each link.
+    let buildSection sectionTitle (entries: ApiDocsSearchIndexEntry array) withContent =
+        if entries.Length = 0 then
+            ""
+        else
+            let sb = System.Text.StringBuilder()
+            sb.Append(sprintf "## %s\n\n" sectionTitle) |> ignore
+
+            for e in entries do
+                sb.Append(sprintf "- [%s](%s)\n" e.title e.uri) |> ignore
+
+                if withContent && not (System.String.IsNullOrWhiteSpace(e.content)) then
+                    sb.Append("\n") |> ignore
+                    sb.Append(e.content) |> ignore
+                    sb.Append("\n\n") |> ignore
+
+            sb.ToString()
+
+    /// Generate the text content of llms.txt (index) and llms-full.txt (with content).
+    /// Returns a tuple of (llms.txt content, llms-full.txt content).
+    let buildContent (collectionName: string) (entries: ApiDocsSearchIndexEntry array) =
+        let contentEntries = entries |> Array.filter (fun e -> e.``type`` = "content")
+        let apiEntries = entries |> Array.filter (fun e -> e.``type`` = "apiDocs")
+        let header = sprintf "# %s\n\n" collectionName
+
+        let llmsTxt =
+            header
+            + buildSection "Docs" contentEntries false
+            + buildSection "API Reference" apiEntries false
+
+        let llmsFullTxt =
+            header
+            + buildSection "Docs" contentEntries true
+            + buildSection "API Reference" apiEntries true
+
+        llmsTxt, llmsFullTxt
+
 type CoreBuildOptions(watch) =
 
     [<Option("input", Required = false, Default = "docs", HelpText = "Input directory of documentation content.")>]
@@ -1684,43 +1725,8 @@ type CoreBuildOptions(watch) =
         let generateLlmsTxt () =
             if this.llms then
                 let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
-
-                let contentEntries = index |> Array.filter (fun e -> e.``type`` = "content")
-                let apiEntries = index |> Array.filter (fun e -> e.``type`` = "apiDocs")
-
-                let header = sprintf "# %s\n\n" collectionName
-
-                let buildSection sectionTitle (entries: ApiDocsSearchIndexEntry array) withContent =
-                    if entries.Length = 0 then
-                        ""
-                    else
-                        let sb = System.Text.StringBuilder()
-                        sb.Append(sprintf "## %s\n\n" sectionTitle) |> ignore
-
-                        for e in entries do
-                            sb.Append(sprintf "- [%s](%s)\n" e.title e.uri) |> ignore
-
-                            if withContent && not (System.String.IsNullOrWhiteSpace(e.content)) then
-                                sb.Append("\n") |> ignore
-                                sb.Append(e.content) |> ignore
-                                sb.Append("\n\n") |> ignore
-
-                        sb.ToString()
-
-                // llms.txt — index only (titles and links)
-                let llmsTxt =
-                    header
-                    + buildSection "Docs" contentEntries false
-                    + buildSection "API Reference" apiEntries false
-
+                let llmsTxt, llmsFullTxt = LlmsTxt.buildContent collectionName index
                 File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms.txt"), llmsTxt)
-
-                // llms-full.txt — full content
-                let llmsFullTxt =
-                    header
-                    + buildSection "Docs" contentEntries true
-                    + buildSection "API Reference" apiEntries true
-
                 File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms-full.txt"), llmsFullTxt)
 
         /// get the hot reload script if running in watch mode
