@@ -4,6 +4,9 @@
 
 ### Added
 * Generate `llms.txt` and `llms-full.txt` for LLM consumption by default; opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>` in your project file. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951)
+* `llms-full.txt` now uses heading-per-entry format (`### [title](url)`) for better navigation structure. [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
+* `llms.txt` index omits per-member API entries (individual properties/methods) to reduce size; `llms-full.txt` retains full member detail. [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
+* `llms-full.txt` content now has HTML entities decoded and `--eval` warning lines stripped for cleaner LLM consumption. [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 
 ### Fixed
 * Improve error message when a named code snippet is not found (e.g. `(*** include:name ***)` with undefined name now reports the missing name clearly). [#982](https://github.com/fsprojects/FSharp.Formatting/pull/982)

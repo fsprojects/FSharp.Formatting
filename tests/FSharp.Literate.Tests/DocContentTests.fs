@@ -399,10 +399,10 @@ let ``LlmsTxt llms-full.txt skips blank content`` () =
     let entries = [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule" "   " |]
 
     let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
-    // The entry link must appear, but no content after it
+    // Full file uses heading format per entry
     llmsFullTxt
-    |> shouldContainText "- [MyModule](https://example.com/reference/mymodule)"
-    // Blank content should not produce extra blank lines beyond the link line
+    |> shouldContainText "### [MyModule](https://example.com/reference/mymodule)"
+    // Blank content should not produce extra blank lines beyond the heading line
     llmsFullTxt.Contains("   ") |> shouldEqual false
 
 [<Test>]
@@ -418,3 +418,67 @@ let ``LlmsTxt omits API Reference section when no apiDocs entries exist`` () =
     let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries
     llmsTxt |> shouldContainText "## Docs"
     llmsTxt |> shouldNotContainText "## API Reference"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt uses heading format per entry`` () =
+    let entries = [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Some content" |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
+
+    llmsFullTxt
+    |> shouldContainText "### [Getting Started](https://example.com/docs/getting-started)"
+
+    llmsFullTxt |> shouldNotContainText "- [Getting Started]"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt decodes HTML entities in content`` () =
+    let entries =
+        [| makeEntry
+               "content"
+               "Guide"
+               "https://example.com/docs/guide"
+               "use &quot;double quotes&quot; and &gt; greater-than" |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
+    llmsFullTxt |> shouldContainText "use \"double quotes\" and > greater-than"
+    llmsFullTxt |> shouldNotContainText "&quot;"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt strips eval warning lines from content`` () =
+    let content = "Some text\nWarning: Output, it-value and value references require --eval\nMore text"
+
+    let entries = [| makeEntry "content" "Guide" "https://example.com/docs/guide" content |]
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
+    llmsFullTxt |> shouldNotContainText "--eval"
+    llmsFullTxt |> shouldContainText "Some text"
+    llmsFullTxt |> shouldContainText "More text"
+
+[<Test>]
+let ``LlmsTxt llms.txt excludes per-member API entries (URIs with hash)`` () =
+    let entries =
+        [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
+           makeEntry
+               "apiDocs"
+               "MyModule.myFunction"
+               "https://example.com/reference/mymodule.html#myFunction"
+               "member docs" |]
+
+    let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries
+
+    llmsTxt
+    |> shouldContainText "- [MyModule](https://example.com/reference/mymodule.html)"
+
+    llmsTxt |> shouldNotContainText "myFunction"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt includes per-member API entries`` () =
+    let entries =
+        [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
+           makeEntry
+               "apiDocs"
+               "MyModule.myFunction"
+               "https://example.com/reference/mymodule.html#myFunction"
+               "member docs" |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
+    llmsFullTxt |> shouldContainText "myFunction"

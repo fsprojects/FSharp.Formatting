@@ -1290,8 +1290,22 @@ module Serve =
 /// Helpers for generating llms.txt and llms-full.txt content.
 module internal LlmsTxt =
 
+    /// Decode HTML entities (e.g. &quot; → ", &gt; → >) in a string.
+    let private decodeHtml (s: string) = System.Net.WebUtility.HtmlDecode(s)
+
+    /// Strip FSharp.Formatting --eval warning lines from content.
+    let private stripEvalWarnings (s: string) =
+        s.Split('\n')
+        |> Array.filter (fun line ->
+            not (line.TrimStart().StartsWith("Warning: Output, it-value and value references require --eval")))
+        |> String.concat "\n"
+
+    /// Decode HTML entities and remove --eval noise from content.
+    let private cleanContent (s: string) = s |> decodeHtml |> stripEvalWarnings
+
     /// Build a section of llms.txt from a set of search index entries.
-    /// When <c>withContent</c> is true, entry content is appended after each link.
+    /// When <c>withContent</c> is true, entry content is appended under a heading per entry.
+    /// When false, entries are listed as bullet-point links (index format).
     let buildSection sectionTitle (entries: ApiDocsSearchIndexEntry array) withContent =
         if entries.Length = 0 then
             ""
@@ -1300,12 +1314,14 @@ module internal LlmsTxt =
             sb.Append(sprintf "## %s\n\n" sectionTitle) |> ignore
 
             for e in entries do
-                sb.Append(sprintf "- [%s](%s)\n" e.title e.uri) |> ignore
+                if withContent then
+                    sb.Append(sprintf "### [%s](%s)\n\n" e.title e.uri) |> ignore
 
-                if withContent && not (System.String.IsNullOrWhiteSpace(e.content)) then
-                    sb.Append("\n") |> ignore
-                    sb.Append(e.content) |> ignore
-                    sb.Append("\n\n") |> ignore
+                    if not (System.String.IsNullOrWhiteSpace(e.content)) then
+                        sb.Append(cleanContent e.content) |> ignore
+                        sb.Append("\n\n") |> ignore
+                else
+                    sb.Append(sprintf "- [%s](%s)\n" e.title e.uri) |> ignore
 
             sb.ToString()
 
@@ -1314,12 +1330,14 @@ module internal LlmsTxt =
     let buildContent (collectionName: string) (entries: ApiDocsSearchIndexEntry array) =
         let contentEntries = entries |> Array.filter (fun e -> e.``type`` = "content")
         let apiEntries = entries |> Array.filter (fun e -> e.``type`` = "apiDocs")
+        // For the index, exclude per-member entries (identified by a '#' anchor in the URI).
+        let apiIndexEntries = apiEntries |> Array.filter (fun e -> not (e.uri.Contains("#")))
         let header = sprintf "# %s\n\n" collectionName
 
         let llmsTxt =
             header
             + buildSection "Docs" contentEntries false
-            + buildSection "API Reference" apiEntries false
+            + buildSection "API Reference" apiIndexEntries false
 
         let llmsFullTxt =
             header
