@@ -61,14 +61,14 @@ let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
 // --------------------------------------------------------------------------------------
 
 // Supplementary plane emoji (U+1F389, stored as surrogate pair in UTF-16)
-let emojiParty = "\U0001F389"        // 🎉 PARTY POPPER
-let emojiRocket = "\U0001F680"       // 🚀 ROCKET
+let emojiParty = "\U0001F389" // 🎉 PARTY POPPER
+let emojiRocket = "\U0001F680" // 🚀 ROCKET
 let emojiConstruction = "\U0001F6A7" // 🚧 CONSTRUCTION SIGN
 // Basic multilingual plane emoji (single UTF-16 code unit)
-let emojiStar = "\u2B50"             // ⭐ WHITE MEDIUM STAR
-let emojiCheck = "\u2705"            // ✅ WHITE HEAVY CHECK MARK
+let emojiStar = "\u2B50" // ⭐ WHITE MEDIUM STAR
+let emojiCheck = "\u2705" // ✅ WHITE HEAVY CHECK MARK
 // Emoji with variation selector (two code points)
-let emojiWarning = "\u26A0\uFE0F"    // ⚠️ WARNING SIGN + VS-16
+let emojiWarning = "\u26A0\uFE0F" // ⚠️ WARNING SIGN + VS-16
 // ZWJ sequence (multiple code points joined)
 let emojiFamily = "\U0001F468\u200D\U0001F469\u200D\U0001F467\u200D\U0001F466" // 👨‍👩‍👧‍👦
 
@@ -96,7 +96,10 @@ let ``ZWJ emoji sequences are preserved`` () =
 
 [<Test>]
 let ``Emoji are preserved in headings`` () =
-    let html = sprintf "# Heading %s\n\n## Subheading %s" emojiParty emojiRocket |> Markdown.ToHtml
+    let html =
+        sprintf "# Heading %s\n\n## Subheading %s" emojiParty emojiRocket
+        |> Markdown.ToHtml
+
     html |> should contain emojiParty
     html |> should contain emojiRocket
 
@@ -108,7 +111,10 @@ let ``Emoji are preserved in bold and italic spans`` () =
 
 [<Test>]
 let ``Emoji are preserved in list items`` () =
-    let html = sprintf "- Item %s\n- Item %s\n- Item %s" emojiParty emojiStar emojiCheck |> Markdown.ToHtml
+    let html =
+        sprintf "- Item %s\n- Item %s\n- Item %s" emojiParty emojiStar emojiCheck
+        |> Markdown.ToHtml
+
     html |> should contain emojiParty
     html |> should contain emojiStar
     html |> should contain emojiCheck

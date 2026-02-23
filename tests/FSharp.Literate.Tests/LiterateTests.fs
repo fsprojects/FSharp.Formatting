@@ -1775,14 +1775,14 @@ let ``Script transforms to markdown`` () =
 // --------------------------------------------------------------------------------------
 
 // Supplementary plane emoji (U+1F389, stored as surrogate pair in UTF-16)
-let emojiParty = "\U0001F389"        // 🎉 PARTY POPPER
-let emojiRocket = "\U0001F680"       // 🚀 ROCKET
+let emojiParty = "\U0001F389" // 🎉 PARTY POPPER
+let emojiRocket = "\U0001F680" // 🚀 ROCKET
 let emojiConstruction = "\U0001F6A7" // 🚧 CONSTRUCTION SIGN
 // Basic multilingual plane emoji (single UTF-16 code unit)
-let emojiStar = "\u2B50"             // ⭐ WHITE MEDIUM STAR
-let emojiCheck = "\u2705"            // ✅ WHITE HEAVY CHECK MARK
+let emojiStar = "\u2B50" // ⭐ WHITE MEDIUM STAR
+let emojiCheck = "\u2705" // ✅ WHITE HEAVY CHECK MARK
 // Emoji with variation selector (two code points)
-let emojiWarning = "\u26A0\uFE0F"    // ⚠️ WARNING SIGN + VS-16
+let emojiWarning = "\u26A0\uFE0F" // ⚠️ WARNING SIGN + VS-16
 // ZWJ sequence (multiple code points joined with zero-width joiner)
 let emojiFamily = "\U0001F468\u200D\U0001F469\u200D\U0001F467\u200D\U0001F466" // 👨‍👩‍👧‍👦
 
@@ -1862,8 +1862,14 @@ let ``Emoji in inline code in FSX doc comment are preserved in HTML`` () =
 [<Test>]
 let ``All emoji types together in FSX doc comment are all preserved in HTML`` () =
     let fsx =
-        sprintf "(**\nAll: %s %s %s %s %s\n*)\nlet x = 42"
-            emojiParty emojiConstruction emojiStar emojiWarning emojiCheck
+        sprintf
+            "(**\nAll: %s %s %s %s %s\n*)\nlet x = 42"
+            emojiParty
+            emojiConstruction
+            emojiStar
+            emojiWarning
+            emojiCheck
+
     let doc = Literate.ParseScriptString(fsx)
     let html = Literate.ToHtml(doc)
     html |> shouldContainText emojiParty
@@ -1874,9 +1880,7 @@ let ``All emoji types together in FSX doc comment are all preserved in HTML`` ()
 
 [<Test>]
 let ``Emoji across multiple FSX doc comment blocks are all preserved in HTML`` () =
-    let fsx =
-        sprintf "(**\nFirst block %s\n*)\nlet x = 42\n(**\nSecond block %s\n*)\nlet y = 99"
-            emojiParty emojiRocket
+    let fsx = sprintf "(**\nFirst block %s\n*)\nlet x = 42\n(**\nSecond block %s\n*)\nlet y = 99" emojiParty emojiRocket
     let doc = Literate.ParseScriptString(fsx)
     let html = Literate.ToHtml(doc)
     html |> shouldContainText emojiParty
@@ -1884,9 +1888,7 @@ let ``Emoji across multiple FSX doc comment blocks are all preserved in HTML`` (
 
 [<Test>]
 let ``Emoji in multi-line FSX doc comment are preserved in HTML`` () =
-    let fsx =
-        sprintf "(**\nLine one %s\nLine two %s\nLine three %s\n*)\nlet x = 42"
-            emojiParty emojiStar emojiCheck
+    let fsx = sprintf "(**\nLine one %s\nLine two %s\nLine three %s\n*)\nlet x = 42" emojiParty emojiStar emojiCheck
     let doc = Literate.ParseScriptString(fsx)
     let html = Literate.ToHtml(doc)
     html |> shouldContainText emojiParty
@@ -1917,11 +1919,13 @@ let ``Emoji in FSX file on disk are preserved in HTML output`` () =
 [<Test>]
 let ``Emoji in ConvertScriptFile HTML output file are preserved`` () =
     let outputFile = __SOURCE_DIRECTORY__ </> "output" </> "emoji.html"
+
     Literate.ConvertScriptFile(
         __SOURCE_DIRECTORY__ </> "files" </> "emoji.fsx",
         outputKind = OutputKind.Html,
         output = outputFile
     )
+
     let html = File.ReadAllText outputFile
     html |> shouldContainText emojiParty
     html |> shouldContainText emojiRocket
@@ -1933,11 +1937,13 @@ let ``Emoji in ConvertScriptFile HTML output file are preserved`` () =
 [<Test>]
 let ``Emoji in ConvertScriptFile Markdown output file are preserved`` () =
     let outputFile = __SOURCE_DIRECTORY__ </> "output2" </> "emoji.md"
+
     Literate.ConvertScriptFile(
         __SOURCE_DIRECTORY__ </> "files" </> "emoji.fsx",
         outputKind = OutputKind.Markdown,
         output = outputFile
     )
+
     let md = File.ReadAllText outputFile
     md |> shouldContainText emojiParty
     md |> shouldContainText emojiRocket
