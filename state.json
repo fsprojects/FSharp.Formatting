@@ -1,20 +1,20 @@
 {
-  "last_updated": "2026-02-22",
+  "last_updated": "2026-02-23",
   "monthly_activity_issue": 973,
   "task_last_run": {
-    "task1_triage": "2026-02-22",
+    "task1_triage": "2026-02-23",
     "task2_fix_issues": "2026-02-22",
     "task3_improvements": "2026-02-22",
     "task4_dependencies": "2026-02-22",
-    "task5_maintain_prs": "2026-02-22",
+    "task5_maintain_prs": "2026-02-23",
     "task6_stale_nudges": "2026-02-22",
     "task7_labels": "2026-02-22",
     "task8_release": "2026-02-22",
     "task9_welcome": "2026-02-22",
     "task10_forward": "2026-02-22",
-    "task11_monthly": "2026-02-22"
+    "task11_monthly": "2026-02-23"
   },
-  "issue_comments_made": [551, 570, 635, 671, 673, 792, 810, 811, 821, 822, 857, 885, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974],
+  "issue_comments_made": [90, 551, 570, 635, 671, 673, 792, 810, 811, 821, 822, 857, 885, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
@@ -23,7 +23,8 @@
     "951": {"pr": 980, "status": "open", "desc": "llms.txt support"},
     "930": {"pr": 981, "status": "open", "desc": "watch mode infinite loop fix - output dir exclusion"},
     "673": {"pr": 982, "status": "open", "desc": "improve snippet-not-found error message"},
-    "885": {"pr": 983, "status": "open", "desc": "reduce dark mode border contrast (CSS only)"}
+    "885": {"pr": 983, "status": "open", "desc": "reduce dark mode border contrast (CSS only)"},
+    "965_review": {"pr": 986, "status": "open", "desc": "implement code review suggestions from PR 965 - emoji/unicode encoding"}
   },
   "improvements_proposed": [
     {"desc": "Analyzer deps update", "pr": 977, "status": "merged"},
@@ -31,7 +32,8 @@
     {"desc": "llms.txt support", "pr": 980, "status": "open"},
     {"desc": "Watch mode infinite loop fix", "pr": 981, "status": "open"},
     {"desc": "Improve snippet-not-found error message", "pr": 982, "status": "open", "issue": 673},
-    {"desc": "Reduce dark mode border contrast", "pr": 983, "status": "open", "issue": 885}
+    {"desc": "Reduce dark mode border contrast", "pr": 983, "status": "open", "issue": 885},
+    {"desc": "Emoji/Unicode HTML encoding improvements", "pr": 986, "status": "open", "triggered_by": "dsyme comment on PR 965"}
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974],
   "issue_backlog_cursor": 0,
@@ -39,6 +41,7 @@
   "release_last_proposed": "2026-02-22",
   "stale_nudge_last_run": "2026-02-22",
   "closed_issues": [551, 931],
+  "maintainer_checked_off": ["PR #776", "comment #635", "comment #810", "comment #857", "comment #960", "comment #792", "comment #821", "comment #671", "comment #811", "comment #822", "issue #897", "issue #952"],
   "notes": [
     "Issue #551 was closed by dsyme on 2026-02-22 after Repo Assist comment confirmed fix",
     "Issue #931 was closed on 2026-02-22 after PR #975 merged",
@@ -51,23 +54,15 @@
     "PR #981 (watch mode infinite loop fix) created in run 19 - fixes #930 by excluding output dir from watcher events",
     "Issue #671: code block substitution bug was FIXED in commit 26891c39 (Oct 2022) - map code content when it is code block",
     "Issue #897: resolved - user found workaround --parameters root / in comments; Repo Assist summarized and suggested closing",
-    "Issue #821 root cause: BlockquoteStart regex uses \\s? consuming the whole tab, but CommonMark requires only 1 virtual column be consumed; fix needs to prepend remaining virtual spaces to captured content. NOTE: all 179 Markdown tests including Tabs section currently PASS",
-    "All 179 Markdown tests pass (including Tabs section) - commonmark_spec.json may need update to 0.30 (requires network)",
-    "Issue #960: commented with guidance on root parameter limitation for offline HTML docs",
-    "Issue #952: PR #979 merged, issue still open - maintainer should close it",
-    "Issue #792: commented explaining --projects requires .fsproj, outlined what --dlls flag would need",
-    "Issue #635: commented in run 16 explaining --strict now correctly exits on eval failures (commit 486fa29e); Evaluator.fs calls onError which exits 1 when strict=true",
-    "Issue #944: commented suggesting URL collision as likely cause",
-    "Issue #810: commented that ControlledExecution.Run issue is .NET 7 upstream issue, fixed in .NET 8+",
-    "PR #965: approved by dsyme, clean state - ready to merge - fixes #964 (emoji + list without blank line)",
+    "Issue #821 root cause: BlockquoteStart regex uses \\s? consuming the whole tab, but CommonMark requires only 1 virtual column be consumed; fix needs to prepend remaining virtual spaces to captured content",
+    "PR #984 (Copilot WIP) opened 2026-02-23: Updates commonmark_spec.json to 0.30 and fixes Tabs section; fixes #821; still WIP (multiple items unchecked)",
+    "PR #986 (Repo Assist) opened 2026-02-23: Implements emoji/unicode encoding across all HTML output paths per code review in PR #965; all 182 tests pass",
+    "dsyme responded to issue #811 on 2026-02-23: 'This would be a nice addition. Let's do it at an appropriate point'",
+    "dsyme asked @copilot to apply code review suggestions from PR #965 (twice on 2026-02-22, then /repo-assist trigger created PR #986)",
+    "Issue #90: Repo Assist commented on 2026-02-23 noting named HTML entities work now; linked PR #984 and #986; suggested closing after #984 lands",
+    "All Repo Assist PRs (#976, #978, #980, #981, #982, #983, #986) showing 0 checks - CI not triggering (infrastructure issue)",
     "Issue #964: commented in run 15 pointing to PR #965 as the fix",
-    "Issue #821: commented in run 17 with tabs/blockquote root cause; fix requires tab-aware parsing in BlockquoteStart",
-    "Issue #811: commented in run 19 explaining Literate.WriteHtml API and what a fsdocs convert CLI command would need",
-    "Issue #930: commented in run 8 with root causes; commented in run 19 linking to PR #981",
-    "Issue #673: PR #982 created in run 20 - replaced KeyNotFoundException with clear failwithf in Transformations.fs line 517; 79 Literate tests pass; PR branch: repo-assist/fix-issue-673-snippet-error-message",
     "Issue #822: commented in run 21 noting all 179 CommonMark tests pass (including Fenced code blocks); suggested updating spec to 0.30",
-    "Issue #885: PR #983 created in run 21 - changes --header-border from #9b9b9b to #3a3a42 in dark theme; CSS-only change",
-    "Issue #857: commented in run 22 - C# projects excluded due to missing <GenerateDocumentationFile>true</GenerateDocumentationFile>; also auto-discovery only finds .fsproj when no .sln present",
-    "Run 22: Task 5 - all Repo Assist PRs (#976, #980, #981, #982, #983) still pending CI (0 checks), nothing to fix"
+    "Issue #857: commented in run 22 - C# projects excluded due to missing <GenerateDocumentationFile>true</GenerateDocumentationFile>; also auto-discovery only finds .fsproj when no .sln present"
   ]
 }
