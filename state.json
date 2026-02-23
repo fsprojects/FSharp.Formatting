@@ -14,7 +14,7 @@
     "task10_forward": "2026-02-23",
     "task11_monthly": "2026-02-23"
   },
-  "issue_comments_made": [72, 90, 551, 570, 592, 626, 635, 671, 673, 748, 792, 803, 810, 811, 821, 822, 857, 885, 897, 898, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679],
+  "issue_comments_made": [72, 90, 422, 551, 570, 592, 626, 635, 667, 671, 673, 748, 792, 803, 810, 811, 821, 822, 857, 885, 897, 898, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679],
   "pr_comments_made": [976, 980],
   "pr_nudges_made": [925],
   "fix_attempts": {
@@ -43,7 +43,7 @@
     {"desc": "Add fsdocs-logo-alt substitution for accessible logo alt text", "pr": 996, "status": "open", "issue": 626}
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987],
-  "issue_backlog_cursor": 679,
+  "issue_backlog_cursor": 574,
   "deps_last_checked": "2026-02-23",
   "release_last_proposed": "2026-02-23",
   "stale_nudge_last_run": "2026-02-23",
@@ -77,7 +77,9 @@
     "Issue #898: commented 2026-02-23 - explained keywords implementation (front matter -> meta tags) and two-phase approach for glossary page generation",
     "Issue #679: commented 2026-02-23 - explained tooltip jitter root cause (JS reflow loop) and linked to #422 for CSS tooltip fix",
     "Issue #72: commented 2026-02-23 - provided modern navigator.clipboard.writeText() implementation sketch for copy-to-clipboard buttons",
+    "Issue #422: commented 2026-02-23 (run 10) - explained CSS tooltip migration: DOM restructuring in CodeFormat.fs + CSS :hover approach to fix #679; asked if PR welcome",
+    "Issue #667: commented 2026-02-23 (run 10) - noted 245 CSS custom property usages in fsdocs-default.css; asked if SASS still needed",
     "Issue #987: dsyme explanation of Repo Assist process - CI doesn't trigger on PRs (being fixed), PR workflow: open/close to trigger CI, then assess as usual",
-    "Backlog cursor moved to #679 (next: continue from older issues #422, #667, #804, #828)"
+    "Backlog cursor moved to #574 (next: continue from older issues #574, #804, #828)"
   ]
 }
