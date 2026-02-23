@@ -482,3 +482,27 @@ let ``LlmsTxt llms-full.txt includes per-member API entries`` () =
 
     let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
     llmsFullTxt |> shouldContainText "myFunction"
+
+[<Test>]
+let ``LlmsTxt normalises multi-line titles to single-line`` () =
+    let entries = [| makeEntry "content" "Fantomas\n" "https://example.com/docs/index.html" "Some content" |]
+
+    let llmsTxt, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
+    // Title must be on a single line — no embedded newline in the link text
+    llmsTxt |> shouldContainText "- [Fantomas](https://example.com/docs/index.html)"
+
+    llmsFullTxt
+    |> shouldContainText "### [Fantomas](https://example.com/docs/index.html)"
+
+    llmsTxt |> shouldNotContainText "Fantomas\n"
+
+[<Test>]
+let ``LlmsTxt collapses excessive blank lines in content`` () =
+    let content = "First paragraph\n\n\n\n\nSecond paragraph"
+
+    let entries = [| makeEntry "content" "Guide" "https://example.com/docs/guide" content |]
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
+    // Should not contain 3 or more consecutive newlines
+    llmsFullTxt.Contains("\n\n\n") |> shouldEqual false
+    llmsFullTxt |> shouldContainText "First paragraph"
+    llmsFullTxt |> shouldContainText "Second paragraph"

@@ -1300,8 +1300,21 @@ module internal LlmsTxt =
             not (line.TrimStart().StartsWith("Warning: Output, it-value and value references require --eval")))
         |> String.concat "\n"
 
+    /// Collapse three or more consecutive newlines into at most two.
+    let private collapseBlankLines (s: string) =
+        System.Text.RegularExpressions.Regex.Replace(s, @"\n{3,}", "\n\n")
+
+    /// Normalise a title: trim and collapse internal whitespace/newlines to a single space.
+    let private normaliseTitle (s: string) =
+        System.Text.RegularExpressions.Regex.Replace(s.Trim(), @"\s+", " ")
+
     /// Decode HTML entities and remove --eval noise from content.
-    let private cleanContent (s: string) = s |> decodeHtml |> stripEvalWarnings
+    let private cleanContent (s: string) =
+        s
+        |> decodeHtml
+        |> stripEvalWarnings
+        |> collapseBlankLines
+        |> fun t -> t.Trim()
 
     /// Build a section of llms.txt from a set of search index entries.
     /// When <c>withContent</c> is true, entry content is appended under a heading per entry.
@@ -1314,14 +1327,16 @@ module internal LlmsTxt =
             sb.Append(sprintf "## %s\n\n" sectionTitle) |> ignore
 
             for e in entries do
+                let title = normaliseTitle e.title
+
                 if withContent then
-                    sb.Append(sprintf "### [%s](%s)\n\n" e.title e.uri) |> ignore
+                    sb.Append(sprintf "### [%s](%s)\n\n" title e.uri) |> ignore
 
                     if not (System.String.IsNullOrWhiteSpace(e.content)) then
                         sb.Append(cleanContent e.content) |> ignore
                         sb.Append("\n\n") |> ignore
                 else
-                    sb.Append(sprintf "- [%s](%s)\n" e.title e.uri) |> ignore
+                    sb.Append(sprintf "- [%s](%s)\n" title e.uri) |> ignore
 
             sb.ToString()
 
