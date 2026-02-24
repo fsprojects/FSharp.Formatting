@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-24T19:57:00Z",
-  "last_run_id": "22367636165",
+  "last_run": "2026-02-24T20:09:49Z",
+  "last_run_id": "22368070335",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 30,
@@ -17,8 +17,7 @@
     "task10_forward": "2026-02-24",
     "task11_monthly": "2026-02-24"
   },
-  "issues_commented": [90, 422, 592, 626, 667, 679, 693, 698, 736, 748, 803, 858, 872, 898, 918, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 1001, 1004, 1005],
-  "issues_labeled_this_session": [1000, 1001],
+  "issues_commented": [90, 422, 574, 592, 626, 667, 679, 693, 698, 736, 748, 782, 803, 858, 872, 898, 918, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 1001, 1004, 1005],
   "fix_attempts": {
     "748": {"pr": 994, "status": "open"},
     "803": {"pr": 995, "status": "open"},
@@ -29,15 +28,15 @@
     "release_21.0.1": {"pr": 976, "status": "open_dirty"}
   },
   "pr_repo_assist_open": [976, 980, 983, 994, 995, 996, 997, 998, 1008],
-  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)"],
+  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)", "mermaid recipe (#979 merged)"],
   "notes": [
     "PR #1008 superseded by dsyme PR #1007 - suggested closing",
     "PR #976 (release) has merge conflicts - dirty state",
     "Push to PR branch has been failing since Feb 22 (infra issue #993)",
     "PR #980 has nojaf review requesting MSBuild config approach",
-    "Issues labeled this run: #1000=bug, #1001=enhancement"
+    "All Repo Assist draft PRs (#994-#998) CI still pending as of this run"
   ],
-  "backlog_remaining": [929, 927, 928, 910, 574, 680, 683, 685, 691, 702, 705, 725, 734, 735, 742, 743, 744, 782, 804, 828],
+  "backlog_remaining": [929, 927, 928, 910, 680, 683, 685, 691, 702, 705, 725, 734, 735, 742, 743, 744, 804, 828],
   "future_work": [
     "fsdocs init command (#872) - pending maintainer interest",
     "CSS tooltip implementation (#422/#679)",
