@@ -54,6 +54,113 @@ let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
               )
           ) ]
 
+// --------------------------------------------------------------------------------------
+// Emoji in Markdown → HTML (Issue #964)
+// These tests verify the full FSX → HTML path for emoji characters.
+// Emoji should be preserved as-is in HTML output (raw UTF-8).
+// --------------------------------------------------------------------------------------
+
+// Supplementary plane emoji (U+1F389, stored as surrogate pair in UTF-16)
+let emojiParty = "\U0001F389" // 🎉 PARTY POPPER
+let emojiRocket = "\U0001F680" // 🚀 ROCKET
+let emojiConstruction = "\U0001F6A7" // 🚧 CONSTRUCTION SIGN
+// Basic multilingual plane emoji (single UTF-16 code unit)
+let emojiStar = "\u2B50" // ⭐ WHITE MEDIUM STAR
+let emojiCheck = "\u2705" // ✅ WHITE HEAVY CHECK MARK
+// Emoji with variation selector (two code points)
+let emojiWarning = "\u26A0\uFE0F" // ⚠️ WARNING SIGN + VS-16
+// ZWJ sequence (multiple code points joined)
+let emojiFamily = "\U0001F468\u200D\U0001F469\u200D\U0001F467\u200D\U0001F466" // 👨‍👩‍👧‍👦
+
+[<Test>]
+let ``Supplementary plane emoji (surrogate pair) are preserved in paragraph`` () =
+    let html = sprintf "Like this %s and %s" emojiParty emojiRocket |> Markdown.ToHtml
+    html |> should contain emojiParty
+    html |> should contain emojiRocket
+
+[<Test>]
+let ``BMP emoji (single code unit) are preserved in paragraph`` () =
+    let html = sprintf "Stars %s and checks %s" emojiStar emojiCheck |> Markdown.ToHtml
+    html |> should contain emojiStar
+    html |> should contain emojiCheck
+
+[<Test>]
+let ``Emoji with variation selector are preserved`` () =
+    let html = sprintf "Warning %s sign" emojiWarning |> Markdown.ToHtml
+    html |> should contain emojiWarning
+
+[<Test>]
+let ``ZWJ emoji sequences are preserved`` () =
+    let html = sprintf "Family %s emoji" emojiFamily |> Markdown.ToHtml
+    html |> should contain emojiFamily
+
+[<Test>]
+let ``Emoji are preserved in headings`` () =
+    let html =
+        sprintf "# Heading %s\n\n## Subheading %s" emojiParty emojiRocket
+        |> Markdown.ToHtml
+
+    html |> should contain emojiParty
+    html |> should contain emojiRocket
+
+[<Test>]
+let ``Emoji are preserved in bold and italic spans`` () =
+    let html = sprintf "**Bold %s** and _italic %s_" emojiParty emojiStar |> Markdown.ToHtml
+    html |> should contain emojiParty
+    html |> should contain emojiStar
+
+[<Test>]
+let ``Emoji are preserved in list items`` () =
+    let html =
+        sprintf "- Item %s\n- Item %s\n- Item %s" emojiParty emojiStar emojiCheck
+        |> Markdown.ToHtml
+
+    html |> should contain emojiParty
+    html |> should contain emojiStar
+    html |> should contain emojiCheck
+
+[<Test>]
+let ``Emoji are preserved in link text`` () =
+    let html = sprintf "[Link %s](http://example.com)" emojiParty |> Markdown.ToHtml
+    html |> should contain emojiParty
+
+[<Test>]
+let ``Emoji are preserved in inline code`` () =
+    let html = sprintf "Code `%s emoji`" emojiParty |> Markdown.ToHtml
+    html |> should contain emojiParty
+
+[<Test>]
+let ``Emoji do not break HTML escaping of & < > characters`` () =
+    let html = sprintf "A &amp; %s and &lt;tag&gt;" emojiParty |> Markdown.ToHtml
+    html |> should contain "&amp;"
+    html |> should contain "&lt;"
+    html |> should contain "&gt;"
+    html |> should contain emojiParty
+
+[<Test>]
+let ``Multiple emoji types together are all preserved`` () =
+    let text = sprintf "%s%s%s%s%s" emojiParty emojiConstruction emojiStar emojiWarning emojiCheck
+    let html = text |> Markdown.ToHtml
+    html |> should contain emojiParty
+    html |> should contain emojiConstruction
+    html |> should contain emojiStar
+    html |> should contain emojiWarning
+    html |> should contain emojiCheck
+
+[<Test>]
+let ``Emoji at start and end of paragraph are preserved`` () =
+    let html = sprintf "%s Start and End %s" emojiParty emojiRocket |> Markdown.ToHtml
+    html |> should contain emojiParty
+    html |> should contain emojiRocket
+
+[<Test>]
+let ``Emoji are preserved in fenced code block`` () =
+    let md = sprintf "```\nlet emoji = \"%s\"\n```" emojiParty
+    let html = md |> Markdown.ToHtml
+    html |> should contain emojiParty
+
+// End emoji tests
+
 [<Test>]
 let ``Encode '<' and '>' characters as HTML entities`` () =
     let doc = "foo\n\n - a --> b" |> Markdown.ToHtml
