@@ -11,7 +11,7 @@
     "task7_labels": "2026-02-24",
     "task8_release": "2026-02-24",
     "task9_welcome": "2026-02-23",
-    "task10_forward": "2026-02-23",
+    "task10_forward": "2026-02-24",
     "task11_monthly": "2026-02-24"
   },
   "issue_comments_made": [72, 90, 422, 551, 570, 592, 626, 635, 667, 671, 673, 693, 736, 748, 792, 803, 810, 811, 821, 822, 857, 872, 885, 897, 898, 918, 924, 930, 931, 933, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679, 1001, 1004, 1005],
@@ -21,7 +21,7 @@
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
     "918": {"pr": 978, "status": "closed", "desc": "executable project support (by Copilot) - closed without merge"},
     "952": {"pr": 979, "status": "merged", "desc": "Mermaid docs recipe"},
-    "951": {"pr": 980, "status": "open", "desc": "llms.txt support - FsDocsGenerateLlmsTxt MSBuild property (default true); dsyme APPROVED; nojaf actively reviewing"},
+    "951": {"pr": 980, "status": "open", "desc": "llms.txt support - FsDocsGenerateLlmsTxt MSBuild property (default true); dsyme APPROVED; nojaf wants MSBuild config approach (currently CLI flag); design discussion needed"},
     "930": {"pr": 981, "status": "closed", "desc": "watch mode infinite loop fix - closed by dsyme (not needed)"},
     "673": {"pr": 982, "status": "merged", "desc": "improve snippet-not-found error message - issue #673 closed"},
     "885": {"pr": 983, "status": "open", "desc": "reduce dark mode border contrast (CSS only)"},
@@ -49,10 +49,11 @@
     {"desc": "Add copy-to-clipboard button to code blocks", "pr": 998, "status": "open", "issue": 72},
     {"desc": "Add --allowExecutableProjects flag", "pr": 997, "status": "open", "issue": 918},
     {"desc": "Re-enable analyzers in CI (superseded by dsyme's #1007)", "pr": 1008, "status": "superseded", "issue": 1000},
-    {"desc": "CSS light-dark() migration analysis", "comment": "on #1004", "status": "commented", "issue": 1004}
+    {"desc": "CSS light-dark() migration analysis", "comment": "on #1004", "status": "commented", "issue": 1004},
+    {"desc": "fsdocs init command design outlined", "comment": "on #872", "status": "commented", "issue": 872}
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987, 1004, 1005],
-  "issue_backlog_cursor": 949,
+  "issue_backlog_cursor": 951,
   "deps_last_checked": "2026-02-23",
   "release_last_proposed": "2026-02-24",
   "stale_nudge_last_run": "2026-02-23",
@@ -78,7 +79,7 @@
     "PR #994 (XML doc encoding fix): open; 68/68 ApiDocs tests pass",
     "PR #995 (menu template output fix): open; 346/346 tests pass",
     "PR #996 (logo alt text): open; fsdocs-logo-alt substitution; FsDocsLogoAlt MSBuild property; default Logo; 346/346 tests pass",
-    "PR #980 (llms.txt): open; FsDocsGenerateLlmsTxt MSBuild property (default true); dsyme APPROVED; nojaf actively reviewing",
+    "PR #980 (llms.txt): open; currently uses CLI flag --generatellmstxt; dsyme APPROVED; nojaf wants MSBuild config approach instead; design decision needed from maintainers",
     "PR #998 (copy-to-clipboard): open; pure JS+CSS, no deps; closes #72",
     "PR #997 (--allowExecutableProjects): open; closes #918",
     "PR #1008 (re-enable analyzers): open but superseded by dsyme's PR #1007 (created same minute); Repo Assist commented noting supersession; should be closed",
@@ -93,6 +94,7 @@
     "Issue #924: commented 2026-02-24 explaining root override is explicitly ignored in watch mode; proposed --root flag",
     "Issue #933: Commented 2026-02-24 on backward-compatible options - F# 8+ named DU field access (RFC FS-1118) gives myDetails.usageHtml; Option 2: add PascalCase member properties to DU",
     "PR #976 (Release 21.0.1): open but stale (1687+ commits behind main); still open",
+    "Issue #872 (init command): Commented 2026-02-24 with design sketch for fsdocs init command; waiting for maintainer feedback before implementing PR",
     "Fun.Build 1.0.4 API: whenNot { envVar KEY VALUE } is supported in stage CE to make stage inactive when env var matches value",
     "Fun.Build 1.0.4 API: run (fun _ -> async { ... }) is supported for conditional async work items within stages",
     "ApiDocMemberDetails DU already has named fields (usageHtml, paramTypes, etc.) accessible as F# 8+ properties; project uses .NET SDK 10.0.100"
