@@ -1,6 +1,9 @@
 name: Build and Test PR
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
     - main
