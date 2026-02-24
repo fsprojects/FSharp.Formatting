@@ -1768,6 +1768,101 @@ let ``Script transforms to markdown`` () =
     md |> shouldContainText "Another [hyperlink](simple2.md)"
     md |> shouldContainText "let hello ="
 
+[<Test>]
+let ``condition: HTML uppercase is included in HTML output and excluded from Pynb output`` () =
+    let content =
+        """
+let commonCode = 1
+(*** condition: HTML ***)
+let htmlOnlyCode = 2
+let moreCode = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let html = Literate.ToHtml(doc)
+    let pynb = Literate.ToPynb(doc)
+
+    // (*** condition: HTML ***) with uppercase should be included in HTML output (fix 1)
+    html |> shouldContainText "htmlOnlyCode"
+    // And excluded from Pynb output
+    pynb |> shouldNotContainText "htmlOnlyCode"
+
+[<Test>]
+let ``condition: html lowercase is still included in HTML output`` () =
+    let content =
+        """
+let commonCode = 1
+(*** condition: html ***)
+let htmlOnlyCode = 2
+let moreCode = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let html = Literate.ToHtml(doc)
+    let pynb = Literate.ToPynb(doc)
+
+    // (*** condition: html ***) with lowercase should still be included in HTML output
+    html |> shouldContainText "htmlOnlyCode"
+    // And excluded from Pynb output
+    pynb |> shouldNotContainText "htmlOnlyCode"
+
+[<Test>]
+let ``#if HTML and #endif // HTML marker lines are stripped from HTML LiterateCode output`` () =
+    let content =
+        """
+let alwaysVisible = 1
+#if HTML
+let insideHtmlBlock = 2
+#endif // HTML
+let alsoAlwaysVisible = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let html = Literate.ToHtml(doc)
+
+    // The #if HTML / #endif // HTML marker lines themselves should not appear in HTML output.
+    // They would appear as <span class="pp">#if</span> tokens before this fix.
+    html |> shouldNotContainText ">#if<"
+    html |> shouldNotContainText ">#endif<"
+
+[<Test>]
+let ``#if HTML and #endif // HTML marker lines are not in Fsx but code inside is present`` () =
+    let content =
+        """
+let alwaysVisible = 1
+#if HTML
+let insideHtmlBlock = 2
+#endif // HTML
+let alsoAlwaysVisible = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let fsx = Literate.ToFsx(doc)
+
+    // The code inside the #if HTML block does appear as-is in fsx output
+    // (only #if FSX / #endif // FSX marker lines are stripped for fsx output)
+    fsx |> shouldContainText "insideHtmlBlock"
+
+[<Test>]
+let ``#if IPYNB and #endif // IPYNB marker lines are stripped from Pynb LiterateCode output`` () =
+    let content =
+        """
+let alwaysVisible = 1
+#if IPYNB
+let insideIpynbBlock = 2
+#endif // IPYNB
+let alsoAlwaysVisible = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let pynb = Literate.ToPynb(doc)
+
+    // The marker lines should not appear in Pynb output
+    pynb |> shouldNotContainText "#if IPYNB"
+    pynb |> shouldNotContainText "#endif // IPYNB"
+    // But the code inside should be present
+    pynb |> shouldContainText "insideIpynbBlock"
+
 // --------------------------------------------------------------------------------------
 // Emoji in FSX comments → HTML (Issue #964)
 // These tests verify that emoji characters are preserved throughout the full
