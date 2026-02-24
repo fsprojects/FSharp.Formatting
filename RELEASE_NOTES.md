@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+* Fix `ApiDocMember.Details.ReturnInfo.ReturnType` returning `None` for properties that have both a getter and a setter. [#734](https://github.com/fsprojects/FSharp.Formatting/issues/734)
 * Improve error message when a named code snippet is not found (e.g. `(*** include:name ***)` with undefined name now reports the missing name clearly). [#982](https://github.com/fsprojects/FSharp.Formatting/pull/982)
 * Add uppercase output kind extension (e.g. `HTML`, `IPYNB`) to `ConditionalDefines` so that `#if HTML` and `(*** condition: HTML ***)` work alongside their lowercase variants. [#693](https://github.com/fsprojects/FSharp.Formatting/issues/693)
 * Strip `#if SYMBOL` / `#endif // SYMBOL` marker lines from `LiterateCode` source before syntax-highlighting so they do not appear in formatted output. [#693](https://github.com/fsprojects/FSharp.Formatting/issues/693)

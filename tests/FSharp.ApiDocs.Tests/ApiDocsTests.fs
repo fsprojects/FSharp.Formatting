@@ -455,11 +455,39 @@ let ``ApiDocs model generation works on two sample F# assemblies`` (_format: Out
     model.Collection.Namespaces.[0].Entities
     |> List.filter (fun c -> c.IsTypeDefinition)
     |> function
-        | x -> x.Length |> shouldEqual 10
+        | x -> x.Length |> shouldEqual 11
 
     let assemblies = [ for t in model.Collection.Namespaces.[0].Entities -> t.Assembly.Name ]
 
     assemblies |> List.distinct |> List.sort |> shouldEqual [ "FsLib1"; "FsLib2" ]
+
+[<Test>]
+let ``ApiDocs ReturnInfo.ReturnType is Some for properties with setters (issue 734)`` () =
+    let libraries = [ testBin </> "FsLib2.dll" ]
+    let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = true) ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let typeEntity =
+        model.Collection.Namespaces.[0].Entities
+        |> List.find (fun e -> e.Name = "Test_Issue734")
+
+    let members = typeEntity.AllMembers
+
+    let getReturnType name =
+        members
+        |> List.tryFind (fun m -> m.Name = name)
+        |> Option.bind (fun m -> m.ReturnInfo.ReturnType)
+
+    // Getter-only: ReturnType should be Some string
+    getReturnType "GetterOnly" |> Option.isSome |> shouldEqual true
+
+    // Getter+setter: ReturnType should be Some string
+    getReturnType "GetterAndSetter" |> Option.isSome |> shouldEqual true
+
+    // Setter-only: ReturnType should be Some string (value type)
+    getReturnType "SetterOnly" |> Option.isSome |> shouldEqual true
 
 [<Test>]
 [<TestCaseSource("formats")>]

@@ -1538,6 +1538,7 @@ module internal SymbolReader =
         let argInfos, retType =
             match argInfos, v.HasGetterMethod, v.HasSetterMethod with
             | [ AllAndLast(args, last) ], _, true -> [ args ], Some last.Type
+            | [ [] ], _, true -> [], Some retType
             | _, _, true -> argInfos, None
             | [ [] ], true, _ -> [], Some retType
             | _, _, _ -> argInfos, Some retType
