@@ -1314,13 +1314,6 @@ type CoreBuildOptions(watch) =
     [<Option("ignoreprojects", Default = false, Required = false, HelpText = "Disable project cracking.")>]
     member val ignoreprojects = false with get, set
 
-    [<Option("allowExecutableProjects",
-             Default = false,
-             Required = false,
-             HelpText =
-                 "Allow executable projects (OutputType=Exe or WinExe) to be included in API documentation generation.")>]
-    member val allowExecutableProjects = false with get, set
-
     [<Option("strict", Default = false, Required = false, HelpText = "Fail if there is a problem generating docs.")>]
     member val strict = false with get, set
 
@@ -1487,8 +1480,7 @@ type CoreBuildOptions(watch) =
                     userCollectionName,
                     userParameters,
                     projects,
-                    this.ignoreprojects,
-                    this.allowExecutableProjects
+                    this.ignoreprojects
                 ),
                 key1)
 

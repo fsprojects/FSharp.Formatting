@@ -62,6 +62,11 @@ For example, a project will be skipped if:
   <GenerateDocumentationFile>true</GenerateDocumentationFile>
 ```
 
+* The project `OutputType` is not `Library`. To include an executable project, add this to the project file:
+```
+  <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>
+```
+
 ## The watch command
 
 This command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input
