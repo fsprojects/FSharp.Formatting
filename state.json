@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-24T22:31:05Z",
-  "last_run_id": "22372868326",
+  "last_run": "2026-02-24T22:43:07Z",
+  "last_run_id": "22373233757",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 33,
@@ -50,9 +50,10 @@
     "Issue #744: commented with root cause of Markdown parser span range bug (parseChars not advancing StartColumn past inline spans)",
     "Issue #742: commented linking to #744 root cause; suggested combined PR to fix span ranges and make them non-optional",
     "Issue #734: commented with root cause (getter+setter argInfos=[[]] falls through to catch-all setter branch returning None); fix in PR #1012",
-    "Issue #685: commented explaining FSI shadow-copy causes Assembly.Location to be temp path; suggested __SOURCE_DIRECTORY__ workaround"
+    "Issue #685: commented explaining FSI shadow-copy causes Assembly.Location to be temp path; suggested __SOURCE_DIRECTORY__ workaround",
+    "Run 22373233757 (2026-02-24 22:43 UTC): reviewed CI status (all PRs pending), investigated #702 code - no new actions taken"
   ],
-  "backlog_remaining": [702, 705, 725, 804, 828],
+  "backlog_remaining": [702, 705, 725, 804, 828, 829],
   "checked_off_by_maintainer": [994],
   "future_work": [
     "fsdocs init command (#872) - pending maintainer interest",
@@ -61,6 +62,7 @@
     "Named record types ApiDocParameter/ApiDocReturnInfo (#735) - non-breaking additions",
     "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
     "--root override flag for fsdocs watch (#924) - confirmed root is force-overridden",
-    "Combined PR: fix Markdown parser span column tracking bug (#744) + make ranges non-optional (#742)"
+    "Combined PR: fix Markdown parser span column tracking bug (#744) + make ranges non-optional (#742)",
+    "Investigate #702 (5D/6D array doc gen fail) - suspect getXmlDocSigForMember param.Type.TypeDefinition.FullName access for nested array params"
   ]
 }
