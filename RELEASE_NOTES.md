@@ -4,6 +4,8 @@
 
 ### Fixed
 * Improve error message when a named code snippet is not found (e.g. `(*** include:name ***)` with undefined name now reports the missing name clearly). [#982](https://github.com/fsprojects/FSharp.Formatting/pull/982)
+* Add uppercase output kind extension (e.g. `HTML`, `IPYNB`) to `ConditionalDefines` so that `#if HTML` and `(*** condition: HTML ***)` work alongside their lowercase variants. [#693](https://github.com/fsprojects/FSharp.Formatting/issues/693)
+* Strip `#if SYMBOL` / `#endif // SYMBOL` marker lines from `LiterateCode` source before syntax-highlighting so they do not appear in formatted output. [#693](https://github.com/fsprojects/FSharp.Formatting/issues/693)
 
 ### Changed
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
