@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-24T23:04:08Z",
-  "last_run_id": "22373861470",
+  "last_run": "2026-02-24T23:11:07Z",
+  "last_run_id": "22374081840",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 36,
@@ -27,10 +27,11 @@
     "1000": {"pr": 1008, "status": "closed_superseded"},
     "release_22.0.0": {"pr": 976, "status": "open_push_failed", "desc": "push failed due to infra #993; RELEASE_NOTES.md content provided in PR comment"},
     "734": {"pr": 1012, "status": "open"},
-    "1001_ci_perf": {"issue": 1014, "status": "patch_available_push_failed", "desc": "dotnet SDK cache + concurrency group"}
+    "1001_ci_perf": {"issue": 1014, "status": "patch_available_push_failed", "desc": "dotnet SDK cache + concurrency group"},
+    "744": {"pr": "new_in_run_22374081840", "branch": "repo-assist/fix-744-markdown-span-ranges", "status": "open", "desc": "Fix incorrect column ranges for inline spans in Markdown parser; 383 tests pass"}
   },
-  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012],
-  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - patch available)"],
+  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012, "new_pr_fix_744"],
+  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - patch available)", "fix #744: correct column ranges for inline spans in Markdown parser"],
   "prs_merged_by_dsyme": [994, 996, 997, 1007, 1010],
   "notes": [
     "PR #994 merged (HTML-encode XML doc text nodes, fixes #748)",
@@ -46,18 +47,19 @@
     "dsyme requested /repo-assist update PR #976 with latest changes and major version bump (2026-02-24)",
     "Prepared 22.0.0 release notes locally but push failed; exact RELEASE_NOTES.md content provided in PR #976 comment",
     "Issue #702: commented with root cause (TypeDefinition.FullName fails for 5D/6D array params in getXmlDocSigForMember); suggested TryFullName fix",
-    "Issue #829: commented with architecture for automatic back-links from API pages to tutorials; documented seealso workaround"
+    "Issue #829: commented with architecture for automatic back-links from API pages to tutorials; documented seealso workaround",
+    "Fix #744: created new PR (branch repo-assist/fix-744-markdown-span-ranges) - advanceCtxBy/spanRange helpers added to parseChars; all 383 tests pass"
   ],
   "backlog_remaining": [705, 725, 804, 828],
   "checked_off_by_maintainer": [994],
   "future_work": [
+    "Implement #742: make ranges non-optional (after PR for #744 is merged)",
     "fsdocs init command (#872) - pending maintainer interest",
     "CSS tooltip implementation (#422/#679)",
     "PascalCase property members for ApiDocMemberDetails (#933)",
     "Named record types ApiDocParameter/ApiDocReturnInfo (#735) - non-breaking additions",
     "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
     "--root override flag for fsdocs watch (#924) - confirmed root is force-overridden",
-    "Combined PR: fix Markdown parser span column tracking bug (#744) + make ranges non-optional (#742)",
     "Fix #702: use TryFullName in getXmlDocSigForMember param type formatting for 5D/6D arrays"
   ]
 }
