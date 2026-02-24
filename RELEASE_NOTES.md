@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+* Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
+
 ### Fixed
 * Improve error message when a named code snippet is not found (e.g. `(*** include:name ***)` with undefined name now reports the missing name clearly). [#982](https://github.com/fsprojects/FSharp.Formatting/pull/982)
 
