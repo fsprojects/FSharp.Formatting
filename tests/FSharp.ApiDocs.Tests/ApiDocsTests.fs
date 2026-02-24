@@ -736,7 +736,7 @@ let ``Math in XML generated ok`` (format: OutputFormat) =
     |> shouldContainText """<p class='fsdocs-para'>XmlMath3</p>"""
 
     files.[(sprintf "creflib2-mathtest.%s" format.Extension)]
-    |> shouldContainText """1 < 2 < 3 > 0"""
+    |> shouldContainText """1 &lt; 2 &lt; 3 &gt; 0"""
 
 [<Test>]
 [<TestCaseSource("formats")>]
