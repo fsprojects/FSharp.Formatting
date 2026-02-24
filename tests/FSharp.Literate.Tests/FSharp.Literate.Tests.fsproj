@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="files/simple1.fsx" />
+    <None Include="files/emoji.fsx" />
     <None Include="files/simple2.md" />
     <None Include="files/template.html" />
     <None Include="files/docpage.html" />
