@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-24T20:09:49Z",
-  "last_run_id": "22368070335",
+  "last_run": "2026-02-24T20:16:56Z",
+  "last_run_id": "22368308742",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 30,
@@ -17,7 +17,7 @@
     "task10_forward": "2026-02-24",
     "task11_monthly": "2026-02-24"
   },
-  "issues_commented": [90, 422, 574, 592, 626, 667, 679, 693, 698, 736, 748, 782, 803, 858, 872, 898, 918, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 1001, 1004, 1005],
+  "issues_commented": [90, 422, 574, 592, 626, 667, 679, 693, 698, 735, 736, 748, 782, 803, 858, 872, 898, 918, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 1001, 1004, 1005],
   "fix_attempts": {
     "748": {"pr": 994, "status": "open"},
     "803": {"pr": 995, "status": "open"},
@@ -34,13 +34,15 @@
     "PR #976 (release) has merge conflicts - dirty state",
     "Push to PR branch has been failing since Feb 22 (infra issue #993)",
     "PR #980 has nojaf review requesting MSBuild config approach",
-    "All Repo Assist draft PRs (#994-#998) CI still pending as of this run"
+    "All Repo Assist draft PRs (#994-#998) CI still pending as of this run",
+    "Issue #735: commented noting Parameters/ReturnInfo are still anonymous records, proposed ApiDocParameter/ApiDocReturnInfo named types"
   ],
-  "backlog_remaining": [929, 927, 928, 910, 680, 683, 685, 691, 702, 705, 725, 734, 735, 742, 743, 744, 804, 828],
+  "backlog_remaining": [929, 927, 928, 910, 680, 683, 685, 691, 702, 705, 725, 734, 742, 743, 744, 804, 828],
   "future_work": [
     "fsdocs init command (#872) - pending maintainer interest",
     "CSS tooltip implementation (#422/#679)",
     "PascalCase property members for ApiDocMemberDetails (#933)",
+    "Named record types ApiDocParameter/ApiDocReturnInfo (#735) - non-breaking additions",
     "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
     "concurrency cancel-in-progress for pull-requests.yml (after #1010 merges)"
   ]
