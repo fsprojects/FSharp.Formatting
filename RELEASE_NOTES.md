@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+* Add `--allowExecutableProjects` flag to `fsdocs` to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
+
 ### Fixed
 * Improve error message when a named code snippet is not found (e.g. `(*** include:name ***)` with undefined name now reports the missing name clearly). [#982](https://github.com/fsprojects/FSharp.Formatting/pull/982)
 

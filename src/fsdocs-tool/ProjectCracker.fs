@@ -408,8 +408,16 @@ module Crack =
         | Error e -> raise (exn ("cannot load the sln", e))
 
     let crackProjects
-        (onError, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects, ignoreProjects)
-        =
+        (
+            onError,
+            extraMsbuildProperties,
+            userRoot,
+            userCollectionName,
+            userParameters,
+            projects,
+            ignoreProjects,
+            allowExecutableProjects
+        ) =
         let slnDir = Path.GetFullPath "."
 
         //printfn "x.projects = %A" x.projects
@@ -498,8 +506,11 @@ module Crack =
                 if info.TargetPath.IsNone then
                     printfn "  skipping project '%s' because it doesn't have a target path" shortName
                     None
-                elif not info.IsLibrary then
-                    printfn "  skipping project '%s' because it isn't a library" shortName
+                elif not info.IsLibrary && not allowExecutableProjects then
+                    printfn
+                        "  skipping project '%s' because it isn't a library (use --allowExecutableProjects to include it)"
+                        shortName
+
                     None
                 elif info.IsTestProject then
                     printfn "  skipping project '%s' because it has <IsTestProject> true" shortName
