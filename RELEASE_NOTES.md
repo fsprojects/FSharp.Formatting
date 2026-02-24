@@ -2,11 +2,15 @@
 
 ## [Unreleased]
 
-### Fixed
-* Improve error message when a named code snippet is not found (e.g. `(*** include:name ***)` with undefined name now reports the missing name clearly). [#982](https://github.com/fsprojects/FSharp.Formatting/pull/982)
+## 21.0.1 - 2026-02-22
 
 ### Changed
-* Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
+* Update FCS to 43.10.100. [#966](https://github.com/fsprojects/FSharp.Formatting/pull/966)
+* Use Ctrl+C to stop watch mode instead of any key press. [#975](https://github.com/fsprojects/FSharp.Formatting/pull/975)
+* Update analyzer dependencies (G-Research.FSharp.Analyzers, Ionide.Analyzers). [#977](https://github.com/fsprojects/FSharp.Formatting/pull/977)
+
+### Added
+* Add Mermaid diagrams documentation recipe. [#979](https://github.com/fsprojects/FSharp.Formatting/pull/979)
 
 ## 21.0.0 - 2025-11-12
 
