@@ -1767,3 +1767,281 @@ let ``Script transforms to markdown`` () =
     md |> shouldContainText "[substitute-in-href-text: simple1](http://google.com)"
     md |> shouldContainText "Another [hyperlink](simple2.md)"
     md |> shouldContainText "let hello ="
+
+[<Test>]
+let ``condition: HTML uppercase is included in HTML output and excluded from Pynb output`` () =
+    let content =
+        """
+let commonCode = 1
+(*** condition: HTML ***)
+let htmlOnlyCode = 2
+let moreCode = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let html = Literate.ToHtml(doc)
+    let pynb = Literate.ToPynb(doc)
+
+    // (*** condition: HTML ***) with uppercase should be included in HTML output (fix 1)
+    html |> shouldContainText "htmlOnlyCode"
+    // And excluded from Pynb output
+    pynb |> shouldNotContainText "htmlOnlyCode"
+
+[<Test>]
+let ``condition: html lowercase is still included in HTML output`` () =
+    let content =
+        """
+let commonCode = 1
+(*** condition: html ***)
+let htmlOnlyCode = 2
+let moreCode = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let html = Literate.ToHtml(doc)
+    let pynb = Literate.ToPynb(doc)
+
+    // (*** condition: html ***) with lowercase should still be included in HTML output
+    html |> shouldContainText "htmlOnlyCode"
+    // And excluded from Pynb output
+    pynb |> shouldNotContainText "htmlOnlyCode"
+
+[<Test>]
+let ``#if HTML and #endif // HTML marker lines are stripped from HTML LiterateCode output`` () =
+    let content =
+        """
+let alwaysVisible = 1
+#if HTML
+let insideHtmlBlock = 2
+#endif // HTML
+let alsoAlwaysVisible = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let html = Literate.ToHtml(doc)
+
+    // The #if HTML / #endif // HTML marker lines themselves should not appear in HTML output.
+    // They would appear as <span class="pp">#if</span> tokens before this fix.
+    html |> shouldNotContainText ">#if<"
+    html |> shouldNotContainText ">#endif<"
+
+[<Test>]
+let ``#if HTML and #endif // HTML marker lines are not in Fsx but code inside is present`` () =
+    let content =
+        """
+let alwaysVisible = 1
+#if HTML
+let insideHtmlBlock = 2
+#endif // HTML
+let alsoAlwaysVisible = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let fsx = Literate.ToFsx(doc)
+
+    // The code inside the #if HTML block does appear as-is in fsx output
+    // (only #if FSX / #endif // FSX marker lines are stripped for fsx output)
+    fsx |> shouldContainText "insideHtmlBlock"
+
+[<Test>]
+let ``#if IPYNB and #endif // IPYNB marker lines are stripped from Pynb LiterateCode output`` () =
+    let content =
+        """
+let alwaysVisible = 1
+#if IPYNB
+let insideIpynbBlock = 2
+#endif // IPYNB
+let alsoAlwaysVisible = 3
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "test.fsx")
+    let pynb = Literate.ToPynb(doc)
+
+    // The marker lines should not appear in Pynb output
+    pynb |> shouldNotContainText "#if IPYNB"
+    pynb |> shouldNotContainText "#endif // IPYNB"
+    // But the code inside should be present
+    pynb |> shouldContainText "insideIpynbBlock"
+
+// --------------------------------------------------------------------------------------
+// Emoji in FSX comments → HTML (Issue #964)
+// These tests verify that emoji characters are preserved throughout the full
+// FSX → Markdown → HTML conversion pipeline.
+// --------------------------------------------------------------------------------------
+
+// Supplementary plane emoji (U+1F389, stored as surrogate pair in UTF-16)
+let emojiParty = "\U0001F389" // 🎉 PARTY POPPER
+let emojiRocket = "\U0001F680" // 🚀 ROCKET
+let emojiConstruction = "\U0001F6A7" // 🚧 CONSTRUCTION SIGN
+// Basic multilingual plane emoji (single UTF-16 code unit)
+let emojiStar = "\u2B50" // ⭐ WHITE MEDIUM STAR
+let emojiCheck = "\u2705" // ✅ WHITE HEAVY CHECK MARK
+// Emoji with variation selector (two code points)
+let emojiWarning = "\u26A0\uFE0F" // ⚠️ WARNING SIGN + VS-16
+// ZWJ sequence (multiple code points joined with zero-width joiner)
+let emojiFamily = "\U0001F468\u200D\U0001F469\u200D\U0001F467\u200D\U0001F466" // 👨‍👩‍👧‍👦
+
+[<Test>]
+let ``Supplementary plane emoji in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\nLike this %s and %s\n*)\nlet x = 42" emojiParty emojiRocket
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+    html |> shouldContainText emojiRocket
+
+[<Test>]
+let ``BMP emoji in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\nStars %s and checks %s\n*)\nlet x = 42" emojiStar emojiCheck
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiStar
+    html |> shouldContainText emojiCheck
+
+[<Test>]
+let ``Variation selector emoji in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\nWarning %s sign\n*)\nlet x = 42" emojiWarning
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiWarning
+
+[<Test>]
+let ``ZWJ emoji sequence in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\nFamily %s emoji\n*)\nlet x = 42" emojiFamily
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiFamily
+
+[<Test>]
+let ``Emoji in FSX heading (H1) are preserved in HTML`` () =
+    let fsx = sprintf "(**\n# Heading %s Title\n*)\nlet x = 42" emojiParty
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+
+[<Test>]
+let ``Emoji in FSX heading (H2) are preserved in HTML`` () =
+    let fsx = sprintf "(**\n## Subheading %s\n*)\nlet x = 42" emojiRocket
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiRocket
+
+[<Test>]
+let ``Emoji in bold spans in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\n**Bold %s text**\n*)\nlet x = 42" emojiParty
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+
+[<Test>]
+let ``Emoji in italic spans in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\n_Italic %s text_\n*)\nlet x = 42" emojiStar
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiStar
+
+[<Test>]
+let ``Emoji in list items in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\n- Item %s\n- Item %s\n*)\nlet x = 42" emojiParty emojiCheck
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+    html |> shouldContainText emojiCheck
+
+[<Test>]
+let ``Emoji in inline code in FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\nCode `%s emoji` here\n*)\nlet x = 42" emojiParty
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+
+[<Test>]
+let ``All emoji types together in FSX doc comment are all preserved in HTML`` () =
+    let fsx =
+        sprintf
+            "(**\nAll: %s %s %s %s %s\n*)\nlet x = 42"
+            emojiParty
+            emojiConstruction
+            emojiStar
+            emojiWarning
+            emojiCheck
+
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+    html |> shouldContainText emojiConstruction
+    html |> shouldContainText emojiStar
+    html |> shouldContainText emojiWarning
+    html |> shouldContainText emojiCheck
+
+[<Test>]
+let ``Emoji across multiple FSX doc comment blocks are all preserved in HTML`` () =
+    let fsx = sprintf "(**\nFirst block %s\n*)\nlet x = 42\n(**\nSecond block %s\n*)\nlet y = 99" emojiParty emojiRocket
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+    html |> shouldContainText emojiRocket
+
+[<Test>]
+let ``Emoji in multi-line FSX doc comment are preserved in HTML`` () =
+    let fsx = sprintf "(**\nLine one %s\nLine two %s\nLine three %s\n*)\nlet x = 42" emojiParty emojiStar emojiCheck
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+    html |> shouldContainText emojiStar
+    html |> shouldContainText emojiCheck
+
+[<Test>]
+let ``Emoji do not break HTML escaping in FSX doc comments`` () =
+    let fsx = sprintf "(**\nA &amp; %s and &lt;tag&gt;\n*)\nlet x = 42" emojiParty
+    let doc = Literate.ParseScriptString(fsx)
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+    html |> shouldContainText "&amp;"
+
+[<Test>]
+let ``Emoji in FSX file on disk are preserved in HTML output`` () =
+    let fsx = File.ReadAllText(__SOURCE_DIRECTORY__ </> "files" </> "emoji.fsx")
+    let doc = Literate.ParseScriptString(fsx, __SOURCE_DIRECTORY__ </> "files" </> "emoji.fsx")
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText emojiParty
+    html |> shouldContainText emojiRocket
+    html |> shouldContainText emojiStar
+    html |> shouldContainText emojiWarning
+    html |> shouldContainText emojiCheck
+    html |> shouldContainText emojiConstruction
+    html |> shouldContainText emojiFamily
+
+[<Test>]
+let ``Emoji in ConvertScriptFile HTML output file are preserved`` () =
+    let outputFile = __SOURCE_DIRECTORY__ </> "output" </> "emoji.html"
+
+    Literate.ConvertScriptFile(
+        __SOURCE_DIRECTORY__ </> "files" </> "emoji.fsx",
+        outputKind = OutputKind.Html,
+        output = outputFile
+    )
+
+    let html = File.ReadAllText outputFile
+    html |> shouldContainText emojiParty
+    html |> shouldContainText emojiRocket
+    html |> shouldContainText emojiStar
+    html |> shouldContainText emojiWarning
+    html |> shouldContainText emojiCheck
+    html |> shouldContainText emojiConstruction
+
+[<Test>]
+let ``Emoji in ConvertScriptFile Markdown output file are preserved`` () =
+    let outputFile = __SOURCE_DIRECTORY__ </> "output2" </> "emoji.md"
+
+    Literate.ConvertScriptFile(
+        __SOURCE_DIRECTORY__ </> "files" </> "emoji.fsx",
+        outputKind = OutputKind.Markdown,
+        output = outputFile
+    )
+
+    let md = File.ReadAllText outputFile
+    md |> shouldContainText emojiParty
+    md |> shouldContainText emojiRocket
+    md |> shouldContainText emojiStar
+
+// End emoji tests
