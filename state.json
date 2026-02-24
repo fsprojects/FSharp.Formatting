@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-24T22:51:28Z",
-  "last_run_id": "22373490275",
+  "last_run": "2026-02-24T23:04:08Z",
+  "last_run_id": "22373861470",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 36,
@@ -17,7 +17,7 @@
     "task10_forward": "2026-02-24",
     "task11_monthly": "2026-02-24"
   },
-  "issues_commented": [90, 422, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 735, 736, 742, 743, 744, 748, 782, 803, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 734, 1001, 1004, 1005],
+  "issues_commented": [90, 422, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 735, 736, 742, 743, 744, 748, 782, 803, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 734, 1001, 1004, 1005, 829],
   "fix_attempts": {
     "748": {"pr": 994, "status": "merged"},
     "803": {"pr": 995, "status": "open"},
@@ -45,9 +45,10 @@
     "Push to PR branch still failing (infra issue #993)",
     "dsyme requested /repo-assist update PR #976 with latest changes and major version bump (2026-02-24)",
     "Prepared 22.0.0 release notes locally but push failed; exact RELEASE_NOTES.md content provided in PR #976 comment",
-    "Issue #702: commented with root cause (TypeDefinition.FullName fails for 5D/6D array params in getXmlDocSigForMember); suggested TryFullName fix"
+    "Issue #702: commented with root cause (TypeDefinition.FullName fails for 5D/6D array params in getXmlDocSigForMember); suggested TryFullName fix",
+    "Issue #829: commented with architecture for automatic back-links from API pages to tutorials; documented seealso workaround"
   ],
-  "backlog_remaining": [705, 725, 804, 828, 829],
+  "backlog_remaining": [705, 725, 804, 828],
   "checked_off_by_maintainer": [994],
   "future_work": [
     "fsdocs init command (#872) - pending maintainer interest",
