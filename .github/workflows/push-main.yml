@@ -8,6 +8,10 @@ on:
 jobs:
   build:
 
+    permissions:
+      contents: write
+      id-token: write  # Required for NuGet trusted publishing (OIDC)
+
     strategy:
       fail-fast: false
       matrix:
@@ -28,4 +32,12 @@ jobs:
         publish_branch: gh-pages
         force_orphan: true
     - name: Publish NuGets (if main version changed)
-      run: dotnet nuget push "artifacts/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${{ secrets.FSHARP_FORMATTING_TOKEN_2020 }} --skip-duplicate
+      run: |
+        NUGET_TOKEN=$(curl -sS \
+          -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nuget.org" \
+          | jq -r '.value')
+        dotnet nuget push "artifacts/*.nupkg" \
+          -s https://api.nuget.org/v3/index.json \
+          -k "$NUGET_TOKEN" \
+          --skip-duplicate
