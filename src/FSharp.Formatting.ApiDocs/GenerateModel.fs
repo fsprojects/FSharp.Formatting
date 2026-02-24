@@ -1899,7 +1899,7 @@ module internal SymbolReader =
 
                 match findCommand (text, MarkdownRange.zero) with
                 | Some(k, v) -> cmds.Add(k, v)
-                | None -> html.Append(text) |> ignore
+                | None -> html.Append(HttpUtility.HtmlEncode text) |> ignore
             elif x.NodeType = XmlNodeType.Element then
                 let elem = x :?> XElement
 
@@ -1942,8 +1942,8 @@ module internal SymbolReader =
                             |> ignore
                         | _ ->
                             urlMap.ResolveCref cname |> ignore
-                            //let crefAsHtml = HttpUtility.HtmlEncode cref.Value
-                            html.Append(cref.Value) |> ignore
+                            let crefAsHtml = HttpUtility.HtmlEncode cref.Value
+                            html.Append(crefAsHtml) |> ignore
                 | "c" ->
                     html.Append("<code>") |> ignore
 
