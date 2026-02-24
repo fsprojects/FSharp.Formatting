@@ -14,7 +14,7 @@
     "task10_forward": "2026-02-23",
     "task11_monthly": "2026-02-24"
   },
-  "issue_comments_made": [72, 90, 422, 551, 570, 592, 626, 635, 667, 671, 673, 693, 736, 748, 792, 803, 810, 811, 821, 822, 857, 872, 885, 897, 898, 918, 924, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679, 1004],
+  "issue_comments_made": [72, 90, 422, 551, 570, 592, 626, 635, 667, 671, 673, 693, 736, 748, 792, 803, 810, 811, 821, 822, 857, 872, 885, 897, 898, 918, 924, 930, 931, 933, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679, 1004],
   "pr_comments_made": [976, 980, 1008],
   "pr_nudges_made": [925],
   "fix_attempts": {
@@ -52,7 +52,7 @@
     {"desc": "CSS light-dark() migration analysis", "comment": "on #1004", "status": "commented", "issue": 1004}
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987, 1004, 1005],
-  "issue_backlog_cursor": 933,
+  "issue_backlog_cursor": 949,
   "deps_last_checked": "2026-02-23",
   "release_last_proposed": "2026-02-24",
   "stale_nudge_last_run": "2026-02-23",
@@ -88,8 +88,10 @@
     "Issue #1009 (agentics failure): known infrastructure issue - push failed during run 22350097619",
     "Issue #1004: CSS light-dark() migration - Repo Assist commented with feasibility analysis; significant rewrite needed but straightforward",
     "Issue #924: commented 2026-02-24 explaining root override is explicitly ignored in watch mode; proposed --root flag",
+    "Issue #933: Commented 2026-02-24 on backward-compatible options - F# 8+ named DU field access (RFC FS-1118) gives myDetails.usageHtml; Option 2: add PascalCase member properties to DU",
     "PR #976 (Release 21.0.1): open but stale (1687+ commits behind main); still open",
     "Fun.Build 1.0.4 API: whenNot { envVar KEY VALUE } is supported in stage CE to make stage inactive when env var matches value",
-    "Fun.Build 1.0.4 API: run (fun _ -> async { ... }) is supported for conditional async work items within stages"
+    "Fun.Build 1.0.4 API: run (fun _ -> async { ... }) is supported for conditional async work items within stages",
+    "ApiDocMemberDetails DU already has named fields (usageHtml, paramTypes, etc.) accessible as F# 8+ properties; project uses .NET SDK 10.0.100"
   ]
 }
