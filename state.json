@@ -8,13 +8,13 @@
     "task4_dependencies": "2026-02-23",
     "task5_maintain_prs": "2026-02-24",
     "task6_stale_nudges": "2026-02-23",
-    "task7_labels": "2026-02-23",
+    "task7_labels": "2026-02-24",
     "task8_release": "2026-02-23",
     "task9_welcome": "2026-02-23",
     "task10_forward": "2026-02-23",
     "task11_monthly": "2026-02-24"
   },
-  "issue_comments_made": [72, 90, 422, 551, 570, 592, 626, 635, 667, 671, 673, 693, 736, 748, 792, 803, 810, 811, 821, 822, 857, 872, 885, 897, 898, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679],
+  "issue_comments_made": [72, 90, 422, 551, 570, 592, 626, 635, 667, 671, 673, 693, 736, 748, 792, 803, 810, 811, 821, 822, 857, 872, 885, 897, 898, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679, 1004],
   "pr_comments_made": [976, 980],
   "pr_nudges_made": [925],
   "fix_attempts": {
@@ -33,8 +33,7 @@
     "693": {"pr": 999, "status": "open", "desc": "Fix #if HTML conditional defines - add ToUpperInvariant to ConditionalDefines; strip marker lines from LiterateCode - 5 new literate tests; created by another Repo Assist run on 2026-02-24"},
     "72": {"pr": 998, "status": "open", "desc": "Add copy-to-clipboard button to code blocks; pure JS+CSS, no dependencies; created by another Repo Assist run on 2026-02-24"},
     "918_v2": {"pr": 997, "status": "open", "desc": "Add --allowExecutableProjects CLI flag to fsdocs; created by another Repo Assist run on 2026-02-24"},
-    "1000": {"pr": "pending-tbd", "status": "pending", "branch": "repo-assist/fix-1000-re-enable-analyzers-ci", "desc": "Re-enable analyzers in CI (uncomment Analyze Solution + Upload SARIF steps)"},
-    "1001": {"pr": "pending-tbd", "status": "pending", "branch": "repo-assist/fix-1001-ci-performance", "desc": "CI performance: NuGet caching + skip GenerateDocs on Windows (whenNot envVar RUNNER_OS Windows in build.fsx)"}
+    "1005": {"pr": "pending-number", "status": "open", "branch": "repo-assist/fix-1005-nuget-trusted-publishing", "desc": "NuGet trusted publishing OIDC instead of API key secret; workflow changes: id-token:write permission + OIDC token fetch"}
   },
   "improvements_proposed": [
     {"desc": "Analyzer deps update", "pr": 977, "status": "merged"},
@@ -49,10 +48,10 @@
     {"desc": "Fix #if HTML conditional defines + strip marker lines", "pr": 999, "status": "open", "issue": 693},
     {"desc": "Add copy-to-clipboard button to code blocks", "pr": 998, "status": "open", "issue": 72},
     {"desc": "Add --allowExecutableProjects flag", "pr": 997, "status": "open", "issue": 918},
-    {"desc": "Re-enable analyzers in CI", "pr": "tbd", "branch": "repo-assist/fix-1000-re-enable-analyzers-ci", "status": "pending", "issue": 1000},
-    {"desc": "CI performance: NuGet caching + skip GenerateDocs on Windows", "pr": "tbd", "branch": "repo-assist/fix-1001-ci-performance", "status": "pending", "issue": 1001}
+    {"desc": "NuGet trusted publishing (OIDC)", "pr": "pending-number", "branch": "repo-assist/fix-1005-nuget-trusted-publishing", "status": "open", "issue": 1005},
+    {"desc": "CSS light-dark() migration analysis", "comment": "on #1004", "status": "commented", "issue": 1004}
   ],
-  "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987],
+  "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987, 1004, 1005],
   "issue_backlog_cursor": 929,
   "deps_last_checked": "2026-02-23",
   "release_last_proposed": "2026-02-23",
@@ -80,8 +79,10 @@
     "PR #999 (fix #if HTML + strip marker lines): created 2026-02-24 by Repo Assist run (different from this run); 5 new LiterateTests; all test suites pass",
     "PR #998 (copy-to-clipboard): created 2026-02-24 by Repo Assist; pure JS+CSS, no deps; closes #72",
     "PR #997 (--allowExecutableProjects): created 2026-02-24 by Repo Assist; closes #918",
-    "PR (TBD) branch repo-assist/fix-1000-re-enable-analyzers-ci: re-enable analyzers in CI - uncomment Analyze Solution + Upload SARIF; commits pushed via safeoutputs this run (2026-02-24)",
-    "PR (TBD) branch repo-assist/fix-1001-ci-performance: NuGet caching in both workflow files + whenNot { envVar RUNNER_OS Windows } in build.fsx GenerateDocs stage; commits pushed via safeoutputs this run (2026-02-24)",
+    "PR (pending-number) branch repo-assist/fix-1005-nuget-trusted-publishing: NuGet trusted publishing OIDC; workflow changes pushed 2026-02-24; requires NuGet.org trusted publisher setup before merge",
+    "Issue #1004: CSS light-dark() migration - Repo Assist commented with feasibility analysis; significant rewrite needed but straightforward",
+    "Issue #1003: Repo Assist tracking issue for CI perf improvements (branch push failed in prior run)",
+    "Issue #1002: Repo Assist tracking issue for re-enable analyzers (branch push failed in prior run)",
     "Fun.Build 1.0.4 API: whenNot { envVar KEY VALUE } is supported in stage CE to make stage inactive when env var matches value",
     "Fun.Build 1.0.4 API: run (fun _ -> async { ... }) is supported for conditional async work items within stages",
     "Issue #993: persistent push failures from multiple workflow runs - infrastructure issue"
