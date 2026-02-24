@@ -143,7 +143,7 @@ type internal DocContent
               && not (inputFileName.StartsWith("_template", StringComparison.Ordinal))
               && not (
                   inputFileName.StartsWith("_menu", StringComparison.Ordinal)
-                  && inputFileName.EndsWith("_template.html", StringComparison.OrdinalIgnoreCase)
+                  && inputFileName.EndsWith("_template.html", StringComparison.Ordinal)
               )
           then
               let inputFileFullPath = Path.GetFullPath(inputFileFullPath)
@@ -194,7 +194,7 @@ type internal DocContent
               not (name.StartsWith("_template", StringComparison.Ordinal))
               && not (
                   name.StartsWith("_menu", StringComparison.Ordinal)
-                  && name.EndsWith("_template.html", StringComparison.OrdinalIgnoreCase)
+                  && name.EndsWith("_template.html", StringComparison.Ordinal)
               )
           then
               let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
