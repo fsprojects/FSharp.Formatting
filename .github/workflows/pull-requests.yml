@@ -8,6 +8,10 @@ on:
     branches:
     - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   id-token: write
@@ -24,6 +28,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+    - name: Cache .NET SDK
+      uses: actions/cache@v4
+      with:
+        path: ~/.dotnet
+        key: ${{ runner.os }}-dotnet-sdk-${{ hashFiles('global.json') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-sdk-
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
