@@ -36,16 +36,16 @@ jobs:
     - name: Run CI
       run: dotnet fsi build.fsx
   
-    # - name: Analyze Solution
-    #   if: matrix.os == 'ubuntu-latest'
-    #   run: dotnet msbuild /t:AnalyzeSolution
-    #   continue-on-error: true
+    - name: Analyze Solution
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet msbuild /t:AnalyzeSolution
+      continue-on-error: true
 
-    # - name: Upload SARIF file
-    #   uses: github/codeql-action/upload-sarif@v4
-    #   if: matrix.os == 'ubuntu-latest'
-    #   with:
-    #     sarif_file: ./analysis.sarif
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v4
+      if: matrix.os == 'ubuntu-latest'
+      with:
+        sarif_file: ./analysis.sarif
 
   ci:
     runs-on: ubuntu-latest

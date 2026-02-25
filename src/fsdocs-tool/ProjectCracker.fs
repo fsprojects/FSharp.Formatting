@@ -229,6 +229,7 @@ module Crack =
           FsDocsFaviconSource: string option
           FsDocsTheme: string option
           FsDocsWarnOnMissingDocs: bool
+          FsDocsAllowExecutableProject: bool
           PackageProjectUrl: string option
           Authors: string option
           GenerateDocumentationFile: bool
@@ -261,6 +262,7 @@ module Crack =
               "FsDocsSourceFolder"
               "FsDocsSourceRepository"
               "FsDocsWarnOnMissingDocs"
+              "FsDocsAllowExecutableProject"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -346,6 +348,8 @@ module Crack =
                   FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
                   FsDocsTheme = msbuildPropString "FsDocsTheme"
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
+                  FsDocsAllowExecutableProject =
+                    msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                   PackageProjectUrl = msbuildPropString "PackageProjectUrl"
                   Authors = msbuildPropString "Authors"
@@ -501,8 +505,11 @@ module Crack =
                 if info.TargetPath.IsNone then
                     printfn "  skipping project '%s' because it doesn't have a target path" shortName
                     None
-                elif not info.IsLibrary then
-                    printfn "  skipping project '%s' because it isn't a library" shortName
+                elif not info.IsLibrary && not info.FsDocsAllowExecutableProject then
+                    printfn
+                        "  skipping project '%s' because it isn't a library (add <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject> to include it)"
+                        shortName
+
                     None
                 elif info.IsTestProject then
                     printfn "  skipping project '%s' because it has <IsTestProject> true" shortName
@@ -588,6 +595,7 @@ module Crack =
                 |> fallbackFromDirectoryProps "//RepositoryUrl"
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
+              FsDocsAllowExecutableProject = false
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
