@@ -1,11 +1,11 @@
 {
-  "last_run": "2026-02-24T23:55:55Z",
-  "last_run_id": "22375374916",
+  "last_run": "2026-02-25T00:04:00Z",
+  "last_run_id": "22375601483",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 0,
   "tasks_last_run": {
-    "task1_triage": "2026-02-24",
+    "task1_triage": "2026-02-25",
     "task2_fix_issues": "2026-02-24",
     "task3_improvements": "2026-02-24",
     "task4_deps": "2026-02-24",
@@ -15,9 +15,9 @@
     "task8_release": "2026-02-24",
     "task9_welcome": "2026-02-24",
     "task10_forward": "2026-02-24",
-    "task11_monthly": "2026-02-24"
+    "task11_monthly": "2026-02-25"
   },
-  "issues_commented": [90, 422, 439, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 829, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005],
+  "issues_commented": [90, 144, 422, 439, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 829, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005],
   "fix_attempts": {
     "748": {"pr": 994, "status": "merged"},
     "803": {"pr": 995, "status": "open"},
@@ -49,7 +49,8 @@
     "PR #1017 created (fix #793: normalize --projects paths to absolute; 173/173 tests pass)",
     "Issue #702 and #439: same root cause - TypeDefinition.FullName fails for certain array/params types in getXmlDocSigForMember; TryFullName fix needed",
     "Issue #829: commented with architecture for automatic back-links from API pages to tutorials; documented seealso workaround",
-    "Issue #725: commented with contributor guidance on reducing embedded HTML in markdown API docs (GenerateMarkdown.fs)"
+    "Issue #725: commented with contributor guidance on reducing embedded HTML in markdown API docs (GenerateMarkdown.fs)",
+    "Issue #144: commented with implementation guidance - CompilerMessageAttribute(IsHidden=true) check should be added in readCommentsInto in GenerateModel.fs ~line 2395"
   ],
   "backlog_remaining": [],
   "checked_off_by_maintainer": [994],
