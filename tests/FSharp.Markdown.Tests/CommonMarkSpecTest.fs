@@ -21,7 +21,17 @@ open FSharp.Formatting.Markdown
 let properNewLines (text: string) =
     text.Replace("\r\n", "\n").Replace("\n", System.Environment.NewLine)
 
-let enabledSections = [ "Fenced code blocks"; "Indented code blocks"; "Paragraphs"; "Precedence"; "Tabs" ]
+let enabledSections =
+    [ "Fenced code blocks"
+      "Indented code blocks"
+      "Paragraphs"
+      "Precedence"
+      "Tabs"
+      "Blank lines"
+      "Inlines"
+      "Soft line breaks"
+      "Textual content"
+      "ATX headings" ]
 
 let getTests () =
     sample

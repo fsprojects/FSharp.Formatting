@@ -582,7 +582,7 @@ let ``Transform bulleted lists correctly`` () =
 let ``Transform header 1 correctly`` () =
     let doc = "#Header 1\nHeader 1\r\n========"
 
-    let expected = "<h1>Header 1</h1>\r\n<h1>Header 1</h1>\r\n" |> properNewLines
+    let expected = "<p>#Header 1</p>\r\n<h1>Header 1</h1>\r\n" |> properNewLines
 
     Markdown.ToHtml doc |> shouldEqual expected
 
@@ -590,7 +590,7 @@ let ``Transform header 1 correctly`` () =
 let ``Transform header 2 correctly`` () =
     let doc = "##Header 2\nHeader 2\r\n--------"
 
-    let expected = "<h2>Header 2</h2>\r\n<h2>Header 2</h2>\r\n" |> properNewLines
+    let expected = "<p>##Header 2</p>\r\n<h2>Header 2</h2>\r\n" |> properNewLines
 
     Markdown.ToHtml doc |> shouldEqual expected
 
