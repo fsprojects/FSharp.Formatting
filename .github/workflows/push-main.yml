@@ -5,12 +5,12 @@ on:
     branches:
     - main
 
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
   build:
-
-    permissions:
-      contents: write
-      id-token: write  # Required for NuGet trusted publishing (OIDC)
 
     strategy:
       fail-fast: false
@@ -31,13 +31,11 @@ jobs:
         publish_dir: ./output
         publish_branch: gh-pages
         force_orphan: true
-    - name: Publish NuGets (if main version changed)
-      run: |
-        NUGET_TOKEN=$(curl -sS \
-          -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-          "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nuget.org" \
-          | jq -r '.value')
-        dotnet nuget push "artifacts/*.nupkg" \
-          -s https://api.nuget.org/v3/index.json \
-          -k "$NUGET_TOKEN" \
-          --skip-duplicate
+    - name: Obtain NuGet key
+      # this hash is v1.1.0
+      uses: NuGet/login@d22cc5f58ff5b88bf9bd452535b4335137e24544
+      id: login
+      with:
+          user: dsyme
+    - name: Publish NuGets (if this version not published before)
+      run: dotnet nuget push "artifacts/*.nupkg" -s https://www.nuget.org/api/v2/package -k ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate
