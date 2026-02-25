@@ -93,6 +93,11 @@ namespace csharpSupport
         /// </summary>
         public void Method() { }
 
+        /// <summary>
+        /// My_Params_Method
+        /// </summary>
+        public void ParamsMethod(params object[] args) { }
+
 
         /// <summary>
         /// My_Property

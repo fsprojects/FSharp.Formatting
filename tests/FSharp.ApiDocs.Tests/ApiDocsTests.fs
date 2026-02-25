@@ -811,6 +811,9 @@ let ``ApiDocs test that csharp (publiconly) support works`` (format: OutputForma
     |> shouldContainText "My_Method"
 
     files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)]
+    |> shouldContainText "My_Params_Method"
+
+    files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)]
     |> shouldContainText "My_Property"
 
     files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)]

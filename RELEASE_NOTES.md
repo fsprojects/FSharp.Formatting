@@ -14,6 +14,7 @@
 * Strip `#if SYMBOL` / `#endif // SYMBOL` marker lines from `LiterateCode` source before syntax-highlighting so they do not appear in formatted output. [#693](https://github.com/fsprojects/FSharp.Formatting/issues/693)
 * Fix incorrect column ranges for inline spans (links, images, inline code) in the Markdown parser — spans and subsequent literals now report correct `StartColumn`/`EndColumn` values. [#744](https://github.com/fsprojects/FSharp.Formatting/issues/744)
 * Normalize `--projects` paths to absolute paths before passing to the project cracker, fixing failures when relative paths are supplied. [#793](https://github.com/fsprojects/FSharp.Formatting/issues/793)
+* Fix crash when generating API docs for C# methods with `params` array parameters — the array type `[]`1` now resolves correctly instead of throwing "does not have a qualified name". [#439](https://github.com/fsprojects/FSharp.Formatting/issues/439)
 
 ### Changed
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)

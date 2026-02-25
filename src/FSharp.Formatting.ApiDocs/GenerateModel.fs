@@ -750,6 +750,22 @@ module internal CrossReferences =
                         else
                             ""
 
+                    let rec formatParamType (typ: FSharpType) =
+                        if typ.IsGenericParameter then
+                            typeArgsMap.[typ.GenericParameter.Name]
+                        elif typ.HasTypeDefinition then
+                            let td = typ.TypeDefinition
+
+                            if td.IsArrayType then
+                                // Array types (e.g. params object[]) have no FullName in FCS.
+                                // Build it from the element type and the display-name suffix ("[]", "[,]" etc.)
+                                let elementTypeName = formatParamType typ.GenericArguments.[0]
+                                elementTypeName + td.DisplayName
+                            else
+                                td.FullName
+                        else
+                            typ.BasicQualifiedName
+
                     let paramList =
                         if
                             memb.CurriedParameterGroups.Count > 0
@@ -757,13 +773,7 @@ module internal CrossReferences =
                         then
                             let head = memb.CurriedParameterGroups.[0]
 
-                            let paramTypeList =
-                                head
-                                |> Seq.map (fun param ->
-                                    if param.Type.IsGenericParameter then
-                                        typeArgsMap.[param.Type.GenericParameter.Name]
-                                    else
-                                        param.Type.TypeDefinition.FullName)
+                            let paramTypeList = head |> Seq.map (fun param -> formatParamType param.Type)
 
                             "(" + System.String.Join(", ", paramTypeList) + ")"
                         else
