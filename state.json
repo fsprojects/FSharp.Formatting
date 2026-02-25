@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-25T23:10:40Z",
-  "last_run_id": "22420013826",
+  "last_run": "2026-02-25T23:17:51Z",
+  "last_run_id": "22420256770",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 0,
@@ -67,6 +67,8 @@
     "PR #1027 created: fix wrong indentation for paragraph within sublist (addresses #347)",
     "PR #1028 created: improve CommonMark ATX heading compliance (addresses #191)",
     "PR #1026 created: improve markdown API docs section-based member layout (addresses #725)",
+    "Issue #949 (tooltip rewrite): MangelMaxime is actively working on it - do not create competing PR",
+    "Issue #929 (signature-like API docs): MangelMaxime intends to submit a PR - do not create competing PR",
     "Next for #1022: split GenerateModel.fs (3195 lines) - largest file; then MarkdownParser.fs (1378)"
   ],
   "backlog_remaining": [],
@@ -76,7 +78,7 @@
     "Split MarkdownParser.fs (1378 lines) per #1022",
     "Fix #439/#702: PRs #1023/#1024 open - await review",
     "Implement #742: make ranges non-optional (after PR #1016 for #744 is merged)",
-    "CSS tooltip implementation (#422/#679)",
+    "CSS tooltip implementation (#422/#679) - MangelMaxime working on this via #949",
     "PascalCase property members for ApiDocMemberDetails (#933)",
     "Named record types ApiDocParameter/ApiDocReturnInfo (#735) - non-breaking additions",
     "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
