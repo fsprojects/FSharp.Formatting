@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-24T23:40:30Z",
-  "last_run_id": "22374948360",
+  "last_run": "2026-02-24T23:55:55Z",
+  "last_run_id": "22375374916",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 0,
@@ -17,7 +17,7 @@
     "task10_forward": "2026-02-24",
     "task11_monthly": "2026-02-24"
   },
-  "issues_commented": [90, 422, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 735, 736, 742, 743, 744, 748, 782, 803, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 734, 1001, 1004, 1005, 829, 793],
+  "issues_commented": [90, 422, 439, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 829, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005],
   "fix_attempts": {
     "748": {"pr": 994, "status": "merged"},
     "803": {"pr": 995, "status": "open"},
@@ -29,10 +29,10 @@
     "734": {"pr": 1012, "status": "open"},
     "1001_ci_perf": {"issue": 1014, "status": "patch_available_push_failed", "desc": "dotnet SDK cache + concurrency group"},
     "744": {"pr": 1016, "branch": "repo-assist/fix-744-markdown-span-ranges-8b556d3f75586052", "status": "open", "desc": "Fix incorrect column ranges for inline spans in Markdown parser; 383 tests pass"},
-    "793": {"branch": "repo-assist/fix-793-projects-relative-paths", "status": "pr_submitted", "desc": "Normalize --projects paths to absolute (Path.GetFullPath); 173 tests pass; PR creation pending"}
+    "793": {"pr": 1017, "branch": "repo-assist/fix-793-projects-relative-paths-85e277eb8b476f16", "status": "open", "desc": "Normalize --projects paths to absolute (Path.GetFullPath); 173 tests pass"}
   },
-  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012, 1016],
-  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - patch available)", "fix #744: correct column ranges for inline spans in Markdown parser (PR #1016)", "fix #793: normalize --projects relative paths (branch submitted)"],
+  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012, 1016, 1017],
+  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - patch available)", "fix #744: correct column ranges for inline spans in Markdown parser (PR #1016)", "fix #793: normalize --projects relative paths (PR #1017)"],
   "prs_merged_by_dsyme": [994, 996, 997, 1007, 1010],
   "notes": [
     "PR #994 merged (HTML-encode XML doc text nodes, fixes #748)",
@@ -46,14 +46,15 @@
     "PR #980 has nojaf review requesting MSBuild config approach",
     "Push to PR branch still failing (infra issue #993)",
     "PR #1016 created (fix #744: correct column ranges for inline spans in Markdown parser; 383/383 tests pass)",
-    "Issue #702: commented with root cause (TypeDefinition.FullName fails for 5D/6D array params in getXmlDocSigForMember); suggested TryFullName fix",
+    "PR #1017 created (fix #793: normalize --projects paths to absolute; 173/173 tests pass)",
+    "Issue #702 and #439: same root cause - TypeDefinition.FullName fails for certain array/params types in getXmlDocSigForMember; TryFullName fix needed",
     "Issue #829: commented with architecture for automatic back-links from API pages to tutorials; documented seealso workaround",
-    "Issue #725: commented with contributor guidance on reducing embedded HTML in markdown API docs (GenerateMarkdown.fs)",
-    "Issue #793: commented with root cause (System.Uri rejects relative paths in ProjInfo); fix PR submitted (branch: repo-assist/fix-793-projects-relative-paths, 173/173 tests pass)"
+    "Issue #725: commented with contributor guidance on reducing embedded HTML in markdown API docs (GenerateMarkdown.fs)"
   ],
   "backlog_remaining": [],
   "checked_off_by_maintainer": [994],
   "future_work": [
+    "Fix #439/#702: implement TryFullName guard in getXmlDocSigForMember for array/params parameter types",
     "Implement #742: make ranges non-optional (after PR #1016 for #744 is merged)",
     "fsdocs init command (#872) - pending maintainer interest",
     "CSS tooltip implementation (#422/#679)",
@@ -61,7 +62,6 @@
     "Named record types ApiDocParameter/ApiDocReturnInfo (#735) - non-breaking additions",
     "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
     "--root override flag for fsdocs watch (#924) - confirmed root is force-overridden",
-    "Fix #702: use TryFullName in getXmlDocSigForMember param type formatting for 5D/6D arrays",
     "Triage issues #705, #804, #828 (remaining backlog)"
   ]
 }
