@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-25T22:57:57Z",
-  "last_run_id": "22419628060",
+  "last_run": "2026-02-25T23:10:40Z",
+  "last_run_id": "22420013826",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 0,
@@ -26,7 +26,7 @@
     "72": {"pr": 998, "status": "open"},
     "1000": {"pr": 1008, "status": "closed_superseded"},
     "release_21.0.1": {"pr": 976, "status": "open_stale_dirty", "desc": "dirty/conflict; superseded by release_22.0.0 PR"},
-    "release_22.0.0": {"pr": "TBD", "branch": "repo-assist/release-v22.0.0-b20729c", "status": "created", "desc": "Release 22.0.0; promotes all [Unreleased] changes"},
+    "release_22.0.0": {"pr": 1020, "branch": "repo-assist/release-v22.0.0-b20729c", "status": "open", "desc": "Release 22.0.0; promotes all [Unreleased] changes"},
     "734": {"pr": 1012, "status": "open"},
     "1001_ci_perf": {"issue": 1014, "status": "patch_available_push_failed", "desc": "dotnet SDK cache + concurrency group"},
     "744": {"pr": 1016, "branch": "repo-assist/fix-744-markdown-span-ranges-8b556d3f75586052", "status": "open", "desc": "Fix incorrect column ranges for inline spans in Markdown parser; 383 tests pass"},
@@ -36,10 +36,13 @@
     "872": {"pr": 1025, "branch": "repo-assist/feature-872-fsdocs-init", "status": "open", "desc": "Add fsdocs init command; 174/174 tests pass"},
     "702": {"pr": 1024, "status": "open", "desc": "Fix doc generation for 5D/6D+ array parameters"},
     "439": {"pr": 1023, "status": "open", "desc": "Fix crash on params array parameter types"},
-    "1022": {"pr": "TBD_split_buildcommand", "branch": "repo-assist/fix-issue-1022-split-buildcommand-fs", "status": "created", "desc": "Split BuildCommand.fs into DocContent.fs + WatchServer.fs + BuildCommand.fs; 7/7 tests pass"}
+    "1022_buildcommand": {"pr": 1029, "branch": "repo-assist/fix-issue-1022-split-buildcommand-fs", "status": "open", "desc": "Split BuildCommand.fs into DocContent.fs + WatchServer.fs + BuildCommand.fs; 7/7 tests pass"},
+    "347": {"pr": 1027, "status": "open", "desc": "Fix wrong indentation for paragraph within sublist"},
+    "191_atx": {"pr": 1028, "status": "open", "desc": "Improve CommonMark ATX heading compliance"},
+    "725_layout": {"pr": 1026, "status": "open", "desc": "Improve markdown API docs: section-based member layout instead of flat table"}
   },
-  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012, 1016, 1017, 1018, 1019, 1020, 1023, 1024, 1025, "TBD_split_buildcommand"],
-  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 - PR #1025)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014)", "fix #744: correct column ranges for inline spans (PR #1016)", "fix #793: normalize --projects relative paths (PR #1017)", "exclude CompilerMessage(IsHidden=true) from API docs (PR #1018)", "dotnet fsdocs convert command (PR #1019)", "Release 22.0.0 (branch repo-assist/release-v22.0.0-b20729c)", "fix #702: TryFullName guard for high-rank arrays (PR #1024)", "fix #439: params array qualified name crash (PR #1023)", "split BuildCommand.fs into DocContent.fs + WatchServer.fs (PR on branch repo-assist/fix-issue-1022-split-buildcommand-fs)"],
+  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012, 1016, 1017, 1018, 1019, 1020, 1023, 1024, 1025, 1026, 1027, 1028, 1029],
+  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 - PR #1025)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014)", "fix #744: correct column ranges for inline spans (PR #1016)", "fix #793: normalize --projects relative paths (PR #1017)", "exclude CompilerMessage(IsHidden=true) from API docs (PR #1018)", "dotnet fsdocs convert command (PR #1019)", "Release 22.0.0 (PR #1020)", "fix #702: TryFullName guard for high-rank arrays (PR #1024)", "fix #439: params array qualified name crash (PR #1023)", "split BuildCommand.fs into DocContent.fs + WatchServer.fs (PR #1029)", "fix wrong indentation for paragraph within sublist (PR #1027)", "improve CommonMark ATX heading compliance (PR #1028)", "improve markdown API docs section-based layout (PR #1026)"],
   "prs_merged_by_dsyme": [994, 996, 997, 1007, 1010],
   "notes": [
     "PR #994 merged (HTML-encode XML doc text nodes, fixes #748)",
@@ -57,11 +60,13 @@
     "PR #1018 created (implement #144: exclude CompilerMessage(IsHidden=true) from API docs)",
     "PR #1019 created for #811: dotnet fsdocs convert command; 381/381 tests pass",
     "PR #1025 created for #872: fsdocs init command; 174/174 tests pass",
-    "Release 22.0.0 PR created (branch repo-assist/release-v22.0.0-b20729c); supersedes #976",
-    "Commented on #347: identified root cause of CommonMark list indentation bug (related to #191)",
+    "PR #1020 created for Release 22.0.0; supersedes #976",
     "PR #1024 created for #702 (fix 5D/6D+ array parameters doc gen)",
     "PR #1023 created for #439 (fix params array crash)",
-    "Issue #1022: dsyme requested splitting large files; split BuildCommand.fs (2289 lines) into DocContent.fs + WatchServer.fs + BuildCommand.fs; 7/7 tests pass; commented on issue",
+    "PR #1029 created for #1022: split BuildCommand.fs (2289 lines); 7/7 tests pass",
+    "PR #1027 created: fix wrong indentation for paragraph within sublist (addresses #347)",
+    "PR #1028 created: improve CommonMark ATX heading compliance (addresses #191)",
+    "PR #1026 created: improve markdown API docs section-based member layout (addresses #725)",
     "Next for #1022: split GenerateModel.fs (3195 lines) - largest file; then MarkdownParser.fs (1378)"
   ],
   "backlog_remaining": [],
@@ -77,6 +82,6 @@
     "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
     "--root override flag for fsdocs watch (#924) - confirmed root is force-overridden",
     "Triage older issues: #163, #191, #230, #296, #341, #362, #387, #390, #391, #468, #487, #536, #573, #585, #586",
-    "CommonMark compliance improvements to Markdown parser (related to #191, #347, #390)"
+    "CommonMark compliance improvements to Markdown parser (related to #191, #347, #390) - PRs #1027, #1028 created"
   ]
 }
