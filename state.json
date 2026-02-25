@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-25T03:03:38Z",
-  "last_run_id": "22380254728",
+  "last_run": "2026-02-25T08:38:27Z",
+  "last_run_id": "22388867399",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 0,
@@ -9,15 +9,15 @@
     "task2_fix_issues": "2026-02-25",
     "task3_improvements": "2026-02-24",
     "task4_deps": "2026-02-24",
-    "task5_maintain_prs": "2026-02-24",
-    "task6_stale_prs": "2026-02-24",
+    "task5_maintain_prs": "2026-02-25",
+    "task6_stale_prs": "2026-02-25",
     "task7_labels": "2026-02-24",
-    "task8_release": "2026-02-24",
+    "task8_release": "2026-02-25",
     "task9_welcome": "2026-02-24",
     "task10_forward": "2026-02-25",
     "task11_monthly": "2026-02-25"
   },
-  "issues_commented": [90, 144, 422, 439, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 829, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005, 811],
+  "issues_commented": [90, 144, 347, 422, 439, 574, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 829, 858, 872, 898, 918, 924, 926, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005, 811],
   "fix_attempts": {
     "748": {"pr": 994, "status": "merged"},
     "803": {"pr": 995, "status": "open"},
@@ -25,16 +25,17 @@
     "918": {"pr": 997, "status": "merged"},
     "72": {"pr": 998, "status": "open"},
     "1000": {"pr": 1008, "status": "closed_superseded"},
-    "release_22.0.0": {"pr": 976, "status": "open_push_failed", "desc": "push failed due to infra #993; RELEASE_NOTES.md content provided in PR comment"},
+    "release_21.0.1": {"pr": 976, "status": "open_stale_dirty", "desc": "dirty/conflict; superseded by release_22.0.0 PR"},
+    "release_22.0.0": {"pr": "TBD", "branch": "repo-assist/release-v22.0.0-b20729c", "status": "created", "desc": "Release 22.0.0; promotes all [Unreleased] changes"},
     "734": {"pr": 1012, "status": "open"},
     "1001_ci_perf": {"issue": 1014, "status": "patch_available_push_failed", "desc": "dotnet SDK cache + concurrency group"},
     "744": {"pr": 1016, "branch": "repo-assist/fix-744-markdown-span-ranges-8b556d3f75586052", "status": "open", "desc": "Fix incorrect column ranges for inline spans in Markdown parser; 383 tests pass"},
     "793": {"pr": 1017, "branch": "repo-assist/fix-793-projects-relative-paths-85e277eb8b476f16", "status": "open", "desc": "Normalize --projects paths to absolute (Path.GetFullPath); 173 tests pass"},
     "144": {"pr": 1018, "status": "open", "desc": "Exclude CompilerMessageAttribute(IsHidden=true) members from API docs"},
-    "811": {"pr": "TBD", "branch": "repo-assist/feature-811-fsdocs-convert", "status": "created", "desc": "Add dotnet fsdocs convert command; 381/381 tests pass"}
+    "811": {"pr": 1019, "branch": "repo-assist/feature-811-fsdocs-convert-2cf2c2973fcbd211", "status": "open", "desc": "Add dotnet fsdocs convert command; 381/381 tests pass"}
   },
-  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012, 1016, 1017, 1018],
-  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - patch available)", "fix #744: correct column ranges for inline spans in Markdown parser (PR #1016)", "fix #793: normalize --projects relative paths (PR #1017)", "exclude CompilerMessage(IsHidden=true) from API docs (PR #1018)", "dotnet fsdocs convert command for single-file conversion (PR TBD, branch repo-assist/feature-811-fsdocs-convert)"],
+  "pr_repo_assist_open": [976, 980, 983, 995, 998, 1012, 1016, 1017, 1018, 1019, "TBD_22.0.0"],
+  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 comment)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - patch available)", "fix #744: correct column ranges for inline spans in Markdown parser (PR #1016)", "fix #793: normalize --projects relative paths (PR #1017)", "exclude CompilerMessage(IsHidden=true) from API docs (PR #1018)", "dotnet fsdocs convert command for single-file conversion (PR #1019)", "Release 22.0.0 (new PR on branch repo-assist/release-v22.0.0-b20729c)"],
   "prs_merged_by_dsyme": [994, 996, 997, 1007, 1010],
   "notes": [
     "PR #994 merged (HTML-encode XML doc text nodes, fixes #748)",
@@ -46,15 +47,16 @@
     "Issue #1014 created as fallback (push to PR branch failed for CI improvement - patch in artifacts)",
     "dsyme confirmed NuGet.org trusted publishing is set up (comment on #1005 at 21:48 UTC) - #1011 ready to merge",
     "PR #980 has nojaf review requesting MSBuild config approach",
-    "Push to PR branch still failing (infra issue #993)",
+    "Push to PR branch still failing (infra issue #993), but new PRs created via create_pull_request work",
     "PR #1016 created (fix #744: correct column ranges for inline spans in Markdown parser; 383/383 tests pass)",
     "PR #1017 created (fix #793: normalize --projects paths to absolute; 173/173 tests pass)",
     "PR #1018 created (implement #144: exclude CompilerMessage(IsHidden=true) from API docs)",
-    "PR created for #811: dotnet fsdocs convert command (branch repo-assist/feature-811-fsdocs-convert); 381/381 tests pass",
+    "PR #1019 created for #811: dotnet fsdocs convert command; 381/381 tests pass",
+    "Release 22.0.0 PR created (branch repo-assist/release-v22.0.0-b20729c); supersedes #976 which was dirty",
+    "Commented on #347: identified root cause of CommonMark list indentation bug (related to #191)",
     "Issue #702 and #439: same root cause - TypeDefinition.FullName fails for certain array/params types in getXmlDocSigForMember; TryFullName fix needed",
     "Issue #829: commented with architecture for automatic back-links from API pages to tutorials; documented seealso workaround",
-    "Issue #725: commented with contributor guidance on reducing embedded HTML in markdown API docs (GenerateMarkdown.fs)",
-    "Issue #144: commented with implementation guidance - CompilerMessageAttribute(IsHidden=true) check should be added in readCommentsInto in GenerateModel.fs ~line 2395"
+    "Issue #725: commented with contributor guidance on reducing embedded HTML in markdown API docs (GenerateMarkdown.fs)"
   ],
   "backlog_remaining": [],
   "checked_off_by_maintainer": [994],
@@ -67,6 +69,7 @@
     "Named record types ApiDocParameter/ApiDocReturnInfo (#735) - non-breaking additions",
     "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
     "--root override flag for fsdocs watch (#924) - confirmed root is force-overridden",
-    "Triage issues #705, #804, #828 (remaining backlog)"
+    "Triage older issues: #163, #191, #230, #296, #341, #362, #387, #390, #391, #468, #487, #536, #573, #585, #586",
+    "CommonMark compliance improvements to Markdown parser (related to #191, #347, #390)"
   ]
 }
