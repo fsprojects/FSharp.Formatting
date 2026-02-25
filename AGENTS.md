@@ -24,6 +24,19 @@ dotnet fantomas build.fsx src tests docs --check
 
 Configuration is in `.editorconfig`.
 
+## Testing
+
+All new features must be accompanied by comprehensive tests:
+
+- Add tests in the appropriate project under `tests/` (e.g. `FSharp.Markdown.Tests`, `FSharp.Literate.Tests`, `FSharp.ApiDocs.Tests`)
+- Cover both typical usage and edge cases
+- Tests for bug fixes should include a regression test that would have caught the original bug
+- Run the full test suite before submitting:
+
+```bash
+dotnet test FSharp.Formatting.sln --configuration Release
+```
+
 ## CI Checks
 
 Run these checks locally before pushing:
