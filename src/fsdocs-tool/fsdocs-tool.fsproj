@@ -18,6 +18,8 @@
   <ItemGroup>
     <Compile Include="Options.fs" />
     <Compile Include="ProjectCracker.fs" />
+    <Compile Include="DocContent.fs" />
+    <Compile Include="WatchServer.fs" />
     <Compile Include="BuildCommand.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
