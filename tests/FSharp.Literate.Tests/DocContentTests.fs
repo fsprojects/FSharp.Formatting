@@ -1,6 +1,7 @@
 module FSharp.Literate.Tests.DocContent
 
 open System.IO
+open FSharp.Formatting.Literate
 open FSharp.Formatting.Templating
 open fsdocs
 open NUnit.Framework
@@ -336,3 +337,96 @@ let ``ipynb notebook evaluates`` () =
 
     ipynbOut |> shouldContainText "10007"
 *)
+
+// --------------------------------------------------------------------------------------
+// Integration tests for ConvertCommand
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ConvertCommand converts .md file to HTML`` () =
+    let inputFile = __SOURCE_DIRECTORY__ </> "files" </> "simple2.md"
+    let outputFile = __SOURCE_DIRECTORY__ </> "convert-output" </> "simple2-convert.html"
+    Directory.CreateDirectory(Path.GetDirectoryName(outputFile)) |> ignore
+
+    let cmd = ConvertCommand()
+    cmd.input <- inputFile
+    cmd.output <- outputFile
+    cmd.outputFormat <- "html"
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    File.Exists(outputFile) |> shouldEqual true
+    let html = File.ReadAllText(outputFile)
+    html |> shouldContainText "Heading"
+    html |> shouldContainText "Code sample"
+
+[<Test>]
+let ``ConvertCommand converts .fsx file to HTML`` () =
+    let inputFile = __SOURCE_DIRECTORY__ </> "files" </> "simple1.fsx"
+    let outputFile = __SOURCE_DIRECTORY__ </> "convert-output" </> "simple1-convert.html"
+    Directory.CreateDirectory(Path.GetDirectoryName(outputFile)) |> ignore
+
+    let cmd = ConvertCommand()
+    cmd.input <- inputFile
+    cmd.output <- outputFile
+    cmd.outputFormat <- "html"
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    File.Exists(outputFile) |> shouldEqual true
+    let html = File.ReadAllText(outputFile)
+    html |> shouldContainText "Heading"
+    html |> shouldContainText "Code sample"
+
+[<Test>]
+let ``ConvertCommand converts .ipynb file to HTML`` () =
+    let inputFile = __SOURCE_DIRECTORY__ </> "files" </> "simple3.ipynb"
+    let outputFile = __SOURCE_DIRECTORY__ </> "convert-output" </> "simple3-convert.html"
+    Directory.CreateDirectory(Path.GetDirectoryName(outputFile)) |> ignore
+
+    let cmd = ConvertCommand()
+    cmd.input <- inputFile
+    cmd.output <- outputFile
+    cmd.outputFormat <- "html"
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    File.Exists(outputFile) |> shouldEqual true
+    let html = File.ReadAllText(outputFile)
+    html |> shouldContainText "Heading"
+    html |> shouldContainText "Code sample"
+
+[<Test>]
+let ``ConvertCommand converts .md file to Markdown output format`` () =
+    let inputFile = __SOURCE_DIRECTORY__ </> "files" </> "simple2.md"
+    let outputFile = __SOURCE_DIRECTORY__ </> "convert-output" </> "simple2-convert.md"
+    Directory.CreateDirectory(Path.GetDirectoryName(outputFile)) |> ignore
+
+    let cmd = ConvertCommand()
+    cmd.input <- inputFile
+    cmd.output <- outputFile
+    cmd.outputFormat <- "markdown"
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    File.Exists(outputFile) |> shouldEqual true
+
+[<Test>]
+let ``ConvertCommand returns error code for non-existent input file`` () =
+    let cmd = ConvertCommand()
+    cmd.input <- __SOURCE_DIRECTORY__ </> "files" </> "does-not-exist.md"
+    cmd.output <- __SOURCE_DIRECTORY__ </> "convert-output" </> "out.html"
+    let result = cmd.Execute()
+    result |> shouldEqual 1
+
+[<Test>]
+let ``ConvertCommand returns error code for unsupported file extension`` () =
+    let inputFile = __SOURCE_DIRECTORY__ </> "files" </> "template.html"
+    let outputFile = __SOURCE_DIRECTORY__ </> "convert-output" </> "out.html"
+    Directory.CreateDirectory(Path.GetDirectoryName(outputFile)) |> ignore
+
+    let cmd = ConvertCommand()
+    cmd.input <- inputFile
+    cmd.output <- outputFile
+    let result = cmd.Execute()
+    result |> shouldEqual 1
