@@ -2113,10 +2113,11 @@ type CoreBuildOptions(watch) =
            "convert a single document (.md, .fsx, .ipynb) to HTML or another output format without building a full documentation site")>]
 type ConvertCommand() =
 
-    [<Option("input", Required = true, HelpText = "Input file to convert (.md, .fsx or .ipynb).")>]
+    [<Value(0, MetaName = "input", Required = true, HelpText = "Input file to convert (.md, .fsx or .ipynb).")>]
     member val input = "" with get, set
 
-    [<Option("output",
+    [<Option('o',
+             "output",
              Required = false,
              HelpText =
                  "Output file path. Defaults to the input filename with the output format extension in the current directory.")>]
@@ -2129,9 +2130,10 @@ type ConvertCommand() =
 
     [<Option("outputformat",
              Required = false,
-             Default = "html",
-             HelpText = "Output format: html (default), ipynb, latex, fsx, markdown.")>]
-    member val outputFormat = "html" with get, set
+             Default = "",
+             HelpText =
+                 "Output format: html (default), ipynb, latex, fsx, markdown. When not specified, inferred from the output file extension.")>]
+    member val outputFormat = "" with get, set
 
     [<Option("eval", Default = false, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = false with get, set
@@ -2152,8 +2154,24 @@ type ConvertCommand() =
             1
         else
 
+            // Infer output format: explicit flag > extension of -o > default html
+            let resolvedFormat =
+                if not (String.IsNullOrWhiteSpace this.outputFormat) then
+                    this.outputFormat.ToLowerInvariant()
+                elif not (String.IsNullOrWhiteSpace this.output) then
+                    let ext = Path.GetExtension(this.output).TrimStart('.').ToLowerInvariant()
+
+                    match ext with
+                    | "md" -> "markdown"
+                    | "ipynb" -> "ipynb"
+                    | "tex" -> "latex"
+                    | "fsx" -> "fsx"
+                    | _ -> "html"
+                else
+                    "html"
+
             let outputKind =
-                match this.outputFormat.ToLowerInvariant() with
+                match resolvedFormat with
                 | "ipynb" -> OutputKind.Pynb
                 | "latex" -> OutputKind.Latex
                 | "fsx" -> OutputKind.Fsx
