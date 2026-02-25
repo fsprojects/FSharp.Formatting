@@ -16,6 +16,7 @@
 * Normalize `--projects` paths to absolute paths before passing to the project cracker, fixing failures when relative paths are supplied. [#793](https://github.com/fsprojects/FSharp.Formatting/issues/793)
 
 ### Changed
+* Markdown API docs for members now use section-based layout (per-member `####` headings) instead of a Markdown table, eliminating embedded `<br />` separators, `&#124;` pipe escaping, and improving rendering of multi-line content and code examples. [#725](https://github.com/fsprojects/FSharp.Formatting/issues/725)
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
 
 ## 21.0.0 - 2025-11-12

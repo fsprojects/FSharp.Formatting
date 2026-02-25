@@ -31,82 +31,74 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           | None -> ()
           | Some href -> link [ img "Link to source code" (sprintf "%scontent/img/github.png" root) ] (href) ]
 
-    let renderMembers header tableHeader (members: ApiDocMember list) =
+    let renderMembers header _tableHeader (members: ApiDocMember list) =
         [ if members.Length > 0 then
               ``###`` [ !!header ]
 
-              table
-                  [ [ p [ !!tableHeader ] ]; [ p [ !!"Description" ] ]; [ p [ !!"Source" ] ] ]
-                  [ AlignLeft; AlignLeft; AlignCenter ]
-                  [ for m in members ->
-                        [ [ p [ link [ embedSafe (m.UsageHtml) ] ("#" + urlEncode (m.Name)) ] ]
-                          [ let summary = m.Comment.Summary
+              for m in members do
+                  // HTML anchor so existing per-member links (#Name) continue to work
+                  p [ !!(sprintf "<a name=\"%s\"></a>" (urlEncode m.Name)) ]
 
-                            let emptySummary = summary.HtmlText |> String.IsNullOrWhiteSpace
+                  // Member heading containing the full usage signature
+                  ``####`` [ embed m.UsageHtml ]
 
-                            if not emptySummary then
-                                p [ embedSafe m.Comment.Summary; br ]
+                  let summary = m.Comment.Summary
 
-                            match m.Comment.Remarks with
-                            | None -> ()
-                            | Some r -> p [ embedSafe r; br ]
+                  if not (summary.HtmlText |> String.IsNullOrWhiteSpace) then
+                      p [ embed m.Comment.Summary ]
 
-                            if not m.Parameters.IsEmpty then
-                                p [ !!"Parameters" ]
-                                p []
+                  match m.Comment.Remarks with
+                  | None -> ()
+                  | Some r -> p [ embed r ]
 
-                                yield!
-                                    m.Parameters
-                                    |> List.collect (fun parameter ->
-                                        [ p
-                                              [ strong [ !!parameter.ParameterNameText ]
-                                                !!": "
-                                                embedSafe parameter.ParameterType ]
-                                          match parameter.ParameterDocs with
-                                          | None -> ()
-                                          | Some d -> p [ !!(sprintf ": %s" (htmlStringSafe d)) ]
+                  if not m.Parameters.IsEmpty then
+                      p [ strong [ !!"Parameters:" ] ]
 
-                                          ])
+                      for parameter in m.Parameters do
+                          p [ strong [ !!parameter.ParameterNameText ]; !!": "; embed parameter.ParameterType ]
 
-                                p []
+                          match parameter.ParameterDocs with
+                          | None -> ()
+                          | Some d -> p [ embed d ]
 
-                            match m.ExtendedType with
-                            | None -> ()
-                            | Some(_, extendedTypeHtml) -> p [ !!"Extended Type: "; embedSafe extendedTypeHtml; br ]
+                  match m.ExtendedType with
+                  | None -> ()
+                  | Some(_, extendedTypeHtml) -> p [ !!"Extended Type: "; embed extendedTypeHtml ]
 
-                            match m.ReturnInfo.ReturnType with
-                            | None -> ()
-                            | Some(_, returnTypeHtml) ->
-                                p
-                                    [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
-                                             "Returns: "
-                                         else
-                                             "Field type: ")
-                                      embedSafe returnTypeHtml
-                                      br
-                                      match m.ReturnInfo.ReturnDocs with
-                                      | None -> ()
-                                      | Some r ->
-                                          embedSafe r
-                                          br ]
+                  match m.ReturnInfo.ReturnType with
+                  | None -> ()
+                  | Some(_, returnTypeHtml) ->
+                      p
+                          [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
+                                   "Returns: "
+                               else
+                                   "Field type: ")
+                            embed returnTypeHtml ]
 
-                            if not m.Comment.Exceptions.IsEmpty then
-                                for (nm, url, html) in m.Comment.Exceptions do
-                                    p
-                                        [ match url with
-                                          | None -> ()
-                                          | Some href -> link [ !!nm ] href
-                                          embed html
-                                          br ]
+                      match m.ReturnInfo.ReturnDocs with
+                      | None -> ()
+                      | Some r -> p [ embed r ]
 
-                            for e in m.Comment.Notes do
-                                p [ !!"Note" ]
-                                p [ embed e; br ]
+                  if not m.Comment.Exceptions.IsEmpty then
+                      for (nm, url, html) in m.Comment.Exceptions do
+                          p
+                              [ match url with
+                                | None -> ()
+                                | Some href -> link [ !!nm ] href
+                                embed html ]
 
-                            for e in m.Comment.Examples do
-                                p [ !!"Example" ]
-                                p [ embed e; br ] ]
-                          [ p [ yield! sourceLink m.SourceLocation ] ] ] ] ]
+                  for e in m.Comment.Notes do
+                      ``#####`` [ !!"Note" ]
+                      p [ embed e ]
+
+                  for e in m.Comment.Examples do
+                      ``#####`` [ !!"Example" ]
+                      p [ embed e ]
+
+                  let sl = sourceLink m.SourceLocation
+
+                  if not sl.IsEmpty then
+                      p sl ]
 
     let renderEntities (entities: ApiDocEntity list) =
         [ if entities.Length > 0 then
