@@ -62,6 +62,9 @@ pipeline "CI" {
     testStage
 
     stage "GenerateDocs" {
+        // Skip on Windows CI runners: docs are only deployed from Linux
+        whenNot { envVar "RUNNER_OS" "Windows" }
+
         run (fun _ ->
             Shell.cleanDir ".fsdocs"
             Shell.cleanDir ".packages")

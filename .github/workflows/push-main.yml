@@ -5,6 +5,13 @@ on:
     branches:
     - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
   build:
 
@@ -16,6 +23,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+    - name: Cache .NET SDK
+      uses: actions/cache@v4
+      with:
+        path: ~/.dotnet
+        key: ${{ runner.os }}-dotnet-sdk-${{ hashFiles('global.json') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-sdk-
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('Directory.Packages.props', 'global.json', '.config/dotnet-tools.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v5
     - name: Run CI
@@ -27,5 +48,11 @@ jobs:
         publish_dir: ./output
         publish_branch: gh-pages
         force_orphan: true
-    - name: Publish NuGets (if main version changed)
-      run: dotnet nuget push "artifacts/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${{ secrets.FSHARP_FORMATTING_TOKEN_2020 }} --skip-duplicate
+    - name: Obtain NuGet key
+      # this hash is v1.1.0
+      uses: NuGet/login@d22cc5f58ff5b88bf9bd452535b4335137e24544
+      id: login
+      with:
+          user: dsyme
+    - name: Publish NuGets (if this version not published before)
+      run: dotnet nuget push "artifacts/*.nupkg" -s https://www.nuget.org/api/v2/package -k ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate

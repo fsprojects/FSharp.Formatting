@@ -30,7 +30,7 @@ type Literate private () =
         mdlinkResolver
         tokenKindToCss
         =
-        let defines = [ outputKind.Extension ]
+        let defines = [ outputKind.Extension; outputKind.Extension.ToUpperInvariant() ]
 
         { Substitutions = substitutions
           GenerateLineNumbers = defaultArg lineNumbers true

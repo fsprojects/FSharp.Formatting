@@ -113,6 +113,9 @@ module ParamKeys =
     let ``fsdocs-logo-src`` = ParamKey "fsdocs-logo-src"
 
     /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-logo-alt`` = ParamKey "fsdocs-logo-alt"
+
+    /// A parameter key known to FSharp.Formatting
     let ``fsdocs-favicon-src`` = ParamKey "fsdocs-favicon-src"
 
     /// A parameter key known to FSharp.Formatting

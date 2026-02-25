@@ -129,6 +129,22 @@ module ``Space-Missing`` =
     type ``Implicit-Cast``(value: int) = class end
 
 
+/// Test type with setter-only and getter+setter properties (issue #734)
+type Test_Issue734() =
+    let mutable _value = ""
+
+    /// Getter-only property
+    member _.GetterOnly = "getter"
+
+    /// Setter-only property
+    member _.SetterOnly
+        with set (value: string) = _value <- value
+
+    /// Getter and setter property
+    member _.GetterAndSetter
+        with get () = _value
+        and set (value: string) = _value <- value
+
 module CommentExamples =
     /// <summary>this does the thing</summary>
     /// <example>this is an example
