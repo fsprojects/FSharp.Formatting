@@ -222,6 +222,7 @@ module Crack =
           FsDocsLicenseLink: string option
           FsDocsLogoLink: string option
           FsDocsLogoSource: string option
+          FsDocsLogoAlt: string option
           FsDocsReleaseNotesLink: string option
           FsDocsSourceFolder: string option
           FsDocsSourceRepository: string option
@@ -229,6 +230,7 @@ module Crack =
           FsDocsTheme: string option
           FsDocsWarnOnMissingDocs: bool
           FsDocsGenerateLlmsTxt: bool
+          FsDocsAllowExecutableProject: bool
           PackageProjectUrl: string option
           Authors: string option
           GenerateDocumentationFile: bool
@@ -252,6 +254,7 @@ module Crack =
               "UsesMarkdownComments"
               "FsDocsCollectionNameLink"
               "FsDocsLogoSource"
+              "FsDocsLogoAlt"
               "FsDocsFaviconSource"
               "FsDocsTheme"
               "FsDocsLogoLink"
@@ -261,6 +264,7 @@ module Crack =
               "FsDocsSourceRepository"
               "FsDocsWarnOnMissingDocs"
               "FsDocsGenerateLlmsTxt"
+              "FsDocsAllowExecutableProject"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -342,10 +346,13 @@ module Crack =
                   FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
+                  FsDocsLogoAlt = msbuildPropString "FsDocsLogoAlt"
                   FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
                   FsDocsTheme = msbuildPropString "FsDocsTheme"
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
                   FsDocsGenerateLlmsTxt = msbuildPropBool "FsDocsGenerateLlmsTxt" |> Option.defaultValue true
+                  FsDocsAllowExecutableProject =
+                    msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                   PackageProjectUrl = msbuildPropString "PackageProjectUrl"
                   Authors = msbuildPropString "Authors"
@@ -445,7 +452,7 @@ module Crack =
 
             | projectFiles, false ->
                 let collectionName = Path.GetFileName(slnDir)
-                collectionName, projectFiles
+                collectionName, projectFiles |> List.map Path.GetFullPath
             | _, true ->
                 let collectionName = defaultArg userCollectionName (Path.GetFileName slnDir)
 
@@ -501,8 +508,11 @@ module Crack =
                 if info.TargetPath.IsNone then
                     printfn "  skipping project '%s' because it doesn't have a target path" shortName
                     None
-                elif not info.IsLibrary then
-                    printfn "  skipping project '%s' because it isn't a library" shortName
+                elif not info.IsLibrary && not info.FsDocsAllowExecutableProject then
+                    printfn
+                        "  skipping project '%s' because it isn't a library (add <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject> to include it)"
+                        shortName
+
                     None
                 elif info.IsTestProject then
                     printfn "  skipping project '%s' because it has <IsTestProject> true" shortName
@@ -573,6 +583,10 @@ module Crack =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsLogoSource)
                 |> fallbackFromDirectoryProps "//FsDocsLogoSource"
+              FsDocsLogoAlt =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLogoAlt)
+                |> fallbackFromDirectoryProps "//FsDocsLogoAlt"
               FsDocsFaviconSource =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsFaviconSource)
@@ -585,6 +599,7 @@ module Crack =
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
               FsDocsGenerateLlmsTxt = projectInfos |> List.forall (fun i -> i.FsDocsGenerateLlmsTxt)
+              FsDocsAllowExecutableProject = false
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
@@ -628,6 +643,10 @@ module Crack =
                       (Some "<FsDocsLogoSource>")
                       ParamKeys.``fsdocs-logo-src``
                       (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
+                  param
+                      (Some "<FsDocsLogoAlt>")
+                      ParamKeys.``fsdocs-logo-alt``
+                      (Some(defaultArg info.FsDocsLogoAlt "Logo"))
                   param
                       (Some "<FsDocsFaviconSource>")
                       ParamKeys.``fsdocs-favicon-src``

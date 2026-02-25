@@ -50,6 +50,7 @@ The following [content parameters](content.html) are particularly related to vis
 | `fsdocs-authors`            | `<Authors>`                                                                        |   
 | `fsdocs-license-link`       | `<FsDocsLicenseLink>`                                                              | 
 | `fsdocs-logo-src`           | `<FsDocsLogoSource>`                                                               |  
+| `fsdocs-logo-alt`           | `<FsDocsLogoAlt>`, defaults to `Logo`                                              |
 | `fsdocs-favicon-src`        | `<FsDocsFaviconSource>`                                                            |
 | `fsdocs-logo-link`          | `<FsDocsLogoLink>`                                                                 |                
 | `fsdocs-release-notes-link` | `<FsDocsReleaseNotesLink>` else `<PackageProjectUrl>/blob/master/RELEASE_NOTES.md` | 

@@ -553,7 +553,18 @@ module internal Transformations =
     let replaceLiterateParagraphs ctx (doc: LiterateDocument) =
         let codes = doc.Paragraphs |> List.collect collectLiterateCode
 
-        let snippets = [| for _, (lines, _) in codes -> Snippet("", lines) |]
+        // Strip #if SYMBOL / #endif // SYMBOL marker lines from code before syntax-highlighting,
+        // so that they don't appear in the formatted output.
+        let markerLines =
+            ctx.ConditionalDefines
+            |> List.collect (fun sym -> [ sprintf "#if %s" sym; sprintf "#endif // %s" sym ])
+            |> Set.ofList
+
+        let stripDefineLines (lines: Line list) =
+            lines
+            |> List.filter (fun (Line(originalLine, _)) -> not (markerLines.Contains(originalLine.Trim())))
+
+        let snippets = [| for _, (lines, _) in codes -> Snippet("", stripDefineLines lines) |]
 
         // Format all snippets and build lookup dictionary for parameters
         let formatted =

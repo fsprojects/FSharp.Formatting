@@ -324,6 +324,23 @@ type ParsingContext =
 
     member x.AllowYamlFrontMatter = (x.ParseOptions &&& MarkdownParseOptions.AllowYamlFrontMatter) <> enum 0
 
+/// Advances the StartColumn of the current range in ctx by n characters.
+let private advanceCtxBy n ctx =
+    { ctx with
+        CurrentRange =
+            match ctx.CurrentRange with
+            | Some r ->
+                Some
+                    { r with
+                        StartColumn = r.StartColumn + n }
+            | None -> None }
+
+/// Computes a span range starting at ctx.StartColumn and spanning n characters.
+let private spanRange n ctx =
+    match ctx.CurrentRange with
+    | Some r -> Some { r with EndColumn = r.StartColumn + n }
+    | None -> None
+
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx: ParsingContext) =
     seq {
@@ -390,11 +407,11 @@ let rec parseChars acc input (ctx: ParsingContext) =
                     Some
                         { n with
                             StartColumn = n.StartColumn + s
-                            EndColumn = n.EndColumn - e }
+                            EndColumn = n.StartColumn + s + body.Length }
                 | None -> None
 
             yield InlineCode(String(Array.ofList body).Trim(), rng)
-            yield! parseChars [] rest ctx
+            yield! parseChars [] rest (advanceCtxBy (s + body.Length + e) ctx)
 
         // Display Latex inline math mode
         | DelimitedLatexDisplayMath [ '$'; '$' ] (body, rest) ->
@@ -442,60 +459,70 @@ let rec parseChars acc input (ctx: ParsingContext) =
             ->
             let (value, ctx) = accLiterals.Value
             yield! value
-            yield DirectLink([ Literal(link, ctx.CurrentRange) ], link, None, ctx.CurrentRange)
-            yield! parseChars [] rest ctx
+            let consumed = 1 + link.Length + 1
+            yield DirectLink([ Literal(link, spanRange consumed ctx) ], link, None, spanRange consumed ctx)
+            yield! parseChars [] rest (advanceCtxBy consumed ctx)
         // Not an inline link - leave as an inline HTML tag
         | List.DelimitedWith [ '<' ] [ '>' ] (tag, rest, _s, _e) ->
             yield! parseChars ('>' :: (List.rev tag) @ '<' :: acc) rest ctx
 
         // Recognize direct link [foo](http://bar) or indirect link [foo][bar] or auto link http://bar
-        | DirectLink(body, link, rest) ->
+        | DirectLink(body, linkChars, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
-            let link, title = getLinkAndTitle (String(Array.ofList link), MarkdownRange.zero)
+            let consumed = 2 + body.Length + 2 + linkChars.Length
+            let link, title = getLinkAndTitle (String(Array.ofList linkChars), MarkdownRange.zero)
+            let bodyCtx = advanceCtxBy 1 ctx // advance past opening '['
 
-            yield DirectLink(parseChars [] body ctx |> List.ofSeq, link, title, ctx.CurrentRange)
-            yield! parseChars [] rest ctx
+            yield DirectLink(parseChars [] body bodyCtx |> List.ofSeq, link, title, spanRange consumed ctx)
+            yield! parseChars [] rest (advanceCtxBy consumed ctx)
         | IndirectLink(body, link, original, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
+            let consumed = 2 + body.Length + original.Length
+            let bodyCtx = advanceCtxBy 1 ctx // advance past opening '['
+
             let key =
                 if String.IsNullOrEmpty(link) then
                     String(body |> Array.ofSeq)
                 else
                     link
 
-            yield IndirectLink(parseChars [] body ctx |> List.ofSeq, original, key, ctx.CurrentRange)
-            yield! parseChars [] rest ctx
+            yield IndirectLink(parseChars [] body bodyCtx |> List.ofSeq, original, key, spanRange consumed ctx)
+            yield! parseChars [] rest (advanceCtxBy consumed ctx)
         | AutoLink(link, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
-            yield DirectLink([ Literal(link, ctx.CurrentRange) ], link, None, ctx.CurrentRange)
-            yield! parseChars [] rest ctx
+            let consumed = link.Length
+            yield DirectLink([ Literal(link, spanRange consumed ctx) ], link, None, spanRange consumed ctx)
+            yield! parseChars [] rest (advanceCtxBy consumed ctx)
 
         // Recognize image - this is a link prefixed with the '!' symbol
-        | '!' :: DirectLink(body, link, rest) ->
+        | '!' :: DirectLink(body, linkChars, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
-            let link, title = getLinkAndTitle (String(Array.ofList link), MarkdownRange.zero)
+            let consumed = 1 + 2 + body.Length + 2 + linkChars.Length
+            let link, title = getLinkAndTitle (String(Array.ofList linkChars), MarkdownRange.zero)
 
-            yield DirectImage(String(Array.ofList body), link, title, ctx.CurrentRange)
-            yield! parseChars [] rest ctx
+            yield DirectImage(String(Array.ofList body), link, title, spanRange consumed ctx)
+            yield! parseChars [] rest (advanceCtxBy consumed ctx)
         | '!' :: IndirectLink(body, link, original, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
+            let consumed = 1 + 2 + body.Length + original.Length
+
             let key =
                 if String.IsNullOrEmpty(link) then
                     String(body |> Array.ofSeq)
                 else
                     link
 
-            yield IndirectImage(String(Array.ofList body), original, key, ctx.CurrentRange)
-            yield! parseChars [] rest ctx
+            yield IndirectImage(String(Array.ofList body), original, key, spanRange consumed ctx)
+            yield! parseChars [] rest (advanceCtxBy consumed ctx)
 
         // Handle Emphasis
         | CannotOpenEmphasis(revPre, post) -> yield! parseChars (revPre @ acc) post ctx
