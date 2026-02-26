@@ -31,6 +31,7 @@ open FSharp.Formatting.Markdown
 
 #nowarn "44" // Obsolete WebClient
 
+
 type CoreBuildOptions(watch) =
 
     [<Option("input", Required = false, Default = "docs", HelpText = "Input directory of documentation content.")>]
