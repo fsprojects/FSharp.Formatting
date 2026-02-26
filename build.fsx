@@ -26,7 +26,14 @@ let releaseNugetVersion, _, _ =
 
     match Parser.parseChangeLog changeLog with
     | Error(msg, error) -> failwithf "%s msg\n%A" msg error
-    | Ok result -> result.Releases |> List.head
+    | Ok result ->
+        match result.Releases with
+        | [] ->
+            failwith
+                "RELEASE_NOTES.md has no versioned releases. \
+                 Note: blank lines between items inside a section (e.g. '### Added') \
+                 cause Ionide.KeepAChangelog 0.1.8 to stop parsing — remove them."
+        | h :: _ -> h
 
 let solutionFile = "FSharp.Formatting.sln"
 
