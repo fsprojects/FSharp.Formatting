@@ -633,7 +633,7 @@ type internal DocContent
                           (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
                           filesWithFrontMatter ]
 
-    member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs) =
+    member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs, ?defaultMdTemplate: string) =
 
         let inputDirectories = extraInputs @ [ (rootInputFolderAsGiven, ".") ]
 
@@ -667,7 +667,14 @@ type internal DocContent
         [ for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
               yield!
                   processFolder
-                      (htmlTemplate, None, None, None, None, false, Some rootInputFolderAsGiven, fullPathFileMap)
+                      (htmlTemplate,
+                       None,
+                       None,
+                       None,
+                       defaultMdTemplate,
+                       false,
+                       Some rootInputFolderAsGiven,
+                       fullPathFileMap)
                       rootInputFolderAsGiven
                       outputFolderRelativeToRoot
                       filesWithFrontMatter ]
@@ -1319,7 +1326,13 @@ module internal LlmsTxt =
     /// Build a section of llms.txt from a set of search index entries.
     /// When <c>withContent</c> is true, entry content is appended under a heading per entry.
     /// When false, entries are listed as bullet-point links (index format).
-    let buildSection sectionTitle (entries: ApiDocsSearchIndexEntry array) withContent =
+    /// <c>uriTransform</c> is applied to each entry's URI before rendering.
+    let buildSection
+        sectionTitle
+        (entries: ApiDocsSearchIndexEntry array)
+        withContent
+        (uriTransform: string -> string)
+        =
         if entries.Length = 0 then
             ""
         else
@@ -1328,36 +1341,70 @@ module internal LlmsTxt =
 
             for e in entries do
                 let title = normaliseTitle e.title
+                let uri = uriTransform e.uri
 
                 if withContent then
-                    sb.Append(sprintf "### [%s](%s)\n\n" title e.uri) |> ignore
+                    sb.Append(sprintf "### [%s](%s)\n\n" title uri) |> ignore
 
                     if not (System.String.IsNullOrWhiteSpace(e.content)) then
                         sb.Append(cleanContent e.content) |> ignore
                         sb.Append("\n\n") |> ignore
                 else
-                    sb.Append(sprintf "- [%s](%s)\n" title e.uri) |> ignore
+                    sb.Append(sprintf "- [%s](%s)\n" title uri) |> ignore
 
             sb.ToString()
 
+    /// Returns a URI transformer that rewrites links to use .md when markdown output is available.
+    /// <c>docContentUsesMarkdown</c> – doc pages were generated with a _template.md.
+    /// <c>apiDocUsesMarkdown</c> – API reference was generated with GenerateMarkdownPhased
+    ///   (URIs have no file extension; .md must be appended).
+    let buildUriTransform (docContentUsesMarkdown: bool) (apiDocUsesMarkdown: bool) (entryType: string) =
+        fun (uri: string) ->
+            match entryType with
+            | "content" when docContentUsesMarkdown ->
+                if uri.EndsWith(".html", System.StringComparison.OrdinalIgnoreCase) then
+                    uri.[.. uri.Length - 6] + ".md"
+                else
+                    uri
+            | "apiDocs" when apiDocUsesMarkdown ->
+                // In markdown mode InUrl="" so URIs have no extension; append .md.
+                // Strip any #anchor before appending, then re-attach it.
+                let hashIdx = uri.IndexOf('#')
+
+                if hashIdx >= 0 then
+                    uri.[.. hashIdx - 1] + ".md" + uri.[hashIdx..]
+                else
+                    uri + ".md"
+            | _ -> uri
+
     /// Generate the text content of llms.txt (index) and llms-full.txt (with content).
     /// Returns a tuple of (llms.txt content, llms-full.txt content).
-    let buildContent (collectionName: string) (entries: ApiDocsSearchIndexEntry array) =
+    /// When <c>docContentUsesMarkdown</c> is true, doc page links use .md extensions.
+    /// When <c>apiDocUsesMarkdown</c> is true, API reference links use .md extensions.
+    let buildContent
+        (collectionName: string)
+        (entries: ApiDocsSearchIndexEntry array)
+        (docContentUsesMarkdown: bool)
+        (apiDocUsesMarkdown: bool)
+        =
         let contentEntries = entries |> Array.filter (fun e -> e.``type`` = "content")
         let apiEntries = entries |> Array.filter (fun e -> e.``type`` = "apiDocs")
         // For the index, exclude per-member entries (identified by a '#' anchor in the URI).
         let apiIndexEntries = apiEntries |> Array.filter (fun e -> not (e.uri.Contains("#")))
         let header = sprintf "# %s\n\n" collectionName
 
+        let contentTransform = buildUriTransform docContentUsesMarkdown apiDocUsesMarkdown "content"
+        let apiDocTransform = buildUriTransform docContentUsesMarkdown apiDocUsesMarkdown "apiDocs"
+
         let llmsTxt =
             header
-            + buildSection "Docs" contentEntries false
-            + buildSection "API Reference" apiIndexEntries false
+            + buildSection "Docs" contentEntries false contentTransform
+            + buildSection "API Reference" apiIndexEntries false apiDocTransform
 
         let llmsFullTxt =
             header
-            + buildSection "Docs" contentEntries true
-            + buildSection "API Reference" apiEntries true
+            + buildSection "Docs" contentEntries true contentTransform
+            + buildSection "API Reference" apiEntries true apiDocTransform
 
         llmsTxt, llmsFullTxt
 
@@ -1694,6 +1741,35 @@ type CoreBuildOptions(watch) =
             else
                 None
 
+        // Default markdown template – used when generateLlmsTxt is enabled and no user _template.md exists.
+        // An empty (or minimal) _template.md causes the processor to emit just the document content, which
+        // is ideal for LLM consumption.
+        let defaultMdTemplateAttempt1 =
+            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "templates", "_template.md"))
+
+        let defaultMdTemplateAttempt2 =
+            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.md"))
+
+        let defaultMdTemplate =
+            if this.nodefaultcontent then
+                None
+            else if
+                (try
+                    File.Exists(defaultMdTemplateAttempt1)
+                 with _ ->
+                     false)
+            then
+                Some defaultMdTemplateAttempt1
+            elif
+                (try
+                    File.Exists(defaultMdTemplateAttempt2)
+                 with _ ->
+                     false)
+            then
+                Some defaultMdTemplateAttempt2
+            else
+                None
+
         let extraInputs =
             [ if not this.nodefaultcontent then
                   // The "extras" content goes in "."
@@ -1733,6 +1809,7 @@ type CoreBuildOptions(watch) =
         let mutable latestApiDocCodeReferenceResolver = (fun _ -> None)
         let mutable latestApiDocPhase2 = (fun _ -> ())
         let mutable latestApiDocSearchIndexEntries = [||]
+        let mutable latestApiDocOutputKind = OutputKind.Html
         let mutable latestDocContentPhase2 = (fun _ -> ())
         let mutable latestDocContentResults = Map.empty
         let mutable latestDocContentSearchIndexEntries = [||]
@@ -1749,10 +1826,20 @@ type CoreBuildOptions(watch) =
 
             File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "index.json"), indxTxt)
 
+        // Capture the bool value before it is shadowed by the generateLlmsTxt function below.
+        let generateLlmsTxtEnabled = generateLlmsTxt
+
         let generateLlmsTxt () =
-            if generateLlmsTxt then
+            if generateLlmsTxtEnabled then
                 let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
-                let llmsTxt, llmsFullTxt = LlmsTxt.buildContent collectionName index
+                // Doc content generates .md files alongside .html when _template.md is present.
+                let docContentUsesMarkdown = File.Exists(Path.Combine(this.input, "_template.md"))
+
+                let apiDocUsesMarkdown = latestApiDocOutputKind = OutputKind.Markdown
+
+                let llmsTxt, llmsFullTxt =
+                    LlmsTxt.buildContent collectionName index docContentUsesMarkdown apiDocUsesMarkdown
+
                 File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms.txt"), llmsTxt)
                 File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms-full.txt"), llmsFullTxt)
 
@@ -1772,32 +1859,55 @@ type CoreBuildOptions(watch) =
                     latestApiDocGlobalParameters <- [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
                 elif crackedProjects.Length > 0 then
                     let (outputKind, initialTemplate2) =
+                        // When llms.txt generation is enabled, prefer a markdown template so that
+                        // API reference pages are emitted as .md files and llms.txt can link to them.
                         let templates =
-                            [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                              OutputKind.Html, Path.Combine(this.input, "_template.html")
-                              OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                              OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
+                            if generateLlmsTxtEnabled then
+                                [ OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md")
+                                  OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                                  OutputKind.Html, Path.Combine(this.input, "_template.html") ]
+                            else
+                                [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                                  OutputKind.Html, Path.Combine(this.input, "_template.html")
+                                  OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
                         match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
                         | Some(kind, path) -> kind, Some path
                         | None ->
                             let templateFiles = templates |> Seq.map snd |> String.concat "', '"
 
-                            match defaultTemplate with
+                            // When llms.txt is enabled, prefer a markdown fallback template so that
+                            // .md files are generated and linked from llms.txt.
+                            let mdFallback = if generateLlmsTxtEnabled then defaultMdTemplate else None
+
+                            match mdFallback with
                             | Some d ->
                                 printfn
-                                    "note, no template files: '%s' found, using default template %s"
+                                    "note, no template files: '%s' found, using default markdown template %s for llms.txt"
                                     templateFiles
                                     d
 
-                                OutputKind.Html, Some d
+                                OutputKind.Markdown, Some d
                             | None ->
-                                printfn
-                                    "note, no template file '%s' found, and no default template at '%s'"
-                                    templateFiles
-                                    defaultTemplateAttempt1
+                                match defaultTemplate with
+                                | Some d ->
+                                    printfn
+                                        "note, no template files: '%s' found, using default template %s"
+                                        templateFiles
+                                        d
 
-                                OutputKind.Html, None
+                                    OutputKind.Html, Some d
+                                | None ->
+                                    printfn
+                                        "note, no template file '%s' found, and no default template at '%s'"
+                                        templateFiles
+                                        defaultTemplateAttempt1
+
+                                    OutputKind.Html, None
+
+                    latestApiDocOutputKind <- outputKind
 
                     printfn ""
                     printfn "API docs:"
@@ -1890,7 +2000,14 @@ type CoreBuildOptions(watch) =
                         onError
                     )
 
-                let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
+                let docModels =
+                    // When llms.txt generation is enabled, pass the default markdown template so that
+                    // .md versions of content pages are written alongside .html files, enabling
+                    // llms.txt to link to the more LLM-friendly markdown versions.
+                    let mdTemplate = if generateLlmsTxtEnabled then defaultMdTemplate else None
+
+                    docContent.Convert(this.input, defaultTemplate, extraInputs, ?defaultMdTemplate = mdTemplate)
+
                 let actualDocModels = docModels |> List.map fst |> List.choose id
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 

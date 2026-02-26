@@ -7,6 +7,7 @@
 * `llms-full.txt` now uses heading-per-entry format (`### [title](url)`) for better navigation structure. [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 * `llms.txt` index omits per-member API entries (individual properties/methods) to reduce size; `llms-full.txt` retains full member detail. [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 * `llms-full.txt` content now has HTML entities decoded and `--eval` warning lines stripped for cleaner LLM consumption. [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
+* When `FsDocsGenerateLlmsTxt` is enabled (the default), `llms.txt` and `llms-full.txt` link to `.md` files instead of `.html` when markdown output is available, as markdown is more useful for LLM consumption. A default `_template.md` is now bundled with the tool so that markdown output is generated automatically. [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 * Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
 * Add `{{fsdocs-logo-alt}}` substitution (configurable via `<FsDocsLogoAlt>` MSBuild property, defaults to `Logo`) for accessible alt text on the header logo image. [#626](https://github.com/fsprojects/FSharp.Formatting/issues/626)
 
