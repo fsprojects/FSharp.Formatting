@@ -9,6 +9,10 @@
 * Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
 * Add `{{fsdocs-logo-alt}}` substitution (configurable via `<FsDocsLogoAlt>` MSBuild property, defaults to `Logo`) for accessible alt text on the header logo image. [#626](https://github.com/fsprojects/FSharp.Formatting/issues/626)
 * Generate `llms.txt` and `llms-full.txt` for LLM consumption by default; opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>` in your project file. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951)
+* Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
+* Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
+* Add `{{fsdocs-logo-alt}}` substitution (configurable via `<FsDocsLogoAlt>` MSBuild property, defaults to `Logo`) for accessible alt text on the header logo image. [#626](https://github.com/fsprojects/FSharp.Formatting/issues/626)
+* Add `fsdocs init` command to scaffold a minimal `docs/index.md` (and optionally `_template.html`) for new projects. [#872](https://github.com/fsprojects/FSharp.Formatting/issues/872)
 
 ### Fixed
 * Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)
@@ -25,6 +29,7 @@
 * Improve CommonMark compliance for ATX headings: reject `#` not followed by a space (e.g. `#NoSpace` is now a paragraph), reject more than 6 `#` characters as a heading, support 0–3 leading spaces before the opening `#` sequence, and fix empty content when the entire header body is a closing `###` sequence. [#191](https://github.com/fsprojects/FSharp.Formatting/issues/191)
 
 ### Changed
+* Markdown API docs for members now use section-based layout (per-member `####` headings) instead of a Markdown table, eliminating embedded `<br />` separators, `&#124;` pipe escaping, and improving rendering of multi-line content and code examples. [#725](https://github.com/fsprojects/FSharp.Formatting/issues/725)
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
 * Reduce dark mode header border contrast to match the visual subtlety of light mode borders. [#885](https://github.com/fsprojects/FSharp.Formatting/issues/885)
 
