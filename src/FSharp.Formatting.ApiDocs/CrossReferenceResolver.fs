@@ -23,8 +23,11 @@ open FSharp.Formatting.Templating
 open FSharp.Patterns
 open FSharp.Compiler.Syntax
 
+/// Internal helpers for computing XML doc signature strings (e.g. "T:MyNs.MyType")
+/// that are used as stable identifiers for cross-reference lookup.
 [<AutoOpen>]
 module internal CrossReferences =
+    /// Returns the XML doc signature for a type, falling back to a "T:FullName" construction.
     let getXmlDocSigForType (typ: FSharpEntity) =
         if not (String.IsNullOrWhiteSpace typ.XmlDocSig) then
             typ.XmlDocSig
@@ -34,11 +37,14 @@ module internal CrossReferences =
             with _ ->
                 ""
 
+    /// Returns the XML doc sig prefix letter for a member: "E" for events, "P" for properties, "M" otherwise.
     let getMemberXmlDocsSigPrefix (memb: FSharpMemberOrFunctionOrValue) =
         if memb.IsEvent then "E"
         elif memb.IsProperty then "P"
         else "M"
 
+    /// Returns the XML doc signature for a member, constructing it from the member's type and parameter list
+    /// when <see cref="P:FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue.XmlDocSig"/> is empty.
     let getXmlDocSigForMember (memb: FSharpMemberOrFunctionOrValue) =
         if not (String.IsNullOrWhiteSpace memb.XmlDocSig) then
             memb.XmlDocSig
@@ -122,11 +128,16 @@ module internal CrossReferences =
             | None -> ""
             | Some fullName -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) fullName memberName
 
+/// A resolved cross-reference containing the target URL and display name.
 type internal CrefReference =
     { IsInternal: bool
       ReferenceLink: string
       NiceName: string }
 
+/// Resolves XML doc <c>cref</c> references to documentation URLs for both internal
+/// (this collection) and external (.NET / FSharp.Core) symbols. Call
+/// <see cref="M:FSharp.Formatting.ApiDocs.CrossReferenceResolver.RegisterEntity"/> for
+/// every entity in the collection before resolving any references.
 type internal CrossReferenceResolver(root, collectionName, qualify, extensions) =
     let toReplace =
         ([ ("Microsoft.", ""); (".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_") ]
