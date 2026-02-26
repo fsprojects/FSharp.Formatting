@@ -750,6 +750,33 @@ module internal CrossReferences =
                         else
                             ""
 
+                    let rec formatTypeForXmlDocSig (typ: FSharpType) =
+                        if typ.IsGenericParameter then
+                            typeArgsMap.[typ.GenericParameter.Name]
+                        elif typ.HasTypeDefinition && typ.TypeDefinition.IsArrayType then
+                            let elementTypeName = formatTypeForXmlDocSig typ.GenericArguments.[0]
+                            let rank = typ.TypeDefinition.ArrayRank
+
+                            if rank = 1 then
+                                elementTypeName + "[]"
+                            else
+                                let dims = String.concat "," (Array.create rank "0:")
+                                elementTypeName + "[" + dims + "]"
+                        elif typ.HasTypeDefinition then
+                            let baseName =
+                                match typ.TypeDefinition.TryFullName with
+                                | Some fullName -> fullName
+                                | None -> typ.TypeDefinition.CompiledName
+
+                            if typ.GenericArguments.Count > 0 then
+                                let args = typ.GenericArguments |> Seq.map formatTypeForXmlDocSig |> String.concat ","
+
+                                baseName + "{" + args + "}"
+                            else
+                                baseName
+                        else
+                            typ.Format(FSharpDisplayContext.Empty)
+
                     let paramList =
                         if
                             memb.CurriedParameterGroups.Count > 0
@@ -757,13 +784,7 @@ module internal CrossReferences =
                         then
                             let head = memb.CurriedParameterGroups.[0]
 
-                            let paramTypeList =
-                                head
-                                |> Seq.map (fun param ->
-                                    if param.Type.IsGenericParameter then
-                                        typeArgsMap.[param.Type.GenericParameter.Name]
-                                    else
-                                        param.Type.TypeDefinition.FullName)
+                            let paramTypeList = head |> Seq.map (fun param -> formatTypeForXmlDocSig param.Type)
 
                             "(" + System.String.Join(", ", paramTypeList) + ")"
                         else
@@ -2398,6 +2419,21 @@ module internal SymbolReader =
                 | Command "omit" v
                 | Command "exclude" v
                 | Let "false" (v, _) -> (v <> "false")
+
+            let isCompilerHidden =
+                let attribs =
+                    match sym with
+                    | :? FSharpMemberOrFunctionOrValue as mfv -> mfv.Attributes :> FSharpAttribute seq
+                    | :? FSharpEntity as ent -> ent.Attributes :> FSharpAttribute seq
+                    | _ -> Seq.empty
+
+                attribs
+                |> Seq.exists (fun a ->
+                    a.AttributeType.FullName = "Microsoft.FSharp.Core.CompilerMessageAttribute"
+                    && a.NamedArguments
+                       |> Seq.exists (fun (_, name, _, value) -> name = "IsHidden" && (value :?> bool) = true))
+
+            let exclude = exclude || isCompilerHidden
 
             try
                 Some(f cat catindex exclude cmds comment, nsdocs)
