@@ -1,3 +1,6 @@
+/// Resolves XML documentation cross-references (cref attributes) to hyperlinks pointing either to
+/// internal API doc pages or to external documentation (fsharp.github.io, learn.microsoft.com).
+/// Also manages URL base-name registration for all FSharp entities so internal links remain stable.
 namespace rec FSharp.Formatting.ApiDocs
 
 open System
@@ -24,7 +27,9 @@ open FSharp.Patterns
 open FSharp.Compiler.Syntax
 
 [<AutoOpen>]
+/// Helpers for computing XML doc signature strings (the T:/M:/P:... identifiers) for FSharp symbols.
 module internal CrossReferences =
+    /// Returns the XML doc signature for a type entity (e.g. "T:FSharp.Formatting.ApiDocs.ApiDocModel").
     let getXmlDocSigForType (typ: FSharpEntity) =
         if not (String.IsNullOrWhiteSpace typ.XmlDocSig) then
             typ.XmlDocSig
@@ -34,11 +39,14 @@ module internal CrossReferences =
             with _ ->
                 ""
 
+    /// Returns the single-letter XML doc sig prefix for a member: "E" for events, "P" for properties, "M" for other members.
     let getMemberXmlDocsSigPrefix (memb: FSharpMemberOrFunctionOrValue) =
         if memb.IsEvent then "E"
         elif memb.IsProperty then "P"
         else "M"
 
+    /// Returns the XML doc signature for a member (e.g. "M:MyNs.MyType.MyMethod(System.String)").
+    /// Falls back to constructing one from the member's compiled name and type parameters when the compiler hasn't filled it in.
     let getXmlDocSigForMember (memb: FSharpMemberOrFunctionOrValue) =
         if not (String.IsNullOrWhiteSpace memb.XmlDocSig) then
             memb.XmlDocSig
@@ -122,11 +130,14 @@ module internal CrossReferences =
             | None -> ""
             | Some fullName -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) fullName memberName
 
+/// The result of resolving a cross-reference: a hyperlink URL plus a display name, and whether the target is internal.
 type internal CrefReference =
     { IsInternal: bool
       ReferenceLink: string
       NiceName: string }
 
+/// Resolves cref XML doc cross-references to URLs for the documentation site.
+/// Entities must be registered via <c>RegisterEntity</c> before resolution so that internal links can be built.
 type internal CrossReferenceResolver(root, collectionName, qualify, extensions) =
     let toReplace =
         ([ ("Microsoft.", ""); (".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_") ]

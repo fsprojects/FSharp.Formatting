@@ -1,6 +1,10 @@
+/// Internal DSL for building and rendering HTML element trees, used by the API docs and template rendering pipeline.
+/// Provides typed representations of HTML properties and elements, and a fluent builder API in the <c>Html</c> module.
 namespace FSharp.Formatting.HtmlModel
 
 
+/// A discriminated union of all standard HTML attribute/property types.
+/// Each case represents one HTML attribute and carries its typed value.
 type internal HtmlProperties =
     | DefaultChecked of bool
     | DefaultValue of string
@@ -298,6 +302,9 @@ type internal HtmlProperties =
         | Unselectable s -> sprintf "unselectable=\"%s\"" (if s then "true" else "false")
         | Custom(k, v) -> sprintf "%s=\"%s\"" k v
 
+/// A typed representation of an HTML element tree node.
+/// Each case corresponds to an HTML tag. Leaf nodes hold <c>HtmlProperties</c> (attributes); branch nodes also hold child elements.
+/// The <c>String</c> case represents a raw text node; <c>EncodeString</c> HTML-encodes the text before output.
 type internal HtmlElement =
     private
     | A of props: HtmlProperties list * children: HtmlElement list
@@ -605,6 +612,8 @@ type internal HtmlElement =
 
         helper 1 tag
 
+/// Builder functions for creating <c>HtmlElement</c> values, one per HTML tag.
+/// Import this module (<c>open FSharp.Formatting.HtmlModel.Html</c>) to build element trees with a concise DSL.
 module internal Html =
     let a (props: HtmlProperties list) (children: HtmlElement list) = HtmlElement.A(props, children)
     let abbr (props: HtmlProperties list) (children: HtmlElement list) = HtmlElement.Abbr(props, children)

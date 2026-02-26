@@ -1,3 +1,5 @@
+/// Generates HTML-format API documentation pages from an <c>ApiDocModel</c>.
+/// Produces one HTML file per entity and per namespace, suitable for embedding in an fsdocs template.
 module internal FSharp.Formatting.ApiDocs.GenerateHtml
 
 open System
@@ -10,9 +12,10 @@ open FSharp.Formatting.Templating
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 
-/// Embed some HTML generated in GenerateModel
+/// Wraps pre-rendered API doc HTML as a raw <c>HtmlElement</c> text node.
 let embed (x: ApiDocHtml) = !!x.HtmlText
 
+/// Wraps an <c>ApiDocHtml</c> summary in a styled paragraph, unless it already starts with a <pre> block.
 let fsdocsSummary (x: ApiDocHtml) =
     // the <pre> tag is not allowed inside a <p> tag.
     if x.HtmlText.StartsWith("<pre>", StringComparison.Ordinal) then
@@ -20,6 +23,7 @@ let fsdocsSummary (x: ApiDocHtml) =
     else
         div [ Class "fsdocs-summary-contents" ] [ p [ Class "fsdocs-summary" ] [ embed x ] ]
 
+/// Renders API documentation pages in HTML format from the given <c>ApiDocModel</c>.
 type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
@@ -694,6 +698,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc); yield ParamKeys.``fsdocs-body-class``, "api-docs" ]
 
+    /// Generates all HTML API doc pages into <paramref name="outDir"/>, applying the given template and global parameters.
     member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
         let getSubstitutons parameters toc (content: HtmlElement) pageTitle =

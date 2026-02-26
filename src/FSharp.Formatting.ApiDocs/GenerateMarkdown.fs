@@ -1,3 +1,5 @@
+/// Generates Markdown-format API documentation pages from an <c>ApiDocModel</c>.
+/// Produces one Markdown file per entity and per namespace, suitable for rendering with a Markdown template.
 module internal FSharp.Formatting.ApiDocs.GenerateMarkdown
 
 open System
@@ -8,19 +10,26 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
+/// HTML-encodes a string and also escapes pipe characters (for use inside Markdown table cells).
 let encode (x: string) =
     HttpUtility.HtmlEncode(x).Replace("|", "&#124;")
 
+/// URL-encodes a string for use inside Markdown links.
 let urlEncode (x: string) = HttpUtility.UrlEncode x
+/// Extracts the plain HTML text from an <c>ApiDocHtml</c> value (trimmed).
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
+/// Like <c>htmlString</c> but also replaces newlines with <br /> and escapes pipe characters (safe for table cells).
 let htmlStringSafe (x: ApiDocHtml) =
     (x.HtmlText.Trim()).Replace("\n", "<br />").Replace("|", "&#124;")
 
+/// Wraps <c>ApiDocHtml</c> as an inline Markdown text node.
 let embed (x: ApiDocHtml) = !!(htmlString x)
+/// Like <c>embed</c> but uses the table-safe encoding.
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
 let br = !!"<br />"
 
+/// Renders API documentation pages in Markdown format from the given <c>ApiDocModel</c>.
 type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
@@ -393,6 +402,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let toc = listOfNamespaces true true None
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
 
+    /// Generates all Markdown API doc pages into <paramref name="outDir"/>, applying the given template and global parameters.
     member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
         let getSubstitutons parameters toc (content: MarkdownDocument) pageTitle =
