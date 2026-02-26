@@ -8,10 +8,11 @@ do ()
 [<EntryPoint>]
 let main argv =
     CommandLine.Parser.Default
-        .ParseArguments<ConvertCommand, BuildCommand, WatchCommand>(argv)
+        .ParseArguments<ConvertCommand, BuildCommand, WatchCommand, InitCommand>(argv)
         .MapResult(
             (fun (opts: ConvertCommand) -> opts.Execute()),
             (fun (opts: BuildCommand) -> opts.Execute()),
             (fun (opts: WatchCommand) -> opts.Execute()),
+            (fun (opts: InitCommand) -> opts.Execute()),
             (fun _ -> 1)
         )
