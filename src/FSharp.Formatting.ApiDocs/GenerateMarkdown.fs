@@ -1,3 +1,5 @@
+/// Internal module that generates Markdown documentation output from an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>.
+/// Produces one Markdown file per namespace and per entity, plus an index file.
 module internal FSharp.Formatting.ApiDocs.GenerateMarkdown
 
 open System
@@ -8,10 +10,13 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
+/// HTML-encodes a string and additionally escapes pipe characters for safe use in Markdown tables.
 let encode (x: string) =
     HttpUtility.HtmlEncode(x).Replace("|", "&#124;")
 
+/// URL-encodes a string (for use in anchor hrefs).
 let urlEncode (x: string) = HttpUtility.UrlEncode x
+/// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value.
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
 let htmlStringSafe (x: ApiDocHtml) =
@@ -21,6 +26,9 @@ let embed (x: ApiDocHtml) = !!(htmlString x)
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
 let br = !!"<br />"
 
+/// Renders Markdown API documentation for all namespaces and entities in an
+/// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>. Writes one file per namespace
+/// and per entity to <paramref name="outDir"/> using the supplied template.
 type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
