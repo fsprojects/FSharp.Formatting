@@ -1,18 +1,69 @@
 {
-  "last_run": "2026-02-26T18:39:56Z",
-  "run_id": "22456000063",
-  "comments_made": [
-    {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
-    {"issue": 1022, "run": "22455635420", "note": "Reported BuildCommand.fs split progress (PR submitted)"},
-    {"issue": 362, "run": "22452199872", "note": "Initial comment on C# readonly fields bug"},
-    {"issue": 362, "run": "22456000063", "note": "Deep investigation: confirmed bug NOT fixed; FCS doesn't expose C# fields via FSharpFields or MembersFunctionsAndValues; proposed reflection-based workaround"}
+  "last_run": "2026-02-26T18:38:50Z",
+  "last_run_id": "22455968593",
+  "monthly_activity_issue": 973,
+  "monthly_activity_month": "2026-02",
+  "backlog_cursor": 0,
+  "tasks_last_run": {
+    "task1_triage": "2026-02-26",
+    "task2_fix_issues": "2026-02-26",
+    "task3_improvements": "2026-02-25",
+    "task4_deps": "2026-02-25",
+    "task5_maintain_prs": "2026-02-26",
+    "task6_stale_prs": "2026-02-25",
+    "task7_labels": "2026-02-25",
+    "task8_release": "2026-02-25",
+    "task9_welcome": "2026-02-24",
+    "task10_forward": "2026-02-25",
+    "task11_monthly": "2026-02-26"
+  },
+  "issues_commented": [90, 144, 163, 191, 230, 296, 341, 347, 362, 390, 422, 439, 468, 574, 591, 592, 605, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 811, 829, 858, 872, 898, 918, 924, 926, 927, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005, 1022, 1033, 590],
+  "fix_attempts": {
+    "748": {"pr": 994, "status": "merged"},
+    "803": {"pr": 995, "status": "merged"},
+    "626": {"pr": 996, "status": "merged"},
+    "918": {"pr": 997, "status": "merged"},
+    "72": {"pr": 998, "status": "merged"},
+    "release_22.0.0": {"pr": 1031, "branch": "repo-assist/release-v22.0.0-8df8eb8-34b93c762dcc250f", "status": "open", "desc": "Release 22.0.0; supersedes #1020"},
+    "1022_generatemodel": {"pr": 1032, "status": "open", "desc": "Split GenerateModel.fs (3232 lines) into 5 files; 72/72 tests pass"},
+    "341": {"pr": 1034, "branch": "repo-assist/fix-issue-341-ifsi-disposable-d30f8a38ca11886a", "status": "open", "desc": "IFsiEvaluator inherits IDisposable; FsiEvaluator disposes FSI session; 173/173 tests pass"},
+    "811": {"pr": 1019, "branch": "repo-assist/feature-811-fsdocs-convert-2cf2c2973fcbd211", "status": "open", "desc": "Add dotnet fsdocs convert command; 381/381 tests pass"},
+    "951_llmstxt": {"pr": 980, "branch": "repo-assist/feature-llmstxt-951-9e151877ea004bb1", "status": "open", "desc": "Add FsDocsGenerateLlmsTxt MSBuild property; nojaf wants MSBuild config approach"},
+    "590_inherited_members": {"pr": "pending", "branch": "repo-assist/fix-issue-590-inherited-members", "status": "open", "desc": "Show inherited members from documented base types; MSDN-style Inherited from X sections; 415/415 tests pass"}
+  },
+  "pr_repo_assist_open": [980, 1019, 1031, 1032, 1034, "590_pr"],
+  "improvements_proposed": ["llms.txt (#980)", "Release 22.0.0 (PR #1031)", "split GenerateModel.fs (PR #1032)", "IFsiEvaluator IDisposable (PR #1034)", "dotnet fsdocs convert command (PR #1019)", "Show inherited members (#590 - PR pending)"],
+  "prs_merged_by_dsyme": [983, 994, 995, 996, 997, 998, 1007, 1010, 1012, 1016, 1017, 1018, 1021, 1024, 1025, 1026, 1027, 1028],
+  "notes": [
+    "PR for #590 (inherited members) created this run; PR number to be determined",
+    "PR #1034 open: Fix #341 - IFsiEvaluator inherits IDisposable; FsiEvaluator disposes FSI session; 173/173 tests pass",
+    "PR #1032 open: Split GenerateModel.fs into 5 files; 72/72 tests pass",
+    "PR #1031 open: Release 22.0.0; supersedes #1020",
+    "PR #1019 open: dotnet fsdocs convert command; 381/381 tests pass",
+    "PR #980 open: llms.txt/llms-full.txt; nojaf wants MSBuild config approach",
+    "Issue #468 commented: code block language-xxx class is now working correctly",
+    "Issue #1033 opened by agentics infra: code push failed; explained known infra issue #993",
+    "dsyme confirmed NuGet.org trusted publishing is set up (comment on #1005)",
+    "PR #980 has nojaf review requesting MSBuild config approach",
+    "Issue #949 (tooltip rewrite): MangelMaxime is actively working on it - do not create competing PR",
+    "Issue #929 (signature-like API docs): MangelMaxime intends to submit a PR - do not create competing PR",
+    "Monthly activity issue #973 updated 2026-02-26 (18:26 UTC)"
   ],
-  "fix_attempts": [
-    {"issue": 1022, "pr": 1029, "status": "closed-conflict", "desc": "Split GenerateModel.fs v1"},
-    {"issue": 1022, "pr": 1032, "status": "merged", "desc": "Split GenerateModel.fs v2 - MERGED by dsyme"},
-    {"issue": 1022, "pr": "pending", "branch": "repo-assist/fix-issue-1022-split-buildcommand", "desc": "Split BuildCommand.fs into DocContent.fs, Serve.fs, BuildCommand.fs"}
-  ],
-  "notes": "Issue #362: C# readonly/public fields NOT fixed. FCS limitation confirmed - FSharpEntity.FSharpFields returns empty for C# classes; fields also absent from MembersFunctionsAndValues. Fix requires System.Reflection fallback in SymbolReader.fs. Issue #1022: PR for BuildCommand.fs split submitted. Remaining large files: SymbolReader.fs (1621), MarkdownParser.fs (1470), YaafFSharpScripting.fs (1123). Monthly activity issue not yet created for 2026-02.",
-  "backlog_cursor": {"issue": 362},
-  "monthly_activity_issue": null
+  "backlog_remaining": [],
+  "checked_off_by_maintainer": [994],
+  "future_work": [
+    "Continue splitting large files per #1022: SymbolReader.fs (1621 lines), MarkdownParser.fs (1378 lines), YaafFSharpScripting.fs (1123 lines)",
+    "Fix #439/#702: PR #1024 merged by dsyme",
+    "CSS tooltip implementation (#422/#679) - MangelMaxime working on this via #949",
+    "PascalCase property members for ApiDocMemberDetails (#933)",
+    "Named record types ApiDocParameter/ApiDocReturnInfo (#735) - non-breaking additions",
+    "Investigate larger deps: Suave 3.x, Ionide.ProjInfo 0.74.x, NUnit 4.x",
+    "Triage older issues: #391, #487, #536, #573, #585, #586, #680, #705, #804, #828, #910, #928",
+    "CommonMark compliance improvements to Markdown parser (related to #191, #347, #390) - PRs #1027, #1028 merged",
+    "Nested category nesting (#927) - suggested /separator approach; could implement if maintainer approves",
+    "Tolerant cross-reference resolution (#605): use niceNameEntityLookup for unqualified type/member names",
+    "In-page TOC feature (#163): proposed implementation approach; ready to prototype if maintainers confirm syntax",
+    "IDisposable for IFsiEvaluator (#341): PR #1034 created",
+    "Inherited members feature (#590): PR created this run"
+  ]
 }
