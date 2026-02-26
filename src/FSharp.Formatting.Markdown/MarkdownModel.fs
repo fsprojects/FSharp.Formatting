@@ -116,20 +116,37 @@ type MarkdownTableRow = MarkdownParagraphs list
 type MarkdownEmbedParagraphs =
     abstract Render: unit -> MarkdownParagraphs
 
+/// <summary>
+/// Concise F# DSL operators for constructing <see cref="MarkdownParagraph"/> and <see cref="MarkdownSpan"/> values.
+/// Useful for building Markdown ASTs programmatically without specifying range information.
+/// </summary>
 module Dsl =
+    /// Creates an H1 heading paragraph
     let ``#`` value = Heading(1, value, None)
+    /// Creates an H2 heading paragraph
     let ``##`` value = Heading(2, value, None)
+    /// Creates an H3 heading paragraph
     let ``###`` value = Heading(3, value, None)
+    /// Creates an H4 heading paragraph
     let ``####`` value = Heading(4, value, None)
+    /// Creates an H5 heading paragraph
     let ``#####`` value = Heading(5, value, None)
+    /// Creates a strong (bold) inline span
     let strong value = Strong(value, None)
+    /// Creates a paragraph block
     let p value = Paragraph(value, None)
+    /// Creates a span block
     let span value = Span(value, None)
+    /// Creates a literal (plain text) inline span
     let (!!) value = Literal(value, None)
+    /// Creates a direct hyperlink span
     let link content url = DirectLink(content, url, None, None)
+    /// Creates an unordered list block
     let ul value = ListBlock(Unordered, value, None)
+    /// Creates an ordered list block
     let ol value = ListBlock(Ordered, value, None)
 
+    /// Creates a table block; an empty header list is treated as no header row
     let table headers alignments rows =
         let hs =
             match headers with
@@ -138,6 +155,7 @@ module Dsl =
 
         TableBlock(hs, alignments, rows, None)
 
+    /// Creates a direct image span
     let img body link = DirectImage(body, link, None, None)
 // --------------------------------------------------------------------------------------
 // Patterns that make recursive Markdown processing easier
@@ -146,9 +164,12 @@ module Dsl =
 /// This module provides an easy way of processing Markdown documents.
 /// It lets you decompose documents into leafs and nodes with nested paragraphs.
 module MarkdownPatterns =
+    /// Carries the identity of a leaf span (one with no child spans)
     type SpanLeafInfo = private SL of MarkdownSpan
+    /// Carries the identity of a node span (one with child spans)
     type SpanNodeInfo = private SN of MarkdownSpan
 
+    /// Active pattern that classifies a <see cref="MarkdownSpan"/> as either a leaf (no children) or a node (with children)
     let (|SpanLeaf|SpanNode|) span =
         match span with
         | Literal _
@@ -165,8 +186,10 @@ module MarkdownPatterns =
         | DirectLink(spans, _, _, _)
         | IndirectLink(spans, _, _, _) -> SpanNode(SN span, spans)
 
+    /// Reconstructs a leaf span from its <see cref="SpanLeafInfo"/> tag
     let SpanLeaf (SL(span)) = span
 
+    /// Reconstructs a node span from its <see cref="SpanNodeInfo"/> tag and a (possibly updated) child span list
     let SpanNode (SN(span), spans) =
         match span with
         | Strong(_, r) -> Strong(spans, r)
@@ -175,10 +198,14 @@ module MarkdownPatterns =
         | IndirectLink(_, a, b, r) -> IndirectLink(spans, a, b, r)
         | _ -> invalidArg "" "Incorrect SpanNodeInfo"
 
+    /// Carries the identity of a paragraph that itself contains inline spans
     type ParagraphSpansInfo = private PS of MarkdownParagraph
+    /// Carries the identity of a leaf paragraph (no children)
     type ParagraphLeafInfo = private PL of MarkdownParagraph
+    /// Carries the identity of a paragraph that contains nested paragraph lists
     type ParagraphNestedInfo = private PN of MarkdownParagraph
 
+    /// Active pattern that classifies a <see cref="MarkdownParagraph"/> as spans-container, leaf, or nested-paragraphs container
     let (|ParagraphLeaf|ParagraphNested|ParagraphSpans|) par =
         match par with
         | Heading(_, spans, _)
@@ -199,6 +226,7 @@ module MarkdownPatterns =
             | None -> ParagraphNested(PN par, rows |> List.concat)
             | Some columns -> ParagraphNested(PN par, columns :: rows |> List.concat)
 
+    /// Reconstructs a spans-container paragraph with an updated span list
     let ParagraphSpans (PS(par), spans) =
         match par with
         | Heading(a, _, r) -> Heading(a, spans, r)
@@ -206,8 +234,10 @@ module MarkdownPatterns =
         | Span(_, r) -> Span(spans, r)
         | _ -> invalidArg "" "Incorrect ParagraphSpansInfo."
 
+    /// Reconstructs a leaf paragraph from its <see cref="ParagraphLeafInfo"/> tag
     let ParagraphLeaf (PL(par)) = par
 
+    /// Reconstructs a nested-paragraph container with an updated flat list of child paragraphs
     let ParagraphNested (PN(par), pars) =
         let splitEach n list =
             let rec loop n left ansList curList items =
@@ -232,9 +262,14 @@ module MarkdownPatterns =
                 TableBlock(Some(List.head rows), alignments, List.tail rows, r)
         | _ -> invalidArg "" "Incorrect ParagraphNestedInfo."
 
+/// <summary>
 /// Controls the parsing of markdown
+/// </summary>
 type MarkdownParseOptions =
     | None = 0
+    /// Treat fenced/indented code blocks as <see cref="MarkdownParagraph.OtherBlock"/> instead of <see cref="MarkdownParagraph.CodeBlock"/>
     | ParseCodeAsOther = 1
+    /// Treat non-code content as <see cref="MarkdownParagraph.OtherBlock"/>
     | ParseNonCodeAsOther = 2
+    /// Allow and parse YAML front-matter at the top of the document
     | AllowYamlFrontMatter = 4
