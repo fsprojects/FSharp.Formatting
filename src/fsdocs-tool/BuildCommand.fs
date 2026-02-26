@@ -1314,7 +1314,14 @@ module internal LlmsTxt =
     let private stripEvalWarnings (s: string) =
         s.Split('\n')
         |> Array.filter (fun line ->
-            not (line.TrimStart().StartsWith("Warning: Output, it-value and value references require --eval")))
+            not (
+                line
+                    .TrimStart()
+                    .StartsWith(
+                        "Warning: Output, it-value and value references require --eval",
+                        System.StringComparison.Ordinal
+                    )
+            ))
         |> String.concat "\n"
 
     /// Collapse three or more consecutive newlines into at most two.
@@ -1845,6 +1852,14 @@ type CoreBuildOptions(watch) =
                 // Doc content generates .md files alongside .html when _template.md is present.
                 let docContentUsesMarkdown = File.Exists(Path.Combine(this.input, "_template.md"))
 
+                if not docContentUsesMarkdown then
+                    printfn "note: FsDocsGenerateLlmsTxt is enabled but no '_template.md' was found in '%s'." this.input
+
+                    printfn "      Consider adding a '_template.md' to generate Markdown pages alongside HTML."
+
+                    printfn
+                        "      Markdown output is more suitable for LLM consumption (see https://fsprojects.github.io/FSharp.Formatting/styling.html)."
+
                 let apiDocUsesMarkdown = latestApiDocOutputKind = OutputKind.Markdown
 
                 let llmsTxt, llmsFullTxt =
@@ -1869,53 +1884,32 @@ type CoreBuildOptions(watch) =
                     latestApiDocGlobalParameters <- [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
                 elif crackedProjects.Length > 0 then
                     let (outputKind, initialTemplate2) =
-                        // When llms.txt generation is enabled, prefer a markdown template so that
-                        // API reference pages are emitted as .md files and llms.txt can link to them.
                         let templates =
-                            if generateLlmsTxtEnabled then
-                                [ OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md")
-                                  OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                                  OutputKind.Html, Path.Combine(this.input, "_template.html") ]
-                            else
-                                [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                                  OutputKind.Html, Path.Combine(this.input, "_template.html")
-                                  OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
+                            [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                              OutputKind.Html, Path.Combine(this.input, "_template.html")
+                              OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                              OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
                         match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
                         | Some(kind, path) -> kind, Some path
                         | None ->
                             let templateFiles = templates |> Seq.map snd |> String.concat "', '"
 
-                            // When llms.txt is enabled, prefer a markdown fallback template so that
-                            // .md files are generated and linked from llms.txt.
-                            let mdFallback = if generateLlmsTxtEnabled then defaultMdTemplate else None
-
-                            match mdFallback with
+                            match defaultTemplate with
                             | Some d ->
                                 printfn
-                                    "note, no template files: '%s' found, using default markdown template %s for llms.txt"
+                                    "note, no template files: '%s' found, using default template %s"
                                     templateFiles
                                     d
 
-                                OutputKind.Markdown, Some d
+                                OutputKind.Html, Some d
                             | None ->
-                                match defaultTemplate with
-                                | Some d ->
-                                    printfn
-                                        "note, no template files: '%s' found, using default template %s"
-                                        templateFiles
-                                        d
+                                printfn
+                                    "note, no template file '%s' found, and no default template at '%s'"
+                                    templateFiles
+                                    defaultTemplateAttempt1
 
-                                    OutputKind.Html, Some d
-                                | None ->
-                                    printfn
-                                        "note, no template file '%s' found, and no default template at '%s'"
-                                        templateFiles
-                                        defaultTemplateAttempt1
-
-                                    OutputKind.Html, None
+                                OutputKind.Html, None
 
                     latestApiDocOutputKind <- outputKind
 
