@@ -572,21 +572,49 @@ let (|Heading|_|) lines =
     | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd(StringPosition.EqualsRepeated("-",
                                                                                                             MarkdownRange.zero))) as line2) :: rest ->
         Some(2, header, [ line1; line2 ], rest)
-    | (StringPosition.StartsWithRepeated "#" (n, StringPosition.TrimBoth(header, ln)) as line1) :: rest ->
-        let header =
-            // Drop "##" at the end, but only when it is preceded by some whitespace
-            // (For example "## Hello F#" should be "Hello F#")
-            if header.EndsWith '#' then
-                let noHash = header.TrimEnd [| '#' |]
+    | ((line1text, ln1) as line1) :: rest ->
+        // ATX heading (CommonMark): optional 0–3 leading spaces, then 1–6 '#' characters,
+        // then a space or end of line (a tab or other char after '#' is not valid).
+        let mutable i = 0
 
-                if noHash.Length > 0 && Char.IsWhiteSpace(noHash.Chars(noHash.Length - 1)) then
-                    noHash
+        while i < 3 && i < line1text.Length && line1text.[i] = ' ' do
+            i <- i + 1
+
+        let hstart = i
+
+        while i < line1text.Length && line1text.[i] = '#' do
+            i <- i + 1
+
+        let n = i - hstart
+
+        if n < 1 || n > 6 || (i < line1text.Length && line1text.[i] <> ' ') then
+            None
+        else
+            let contentStart = if i < line1text.Length then i + 1 else i
+            let content = (line1text.Substring(contentStart)).TrimEnd()
+            // Remove optional closing sequence of '#' preceded by space (or empty '#'-only content).
+            // For example "## Hello F#" keeps the '#' because it is not preceded by a space.
+            let header =
+                if content.EndsWith('#') then
+                    let noHash = content.TrimEnd([| '#' |])
+
+                    if noHash = "" || (noHash.Length > 0 && noHash.[noHash.Length - 1] = ' ') then
+                        noHash.Trim()
+                    else
+                        content.Trim()
                 else
-                    header
-            else
-                header
+                    content.Trim()
 
-        Some(n, (header, ln), [ line1 ], rest)
+            let rawContent = line1text.Substring(contentStart)
+            let leadingContentSpaces = rawContent.Length - rawContent.TrimStart(' ').Length
+            let headerStart = ln1.StartColumn + contentStart + leadingContentSpaces
+
+            let headerLn =
+                { ln1 with
+                    StartColumn = headerStart
+                    EndColumn = headerStart + header.Length }
+
+            Some(n, (header, headerLn), [ line1 ], rest)
     | _rest -> None
 
 let (|YamlFrontmatter|_|) lines =
