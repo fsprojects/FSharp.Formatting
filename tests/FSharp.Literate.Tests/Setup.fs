@@ -19,4 +19,4 @@ type TempFile() =
         member x.Dispose() = File.Delete(file)
 
 let getFsiEvaluator () =
-    FSharp.Formatting.Literate.Evaluation.FsiEvaluator(options = [| "--multiemit-" |])
+    new FSharp.Formatting.Literate.Evaluation.FsiEvaluator(options = [| "--multiemit-" |])
