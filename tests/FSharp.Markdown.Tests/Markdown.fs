@@ -1285,3 +1285,25 @@ let ``Don't replace links in generated code block in table`` () =
         |> properNewLines
 
     Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
+
+[<Test>]
+let ``Paragraph between sublists should not be absorbed into first sublist item (issue 347)`` () =
+    // Per CommonMark, a paragraph indented at the outer list item's continuation level
+    // should remain a sibling of the surrounding sublists, not be absorbed into the
+    // first sublist item's body.
+    let html =
+        "1.  List item\n\n    1. Subone\n\n    Paragraph\n\n    7. SubRestart\n\n5.  Another list item\n"
+        |> Markdown.ToHtml
+
+    // The paragraph must appear between the two sublists, not inside the first.
+    html |> should contain "<p>Paragraph</p>"
+
+    // There must be two separate ordered sub-lists.
+    let firstSublistEnd = html.IndexOf("</ol>")
+    let paragraphPos = html.IndexOf("<p>Paragraph</p>")
+    let secondSublistStart = html.LastIndexOf("<ol>")
+
+    // Paragraph comes after first sublist ends.
+    paragraphPos |> should be (greaterThan firstSublistEnd)
+    // Second sublist starts after paragraph.
+    secondSublistStart |> should be (greaterThan paragraphPos)
