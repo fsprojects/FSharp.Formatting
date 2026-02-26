@@ -179,6 +179,9 @@ let ``ApiDocs excludes items`` (format: OutputFormat) =
     files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
     |> shouldNotContainText "shouldBeExcluded7"
 
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcludedCompilerHidden"
+
     // We can only expect a warning for "wishItWasExcluded1" & "WishItWasExcluded2"
 
     files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented1.%s" format.Extension)

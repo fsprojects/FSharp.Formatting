@@ -579,10 +579,10 @@ let ``Transform bulleted lists correctly`` () =
     Markdown.ToHtml doc |> shouldEqual expected
 
 [<Test>]
-let ``Transform header 1 correctly`` () =
+let ``ATX heading without space after hash is treated as paragraph`` () =
     let doc = "#Header 1\nHeader 1\r\n========"
 
-    let expected = "<h1>Header 1</h1>\r\n<h1>Header 1</h1>\r\n" |> properNewLines
+    let expected = "<p>#Header 1</p>\r\n<h1>Header 1</h1>\r\n" |> properNewLines
 
     Markdown.ToHtml doc |> shouldEqual expected
 
@@ -590,7 +590,15 @@ let ``Transform header 1 correctly`` () =
 let ``Transform header 2 correctly`` () =
     let doc = "##Header 2\nHeader 2\r\n--------"
 
-    let expected = "<h2>Header 2</h2>\r\n<h2>Header 2</h2>\r\n" |> properNewLines
+    let expected = "<p>##Header 2</p>\r\n<h2>Header 2</h2>\r\n" |> properNewLines
+
+    Markdown.ToHtml doc |> shouldEqual expected
+
+[<Test>]
+let ``ATX heading with space after hash is transformed to heading element`` () =
+    let doc = "# Header 1\n## Header 2"
+
+    let expected = "<h1>Header 1</h1>\r\n<h2>Header 2</h2>\r\n" |> properNewLines
 
     Markdown.ToHtml doc |> shouldEqual expected
 
@@ -1277,3 +1285,25 @@ let ``Don't replace links in generated code block in table`` () =
         |> properNewLines
 
     Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
+
+[<Test>]
+let ``Paragraph between sublists should not be absorbed into first sublist item (issue 347)`` () =
+    // Per CommonMark, a paragraph indented at the outer list item's continuation level
+    // should remain a sibling of the surrounding sublists, not be absorbed into the
+    // first sublist item's body.
+    let html =
+        "1.  List item\n\n    1. Subone\n\n    Paragraph\n\n    7. SubRestart\n\n5.  Another list item\n"
+        |> Markdown.ToHtml
+
+    // The paragraph must appear between the two sublists, not inside the first.
+    html |> should contain "<p>Paragraph</p>"
+
+    // There must be two separate ordered sub-lists.
+    let firstSublistEnd = html.IndexOf("</ol>")
+    let paragraphPos = html.IndexOf("<p>Paragraph</p>")
+    let secondSublistStart = html.LastIndexOf("<ol>")
+
+    // Paragraph comes after first sublist ends.
+    paragraphPos |> should be (greaterThan firstSublistEnd)
+    // Second sublist starts after paragraph.
+    secondSublistStart |> should be (greaterThan paragraphPos)
