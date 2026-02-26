@@ -1,18 +1,26 @@
+/// Internal module that builds the Lunr/Fuse search-index entries for an API documentation model.
 module internal FSharp.Formatting.ApiDocs.GenerateSearchIndex
 
 open FSharp.Formatting.ApiDocs
 
+/// Groups a flat list of top-level entities together with the overall API doc model
+/// so they can be iterated in a single pass when building search-index entries.
 type AssemblyEntities =
     { Entities: ApiDocEntity list
       GeneratorOutput: ApiDocModel }
 
 
+/// Recursively collects an entity and all its nested entities into a flat list.
 let rec collectEntities (m: ApiDocEntity) =
     [ yield m; yield! m.NestedEntities |> List.collect collectEntities ]
 
+/// Constant string used as the <c>type</c> field in search-index records for API doc entries.
 [<Literal>]
 let ApiDocs = "apiDocs"
 
+/// Produces an array of search-index records for every namespace, entity, and member in
+/// the given <see cref="ApiDocModel"/>. Each record contains a URI, title, and concatenated
+/// content string suitable for full-text indexing.
 let searchIndexEntriesForModel (model: ApiDocModel) =
     let allEntities =
         [ for n in model.Collection.Namespaces do

@@ -4,6 +4,9 @@
 
 ### Added
 
+* Add `///` XML doc comments to core internal modules: `Log`, `MarkdownRange`, `Menu`, `Categorise`, `GenerateSearchIndex`, and `TypeFormatter`, as part of ongoing code documentation effort. [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
+* Add `///` doc comments to `fsdocs` tool entry-point modules (`Program.fs`, `Options.fs`). [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
+
 * Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
 * Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
 * Add `{{fsdocs-logo-alt}}` substitution (configurable via `<FsDocsLogoAlt>` MSBuild property, defaults to `Logo`) for accessible alt text on the header logo image. [#626](https://github.com/fsprojects/FSharp.Formatting/issues/626)

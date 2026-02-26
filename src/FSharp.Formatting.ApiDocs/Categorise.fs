@@ -3,7 +3,7 @@ module internal FSharp.Formatting.ApiDocs.Categorise
 
 open System
 
-// Honour the CategoryIndex to put the categories in the right order
+/// Groups and sorts items by their category and category index, excluding those matched by <paramref name="exclude"/>.
 let private getSortedCategories xs exclude category categoryIndex =
     xs
     |> List.filter (exclude >> not)
@@ -12,7 +12,8 @@ let private getSortedCategories xs exclude category categoryIndex =
     |> List.sortBy (fun (cat, _xs, x) -> categoryIndex x, cat)
     |> List.map (fun (cat, xs, _x) -> cat, xs)
 
-// Group all members by their category
+/// Groups API doc members by their declared category.
+/// Returns a list of (index, members, displayName) triples, sorted by category index then name.
 let getMembersByCategory (members: ApiDocMember list) =
     getSortedCategories members (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
     |> List.mapi (fun i (key, elems) ->
@@ -26,6 +27,9 @@ let getMembersByCategory (members: ApiDocMember list) =
 
         (i, elems, name))
 
+/// Builds the per-category entity groups for one namespace, optionally suppressing internal
+/// FSharp.Core namespaces (SI units, anonymous objects, QueryRunExtensions) from the
+/// list-of-namespaces navigation.
 let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
     let entities = ns.Entities
 
@@ -105,6 +109,8 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
 
     allByCategory
 
+/// Returns the categorised entity groups for each non-empty namespace in the API doc model,
+/// applying suppression of noisy FSharp.Core entries.
 let model (apiDocModel: ApiDocModel) =
     [ for (nsIndex, ns) in Seq.indexed apiDocModel.Collection.Namespaces do
           let allByCategory = entities (nsIndex, ns, true)

@@ -24,10 +24,13 @@ open FSharp.Patterns
 open FSharp.Compiler.Syntax
 
 [<AutoOpen>]
+/// Internal module containing helpers for rendering FSharp.Compiler.Symbols types as HTML.
 module internal TypeFormatter =
 
+    /// Alias so the formatter functions only need one type parameter for their context.
     type TypeFormatterParams = CrossReferenceResolver
 
+    /// Converts an <see cref="HtmlElement"/> to an <see cref="ApiDocHtml"/> with no anchor id.
     let convHtml (html: HtmlElement) = ApiDocHtml(html.ToString(), None)
 
     /// We squeeze the spaces out of anything where whitespace layout must be exact - any deliberate
