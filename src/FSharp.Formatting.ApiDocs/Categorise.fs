@@ -1,9 +1,10 @@
+/// Internal helpers for grouping API doc entities and members by their declared categories
 [<RequireQualifiedAccess>]
 module internal FSharp.Formatting.ApiDocs.Categorise
 
 open System
 
-// Honour the CategoryIndex to put the categories in the right order
+/// Returns entities/members sorted by CategoryIndex then category name, with excluded items removed
 let private getSortedCategories xs exclude category categoryIndex =
     xs
     |> List.filter (exclude >> not)
@@ -12,7 +13,7 @@ let private getSortedCategories xs exclude category categoryIndex =
     |> List.sortBy (fun (cat, _xs, x) -> categoryIndex x, cat)
     |> List.map (fun (cat, xs, _x) -> cat, xs)
 
-// Group all members by their category
+/// Groups members by their Category/CategoryIndex, sorts alphabetically within each category
 let getMembersByCategory (members: ApiDocMember list) =
     getSortedCategories members (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
     |> List.mapi (fun i (key, elems) ->
@@ -26,6 +27,7 @@ let getMembersByCategory (members: ApiDocMember list) =
 
         (i, elems, name))
 
+/// Returns the categorised, sorted, and (optionally) suppressed entity list for a namespace
 let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
     let entities = ns.Entities
 
@@ -105,6 +107,7 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
 
     allByCategory
 
+/// Returns the category groups for every namespace in the model, skipping empty namespaces
 let model (apiDocModel: ApiDocModel) =
     [ for (nsIndex, ns) in Seq.indexed apiDocModel.Collection.Namespaces do
           let allByCategory = entities (nsIndex, ns, true)

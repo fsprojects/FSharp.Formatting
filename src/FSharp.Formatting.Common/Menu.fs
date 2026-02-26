@@ -1,17 +1,21 @@
+/// Internal helpers for building navigation menu HTML from template files
 module FSharp.Formatting.Common.Menu
 
 open System
 open System.IO
 open FSharp.Formatting.Templating
 
+/// A single navigation menu item with its link, display text, and active state
 type MenuItem =
     { Link: string
       Content: string
       IsActive: bool }
 
+/// Converts a display string to a snake_case HTML id attribute value
 let private snakeCase (v: string) =
     System.Text.RegularExpressions.Regex.Replace(v, "[A-Z]", "$0").Replace(" ", "_").ToLower()
 
+/// Renders an HTML navigation menu for the given header and items using template files in `input`
 let createMenu (input: string) (isCategoryActive: bool) (header: string) (items: MenuItem list) : string =
     let pwd = Directory.GetCurrentDirectory()
     let menuTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu_template.html"))
@@ -39,12 +43,14 @@ let createMenu (input: string) (isCategoryActive: bool) (header: string) (items:
            ParamKeys.``fsdocs-menu-items``, menuItems |]
         menuTemplate
 
+/// Returns true when both required menu template files exist in `input`
 let isTemplatingAvailable (input: string) : bool =
     let pwd = Directory.GetCurrentDirectory()
     let menuTemplate = Path.Combine(pwd, input, "_menu_template.html")
     let menuItemTemplate = Path.Combine(pwd, input, "_menu-item_template.html")
     File.Exists(menuTemplate) && File.Exists(menuItemTemplate)
 
+/// Returns the last-write timestamps of the two menu template files
 let getLastWriteTimes (input: string) : DateTime list =
     let pwd = Directory.GetCurrentDirectory()
 
