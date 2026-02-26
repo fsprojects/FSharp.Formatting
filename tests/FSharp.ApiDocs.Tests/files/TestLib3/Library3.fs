@@ -58,4 +58,7 @@ module PartiallyDocumented =
     module NotDocumented3 =
         let a = 10
 
+    [<CompilerMessage("Internal helper, hidden from IntelliSense", 9999, IsHidden = true)>]
+    let shouldBeExcludedCompilerHidden x = x
+
     let x = 10
