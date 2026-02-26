@@ -19,7 +19,12 @@
     <Compile Include="Options.fs" />
     <Compile Include="ProjectCracker.fs" />
     <Compile Include="BuildCommand.fs" />
+    <Compile Include="InitCommand.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\docs\_template.html" LogicalName="fsdocs._template.html" />
   </ItemGroup>
 
   <ItemGroup>
