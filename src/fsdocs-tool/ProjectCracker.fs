@@ -449,7 +449,7 @@ module Crack =
 
             | projectFiles, false ->
                 let collectionName = Path.GetFileName(slnDir)
-                collectionName, projectFiles
+                collectionName, projectFiles |> List.map Path.GetFullPath
             | _, true ->
                 let collectionName = defaultArg userCollectionName (Path.GetFileName slnDir)
 
