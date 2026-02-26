@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+* Split `BuildCommand.fs` (2100+ lines) into three focused files: `DocContent.fs` (doc content processing), `Serve.fs` (dev server), and `BuildCommand.fs` (build options and commands). [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
+
 ### Added
 
 * Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
