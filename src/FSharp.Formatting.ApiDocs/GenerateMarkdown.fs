@@ -31,7 +31,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           | None -> ()
           | Some href -> link [ img "Link to source code" (sprintf "%scontent/img/github.png" root) ] (href) ]
 
-    let renderMembers header _tableHeader (members: ApiDocMember list) =
+    let renderMembers header (members: ApiDocMember list) =
         [ if members.Length > 0 then
               ``###`` [ !!header ]
 
@@ -260,15 +260,15 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               let instanceMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)
               let staticMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)
 
-              yield! renderMembers "Functions and values" "Function or value" functionsOrValues
-              yield! renderMembers "Type extensions" "Type extension" extensions
-              yield! renderMembers "Active patterns" "Active pattern" activePatterns
-              yield! renderMembers "Union cases" "Union case" unionCases
-              yield! renderMembers "Record fields" "Record Field" recordFields
-              yield! renderMembers "Static parameters" "Static parameters" staticParameters
-              yield! renderMembers "Constructors" "Constructor" constructors
-              yield! renderMembers "Instance members" "Instance member" instanceMembers
-              yield! renderMembers "Static members" "Static member" staticMembers ]
+              yield! renderMembers "Functions and values" functionsOrValues
+              yield! renderMembers "Type extensions" extensions
+              yield! renderMembers "Active patterns" activePatterns
+              yield! renderMembers "Union cases" unionCases
+              yield! renderMembers "Record fields" recordFields
+              yield! renderMembers "Static parameters" staticParameters
+              yield! renderMembers "Constructors" constructors
+              yield! renderMembers "Instance members" instanceMembers
+              yield! renderMembers "Static members" staticMembers ]
 
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
