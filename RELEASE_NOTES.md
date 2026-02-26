@@ -4,6 +4,7 @@
 
 ### Changed
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
+* Reduce dark mode header border contrast to match the visual subtlety of light mode borders. [#885](https://github.com/fsprojects/FSharp.Formatting/issues/885)
 
 ## 21.0.0 - 2025-11-12
 
