@@ -1129,8 +1129,139 @@ let ``Replace relative markdown file in custom attribute`` () =
 
     Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
 
+// --------------------------------------------------------------------------------------
+// Span range correctness tests (Issue #744)
+// These tests verify that column positions are tracked correctly across span types.
+// --------------------------------------------------------------------------------------
+
 [<Test>]
-let ``Don't replace links in generated code block`` () =
+let ``Indirect link and subsequent literal have correct column ranges`` () =
+    //                   1         2
+    //         0123456789012345678901234567
+    let doc = "Before [indirectLink] After" |> Markdown.Parse
+
+    doc.Paragraphs
+    |> shouldEqual
+        [ Paragraph(
+              [ Literal(
+                    "Before ",
+                    Some(
+                        { StartLine = 1
+                          StartColumn = 0
+                          EndLine = 1
+                          EndColumn = 7 }
+                    )
+                )
+                IndirectLink(
+                    [ Literal(
+                          "indirectLink",
+                          Some(
+                              { StartLine = 1
+                                StartColumn = 8
+                                EndLine = 1
+                                EndColumn = 20 }
+                          )
+                      ) ],
+                    "",
+                    "indirectLink",
+                    Some(
+                        { StartLine = 1
+                          StartColumn = 7
+                          EndLine = 1
+                          EndColumn = 21 }
+                    )
+                )
+                Literal(
+                    " After",
+                    Some(
+                        { StartLine = 1
+                          StartColumn = 21
+                          EndLine = 1
+                          EndColumn = 27 }
+                    )
+                ) ],
+              Some(
+                  { StartLine = 1
+                    StartColumn = 0
+                    EndLine = 1
+                    EndColumn = 27 }
+              )
+          ) ]
+
+[<Test>]
+let ``Direct link and subsequent literal have correct column ranges`` () =
+    //                   1         2         3
+    //         0123456789012345678901234567890123
+    let doc = "Before [link](http://x.com) After" |> Markdown.Parse
+
+    match doc.Paragraphs with
+    | [ Paragraph([ Literal("Before ", litRange1)
+                    DirectLink(_, "http://x.com", _, linkRange)
+                    Literal(" After", litRange2) ],
+                  _) ] ->
+        litRange1
+        |> shouldEqual (
+            Some
+                { StartLine = 1
+                  StartColumn = 0
+                  EndLine = 1
+                  EndColumn = 7 }
+        )
+
+        linkRange
+        |> shouldEqual (
+            Some
+                { StartLine = 1
+                  StartColumn = 7
+                  EndLine = 1
+                  EndColumn = 27 }
+        )
+
+        litRange2
+        |> shouldEqual (
+            Some
+                { StartLine = 1
+                  StartColumn = 27
+                  EndLine = 1
+                  EndColumn = 33 }
+        )
+    | _ -> Assert.Fail "Expected paragraph with literal + direct link + literal"
+
+[<Test>]
+let ``Inline code and subsequent literal have correct column ranges`` () =
+    //         0123456789012
+    let doc = "foo `bar` baz" |> Markdown.Parse
+
+    match doc.Paragraphs with
+    | [ Paragraph([ Literal("foo ", litRange1); InlineCode("bar", codeRange); Literal(" baz", litRange2) ], _) ] ->
+        litRange1
+        |> shouldEqual (
+            Some
+                { StartLine = 1
+                  StartColumn = 0
+                  EndLine = 1
+                  EndColumn = 4 }
+        )
+
+        codeRange
+        |> shouldEqual (
+            Some
+                { StartLine = 1
+                  StartColumn = 5
+                  EndLine = 1
+                  EndColumn = 8 }
+        )
+
+        litRange2
+        |> shouldEqual (
+            Some
+                { StartLine = 1
+                  StartColumn = 9
+                  EndLine = 1
+                  EndColumn = 13 }
+        )
+    | _ -> Assert.Fail "Expected paragraph with literal + inline code + literal"
+
     let doc = "<pre link=\"valid link though.md\">content</pre>"
     let mdlinkResolver _ = failwith "should not be reached!"
     let actual = "<pre link=\"valid link though.md\">content</pre>\r\n" |> properNewLines
