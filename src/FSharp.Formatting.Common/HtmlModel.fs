@@ -1,6 +1,9 @@
+/// Internal DSL for building HTML elements with typed attributes and a DU element tree.
+/// Used throughout fsdocs to construct HTML output without raw string concatenation.
 namespace FSharp.Formatting.HtmlModel
 
 
+/// Discriminated union of all standard HTML attributes, serialised as HTML attribute strings.
 type internal HtmlProperties =
     | DefaultChecked of bool
     | DefaultValue of string
@@ -298,6 +301,9 @@ type internal HtmlProperties =
         | Unselectable s -> sprintf "unselectable=\"%s\"" (if s then "true" else "false")
         | Custom(k, v) -> sprintf "%s=\"%s\"" k v
 
+/// Discriminated union of all standard HTML and SVG elements. Each case carries
+/// a list of attributes and (for non-void elements) a list of child elements.
+/// Rendered to a string via <see cref="M:FSharp.Formatting.HtmlModel.HtmlElement.ToString"/>.
 type internal HtmlElement =
     private
     | A of props: HtmlProperties list * children: HtmlElement list
@@ -605,6 +611,8 @@ type internal HtmlElement =
 
         helper 1 tag
 
+/// Helper functions for constructing <see cref="T:FSharp.Formatting.HtmlModel.HtmlElement"/> values.
+/// Each function corresponds to an HTML or SVG tag.
 module internal Html =
     let a (props: HtmlProperties list) (children: HtmlElement list) = HtmlElement.A(props, children)
     let abbr (props: HtmlProperties list) (children: HtmlElement list) = HtmlElement.Abbr(props, children)
