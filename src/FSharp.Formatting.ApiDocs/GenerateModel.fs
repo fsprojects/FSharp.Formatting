@@ -2420,6 +2420,21 @@ module internal SymbolReader =
                 | Command "exclude" v
                 | Let "false" (v, _) -> (v <> "false")
 
+            let isCompilerHidden =
+                let attribs =
+                    match sym with
+                    | :? FSharpMemberOrFunctionOrValue as mfv -> mfv.Attributes :> FSharpAttribute seq
+                    | :? FSharpEntity as ent -> ent.Attributes :> FSharpAttribute seq
+                    | _ -> Seq.empty
+
+                attribs
+                |> Seq.exists (fun a ->
+                    a.AttributeType.FullName = "Microsoft.FSharp.Core.CompilerMessageAttribute"
+                    && a.NamedArguments
+                       |> Seq.exists (fun (_, name, _, value) -> name = "IsHidden" && (value :?> bool) = true))
+
+            let exclude = exclude || isCompilerHidden
+
             try
                 Some(f cat catindex exclude cmds comment, nsdocs)
             with e ->
