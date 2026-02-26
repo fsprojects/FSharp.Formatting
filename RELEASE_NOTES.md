@@ -8,6 +8,7 @@
 * Add `{{fsdocs-logo-alt}}` substitution (configurable via `<FsDocsLogoAlt>` MSBuild property, defaults to `Logo`) for accessible alt text on the header logo image. [#626](https://github.com/fsprojects/FSharp.Formatting/issues/626)
 
 ### Fixed
+* Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)
 * Fix `_menu_template.html` and `_menu-item_template.html` being copied to the output directory. [#803](https://github.com/fsprojects/FSharp.Formatting/issues/803)
 * Fix `ApiDocMember.Details.ReturnInfo.ReturnType` returning `None` for properties that have both a getter and a setter. [#734](https://github.com/fsprojects/FSharp.Formatting/issues/734)
 * Improve error message when a named code snippet is not found (e.g. `(*** include:name ***)` with undefined name now reports the missing name clearly). [#982](https://github.com/fsprojects/FSharp.Formatting/pull/982)
