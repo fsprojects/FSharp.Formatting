@@ -1,12 +1,12 @@
 {
-  "last_run": "2026-02-26T00:15:15Z",
-  "last_run_id": "22421904112",
+  "last_run": "2026-02-26T00:06:43Z",
+  "last_run_id": "22421661210",
   "monthly_activity_issue": 973,
   "monthly_activity_month": "2026-02",
   "backlog_cursor": 0,
   "tasks_last_run": {
     "task1_triage": "2026-02-26",
-    "task2_fix_issues": "2026-02-26",
+    "task2_fix_issues": "2026-02-25",
     "task3_improvements": "2026-02-25",
     "task4_deps": "2026-02-25",
     "task5_maintain_prs": "2026-02-26",
@@ -14,10 +14,10 @@
     "task7_labels": "2026-02-25",
     "task8_release": "2026-02-25",
     "task9_welcome": "2026-02-24",
-    "task10_forward": "2026-02-26",
+    "task10_forward": "2026-02-25",
     "task11_monthly": "2026-02-26"
   },
-  "issues_commented": [90, 144, 230, 296, 347, 422, 439, 468, 574, 591, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 829, 858, 872, 898, 918, 924, 926, 927, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005, 811, 1022],
+  "issues_commented": [90, 144, 230, 296, 347, 422, 439, 574, 591, 592, 626, 667, 679, 683, 685, 691, 693, 698, 702, 725, 734, 735, 736, 742, 743, 744, 748, 782, 803, 829, 858, 872, 898, 918, 924, 926, 927, 930, 933, 944, 951, 952, 960, 961, 964, 970, 793, 1001, 1004, 1005, 811, 1022],
   "fix_attempts": {
     "748": {"pr": 994, "status": "merged"},
     "803": {"pr": 995, "status": "open"},
@@ -40,11 +40,10 @@
     "1022_generatemodel": {"branch": "repo-assist/fix-issue-1022-split-generatemodel-fs", "status": "open_pr_pending", "desc": "Split GenerateModel.fs (3196 lines) into 5 files; 384/390 tests pass"},
     "347": {"pr": 1027, "status": "open", "desc": "Fix wrong indentation for paragraph within sublist"},
     "191_atx": {"pr": 1028, "status": "open", "desc": "Improve CommonMark ATX heading compliance"},
-    "725_layout": {"pr": 1026, "status": "open", "desc": "Improve markdown API docs section-based member layout"},
-    "468": {"branch": "repo-assist/fix-issue-468-language-class-attr", "status": "pr_pending", "desc": "Fix lang= to class=language- on non-F# literate code blocks; 384/384 tests pass"}
+    "725_layout": {"pr": 1026, "status": "open", "desc": "Improve markdown API docs section-based member layout"}
   },
   "pr_repo_assist_open": [976, 980, 983, 995, 998, 1018, 1019, 1020, 1024, 1025, 1026, 1027, 1028, 1029],
-  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 - PR #1025)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - dsyme merged PR #1021)", "fix #744: correct column ranges for inline spans (PR #1016 merged)", "fix #793: normalize --projects relative paths (PR #1017 merged)", "exclude CompilerMessage(IsHidden=true) from API docs (PR #1018)", "dotnet fsdocs convert command (PR #1019)", "Release 22.0.0 (PR #1020)", "fix #702: TryFullName guard for high-rank arrays (PR #1024)", "fix #439: params array qualified name crash (PR #1023 closed; preferred #1024)", "split BuildCommand.fs into DocContent.fs + WatchServer.fs (PR #1029)", "fix wrong indentation for paragraph within sublist (PR #1027)", "improve CommonMark ATX heading compliance (PR #1028)", "improve markdown API docs section-based layout (PR #1026)", "split GenerateModel.fs (3196 lines) into 5 files (PR pending)", "fix #468: use class=language-{lang} on non-F# literate code blocks (PR pending)"],
+  "improvements_proposed": ["llms.txt (#980)", "dark mode borders (#983)", "fsdocs init command (#872 - PR #1025)", "mermaid recipe (#979 merged)", "dotnet SDK cache + concurrency cancel-in-progress (issue #1014 - dsyme merged PR #1021)", "fix #744: correct column ranges for inline spans (PR #1016 merged)", "fix #793: normalize --projects relative paths (PR #1017 merged)", "exclude CompilerMessage(IsHidden=true) from API docs (PR #1018)", "dotnet fsdocs convert command (PR #1019)", "Release 22.0.0 (PR #1020)", "fix #702: TryFullName guard for high-rank arrays (PR #1024)", "fix #439: params array qualified name crash (PR #1023 closed; preferred #1024)", "split BuildCommand.fs into DocContent.fs + WatchServer.fs (PR #1029)", "fix wrong indentation for paragraph within sublist (PR #1027)", "improve CommonMark ATX heading compliance (PR #1028)", "improve markdown API docs section-based layout (PR #1026)", "split GenerateModel.fs (3196 lines) into 5 files (PR pending)"],
   "prs_merged_by_dsyme": [994, 996, 997, 1007, 1010, 1012, 1016, 1017, 1021],
   "notes": [
     "PR #994 merged (HTML-encode XML doc text nodes, fixes #748)",
@@ -77,8 +76,7 @@
     "Monthly activity issue #973 updated 2026-02-26: added comments on #296, #591, #927 to suggested actions",
     "Issue #296 (property shown as two methods): commented 2026-02-26 - property getter/setter methods already filtered; PR #1012 fixed return type; suggested verifying with latest",
     "Issue #591 (type constraints): commented 2026-02-26 - outlined implementation using FSharpGenericParameter.Constraints from FCS; noted commented-out indexedConstraints at line 1569",
-    "Issue #927 (nested categories): commented 2026-02-26 - suggested / separator approach (category: Parent/Child) with nav tree rendering",
-    "Issue #468 (non-F# code blocks): commented 2026-02-26 - explained lang= vs class=language- inconsistency; PR pending on branch repo-assist/fix-issue-468-language-class-attr; 384/384 tests pass"
+    "Issue #927 (nested categories): commented 2026-02-26 - suggested / separator approach (category: Parent/Child) with nav tree rendering"
   ],
   "backlog_remaining": [],
   "checked_off_by_maintainer": [994],
@@ -94,7 +92,6 @@
     "--root override flag for fsdocs watch (#924) - confirmed root is force-overridden",
     "Triage older issues: #163, #362, #387, #390, #468, #487, #536, #573, #585, #586, #590, #605, #680, #791",
     "CommonMark compliance improvements to Markdown parser (related to #191, #347, #390) - PRs #1027, #1028 created",
-    "Nested category nesting (#927) - suggested /separator approach; could implement if maintainer approves",
-    "PR #468 pending: fix lang= to class=language- on non-F# literate code blocks (branch repo-assist/fix-issue-468-language-class-attr)"
+    "Nested category nesting (#927) - suggested /separator approach; could implement if maintainer approves"
   ]
 }
