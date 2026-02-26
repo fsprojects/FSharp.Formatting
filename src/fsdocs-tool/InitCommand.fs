@@ -3,6 +3,7 @@ namespace fsdocs
 open CommandLine
 open System
 open System.IO
+open System.Reflection
 
 /// The fsdocs init command: scaffold a minimal docs folder for a new project.
 [<Verb("init", HelpText = "initialize a docs folder with a default index.md and optionally a _template.html")>]
@@ -65,29 +66,11 @@ Run `dotnet fsdocs watch` to preview the site locally.
             let templatePath = Path.Combine(docsDir, "_template.html")
 
             let templateContent =
-                """<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>{{fsdocs-page-title}}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{root}}content/fsdocs-default.css">
-</head>
-<body>
-  <header>
-    <div class="navbar">
-      <a href="{{root}}">{{fsdocs-logo-alt}}</a>
-    </div>
-  </header>
-  <div class="container">
-    <div class="content">
-      {{fsdocs-content}}
-    </div>
-  </div>
-  <script src="{{root}}content/fsdocs-tips.js"></script>
-</body>
-</html>
-"""
+                let asm = Assembly.GetExecutingAssembly()
+
+                use stream = asm.GetManifestResourceStream("fsdocs._template.html")
+                use reader = new StreamReader(stream)
+                reader.ReadToEnd()
 
             writeIfNeeded templatePath templateContent
 
