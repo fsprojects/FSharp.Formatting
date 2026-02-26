@@ -76,6 +76,51 @@ module internal TypeFormatter =
     let formatTypeArgumentsAsText (typars: FSharpGenericParameter list) =
         List.map formatTypeArgumentAsText typars
 
+    let formatConstraintAsText (typar: FSharpGenericParameter) (cx: FSharpGenericParameterConstraint) =
+        let typarName = formatTypeArgumentAsText typar
+
+        if cx.IsEqualityConstraint then
+            Some $"{typarName} : equality"
+        elif cx.IsComparisonConstraint then
+            Some $"{typarName} : comparison"
+        elif cx.IsNonNullableValueTypeConstraint then
+            Some $"{typarName} : struct"
+        elif cx.IsReferenceTypeConstraint then
+            Some $"{typarName} : not struct"
+        elif cx.IsRequiresDefaultConstructorConstraint then
+            Some $"{typarName} : (new : unit -> {typarName})"
+        elif cx.IsUnmanagedConstraint then
+            Some $"{typarName} : unmanaged"
+        elif cx.IsCoercesToConstraint then
+            Some $"{typarName} :> {cx.CoercesToTarget.Format(FSharpDisplayContext.Empty)}"
+        elif cx.IsEnumConstraint then
+            Some $"{typarName} : enum<{cx.EnumConstraintTarget.Format(FSharpDisplayContext.Empty)}>"
+        elif cx.IsDelegateConstraint then
+            let d = cx.DelegateConstraintData
+
+            Some
+                $"{typarName} : delegate<{d.DelegateTupledArgumentType.Format(FSharpDisplayContext.Empty)}, {d.DelegateReturnType.Format(FSharpDisplayContext.Empty)}>"
+        elif cx.IsMemberConstraint then
+            let d = cx.MemberConstraintData
+
+            let argTypes =
+                d.MemberArgumentTypes
+                |> Seq.map (fun t -> t.Format(FSharpDisplayContext.Empty))
+                |> String.concat " * "
+
+            let retType = d.MemberReturnType.Format(FSharpDisplayContext.Empty)
+            let staticKw = if d.MemberIsStatic then "static member" else "member"
+            Some $"{typarName} : ({staticKw} {d.MemberName} : {argTypes} -> {retType})"
+        else
+            None
+
+    let formatConstraintsAsText (typars: FSharpGenericParameter list) =
+        [ for typar in typars do
+              for cx in typar.Constraints do
+                  match formatConstraintAsText typar cx with
+                  | Some s -> yield s
+                  | None -> () ]
+
     let bracketHtml (str: HtmlElement) = span [] [ !!"("; str; !!")" ]
 
     let bracketNonAtomicHtml (str: HtmlElement) =

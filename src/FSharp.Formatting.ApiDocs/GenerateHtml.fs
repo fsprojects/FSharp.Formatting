@@ -178,13 +178,20 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                                 encode (m.FormatModifiers)
                                                 br []
 
-                                                // We suppress the display of ill-formatted type parameters for places
-                                                // where these have not been explicitly declared
-                                                match m.FormatTypeArguments with
-                                                | None -> ()
-                                                | Some v ->
-                                                    !!"Type parameters: "
-                                                    encode (v)
+                                            // We suppress the display of ill-formatted type parameters for places
+                                            // where these have not been explicitly declared
+                                            match m.FormatTypeArguments with
+                                            | None -> ()
+                                            | Some v ->
+                                                !!"Type parameters: "
+                                                encode (v)
+                                                br []
+
+                                            match m.FormatTypeConstraints with
+                                            | None -> ()
+                                            | Some v ->
+                                                !!"Constraints: "
+                                                encode (v)
                                         ]
                                     ]
                                 ]

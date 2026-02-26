@@ -282,7 +282,8 @@ module internal SymbolReader =
 
         let typars = formatTypeArgumentsAsText tps
 
-        //let cxs  = indexedConstraints v.GenericParameters
+        let constraints = formatConstraintsAsText tps
+
         let retTypeHtml = retType |> Option.map (formatTypeAsHtml ctx.UrlMap >> codeHtml)
 
         let returnType =
@@ -325,6 +326,7 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typars,
+            constraints,
             extendedType,
             location,
             getCompiledName v
@@ -389,6 +391,7 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typeParams,
+            List.empty,
             None,
             location,
             getCompiledName case
@@ -427,6 +430,7 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typeParams,
+            List.empty,
             None,
             location,
             if field.Name <> field.DisplayName then
@@ -472,6 +476,7 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typeParams,
+            List.empty,
             None,
             location,
             if staticParam.Name <> staticParam.DisplayName then

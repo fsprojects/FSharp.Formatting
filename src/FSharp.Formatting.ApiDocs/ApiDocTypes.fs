@@ -296,6 +296,7 @@ type ApiDocMemberDetails =
         returnType: (FSharpType * ApiDocHtml) option *
         modifiers: string list *
         typars: string list *
+        constraints: string list *
         extendedType: (FSharpEntity * ApiDocHtml) option *
         location: string option *
         compiledName: string option
@@ -317,7 +318,15 @@ type ApiDocMember
         warn
     ) =
 
-    let (ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, extendedType, location, compiledName)) =
+    let (ApiDocMemberDetails(usageHtml,
+                             paramTypes,
+                             returnType,
+                             modifiers,
+                             typars,
+                             constraints,
+                             extendedType,
+                             location,
+                             compiledName)) =
         details
 
     let m = defaultArg symbol.DeclarationLocation range0
@@ -413,6 +422,9 @@ type ApiDocMember
     /// The member's type arguments
     member x.TypeArguments: string list = typars
 
+    /// The member's type constraints
+    member x.Constraints: string list = constraints
+
     /// The usage section in a typical tooltip
     member x.UsageHtml: ApiDocHtml = usageHtml
 
@@ -450,6 +462,13 @@ type ApiDocMember
             None
         else
             Some res
+
+    /// Formats type constraints as a 'when' clause
+    member x.FormatTypeConstraints =
+        if x.Constraints.IsEmpty then
+            None
+        else
+            Some(String.concat " and " x.Constraints)
 
     /// Formats modifiers
     member x.FormatModifiers = String.concat " " x.Modifiers
