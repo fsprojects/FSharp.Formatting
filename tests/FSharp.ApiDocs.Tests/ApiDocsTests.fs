@@ -1192,6 +1192,53 @@ let ``ApiDocs test examples`` () =
     let content = files[testFile]
     content.Contains "href=\"/root/img/favicon.ico\"" |> shouldEqual true
 
+// -------------------Markdown section-based layout----------------------------------
+[<Test>]
+let ``ApiDocs Markdown uses section-based member layout instead of tables`` () =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] OutputFormat.Markdown false "FsLib2_markdown_sections"
+
+    let nestedContent = files.["fslib-nested.md"]
+
+    // Each member should have an HTML anchor for backward-compatible links
+    nestedContent |> shouldContainText """<a name="f"></a>"""
+
+    // Each member should have a #### heading
+    nestedContent |> shouldContainText "#### "
+
+    // No markdown table header for members (the old layout had this)
+    nestedContent |> shouldNotContainText "Function or value | Description | Source"
+
+[<Test>]
+let ``ApiDocs Markdown generates Example and Note section headings`` () =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] OutputFormat.Markdown false "FsLib2_markdown_examples"
+
+    let commentExamplesContent = files.["fslib-commentexamples.md"]
+
+    // Examples should use ##### headings, not inline <br/>-separated text
+    commentExamplesContent |> shouldContainText "##### Example"
+
+    // Should not use the old <br/>-embedded example format
+    commentExamplesContent |> shouldNotContainText "Example<br/>"
+
+[<Test>]
+let ``ApiDocs Markdown generates Parameters section for members with parameters`` () =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] OutputFormat.Markdown false "FsLib2_markdown_params"
+
+    let issueContent = files.["fslib-test_issue472_t.md"]
+
+    // Members with parameters should have a bold Parameters heading
+    issueContent |> shouldContainText "**Parameters:**"
+
+    // Each parameter should be listed individually, not embedded with <br/>
+    issueContent |> shouldContainText "**arg1**"
+    issueContent |> shouldContainText "**arg2**"
+
 // -------------------Indirect links----------------------------------
 [<Test>]
 [<TestCaseSource("formats")>]

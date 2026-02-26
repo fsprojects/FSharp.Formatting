@@ -24,6 +24,7 @@
 * Improve CommonMark compliance for ATX headings: reject `#` not followed by a space (e.g. `#NoSpace` is now a paragraph), reject more than 6 `#` characters as a heading, support 0–3 leading spaces before the opening `#` sequence, and fix empty content when the entire header body is a closing `###` sequence. [#191](https://github.com/fsprojects/FSharp.Formatting/issues/191)
 
 ### Changed
+* Markdown API docs for members now use section-based layout (per-member `####` headings) instead of a Markdown table, eliminating embedded `<br />` separators, `&#124;` pipe escaping, and improving rendering of multi-line content and code examples. [#725](https://github.com/fsprojects/FSharp.Formatting/issues/725)
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
 * Reduce dark mode header border contrast to match the visual subtlety of light mode borders. [#885](https://github.com/fsprojects/FSharp.Formatting/issues/885)
 
