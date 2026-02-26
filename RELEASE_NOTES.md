@@ -12,6 +12,7 @@
 * `IFsiEvaluator` now inherits `IDisposable`; `FsiEvaluator` disposes its underlying FSI session when disposed, preventing session leaks in long-running processes. [#341](https://github.com/fsprojects/FSharp.Formatting/issues/341)
 
 ### Fixed
+* Fix project restore detection for projects with nonstandard artifact locations (e.g. `<UseArtifactsOutput>` or the dotnet/fsharp repo layout): when the MSBuild call to locate `project.assets.json` fails, emit a warning and proceed instead of hard-failing. [#592](https://github.com/fsprojects/FSharp.Formatting/issues/592)
 * Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)
 * Fix `_menu_template.html` and `_menu-item_template.html` being copied to the output directory. [#803](https://github.com/fsprojects/FSharp.Formatting/issues/803)
 * Fix `ApiDocMember.Details.ReturnInfo.ReturnType` returning `None` for properties that have both a getter and a setter. [#734](https://github.com/fsprojects/FSharp.Formatting/issues/734)

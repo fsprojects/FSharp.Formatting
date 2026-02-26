@@ -372,15 +372,28 @@ module Crack =
             ()
         else
             // In dotnet 8 <UseArtifactsOutput> was introduced, see https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output
-            // We will try and use CLI-based project evaluation to determine the location of project.assets.json file
+            // We will try and use CLI-based project evaluation to determine the location of project.assets.json file.
             // See https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8#cli-based-project-evaluation
-            try
-                let path = DotNetCli.msbuild projDir "--getProperty:ProjectAssetsFile"
+            // Some projects (e.g. those with nonstandard artifact output locations) may not put project.assets.json
+            // under <projDir>/obj/. If we can detect the actual path via MSBuild, we use that; otherwise we warn
+            // and proceed so that the cracking step itself can produce the definitive error.
+            let detectedPath =
+                try
+                    let path = DotNetCli.msbuild projDir "--getProperty:ProjectAssetsFile"
+                    Some path
+                with _ ->
+                    None
 
-                if not (File.Exists path) then
-                    failwithf $"project '%s{file}' not restored"
-            with ex ->
-                failwithf $"Failed to detect if the project '%s{file}' was restored"
+            match detectedPath with
+            | Some path when File.Exists path -> ()
+            | Some _ ->
+                // MSBuild reported a path but the file doesn't exist there — project is definitely not restored.
+                failwithf $"project '%s{file}' not restored"
+            | None ->
+                // Could not determine the assets file location (e.g. old SDK without --getProperty support,
+                // or nonstandard project layout). Warn and continue; if the project truly isn't restored the
+                // subsequent cracking step will fail with a more specific error.
+                printfn $"Warning: could not verify that project '%s{file}' was restored. Proceeding anyway."
 
     let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo =
         ensureProjectWasRestored file
