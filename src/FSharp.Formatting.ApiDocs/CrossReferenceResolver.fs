@@ -438,6 +438,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
     member _.ResolveUrlBaseNameForEntity entity =
         getUrlBaseNameForRegisteredEntity entity
 
+    member _.TryResolveUrlBaseNameForEntity(entity: FSharpEntity) =
+        match registeredSymbolsToUrlBaseName.TryGetValue(entity) with
+        | true, v -> Some v
+        | _ -> None
+
     member _.TryResolveEntity entity =
         tryResolveCrossReferenceForEntity entity
 

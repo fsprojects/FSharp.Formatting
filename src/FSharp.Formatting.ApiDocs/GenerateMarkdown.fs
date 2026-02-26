@@ -268,7 +268,29 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               yield! renderMembers "Static parameters" staticParameters
               yield! renderMembers "Constructors" constructors
               yield! renderMembers "Instance members" instanceMembers
-              yield! renderMembers "Static members" staticMembers ]
+              yield! renderMembers "Static members" staticMembers
+
+          let inheritedMemberGroups =
+              entity.InheritedMembers
+              |> List.map (fun (baseTypeHtml, members) ->
+                  let instMembers =
+                      members
+                      |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember && not m.IsObsolete)
+
+                  let statMembers =
+                      members
+                      |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember && not m.IsObsolete)
+
+                  (baseTypeHtml, instMembers, statMembers))
+              |> List.filter (fun (_, i, s) -> not (List.isEmpty i) || not (List.isEmpty s))
+
+          if not (List.isEmpty inheritedMemberGroups) then
+              ``###`` [ !!"Inherited members" ]
+
+              for (baseTypeHtml, instMembers, statMembers) in inheritedMemberGroups do
+                  ``####`` [ !!"Inherited from "; embed baseTypeHtml ]
+                  yield! renderMembers "Instance members" instMembers
+                  yield! renderMembers "Static members" statMembers ]
 
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)

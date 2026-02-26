@@ -1367,6 +1367,57 @@ module internal SymbolReader =
                       | _ -> ()
                   | None -> () ]
 
+            // Collect members inherited from non-excluded base types that are in the same docs set
+            let rec getInheritedMemberGroups (typ: FSharpEntity) =
+                [ match typ.BaseType with
+                  | Some baseType ->
+                      let bdef = baseType.TypeDefinition
+                      let loc = typ.DeclarationLocation
+
+                      let cmds, _comment, _ = readCommentAndCommands ctx (getXmlDocSigForType bdef) (Some loc)
+
+                      match cmds with
+                      | Command "exclude" _
+                      | Command "omit" _ ->
+                          // Base is excluded/omitted – its members are already folded in; recurse further
+                          yield! getInheritedMemberGroups bdef
+                      | _ ->
+                          match ctx.UrlMap.TryResolveUrlBaseNameForEntity bdef with
+                          | Some baseEntityUrl ->
+                              let baseMembers =
+                                  bdef.MembersFunctionsAndValues
+                                  |> Seq.filter (fun v ->
+                                      checkAccess ctx v.Accessibility
+                                      && not v.IsCompilerGenerated
+                                      && not v.IsOverrideOrExplicitInterfaceImplementation
+                                      && not v.IsEventAddMethod
+                                      && not v.IsEventRemoveMethod
+                                      && not v.IsPropertyGetterMethod
+                                      && not v.IsPropertySetterMethod
+                                      && v.CompiledName <> ".ctor")
+                                  |> Seq.choose (fun v ->
+                                      let kind =
+                                          if v.IsInstanceMember then
+                                              ApiDocMemberKind.InstanceMember
+                                          else
+                                              ApiDocMemberKind.StaticMember
+
+                                      match tryReadMember ctx baseEntityUrl kind v with
+                                      | Some(m, _) when not m.Exclude -> Some m
+                                      | _ -> None)
+                                  |> List.ofSeq
+
+                              let baseTypeHtml = baseType |> formatTypeAsHtml ctx.UrlMap |> codeHtml
+
+                              if not (List.isEmpty baseMembers) then
+                                  yield (baseTypeHtml, baseMembers)
+
+                              yield! getInheritedMemberGroups bdef
+                          | None ->
+                              // Base type not in this docs set – skip but keep walking the chain
+                              yield! getInheritedMemberGroups bdef
+                  | None -> () ]
+
             let ivals, svals =
                 getMembers typ
                 |> Seq.filter (fun v ->
@@ -1419,6 +1470,8 @@ module internal SymbolReader =
 
             let rqa = hasAttrib<RequireQualifiedAccessAttribute> typ.Attributes
 
+            let inheritedMembers = getInheritedMemberGroups typ
+
             let nsdocs = combineNamespaceDocs [ nsdocs1; nsdocs2; nsdocs3; nsdocs4; nsdocs5; nsdocs6 ]
 
             if nsdocs.IsSome then
@@ -1455,7 +1508,8 @@ module internal SymbolReader =
                 [],
                 rqa,
                 location,
-                ctx.Substitutions
+                ctx.Substitutions,
+                inheritedMembers
             ))
 
     and readModule (ctx: ReadingContext) (modul: FSharpEntity) =
@@ -1526,7 +1580,8 @@ module internal SymbolReader =
                 pats,
                 rqa,
                 location,
-                ctx.Substitutions
+                ctx.Substitutions,
+                []
             ))
 
     and readEntities ctx (entities: _ seq) =

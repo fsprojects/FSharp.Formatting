@@ -10,6 +10,7 @@
 * Add `{{fsdocs-logo-alt}}` substitution (configurable via `<FsDocsLogoAlt>` MSBuild property, defaults to `Logo`) for accessible alt text on the header logo image. [#626](https://github.com/fsprojects/FSharp.Formatting/issues/626)
 * Add `fsdocs init` command to scaffold a minimal `docs/index.md` (and optionally `_template.html`) for new projects. [#872](https://github.com/fsprojects/FSharp.Formatting/issues/872)
 * `IFsiEvaluator` now inherits `IDisposable`; `FsiEvaluator` disposes its underlying FSI session when disposed, preventing session leaks in long-running processes. [#341](https://github.com/fsprojects/FSharp.Formatting/issues/341)
+* Show inherited members from documented base types in a new "Inherited members" section on type pages (MSDN-style). [#590](https://github.com/fsprojects/FSharp.Formatting/issues/590)
 
 ### Fixed
 * Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)

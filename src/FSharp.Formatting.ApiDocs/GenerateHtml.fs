@@ -506,6 +506,29 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 div [] (renderMembers "Constructors" "Constructor" constructors)
                 div [] (renderMembers "Instance members" "Instance member" instanceMembers)
                 div [] (renderMembers "Static members" "Static member" staticMembers)
+
+            let inheritedMemberGroups =
+                entity.InheritedMembers
+                |> List.map (fun (baseTypeHtml, members) ->
+                    let instMembers =
+                        members
+                        |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember && not m.IsObsolete)
+
+                    let statMembers =
+                        members
+                        |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember && not m.IsObsolete)
+
+                    (baseTypeHtml, instMembers, statMembers)
+                )
+                |> List.filter (fun (_, i, s) -> not (List.isEmpty i) || not (List.isEmpty s))
+
+            if not (List.isEmpty inheritedMemberGroups) then
+                h3 [] [ !!"Inherited members" ]
+
+                for (baseTypeHtml, instMembers, statMembers) in inheritedMemberGroups do
+                    h4 [] [ !!"Inherited from "; embed baseTypeHtml ]
+                    div [] (renderMembers "Instance members" "Instance member" instMembers)
+                    div [] (renderMembers "Static members" "Static member" statMembers)
         ]
 
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
