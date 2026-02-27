@@ -1849,16 +1849,9 @@ type CoreBuildOptions(watch) =
         let generateLlmsTxt () =
             if generateLlmsTxtEnabled then
                 let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
-                // Doc content generates .md files alongside .html when _template.md is present.
-                let docContentUsesMarkdown = File.Exists(Path.Combine(this.input, "_template.md"))
-
-                if not docContentUsesMarkdown then
-                    printfn "note: FsDocsGenerateLlmsTxt is enabled but no '_template.md' was found in '%s'." this.input
-
-                    printfn "      Consider adding a '_template.md' to generate Markdown pages alongside HTML."
-
-                    printfn
-                        "      Markdown output is more suitable for LLM consumption (see https://fsprojects.github.io/FSharp.Formatting/styling.html)."
+                // When FsDocsGenerateLlmsTxt is enabled, markdown is always generated alongside HTML
+                // (using the bundled default markdown template if the user hasn't provided a _template.md).
+                let docContentUsesMarkdown = true
 
                 let apiDocUsesMarkdown = latestApiDocOutputKind = OutputKind.Markdown
 
@@ -2005,10 +1998,21 @@ type CoreBuildOptions(watch) =
                     )
 
                 let docModels =
-                    // When llms.txt generation is enabled, pass the default markdown template so that
+                    // When llms.txt generation is enabled, ensure a markdown template is available so that
                     // .md versions of content pages are written alongside .html files, enabling
                     // llms.txt to link to the more LLM-friendly markdown versions.
-                    let mdTemplate = if generateLlmsTxtEnabled then defaultMdTemplate else None
+                    // An empty template causes the processor to emit just the document content,
+                    // which is ideal for LLM consumption.
+                    let mdTemplate =
+                        if generateLlmsTxtEnabled then
+                            match defaultMdTemplate with
+                            | Some _ -> defaultMdTemplate
+                            | None ->
+                                let tempMdTemplate = Path.GetTempFileName()
+                                File.WriteAllText(tempMdTemplate, "")
+                                Some tempMdTemplate
+                        else
+                            None
 
                     docContent.Convert(this.input, defaultTemplate, extraInputs, ?defaultMdTemplate = mdTemplate)
 

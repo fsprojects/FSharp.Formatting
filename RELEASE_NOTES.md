@@ -4,7 +4,7 @@
 
 ### Added
 
-* Generate `llms.txt` and `llms-full.txt` for LLM consumption by default (opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>`); links point to `.md` files when markdown output is available, and a default `_template.md` is bundled so markdown output is generated automatically. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951) [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
+* Generate `llms.txt` and `llms-full.txt` for LLM consumption by default (opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>`); when enabled, markdown output is always generated alongside HTML (even without a user-provided `_template.md`) and `llms.txt` links point to the `.md` files. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951) [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 * Add `///` documentation comments to all public types, modules and members, and succinct internal comments, as part of ongoing effort to document the codebase. [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
 * Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
 * Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
