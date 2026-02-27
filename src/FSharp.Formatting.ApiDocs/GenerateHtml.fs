@@ -191,14 +191,22 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                             | None -> ()
                                             | Some v ->
                                                 !!"Type parameters: "
-                                                encode (v)
+
+                                                if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short then
+                                                    match m.FormatTypeConstraints with
+                                                    | None -> encode v
+                                                    | Some c -> encode ($"{v} when {c}")
+                                                else
+                                                    encode v
+
                                                 br []
 
-                                            match m.FormatTypeConstraints with
-                                            | None -> ()
-                                            | Some v ->
-                                                !!"Constraints: "
-                                                encode (v)
+                                            if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full then
+                                                match m.FormatTypeConstraints with
+                                                | None -> ()
+                                                | Some v ->
+                                                    !!"Constraints: "
+                                                    encode (v)
                                         ]
                                     ]
                                 ]

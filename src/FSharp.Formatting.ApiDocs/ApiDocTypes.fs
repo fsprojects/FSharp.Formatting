@@ -110,6 +110,16 @@ module internal Utils =
             else if String.IsNullOrEmpty a.Value then None
             else Some a.Value
 
+/// Controls how type constraints on generic members are displayed in generated API docs.
+[<RequireQualifiedAccess>]
+type TypeConstraintDisplayMode =
+    /// Do not display type constraints.
+    | None
+    /// Display constraints inline as a 'when' clause appended to the type parameters (default).
+    | Short
+    /// Display constraints in a separate 'Constraints:' section in the member tooltip.
+    | Full
+
 /// Represents some HTML formatted by model generation
 type ApiDocHtml(html: string, id: string option) =
 
@@ -297,6 +307,7 @@ type ApiDocMemberDetails =
         modifiers: string list *
         typars: string list *
         constraints: string list *
+        constraintMode: TypeConstraintDisplayMode *
         extendedType: (FSharpEntity * ApiDocHtml) option *
         location: string option *
         compiledName: string option
@@ -324,6 +335,7 @@ type ApiDocMember
                              modifiers,
                              typars,
                              constraints,
+                             constraintMode,
                              extendedType,
                              location,
                              compiledName)) =
@@ -424,6 +436,9 @@ type ApiDocMember
 
     /// The member's type constraints
     member x.Constraints: string list = constraints
+
+    /// How type constraints are displayed for this member
+    member x.TypeConstraintDisplayMode: TypeConstraintDisplayMode = constraintMode
 
     /// The usage section in a typical tooltip
     member x.UsageHtml: ApiDocHtml = usageHtml

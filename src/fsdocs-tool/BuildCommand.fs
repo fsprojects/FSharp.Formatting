@@ -1711,7 +1711,7 @@ type CoreBuildOptions(watch) =
                     Warn = projectWarn
                     PublicOnly = not this.nonpublic
                     ShowInheritedMembers = not projectNoInheritedMembers
-                    ShowTypeConstraints = projectShowTypeConstraints } ]
+                    TypeConstraintDisplayMode = projectShowTypeConstraints } ]
 
         // Compute the merge of all referenced DLLs across all projects
         // so they can be resolved during API doc generation.

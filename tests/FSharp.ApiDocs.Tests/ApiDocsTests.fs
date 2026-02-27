@@ -585,6 +585,228 @@ let ``ApiDocs ShowInheritedMembers false suppresses inherited section in output 
     // The base class's members should not appear as inherited
     files.[derivedKey.Value] |> shouldNotContainText "BaseMethod"
 
+[<Test>]
+let ``ApiDocs TypeConstraintDisplayMode None hides constraints on model`` () =
+    let library = testBin </> "FsLib2.dll"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              TypeConstraintDisplayMode = TypeConstraintDisplayMode.None } ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let constraintModule =
+        model.Collection.Namespaces
+        |> List.collect (fun ns -> ns.Entities)
+        |> List.tryFind (fun e -> e.Name = "TypeConstraintTests")
+
+    constraintModule.IsSome |> shouldEqual true
+
+    let requiresEqualityMember =
+        constraintModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun m -> m.Name = "requiresEquality")
+
+    requiresEqualityMember.IsSome |> shouldEqual true
+    requiresEqualityMember.Value.Constraints |> shouldEqual []
+
+[<Test>]
+let ``ApiDocs TypeConstraintDisplayMode Short shows constraints inline (default)`` () =
+    let library = testBin </> "FsLib2.dll"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short } ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let constraintModule =
+        model.Collection.Namespaces
+        |> List.collect (fun ns -> ns.Entities)
+        |> List.tryFind (fun e -> e.Name = "TypeConstraintTests")
+
+    constraintModule.IsSome |> shouldEqual true
+
+    let requiresEqualityMember =
+        constraintModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun m -> m.Name = "requiresEquality")
+
+    requiresEqualityMember.IsSome |> shouldEqual true
+    requiresEqualityMember.Value.Constraints |> shouldNotEqual []
+
+    requiresEqualityMember.Value.TypeConstraintDisplayMode
+    |> shouldEqual TypeConstraintDisplayMode.Short
+
+    requiresEqualityMember.Value.FormatTypeConstraints.IsSome |> shouldEqual true
+
+    let requiresComparisonMember =
+        constraintModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun m -> m.Name = "requiresComparison")
+
+    requiresComparisonMember.IsSome |> shouldEqual true
+    requiresComparisonMember.Value.Constraints |> shouldNotEqual []
+
+[<Test>]
+let ``ApiDocs TypeConstraintDisplayMode Full shows constraints in separate section`` () =
+    let library = testBin </> "FsLib2.dll"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full } ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let constraintModule =
+        model.Collection.Namespaces
+        |> List.collect (fun ns -> ns.Entities)
+        |> List.tryFind (fun e -> e.Name = "TypeConstraintTests")
+
+    constraintModule.IsSome |> shouldEqual true
+
+    let requiresEqualityMember =
+        constraintModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun m -> m.Name = "requiresEquality")
+
+    requiresEqualityMember.IsSome |> shouldEqual true
+    requiresEqualityMember.Value.Constraints |> shouldNotEqual []
+
+    requiresEqualityMember.Value.TypeConstraintDisplayMode
+    |> shouldEqual TypeConstraintDisplayMode.Full
+
+[<Test>]
+let ``ApiDocs TypeConstraintDisplayMode default is Short`` () =
+    let library = testBin </> "FsLib2.dll"
+
+    // Use default - should be Short
+    let inputs = [ ApiDocInput.FromFile(library, mdcomments = false) ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let constraintModule =
+        model.Collection.Namespaces
+        |> List.collect (fun ns -> ns.Entities)
+        |> List.tryFind (fun e -> e.Name = "TypeConstraintTests")
+
+    constraintModule.IsSome |> shouldEqual true
+
+    let requiresEqualityMember =
+        constraintModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun m -> m.Name = "requiresEquality")
+
+    requiresEqualityMember.IsSome |> shouldEqual true
+    // Default is Short - constraints are computed
+    requiresEqualityMember.Value.TypeConstraintDisplayMode
+    |> shouldEqual TypeConstraintDisplayMode.Short
+
+    requiresEqualityMember.Value.Constraints |> shouldNotEqual []
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs TypeConstraintDisplayMode Short renders inline 'when' clause in output`` (format: OutputFormat) =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+    let output = getOutputDir format "FsLib2_constraints_short"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short } ]
+
+    let _metadata =
+        DocsGenerator(format)
+            .Run(
+                inputs,
+                output = output,
+                collectionName = "Collection",
+                template = docTemplate format,
+                substitutions = substitutions,
+                libDirs = [ root ]
+            )
+
+    let fileNames = Directory.GetFiles(output </> "reference")
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+    // Find the module page specifically (not sub-type pages like comparisonwrapper)
+    let constraintKey =
+        files.Keys
+        |> Seq.tryFind (fun k -> k.Contains("typeconstrainttests") && not (k.Contains("comparisonwrapper")))
+
+    constraintKey.IsSome |> shouldEqual true
+
+    // Short mode: 'when' clause should appear inline with type parameters
+    files.[constraintKey.Value] |> shouldContainText "when"
+    // Should NOT have a separate "Constraints:" label in HTML mode
+    if format = Html then
+        files.[constraintKey.Value] |> shouldNotContainText "Constraints:"
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs TypeConstraintDisplayMode Full renders separate Constraints section in output`` (format: OutputFormat) =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+    let output = getOutputDir format "FsLib2_constraints_full"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full } ]
+
+    let _metadata =
+        DocsGenerator(format)
+            .Run(
+                inputs,
+                output = output,
+                collectionName = "Collection",
+                template = docTemplate format,
+                substitutions = substitutions,
+                libDirs = [ root ]
+            )
+
+    let fileNames = Directory.GetFiles(output </> "reference")
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+    // Find the module page specifically (not sub-type pages like comparisonwrapper)
+    let constraintKey =
+        files.Keys
+        |> Seq.tryFind (fun k -> k.Contains("typeconstrainttests") && not (k.Contains("comparisonwrapper")))
+
+    constraintKey.IsSome |> shouldEqual true
+
+    // Full mode: "Constraints:" label should appear in HTML output
+    if format = Html then
+        files.[constraintKey.Value] |> shouldContainText "Constraints:"
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs TypeConstraintDisplayMode None renders no constraint information in output`` (format: OutputFormat) =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+    let output = getOutputDir format "FsLib2_constraints_none"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              TypeConstraintDisplayMode = TypeConstraintDisplayMode.None } ]
+
+    let _metadata =
+        DocsGenerator(format)
+            .Run(
+                inputs,
+                output = output,
+                collectionName = "Collection",
+                template = docTemplate format,
+                substitutions = substitutions,
+                libDirs = [ root ]
+            )
+
+    let fileNames = Directory.GetFiles(output </> "reference")
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+    // Find the module page specifically (not sub-type pages like comparisonwrapper)
+    let constraintKey =
+        files.Keys
+        |> Seq.tryFind (fun k -> k.Contains("typeconstrainttests") && not (k.Contains("comparisonwrapper")))
+
+    constraintKey.IsSome |> shouldEqual true
+
+    // None mode: no "Constraints:" or "when" from type params section
+    if format = Html then
+        files.[constraintKey.Value] |> shouldNotContainText "Constraints:"
+
 
     let libraries = [ testBin </> "FsLib1.dll"; testBin </> "FsLib2.dll" ] |> fullpaths
 

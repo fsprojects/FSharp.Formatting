@@ -87,6 +87,21 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                       | None -> ()
                       | Some r -> p [ embed r ]
 
+                  match m.FormatTypeArguments with
+                  | None -> ()
+                  | Some v ->
+                      if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short then
+                          match m.FormatTypeConstraints with
+                          | None -> p [ !!("Type parameters: " + v) ]
+                          | Some c -> p [ !!($"Type parameters: {v} when {c}") ]
+                      else
+                          p [ !!("Type parameters: " + v) ]
+
+                  if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full then
+                      match m.FormatTypeConstraints with
+                      | None -> ()
+                      | Some c -> p [ !!"Constraints: "; !!c ]
+
                   if not m.Comment.Exceptions.IsEmpty then
                       for (nm, url, html) in m.Comment.Exceptions do
                           p
