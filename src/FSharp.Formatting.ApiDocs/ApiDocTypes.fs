@@ -558,7 +558,8 @@ type ApiDocEntity
         pats,
         rqa,
         location: string option,
-        substitutions: Substitutions
+        substitutions: Substitutions,
+        inheritedMembers: (ApiDocHtml * ApiDocMember list) list
     ) =
 
     /// Indicates if the entity is a type definition
@@ -660,6 +661,9 @@ type ApiDocEntity
 
     /// Active patterns of the module
     member x.ActivePatterns: ApiDocMember list = pats
+
+    /// Members inherited from base types (grouped by base type, shown in docs as "Inherited from X")
+    member x.InheritedMembers: (ApiDocHtml * ApiDocMember list) list = inheritedMembers
 
     /// The substitution parameters active for generating thist content
     member x.Substitutions = substitutions

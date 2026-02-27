@@ -10,35 +10,45 @@ open System.Linq
 open System.Xml.Linq
 open FSharp.Formatting.Templating
 
+/// Internal utilities shared across all Markdown formatting back-ends (HTML, Latex, Markdown, .fsx, .ipynb).
+/// Provides helpers for inspecting and transforming the <see cref="T:FSharp.Formatting.Markdown.MarkdownParagraph"/>
+/// AST, applying template substitutions, and resolving cross-references.
 module internal MarkdownUtils =
+    /// Returns true when the paragraph is a code block or inline HTML block.
     let isCode =
         (function
         | CodeBlock _
         | InlineHtmlBlock _ -> true
         | _ -> false)
 
+    /// Returns true when the paragraph is an output block (e.g. a notebook cell output).
     let isCodeOutput =
         (function
         | OutputBlock _ -> true
         | _ -> false)
 
+    /// Extracts the optional execution count from a code or inline-HTML block; returns None for other paragraphs.
     let getExecutionCount =
         (function
         | CodeBlock(executionCount = executionCount)
         | InlineHtmlBlock(executionCount = executionCount) -> executionCount
         | _ -> None)
 
+    /// Extracts the source-code string from a code or inline-HTML block; raises if called on other paragraphs.
     let getCode =
         (function
         | CodeBlock(code = code) -> code
         | InlineHtmlBlock(code = code) -> code
         | _ -> failwith "unreachable")
 
+    /// Extracts the output text and MIME kind from an output block; raises if called on other paragraphs.
     let getCodeOutput =
         (function
         | OutputBlock(code, kind, _) -> code, kind
         | _ -> failwith "unreachable")
 
+    /// Splits a paragraph list at the first code block, returning the leading code (or prose) section
+    /// paired with the remaining paragraphs. Used by back-ends that process documents cell-by-cell.
     let splitParagraphs paragraphs =
         let firstCode = paragraphs |> List.tryFindIndex isCode
 
@@ -239,6 +249,8 @@ module internal MarkdownUtils =
               printfn "// can't yet format %0A to markdown" paragraph
               yield "" ]
 
+    /// Strips <c>#if SYMBOL</c> / <c>#endif // SYMBOL</c> conditional compilation lines from an .fsx code block
+    /// so that format-specific sections are removed from non-target output formats.
     let adjustFsxCodeForConditionalDefines (defineSymbol, newLine) (code: string) =
         // Inside literate code blocks we conditionally remove some special lines to get nicer output for
         // load sections for different formats. We remove this:
@@ -254,23 +266,30 @@ module internal MarkdownUtils =
         let code2 = String.concat newLine lines
         code2
 
+    /// Applies template substitutions to a plain text string using the context's substitution table.
     let applySubstitutionsInText ctx (text: string) =
         SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions text
 
+    /// Resolves a <c>cref:</c> inline-code span to a hyperlink if the reference is known; otherwise leaves it as inline code.
     let applyCodeReferenceResolver ctx (code, range) =
         match ctx.CodeReferenceResolver code with
         | None -> InlineCode(code, range)
         | Some(niceName, link) -> DirectLink([ Literal(niceName, range) ], link, None, range)
 
+    /// Resolves a direct link target through the context's Markdown link resolver, returning the mapped URL.
     let applyDirectLinkResolver ctx link =
         match ctx.MarkdownDirectLinkResolver link with
         | None -> link
         | Some newLink -> newLink
 
+    /// Extracts the text-transformation function from a triple of span-mapping functions.
     let mapText (f, _, _) text = f text
+    /// Extracts the inline-code transformation function from a triple of span-mapping functions.
     let mapInlineCode (_, f, _) (code, range) = f (code, range)
+    /// Applies the text function to the body and then the link function to the result.
     let mapDirectLink (fText, _, fLink) text = fLink (fText text)
 
+    /// Recursively maps a triple of transformation functions over all spans in a span list.
     let rec mapSpans fs (md: MarkdownSpans) =
         md
         |> List.map (function
@@ -292,6 +311,8 @@ module internal MarkdownUtils =
             | LatexDisplayMath(code, range) -> LatexDisplayMath(code, range)
             | EmbedSpans(customSpans, range) -> EmbedSpans(customSpans, range))
 
+    /// Recursively maps a triple of transformation functions over all paragraphs in a paragraph list,
+    /// including nested paragraphs inside list items, block-quotes, and tables.
     let rec mapParagraphs f (md: MarkdownParagraphs) =
         md
         |> List.map (function
@@ -355,5 +376,7 @@ module internal MarkdownUtils =
                 //let customParagraphsR = { new MarkdownEmbedParagraphs with member _.Render() = customParagraphs.Render() |> mapParagraphs f }
                 EmbedParagraphs(customParagraphs, range))
 
+    /// Applies all context substitutions (text replacements, cref resolution, and direct-link mapping)
+    /// to every span and paragraph in a Markdown document.
     let applySubstitutionsInMarkdown ctx md =
         mapParagraphs (applySubstitutionsInText ctx, applyCodeReferenceResolver ctx, applyDirectLinkResolver ctx) md

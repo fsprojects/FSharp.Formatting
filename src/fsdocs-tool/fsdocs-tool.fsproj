@@ -30,6 +30,7 @@
   <ItemGroup>
     <!-- NuGet package content -->
     <Content Include="..\..\docs\_template.html" PackagePath="templates" />
+    <Content Include="..\..\docs\_template.md" PackagePath="templates" />
     <Content Include="..\..\docs\_template.tex" PackagePath="templates" />
     <Content Include="..\..\docs\_template.ipynb" PackagePath="templates" />
     <Content Include="..\..\docs\Dockerfile" PackagePath="extras" />

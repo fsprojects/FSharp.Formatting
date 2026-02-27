@@ -3,7 +3,6 @@
 ## [Unreleased]
 
 ### Added
-
 * Add `///` documentation comments to all public types, modules and members, and succinct internal comments, as part of ongoing effort to document the codebase. [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
 * Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
 * Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
@@ -11,8 +10,12 @@
 * Add `fsdocs init` command to scaffold a minimal `docs/index.md` (and optionally `_template.html`) for new projects. [#872](https://github.com/fsprojects/FSharp.Formatting/issues/872)
 * `IFsiEvaluator` now inherits `IDisposable`; `FsiEvaluator` disposes its underlying FSI session when disposed, preventing session leaks in long-running processes. [#341](https://github.com/fsprojects/FSharp.Formatting/issues/341)
 * Include type constraints (e.g. `'T : equality`, `'T : comparison`, `'T :> IComparable`) in generated API documentation. Constraints are displayed in a "Constraints:" line in the member tooltip alongside the type parameters. [#591](https://github.com/fsprojects/FSharp.Formatting/issues/591)
+* Show inherited members from documented base types in a new "Inherited members" section on type pages (MSDN-style). [#590](https://github.com/fsprojects/FSharp.Formatting/issues/590)
+* Add `<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` project file setting to suppress "Inherited from" sections in generated API docs. [#1039](https://github.com/fsprojects/FSharp.Formatting/pull/1039)
+* Generate `llms.txt` and `llms-full.txt` for LLM consumption by default (opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>`); when enabled, markdown output is always generated alongside HTML (even without a user-provided `_template.md`) and `llms.txt` links point to the `.md` files. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951) [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 
 ### Fixed
+* Fix project restore detection for projects with nonstandard artifact locations (e.g. `<UseArtifactsOutput>` or the dotnet/fsharp repo layout): when the MSBuild call to locate `project.assets.json` fails, emit a warning and proceed instead of hard-failing. [#592](https://github.com/fsprojects/FSharp.Formatting/issues/592)
 * Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)
 * Fix `_menu_template.html` and `_menu-item_template.html` being copied to the output directory. [#803](https://github.com/fsprojects/FSharp.Formatting/issues/803)
 * Fix `ApiDocMember.Details.ReturnInfo.ReturnType` returning `None` for properties that have both a getter and a setter. [#734](https://github.com/fsprojects/FSharp.Formatting/issues/734)
@@ -20,6 +23,7 @@
 * HTML-encode XML doc text nodes and unresolved `<see cref>` values to prevent HTML injection and fix broken output when docs contain characters like `<`, `>`, or backticks in generic type notation. [#748](https://github.com/fsprojects/FSharp.Formatting/issues/748)
 * Add uppercase output kind extension (e.g. `HTML`, `IPYNB`) to `ConditionalDefines` so that `#if HTML` and `(*** condition: HTML ***)` work alongside their lowercase variants. [#693](https://github.com/fsprojects/FSharp.Formatting/issues/693)
 * Strip `#if SYMBOL` / `#endif // SYMBOL` marker lines from `LiterateCode` source before syntax-highlighting so they do not appear in formatted output. [#693](https://github.com/fsprojects/FSharp.Formatting/issues/693)
+* Improve tolerant cross-reference resolution so that unqualified `<see cref>` attributes (e.g. `<see cref="MyType" />`, `<see cref="MyType.MyMember" />`, `<see cref="GenericType`1.Member" />`) resolve to the correct API documentation page when the referenced type is part of the documented assembly set. [#605](https://github.com/fsprojects/FSharp.Formatting/issues/605)
 * Members and functions annotated with `CompilerMessageAttribute(IsHidden=true)` are now automatically excluded from API docs, matching the behaviour of `[omit]` / `<exclude/>`. [#144](https://github.com/fsprojects/FSharp.Formatting/issues/144)
 * Fix incorrect column ranges for inline spans (links, images, inline code) in the Markdown parser — spans and subsequent literals now report correct `StartColumn`/`EndColumn` values. [#744](https://github.com/fsprojects/FSharp.Formatting/issues/744)
 * Normalize `--projects` paths to absolute paths before passing to the project cracker, fixing failures when relative paths are supplied. [#793](https://github.com/fsprojects/FSharp.Formatting/issues/793)

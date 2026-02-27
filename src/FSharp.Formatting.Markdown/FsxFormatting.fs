@@ -2,6 +2,8 @@
 // Format a document as a .fsx
 // --------------------------------------------------------------------------------------
 
+/// Internal module for rendering a parsed Markdown/Literate AST back to an F# Script (.fsx) file.
+/// Code blocks become plain F# code; prose blocks are wrapped in <c>(**</c> ... <c>*)</c> comments.
 module internal FSharp.Formatting.Markdown.FsxFormatting
 
 open MarkdownUtils
@@ -72,6 +74,8 @@ let rec formatParagraphs ctx paragraphs =
         let cells = cell :: others
         cells
 
+/// Formats a full literate document as an F# Script string.
+/// Code cells become raw F# code; Markdown prose cells are wrapped in <c>(** ... *)</c> comment blocks.
 let formatAsFsx links substitutions newline crefResolver mdlinkResolver paragraphs =
     let ctx =
         { Links = links

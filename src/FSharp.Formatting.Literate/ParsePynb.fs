@@ -5,8 +5,11 @@ open System.Text.Json
 open FSharp.Formatting.Templating
 open FSharp.Formatting.PynbModel
 
+/// Internal module for parsing Jupyter notebook (.ipynb) files into <see cref="T:FSharp.Formatting.Literate.ParsePynb.ParsedCell"/> values
+/// that can be converted to Markdown or .fsx for literate processing.
 module internal ParsePynb =
 
+    /// A single cell from a Jupyter notebook, either a Markdown cell or a code cell.
     type ParsedCell =
         | Code of
             {| lang: string
@@ -39,7 +42,9 @@ module internal ParsePynb =
                     sprintf $"%s{codeBlock}\n(**\n%s{outputsString}\n*)"
             | Code _ -> $"(**\n%s{this.ToMarkdown()}\n*)"
 
+    /// Active patterns for matching Jupyter output cells by MIME type and output type.
     module Output =
+        /// Matches a JSON element that contains <c>text/html</c> output data.
         let (|TextHtml|_|) (x: JsonElement) =
             match x.TryGetProperty("text/html") with
             | true, html ->
@@ -51,6 +56,7 @@ module internal ParsePynb =
                 Some $"<p>%s{html}</p>"
             | _ -> None
 
+        /// Matches a JSON element that contains <c>text/plain</c> output data.
         let (|TextPlain|_|) (x: JsonElement) =
             match x.TryGetProperty("text/plain") with
             | true, text ->
@@ -58,6 +64,7 @@ module internal ParsePynb =
                 Some $"""<table class="pre"><tbody><tr><td><pre><code>%s{text}</code></pre></td></tr></tbody></table>"""
             | _ -> None
 
+        /// Matches a display-data output cell and returns its rendered HTML or plain-text content.
         let (|DisplayData|_|) (x: JsonElement) =
             match x.TryGetProperty("output_type") with
             | true, outputType ->
@@ -72,6 +79,7 @@ module internal ParsePynb =
                     None
             | _ -> failwith "no output_type property"
 
+        /// Matches a stream output cell and returns its text content as an HTML code block.
         let (|Stream|_|) (x: JsonElement) =
             match x.TryGetProperty("output_type") with
             | true, outputType ->
@@ -87,12 +95,14 @@ module internal ParsePynb =
                     None
             | _ -> failwith "no output_type property"
 
+        /// Parses an output JSON element and returns its rendered HTML string.
         let parse (output: JsonElement) =
             match output with
             | Stream stream -> stream
             | DisplayData displayData -> displayData
             | s -> failwith $"""unknown output %s{s.GetProperty("output_type").GetString()}"""
 
+    /// Returns the concatenated source lines of a notebook cell as a single string.
     let getSource (cell: JsonElement) =
         let source =
             match cell.TryGetProperty("source") with
@@ -101,6 +111,7 @@ module internal ParsePynb =
 
         source |> Seq.map (fun x -> x.GetString()) |> String.concat ""
 
+    /// Returns the rendered output strings from a code cell, or <c>None</c> if there are no outputs.
     let collectOutputs (cell: JsonElement) =
         match cell.TryGetProperty("outputs") with
         | true, outputs ->
@@ -112,6 +123,7 @@ module internal ParsePynb =
                 xs |> Seq.map Output.parse |> Seq.toArray |> Some
         | _ -> None
 
+    /// Parses a polyglot code cell, extracting the kernel name, source, and rendered outputs.
     let getCode (cell: JsonElement) =
         let lang =
             let metadata (elem: JsonElement) =
@@ -140,6 +152,7 @@ module internal ParsePynb =
                outputs = outputs |}
 
 
+    /// Parses a single notebook cell JSON element into a <see cref="T:FSharp.Formatting.Literate.ParsePynb.ParsedCell"/>.
     let parseCell (cell: JsonElement) =
         let cell_type =
             match cell.TryGetProperty("cell_type") with
@@ -154,6 +167,7 @@ module internal ParsePynb =
         | "code" -> getCode cell
         | _ -> failwith $"unknown cell type %s{cell_type}"
 
+    /// Converts a Jupyter notebook JSON string to a Markdown string by serialising each cell.
     let pynbStringToMarkdown (ipynb: string) =
         let json = JsonDocument.Parse(ipynb)
 
@@ -161,10 +175,12 @@ module internal ParsePynb =
         |> Seq.map (parseCell >> (fun x -> x.ToMarkdown()))
         |> String.concat "\n"
 
+    /// Reads a Jupyter notebook file and converts it to a Markdown string.
     let pynbToMarkdown ipynbFile =
         ipynbFile |> File.ReadAllText |> pynbStringToMarkdown
 
 
+    /// Converts a Jupyter notebook JSON string to an .fsx script string.
     let pynbStringToFsx (ipynb: string) =
         let json = JsonDocument.Parse(ipynb)
 
@@ -172,9 +188,11 @@ module internal ParsePynb =
         |> Seq.map (parseCell >> (fun x -> x.ToFsx()))
         |> String.concat "\n"
 
+    /// Reads a Jupyter notebook file and converts it to an .fsx script string.
     let pynbToFsx ipynbFile =
         ipynbFile |> File.ReadAllText |> pynbStringToFsx
 
+    /// Reads the front-matter block from a Jupyter notebook file, if present in the first Markdown cell.
     let parseFrontMatter ipynbFile =
         let json = JsonDocument.Parse(ipynbFile |> File.ReadAllText)
 
