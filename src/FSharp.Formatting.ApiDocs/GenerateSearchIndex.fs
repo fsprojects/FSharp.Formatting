@@ -1,18 +1,23 @@
+/// Internal module for building the JSON search index from an <see cref="ApiDocModel"/>
 module internal FSharp.Formatting.ApiDocs.GenerateSearchIndex
 
 open FSharp.Formatting.ApiDocs
 
+/// Bundles all entity and model data needed while building search entries
 type AssemblyEntities =
     { Entities: ApiDocEntity list
       GeneratorOutput: ApiDocModel }
 
 
+/// Recursively collects an entity and all its nested entities
 let rec collectEntities (m: ApiDocEntity) =
     [ yield m; yield! m.NestedEntities |> List.collect collectEntities ]
 
+/// The search index type tag used to identify API-docs entries
 [<Literal>]
 let ApiDocs = "apiDocs"
 
+/// Builds all search index entries for the given <see cref="ApiDocModel"/>
 let searchIndexEntriesForModel (model: ApiDocModel) =
     let allEntities =
         [ for n in model.Collection.Namespaces do
@@ -23,6 +28,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
         { Entities = allEntities
           GeneratorOutput = model }
 
+    /// Builds a single search entry for a member under the given enclosing entity name
     let doMember enclName (memb: ApiDocMember) =
         let cnt =
             [ yield enclName + "." + memb.Name
@@ -41,7 +47,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
 
     let refs =
         [| for nsp in model.Collection.Namespaces do
-               // the entry is found when searching for types and modules
+               // Namespace entry: content lists all child type/module names for search
                let ctn =
                    [ for e in nsp.Entities do
                          e.Name ]
@@ -53,7 +59,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
                  ``type`` = ApiDocs
                  headings = List.empty }
 
-           // generate a search index entry for each entity in the assembly
+           // One entry per entity (type/module), plus one per member
            for e in entities.Entities do
                let cnt =
                    [ e.Name

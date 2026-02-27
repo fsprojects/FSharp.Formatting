@@ -281,30 +281,34 @@ type internal DocContent
                           let fsiEvaluator =
                               (if evaluate then
                                    Some(
-                                       FsiEvaluator(onError = onError, options = [| "--multiemit-" |]) :> IFsiEvaluator
+                                       new FsiEvaluator(onError = onError, options = [| "--multiemit-" |])
+                                       :> IFsiEvaluator
                                    )
                                else
                                    None)
 
                           let model =
-                              Literate.ParseAndTransformScriptFile(
-                                  inputFileFullPath,
-                                  output = outputFileRelativeToRoot,
-                                  outputKind = outputKind,
-                                  prefix = None,
-                                  fscOptions = None,
-                                  lineNumbers = lineNumbers,
-                                  references = Some false,
-                                  fsiEvaluator = fsiEvaluator,
-                                  substitutions = substitutions,
-                                  generateAnchors = Some true,
-                                  imageSaver = imageSaverOpt,
-                                  rootInputFolder = rootInputFolder,
-                                  crefResolver = crefResolver,
-                                  mdlinkResolver = mdlinkResolver,
-                                  onError = Some onError,
-                                  filesWithFrontMatter = filesWithFrontMatter
-                              )
+                              try
+                                  Literate.ParseAndTransformScriptFile(
+                                      inputFileFullPath,
+                                      output = outputFileRelativeToRoot,
+                                      outputKind = outputKind,
+                                      prefix = None,
+                                      fscOptions = None,
+                                      lineNumbers = lineNumbers,
+                                      references = Some false,
+                                      fsiEvaluator = fsiEvaluator,
+                                      substitutions = substitutions,
+                                      generateAnchors = Some true,
+                                      imageSaver = imageSaverOpt,
+                                      rootInputFolder = rootInputFolder,
+                                      crefResolver = crefResolver,
+                                      mdlinkResolver = mdlinkResolver,
+                                      onError = Some onError,
+                                      filesWithFrontMatter = filesWithFrontMatter
+                                  )
+                              finally
+                                  fsiEvaluator |> Option.iter (fun e -> e.Dispose())
 
                           yield
                               ((if mainRun then
