@@ -9,7 +9,7 @@ open System.Collections.Generic
 // --------------------------------------------------------------------------------------
 
 /// Specifies visibility of a code snippet.
-[<RequireQualifiedAccess>]
+[<Struct; RequireQualifiedAccess>]
 type LiterateCodeVisibility =
     /// Ordinary visible code
     | VisibleCode
