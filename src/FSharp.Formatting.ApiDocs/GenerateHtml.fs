@@ -1,3 +1,5 @@
+/// Internal module that generates HTML documentation output from an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>.
+/// Produces one HTML file per namespace and per entity, plus an index file.
 module internal FSharp.Formatting.ApiDocs.GenerateHtml
 
 open System
@@ -13,6 +15,8 @@ open FSharp.Formatting.HtmlModel.Html
 /// Embed some HTML generated in GenerateModel
 let embed (x: ApiDocHtml) = !!x.HtmlText
 
+/// Wraps the HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> in a summary paragraph,
+/// unless the content starts with a <c>&lt;pre&gt;</c> tag (which cannot be nested inside <c>&lt;p&gt;</c>).
 let fsdocsSummary (x: ApiDocHtml) =
     // the <pre> tag is not allowed inside a <p> tag.
     if x.HtmlText.StartsWith("<pre>", StringComparison.Ordinal) then
@@ -20,6 +24,9 @@ let fsdocsSummary (x: ApiDocHtml) =
     else
         div [ Class "fsdocs-summary-contents" ] [ p [ Class "fsdocs-summary" ] [ embed x ] ]
 
+/// Renders HTML API documentation for all namespaces and entities in an
+/// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>. Writes one file per namespace
+/// and per entity to the output directory using the supplied template.
 type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
