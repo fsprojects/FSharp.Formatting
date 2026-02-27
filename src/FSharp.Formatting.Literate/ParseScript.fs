@@ -36,6 +36,7 @@ module internal CodeBlockUtils =
             | _ -> false)
         |> List.ofSeq
 
+    /// Split a string into lines, normalising line endings.
     let splitLines (s: string) =
         s.Replace("\r\n", "\n").Split([| '\n' |])
 
@@ -149,15 +150,18 @@ open CodeBlockUtils
 /// as hide, define and include.
 type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
+    /// Determine the visibility of a code block based on its commands dictionary.
     let getVisibility cmds =
         match cmds with
         | Command "hide" _ -> LiterateCodeVisibility.HiddenCode
         | Command "define" name -> LiterateCodeVisibility.NamedCode name
         | _ -> LiterateCodeVisibility.VisibleCode
 
+    /// Return true if a code block should be evaluated, based on global noEval flag and block commands.
     let getEvaluate noEval (cmds: IDictionary<_, _>) =
         not (noEval || cmds.ContainsKey("do-not-eval"))
 
+    /// Extract paragraph options (conditional defines) from block commands.
     let getParaOptions cmds =
         match cmds with
         | Command "condition" name when not (String.IsNullOrWhiteSpace name) -> { Condition = Some name }

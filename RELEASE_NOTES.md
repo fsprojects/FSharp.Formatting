@@ -3,7 +3,6 @@
 ## [Unreleased]
 
 ### Added
-
 * Add `///` documentation comments to all public types, modules and members, and succinct internal comments, as part of ongoing effort to document the codebase. [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
 * Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
 * Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
@@ -12,8 +11,10 @@
 * `IFsiEvaluator` now inherits `IDisposable`; `FsiEvaluator` disposes its underlying FSI session when disposed, preventing session leaks in long-running processes. [#341](https://github.com/fsprojects/FSharp.Formatting/issues/341)
 * Show inherited members from documented base types in a new "Inherited members" section on type pages (MSDN-style). [#590](https://github.com/fsprojects/FSharp.Formatting/issues/590)
 * Add `<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` project file setting to suppress "Inherited from" sections in generated API docs. [#1039](https://github.com/fsprojects/FSharp.Formatting/pull/1039)
+* Generate `llms.txt` and `llms-full.txt` for LLM consumption by default (opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>`); when enabled, markdown output is always generated alongside HTML (even without a user-provided `_template.md`) and `llms.txt` links point to the `.md` files. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951) [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 
 ### Fixed
+* Fix project restore detection for projects with nonstandard artifact locations (e.g. `<UseArtifactsOutput>` or the dotnet/fsharp repo layout): when the MSBuild call to locate `project.assets.json` fails, emit a warning and proceed instead of hard-failing. [#592](https://github.com/fsprojects/FSharp.Formatting/issues/592)
 * Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)
 * Fix `_menu_template.html` and `_menu-item_template.html` being copied to the output directory. [#803](https://github.com/fsprojects/FSharp.Formatting/issues/803)
 * Fix `ApiDocMember.Details.ReturnInfo.ReturnType` returning `None` for properties that have both a getter and a setter. [#734](https://github.com/fsprojects/FSharp.Formatting/issues/734)

@@ -336,3 +336,173 @@ let ``ipynb notebook evaluates`` () =
 
     ipynbOut |> shouldContainText "10007"
 *)
+
+// --------------------------------------------------------------------------------------
+// Tests for LlmsTxt module (FsDocsGenerateLlmsTxt MSBuild property, on by default)
+// --------------------------------------------------------------------------------------
+
+open FSharp.Formatting.ApiDocs
+
+let makeEntry t title uri content =
+    { uri = uri
+      title = title
+      content = content
+      headings = []
+      ``type`` = t }
+
+[<Test>]
+let ``LlmsTxt buildContent produces correct header`` () =
+    let llmsTxt, llmsFullTxt = LlmsTxt.buildContent "MyProject" [||] false false
+    llmsTxt |> shouldContainText "# MyProject\n\n"
+    llmsFullTxt |> shouldContainText "# MyProject\n\n"
+
+[<Test>]
+let ``LlmsTxt buildContent with no entries produces header only`` () =
+    let llmsTxt, llmsFullTxt = LlmsTxt.buildContent "MyProject" [||] false false
+    llmsTxt |> shouldEqual "# MyProject\n\n"
+    llmsFullTxt |> shouldEqual "# MyProject\n\n"
+
+[<Test>]
+let ``LlmsTxt buildContent separates Docs and API Reference sections`` () =
+    let entries =
+        [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Some intro text"
+           makeEntry "apiDocs" "MyModule.MyType" "https://example.com/reference/mytype" "Type docs" |]
+
+    let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
+    llmsTxt |> shouldContainText "## Docs"
+    llmsTxt |> shouldContainText "## API Reference"
+
+    llmsTxt
+    |> shouldContainText "- [Getting Started](https://example.com/docs/getting-started)"
+
+    llmsTxt
+    |> shouldContainText "- [MyModule.MyType](https://example.com/reference/mytype)"
+
+[<Test>]
+let ``LlmsTxt llms.txt does not include content body`` () =
+    let entries =
+        [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Detailed page content here" |]
+
+    let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
+    llmsTxt |> shouldNotContainText "Detailed page content here"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt includes content body`` () =
+    let entries =
+        [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Detailed page content here" |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+    llmsFullTxt |> shouldContainText "Detailed page content here"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt skips blank content`` () =
+    let entries = [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule" "   " |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+    // Full file uses heading format per entry
+    llmsFullTxt
+    |> shouldContainText "### [MyModule](https://example.com/reference/mymodule)"
+    // Blank content should not produce extra blank lines beyond the heading line
+    llmsFullTxt.Contains("   ") |> shouldEqual false
+
+[<Test>]
+let ``LlmsTxt omits Docs section when no content entries exist`` () =
+    let entries = [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule" "" |]
+    let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
+    llmsTxt |> shouldNotContainText "## Docs"
+    llmsTxt |> shouldContainText "## API Reference"
+
+[<Test>]
+let ``LlmsTxt omits API Reference section when no apiDocs entries exist`` () =
+    let entries = [| makeEntry "content" "Guide" "https://example.com/docs/guide" "" |]
+    let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
+    llmsTxt |> shouldContainText "## Docs"
+    llmsTxt |> shouldNotContainText "## API Reference"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt uses heading format per entry`` () =
+    let entries = [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Some content" |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+
+    llmsFullTxt
+    |> shouldContainText "### [Getting Started](https://example.com/docs/getting-started)"
+
+    llmsFullTxt |> shouldNotContainText "- [Getting Started]"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt decodes HTML entities in content`` () =
+    let entries =
+        [| makeEntry
+               "content"
+               "Guide"
+               "https://example.com/docs/guide"
+               "use &quot;double quotes&quot; and &gt; greater-than" |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+    llmsFullTxt |> shouldContainText "use \"double quotes\" and > greater-than"
+    llmsFullTxt |> shouldNotContainText "&quot;"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt strips eval warning lines from content`` () =
+    let content = "Some text\nWarning: Output, it-value and value references require --eval\nMore text"
+
+    let entries = [| makeEntry "content" "Guide" "https://example.com/docs/guide" content |]
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+    llmsFullTxt |> shouldNotContainText "--eval"
+    llmsFullTxt |> shouldContainText "Some text"
+    llmsFullTxt |> shouldContainText "More text"
+
+[<Test>]
+let ``LlmsTxt llms.txt excludes per-member API entries (URIs with hash)`` () =
+    let entries =
+        [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
+           makeEntry
+               "apiDocs"
+               "MyModule.myFunction"
+               "https://example.com/reference/mymodule.html#myFunction"
+               "member docs" |]
+
+    let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
+
+    llmsTxt
+    |> shouldContainText "- [MyModule](https://example.com/reference/mymodule.html)"
+
+    llmsTxt |> shouldNotContainText "myFunction"
+
+[<Test>]
+let ``LlmsTxt llms-full.txt includes per-member API entries`` () =
+    let entries =
+        [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
+           makeEntry
+               "apiDocs"
+               "MyModule.myFunction"
+               "https://example.com/reference/mymodule.html#myFunction"
+               "member docs" |]
+
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+    llmsFullTxt |> shouldContainText "myFunction"
+
+[<Test>]
+let ``LlmsTxt normalises multi-line titles to single-line`` () =
+    let entries = [| makeEntry "content" "Fantomas\n" "https://example.com/docs/index.html" "Some content" |]
+
+    let llmsTxt, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+    // Title must be on a single line — no embedded newline in the link text
+    llmsTxt |> shouldContainText "- [Fantomas](https://example.com/docs/index.html)"
+
+    llmsFullTxt
+    |> shouldContainText "### [Fantomas](https://example.com/docs/index.html)"
+
+    llmsTxt |> shouldNotContainText "Fantomas\n"
+
+[<Test>]
+let ``LlmsTxt collapses excessive blank lines in content`` () =
+    let content = "First paragraph\n\n\n\n\nSecond paragraph"
+
+    let entries = [| makeEntry "content" "Guide" "https://example.com/docs/guide" content |]
+    let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
+    // Should not contain 3 or more consecutive newlines
+    llmsFullTxt.Contains("\n\n\n") |> shouldEqual false
+    llmsFullTxt |> shouldContainText "First paragraph"
+    llmsFullTxt |> shouldContainText "Second paragraph"
