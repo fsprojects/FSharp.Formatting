@@ -12,7 +12,7 @@ open System.Collections.Generic
 open FSharp.Collections
 open FSharp.Patterns
 open FSharp.Formatting.Markdown.InlineParser
-open FSharp.Formatting.Markdown.Parser
+open FSharp.Formatting.Markdown.BlockParser
 open FSharp.Formatting.Common
 
 /// <summary>

@@ -12,7 +12,7 @@
     </Compile>
     <Compile Include="MarkdownModel.fs" />
     <Compile Include="MarkdownInlineParser.fs" />
-    <Compile Include="MarkdownParser.fs" />
+    <Compile Include="MarkdownBlockParser.fs" />
     <Compile Include="MarkdownUtils.fs" />
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />

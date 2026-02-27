@@ -1,9 +1,9 @@
 // --------------------------------------------------------------------------------------
-// F# Markdown (MarkdownParser.fs)
+// F# Markdown (MarkdownBlockParser.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module internal FSharp.Formatting.Markdown.Parser
+module internal FSharp.Formatting.Markdown.BlockParser
 
 open System
 open System.Collections.Generic
