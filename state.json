@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-27T08:37:07Z",
-  "run_id": "22478932067",
+  "last_run": "2026-02-27T10:45:19Z",
+  "run_id": "22483018891",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
     {"issue": 1022, "run": "22455635420", "note": "Reported BuildCommand.fs split progress"},
@@ -8,6 +8,7 @@
     {"issue": 591, "run": "22456244326", "note": "Implementation summary and PR link"},
     {"issue": 605, "run": "22455859434", "note": "Implementation summary and PR link"},
     {"issue": 1035, "run": "22455856925", "note": "Confirmed starting doc-comment work; outlined file list"},
+    {"issue": 1035, "run": "22483018891", "note": "Batch 3 progress update; next targets listed"},
     {"issue": 468, "run": "22276980911", "note": "Code block language-xxx class is working"},
     {"issue": 163, "run": "22276980911", "note": "In-page TOC implementation approach"},
     {"issue": 362, "run": "22276980911", "note": "C# readonly fields bug analysis"},
@@ -19,8 +20,10 @@
     {"issue": 341, "pr": 1034, "status": "merged", "desc": "IFsiEvaluator inherits IDisposable - MERGED by dsyme"},
     {"issue": 1022, "pr": 1036, "status": "closed-by-dsyme", "desc": "Split BuildCommand.fs - closed; dsyme said wait for #1019"},
     {"issue": 1035, "pr": 1037, "status": "merged", "desc": "Doc comments batch 1 (11 files) - MERGED by dsyme"},
+    {"issue": 1035, "pr": 1043, "status": "merged", "desc": "Doc comments batch 2 (PynbModel.fs, HtmlModel.fs, CrossReferenceResolver.fs, GenerateMarkdown.fs) - MERGED"},
     {"issue": 1035, "pr": 1044, "status": "closed-conflict", "desc": "Doc comments batch 2 v1 - closed due to conflicts"},
-    {"issue": 1035, "pr": 1047, "status": "open", "desc": "Doc comments batch 2 v2: GenerateHtml.fs, ParsePynb.fs, Pervasive.fs"},
+    {"issue": 1035, "pr": 1048, "status": "open", "desc": "Doc comments batch 2 v2: GenerateHtml.fs, ParsePynb.fs, Pervasive.fs"},
+    {"issue": 1035, "pr": 1049, "status": "open", "desc": "Doc comments batch 3: ToolTipReader.fs, FsxFormatting.fs, MarkdownUtils.fs, Formatting.fs"},
     {"issue": 590, "pr": 1039, "status": "open", "desc": "Show inherited members (MSDN-style)"},
     {"issue": 605, "pr": 1042, "status": "open", "desc": "Tolerant cross-references"},
     {"issue": 591, "pr": 1045, "status": "open", "desc": "Type constraints in API docs"},
@@ -29,7 +32,7 @@
   "important_instructions": [
     "dsyme: Hold off on splitting BuildCommand.fs until #1019 is merged (comment on #1035, 2026-02-26)"
   ],
-  "notes": "Monthly activity issue #973 updated. Doc comments batch 1 (#1037) MERGED. Batch 2 PR #1047 created (GenerateHtml.fs, ParsePynb.fs, Pervasive.fs). Next doc comment targets: SymbolReader.fs, ToolTipReader.fs, GenerateMarkdown.fs, FsxFormatting.fs. BuildCommand.fs split must wait for #1019 to merge.",
+  "notes": "Monthly activity issue #973 updated. Doc comments: batch 1 (#1037) MERGED, batch 2a (#1043) MERGED, batch 2b (#1048) open, batch 3 (#1049) open. Next doc comment targets: SymbolReader.fs (1621 lines), ParseScript.fs (453 lines), Transformations.fs (620 lines). BuildCommand.fs split must wait for #1019 to merge.",
   "backlog_cursor": {"issue": 1035},
   "monthly_activity_issue": 973
 }
