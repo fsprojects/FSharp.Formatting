@@ -458,7 +458,7 @@ let ``ApiDocs model generation works on two sample F# assemblies`` (_format: Out
     model.Collection.Namespaces.[0].Entities
     |> List.filter (fun c -> c.IsTypeDefinition)
     |> function
-        | x -> x.Length |> shouldEqual 11
+        | x -> x.Length |> shouldEqual 13
 
     let assemblies = [ for t in model.Collection.Namespaces.[0].Entities -> t.Assembly.Name ]
 
@@ -491,6 +491,46 @@ let ``ApiDocs ReturnInfo.ReturnType is Some for properties with setters (issue 7
 
     // Setter-only: ReturnType should be Some string (value type)
     getReturnType "SetterOnly" |> Option.isSome |> shouldEqual true
+
+[<Test>]
+let ``ApiDocs InheritedMembers is populated for derived types (issue 590)`` () =
+    let libraries = [ testBin </> "FsLib2.dll" ]
+    let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = false) ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let derivedEntity =
+        model.Collection.Namespaces.[0].Entities
+        |> List.tryFind (fun e -> e.Name = "DerivedClassForInheritance")
+
+    derivedEntity.IsSome |> shouldEqual true
+
+    let inherited = derivedEntity.Value.InheritedMembers
+
+    // Should have at least one inherited group (from BaseClassForInheritance)
+    inherited.IsEmpty |> shouldEqual false
+
+    let _, members = inherited.[0]
+
+    let memberNames = members |> List.map (fun m -> m.Name) |> List.sort
+    memberNames |> shouldContain "BaseMethod"
+    memberNames |> shouldContain "BaseStaticMethod"
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs renders inherited members section in output (issue 590)`` (format: OutputFormat) =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+    let files = generateApiDocs [ library ] format false "FsLib2_inherited"
+
+    let derivedKey = files.Keys |> Seq.tryFind (fun k -> k.Contains("derivedclassforinheritance"))
+
+    derivedKey.IsSome |> shouldEqual true
+
+    files.[derivedKey.Value] |> shouldContainText "Inherited"
+    files.[derivedKey.Value] |> shouldContainText "BaseClassForInheritance"
+    files.[derivedKey.Value] |> shouldContainText "BaseMethod"
+    files.[derivedKey.Value] |> shouldContainText "BaseStaticMethod"
 
 [<Test>]
 [<TestCaseSource("formats")>]
