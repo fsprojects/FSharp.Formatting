@@ -11,6 +11,7 @@
       <Link>Common\StringParsing.fs</Link>
     </Compile>
     <Compile Include="MarkdownModel.fs" />
+    <Compile Include="MarkdownInlineParser.fs" />
     <Compile Include="MarkdownParser.fs" />
     <Compile Include="MarkdownUtils.fs" />
     <Compile Include="HtmlFormatting.fs" />
