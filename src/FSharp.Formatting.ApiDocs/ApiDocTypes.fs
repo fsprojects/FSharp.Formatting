@@ -478,12 +478,34 @@ type ApiDocMember
         else
             Some res
 
-    /// Formats type constraints as a 'when' clause
+    /// Formats type constraints as a 'when' clause (full form, e.g. "'T : equality")
     member x.FormatTypeConstraints =
         if x.Constraints.IsEmpty then
             None
         else
             Some(String.concat " and " x.Constraints)
+
+    /// Formats type constraints in the short 'requires' form used by the F# compiler's shortConstraints mode.
+    /// Strips the type-parameter prefix from each constraint (e.g. "'T : equality" → "equality",
+    /// "'T :> IComparable" → ":> IComparable") and joins them with " and ".
+    /// Returns None when there are no constraints.
+    member x.FormatShortTypeConstraints =
+        if x.Constraints.IsEmpty then
+            None
+        else
+            let toShort (full: string) =
+                // Coercion: "'T :> Type" → ":> Type"
+                let coerceIdx = full.IndexOf(" :> ")
+
+                if coerceIdx >= 0 then
+                    full[coerceIdx + 1 ..]
+                else
+                    // Regular constraint: "'T : equality" → "equality"
+                    let colonIdx = full.IndexOf(" : ")
+                    if colonIdx >= 0 then full[colonIdx + 3 ..] else full
+
+            let shortForms = x.Constraints |> List.map toShort
+            Some(String.concat " and " shortForms)
 
     /// Formats modifiers
     member x.FormatModifiers = String.concat " " x.Modifiers

@@ -72,7 +72,7 @@ Many fsdocs behaviours can be controlled via MSBuild properties in your `.fsproj
 | `<FsDocsLicenseLink>https://…/LICENSE</FsDocsLicenseLink>` | *(none)* | URL to the project licence, shown in the footer. |
 | `<FsDocsReleaseNotesLink>https://…/RELEASE_NOTES.md</FsDocsReleaseNotesLink>` | *(none)* | URL to the release notes, shown in the footer. |
 | `<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` | `false` | Suppress the "Inherited from X" sections on type pages. |
-| `<FsDocsTypeConstraints>Short</FsDocsTypeConstraints>` | `Short` | Controls how generic type constraints are displayed in member tooltips. `None` hides constraints entirely; `Short` (default) appends them inline as a `when` clause (e.g. `'T when 'T : equality`); `Full` shows them in a separate "Constraints:" section. |
+| `<FsDocsTypeConstraints>Short</FsDocsTypeConstraints>` | `Short` | Controls how generic type constraints are displayed in member tooltips. `None` hides constraints entirely; `Short` (default) shows them inline using the compact `(requires ...)` style (e.g. `'T (requires equality)`); `Full` shows them in a separate "Constraints:" section with full `when` syntax. |
 | `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>` | `true` | Generate `llms.txt` and `llms-full.txt` for LLM consumption alongside the HTML output. |
 
 The command will report on any `.fsproj` files that it finds, telling you if it decides to skip a particular file and why.

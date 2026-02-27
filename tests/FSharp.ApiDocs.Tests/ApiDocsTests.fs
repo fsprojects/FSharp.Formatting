@@ -638,7 +638,18 @@ let ``ApiDocs TypeConstraintDisplayMode Short shows constraints inline (default)
     requiresEqualityMember.Value.TypeConstraintDisplayMode
     |> shouldEqual TypeConstraintDisplayMode.Short
 
+    // FormatTypeConstraints returns full form "'T : equality"
     requiresEqualityMember.Value.FormatTypeConstraints.IsSome |> shouldEqual true
+
+    requiresEqualityMember.Value.FormatTypeConstraints.Value
+    |> shouldContainText "equality"
+
+    // FormatShortTypeConstraints returns abbreviated form "equality" (no type-variable prefix)
+    requiresEqualityMember.Value.FormatShortTypeConstraints.IsSome
+    |> shouldEqual true
+
+    requiresEqualityMember.Value.FormatShortTypeConstraints.Value
+    |> shouldEqual "equality"
 
     let requiresComparisonMember =
         constraintModule.Value.ValuesAndFuncs
@@ -646,6 +657,65 @@ let ``ApiDocs TypeConstraintDisplayMode Short shows constraints inline (default)
 
     requiresComparisonMember.IsSome |> shouldEqual true
     requiresComparisonMember.Value.Constraints |> shouldNotEqual []
+
+    requiresComparisonMember.Value.FormatShortTypeConstraints.Value
+    |> shouldEqual "comparison"
+
+[<Test>]
+let ``ApiDocs TypeConstraintDisplayMode Short FormatShortTypeConstraints abbreviates constraints correctly`` () =
+    let library = testBin </> "FsLib2.dll"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short } ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let constraintModule =
+        model.Collection.Namespaces
+        |> List.collect (fun ns -> ns.Entities)
+        |> List.tryFind (fun e -> e.Name = "TypeConstraintTests")
+
+    constraintModule.IsSome |> shouldEqual true
+
+    // Coercion constraint: FormatShortTypeConstraints should give ":> System.IComparable"
+    let requiresCoercionMember =
+        constraintModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun m -> m.Name = "requiresCoercion")
+
+    requiresCoercionMember.IsSome |> shouldEqual true
+    requiresCoercionMember.Value.Constraints |> shouldNotEqual []
+
+    // Full form contains the type variable prefix
+    requiresCoercionMember.Value.FormatTypeConstraints.Value
+    |> shouldContainText ":>"
+
+    // Short form strips the type variable prefix but keeps the operator
+    requiresCoercionMember.Value.FormatShortTypeConstraints.Value
+    |> shouldContainText ":>"
+
+    requiresCoercionMember.Value.FormatShortTypeConstraints.Value
+    |> shouldContainText "IComparable"
+
+    // FormatShortTypeConstraints should NOT contain the type variable prefix "'T"
+    requiresCoercionMember.Value.FormatShortTypeConstraints.Value
+    |> shouldNotContainText "'T"
+
+    // Struct constraint
+    let requiresStructMember =
+        constraintModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun m -> m.Name = "requiresStruct")
+
+    requiresStructMember.IsSome |> shouldEqual true
+
+    requiresStructMember.Value.Constraints |> shouldNotEqual []
+
+    requiresStructMember.Value.FormatShortTypeConstraints.Value
+    |> shouldContainText "struct"
+
+    requiresStructMember.Value.FormatShortTypeConstraints.Value
+    |> shouldNotContainText "'T"
 
 [<Test>]
 let ``ApiDocs TypeConstraintDisplayMode Full shows constraints in separate section`` () =
@@ -674,6 +744,13 @@ let ``ApiDocs TypeConstraintDisplayMode Full shows constraints in separate secti
 
     requiresEqualityMember.Value.TypeConstraintDisplayMode
     |> shouldEqual TypeConstraintDisplayMode.Full
+
+    // Full mode: FormatTypeConstraints gives full form "'T : equality" (with type-variable prefix)
+    requiresEqualityMember.Value.FormatTypeConstraints.Value
+    |> shouldContainText "'T"
+
+    requiresEqualityMember.Value.FormatTypeConstraints.Value
+    |> shouldContainText "equality"
 
 [<Test>]
 let ``ApiDocs TypeConstraintDisplayMode default is Short`` () =
@@ -705,7 +782,7 @@ let ``ApiDocs TypeConstraintDisplayMode default is Short`` () =
 
 [<Test>]
 [<TestCaseSource("formats")>]
-let ``ApiDocs TypeConstraintDisplayMode Short renders inline 'when' clause in output`` (format: OutputFormat) =
+let ``ApiDocs TypeConstraintDisplayMode Short renders 'requires' form inline in output`` (format: OutputFormat) =
     let library = testBin </> "FsLib2.dll" |> fullpath
     let output = getOutputDir format "FsLib2_constraints_short"
 
@@ -733,9 +810,12 @@ let ``ApiDocs TypeConstraintDisplayMode Short renders inline 'when' clause in ou
 
     constraintKey.IsSome |> shouldEqual true
 
-    // Short mode: 'when' clause should appear inline with type parameters
-    files.[constraintKey.Value] |> shouldContainText "when"
-    // Should NOT have a separate "Constraints:" label in HTML mode
+    // Short mode: '(requires ...)' clause should appear inline with type parameters
+    files.[constraintKey.Value] |> shouldContainText "requires"
+    // Short mode shows specific constraint keywords
+    files.[constraintKey.Value] |> shouldContainText "equality"
+    files.[constraintKey.Value] |> shouldContainText "comparison"
+    // Should NOT have a separate "Constraints:" label
     if format = Html then
         files.[constraintKey.Value] |> shouldNotContainText "Constraints:"
 
@@ -772,6 +852,8 @@ let ``ApiDocs TypeConstraintDisplayMode Full renders separate Constraints sectio
     // Full mode: "Constraints:" label should appear in HTML output
     if format = Html then
         files.[constraintKey.Value] |> shouldContainText "Constraints:"
+        // Full mode shows constraints with type-variable prefix like "'T : equality"
+        files.[constraintKey.Value] |> shouldContainText "equality"
 
 [<Test>]
 [<TestCaseSource("formats")>]
@@ -803,7 +885,7 @@ let ``ApiDocs TypeConstraintDisplayMode None renders no constraint information i
 
     constraintKey.IsSome |> shouldEqual true
 
-    // None mode: no "Constraints:" or "when" from type params section
+    // None mode: no "Constraints:", no constraint keywords from type params section
     if format = Html then
         files.[constraintKey.Value] |> shouldNotContainText "Constraints:"
 

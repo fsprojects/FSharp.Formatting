@@ -91,9 +91,9 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                   | None -> ()
                   | Some v ->
                       if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short then
-                          match m.FormatTypeConstraints with
+                          match m.FormatShortTypeConstraints with
                           | None -> p [ !!("Type parameters: " + v) ]
-                          | Some c -> p [ !!($"Type parameters: {v} when {c}") ]
+                          | Some c -> p [ !!($"Type parameters: {v} (requires {c})") ]
                       else
                           p [ !!("Type parameters: " + v) ]
 
