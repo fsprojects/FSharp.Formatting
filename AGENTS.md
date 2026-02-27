@@ -46,3 +46,15 @@ dotnet restore FSharp.Formatting.sln
 dotnet build FSharp.Formatting.sln --configuration Release
 dotnet test FSharp.Formatting.sln --configuration Release --no-build
 ```
+
+## Testing Locally Against Another Project
+
+After building the repo with `dotnet build`, run the tool directly from the build output in your project's directory:
+
+```bash
+# macOS / Linux
+/path/to/FSharp.Formatting/src/fsdocs-tool/bin/Debug/net10.0/fsdocs build
+
+# Windows
+\path\to\FSharp.Formatting\src\fsdocs-tool\bin\Debug\net10.0\fsdocs.exe build
+```

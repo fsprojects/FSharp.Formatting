@@ -229,6 +229,7 @@ module Crack =
           FsDocsFaviconSource: string option
           FsDocsTheme: string option
           FsDocsWarnOnMissingDocs: bool
+          FsDocsGenerateLlmsTxt: bool
           FsDocsAllowExecutableProject: bool
           PackageProjectUrl: string option
           Authors: string option
@@ -262,6 +263,7 @@ module Crack =
               "FsDocsSourceFolder"
               "FsDocsSourceRepository"
               "FsDocsWarnOnMissingDocs"
+              "FsDocsGenerateLlmsTxt"
               "FsDocsAllowExecutableProject"
               "RepositoryType"
               "RepositoryBranch"
@@ -348,6 +350,7 @@ module Crack =
                   FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
                   FsDocsTheme = msbuildPropString "FsDocsTheme"
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
+                  FsDocsGenerateLlmsTxt = msbuildPropBool "FsDocsGenerateLlmsTxt" |> Option.defaultValue true
                   FsDocsAllowExecutableProject =
                     msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
@@ -608,6 +611,7 @@ module Crack =
                 |> fallbackFromDirectoryProps "//RepositoryUrl"
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
+              FsDocsGenerateLlmsTxt = projectInfos |> List.forall (fun i -> i.FsDocsGenerateLlmsTxt)
               FsDocsAllowExecutableProject = false
               PackageProjectUrl =
                 projectInfos
@@ -711,4 +715,4 @@ module Crack =
             |> List.choose (fun projectInfo -> projectInfo.TargetPath |> Option.map Path.GetDirectoryName)
 
         let docsParameters = parametersForProjectInfo projectInfoForDocs
-        root, collectionName, crackedProjects, paths, docsParameters
+        root, collectionName, crackedProjects, paths, docsParameters, projectInfoForDocs.FsDocsGenerateLlmsTxt
