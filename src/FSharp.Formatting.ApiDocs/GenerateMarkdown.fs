@@ -280,7 +280,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
           let inheritedMemberGroups =
               entity.InheritedMembers
-              |> List.map (fun (baseTypeHtml, members) ->
+              |> List.choose (fun (baseTypeHtml, members) ->
                   let instMembers =
                       members
                       |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember && not m.IsObsolete)
@@ -289,8 +289,10 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                       members
                       |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember && not m.IsObsolete)
 
-                  (baseTypeHtml, instMembers, statMembers))
-              |> List.filter (fun (_, i, s) -> not (List.isEmpty i) || not (List.isEmpty s))
+                  if not (List.isEmpty instMembers) || not (List.isEmpty statMembers) then
+                      Some(baseTypeHtml, instMembers, statMembers)
+                  else
+                      None)
 
           if not (List.isEmpty inheritedMemberGroups) then
               ``###`` [ !!"Inherited members" ]
