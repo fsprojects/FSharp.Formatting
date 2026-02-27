@@ -1,9 +1,9 @@
 {
-  "last_run": "2026-02-27T11:08:15Z",
-  "run_id": "22483733595",
+  "last_run": "2026-02-27T11:28:15Z",
+  "run_id": "22484350997",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
-    {"issue": 1022, "run": "22455635420", "note": "Reported BuildCommand.fs split progress"},
+    {"issue": 1022, "run": "22484350997", "note": "Reported SymbolReader.fs split (XmlCommentReader.fs PR)"},
     {"issue": 590, "run": "22455510854", "note": "Explained inherited-member code path"},
     {"issue": 591, "run": "22456244326", "note": "Implementation summary and PR link"},
     {"issue": 605, "run": "22455859434", "note": "Implementation summary and PR link"},
@@ -24,16 +24,17 @@
     {"issue": 1035, "pr": 1044, "status": "closed-conflict", "desc": "Doc comments batch 2 v1 - closed due to conflicts"},
     {"issue": 1035, "pr": 1048, "status": "merged", "desc": "Doc comments batch 2b: GenerateHtml.fs, ParsePynb.fs, Pervasive.fs - MERGED by dsyme"},
     {"issue": 1035, "pr": 1049, "status": "merged", "desc": "Doc comments batch 3: ToolTipReader.fs, FsxFormatting.fs, MarkdownUtils.fs, Formatting.fs - MERGED by dsyme"},
-    {"issue": 1035, "pr": "batch4-pending", "status": "open", "desc": "Doc comments batch 4: ParseScript.fs, Transformations.fs, LatexFormatting.fs, SourceCode.fs, CommentFilter.fs - created in run 22483733595"},
+    {"issue": 1035, "pr": 1050, "status": "merged", "desc": "Doc comments batch 4: ParseScript.fs, Transformations.fs, LatexFormatting.fs, SourceCode.fs, CommentFilter.fs - MERGED by dsyme"},
+    {"issue": 1022, "pr": "tbd-symbolreader-split", "status": "open", "desc": "Split SymbolReader.fs: XmlCommentReader.fs extracted (branch repo-assist/split-symbolreader-xmlcomments) - created run 22484350997"},
     {"issue": 590, "pr": 1039, "status": "open", "desc": "Show inherited members (MSDN-style)"},
     {"issue": 605, "pr": 1042, "status": "open", "desc": "Tolerant cross-references"},
     {"issue": 591, "pr": 1045, "status": "open", "desc": "Type constraints in API docs"},
     {"issue": 191, "pr": 1046, "status": "open", "desc": "CommonMark compliance improvements"}
   ],
   "important_instructions": [
-    "dsyme: Hold off on splitting BuildCommand.fs until #1019 is merged (comment on #1035, 2026-02-26)"
+    "dsyme: Avoid splitting files being changed in existing open PRs (e.g. BuildCommand.fs in #1019, Literate.fs in #1019) - comment on #1022, 2026-02-27"
   ],
-  "notes": "Monthly activity issue #973 updated. Doc comments: batch 1 (#1037) MERGED, batch 2a (#1043) MERGED, batch 2b (#1048) MERGED, batch 3 (#1049) MERGED, batch 4 (pending PR) created in this run. Next doc comment targets: SymbolReader.fs (1621 lines), BuildCommand.fs (waiting for #1019 to merge).",
+  "notes": "Monthly activity issue #973 updated. Doc comments: batches 1-4 all MERGED. SymbolReader.fs split PR submitted (branch repo-assist/split-symbolreader-xmlcomments). Next doc comment targets: SymbolReader.fs (now 1181 lines - reduced), BuildCommand.fs (waiting for #1019 to merge). Next split targets: MarkdownParser.fs (1470 lines), YaafFSharpScripting.fs (1123 lines) - both not in open PRs.",
   "backlog_cursor": {"issue": 1035},
   "monthly_activity_issue": 973
 }
