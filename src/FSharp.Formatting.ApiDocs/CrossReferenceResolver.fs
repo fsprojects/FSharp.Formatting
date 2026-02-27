@@ -219,6 +219,20 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         else
             memberName
 
+    // Strip generic parameters from a type name: "Map<K,V>" -> "Map", "List`1" -> "List"
+    let stripGenericSuffix (name: string) =
+        let angleIdx = name.IndexOf('<')
+        let backtickIdx = name.IndexOf('`')
+
+        let cutAt =
+            match angleIdx, backtickIdx with
+            | -1, -1 -> name.Length
+            | -1, b -> b
+            | a, -1 -> a
+            | a, b -> min a b
+
+        name.Substring(0, cutAt)
+
     let tryGetTypeFromMemberName (memberName: string) =
         let sub = removeParen memberName
         let lastPeriod = sub.LastIndexOf('.')
@@ -370,9 +384,49 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                       NiceName = entity.DisplayName }
                 | _ -> failwith "unreachable"
             | _ ->
-                // A reference to something external, currently assumed to be in .NET
-                let simple = getMemberName 1 false typeName
-                externalDocsLink false simple typeName typeName
+                // The cref might be a member reference of form "Type.Member" that was
+                // incorrectly prefixed with "T:" by the caller. Try to resolve it as such.
+                let lastDot = typeName.LastIndexOf('.')
+
+                if lastDot > 0 then
+                    let typePartRaw = typeName.Substring(0, lastDot)
+                    let typePartStripped = stripGenericSuffix typePartRaw
+                    let memberPart = typeName.Substring(lastDot + 1)
+
+                    // Try the raw type name first (handles "GenericClass2`1"), then stripped (handles "Class2")
+                    let tryFindEntities () =
+                        match niceNameEntityLookup.TryGetValue(typePartRaw) with
+                        | true, entities when entities.Count > 0 -> Some(entities, typePartStripped)
+                        | _ when typePartStripped <> typePartRaw ->
+                            match niceNameEntityLookup.TryGetValue(typePartStripped) with
+                            | true, entities when entities.Count > 0 -> Some(entities, typePartStripped)
+                            | _ -> None
+                        | _ -> None
+
+                    match tryFindEntities () with
+                    | Some(entities, displayTypeName) ->
+                        let entity = entities.[0]
+                        let urlBaseName = getUrlBaseNameForRegisteredEntity entity
+
+                        entity.MembersFunctionsAndValues
+                        |> Seq.tryFind (fun mfv -> mfv.DisplayName = memberPart)
+                        |> function
+                            | Some mfv ->
+                                { IsInternal = true
+                                  ReferenceLink = internalCrossReferenceForMember urlBaseName mfv
+                                  NiceName = displayTypeName + "." + memberPart }
+                            | None ->
+                                { IsInternal = true
+                                  ReferenceLink = internalCrossReference urlBaseName
+                                  NiceName = displayTypeName + "." + memberPart }
+                    | None ->
+                        // A reference to something external, currently assumed to be in .NET
+                        let simple = getMemberName 1 false typeName
+                        externalDocsLink false simple typeName typeName
+                else
+                    // A reference to something external, currently assumed to be in .NET
+                    let simple = getMemberName 1 false typeName
+                    externalDocsLink false simple typeName typeName
 
     let mfvToCref (mfv: FSharpMemberOrFunctionOrValue) =
         match mfv.DeclaringEntity with
@@ -419,12 +473,94 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                                   NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
 
                 | _ ->
-                    // A reference to something external, currently assumed to be in .NET
-                    let simple = getMemberName 2 false memberName
-                    Some(externalDocsLink true simple typeName memberName)
+                    // The full XML sig lookup failed; try niceNameEntityLookup with the simple type name
+                    // Try both the raw name (handles "GenericClass2`1") and stripped (handles "Class2")
+                    let typeNameRaw =
+                        let lastDot = typeName.LastIndexOf('.')
+
+                        if lastDot >= 0 then
+                            typeName.Substring(lastDot + 1)
+                        else
+                            typeName
+
+                    let typeNameStripped = stripGenericSuffix typeNameRaw
+
+                    let tryFindEntityBySimpleName () =
+                        match niceNameEntityLookup.TryGetValue(typeNameRaw) with
+                        | true, entities when entities.Count > 0 -> Some entities
+                        | _ when typeNameStripped <> typeNameRaw ->
+                            match niceNameEntityLookup.TryGetValue(typeNameStripped) with
+                            | true, entities when entities.Count > 0 -> Some entities
+                            | _ -> None
+                        | _ -> None
+
+                    match tryFindEntityBySimpleName () with
+                    | Some entities ->
+                        let entity = entities.[0]
+                        let urlBaseName = getUrlBaseNameForRegisteredEntity entity
+
+                        tryGetShortMemberNameFromMemberName memberName
+                        |> Option.bind (fun shortName ->
+                            entity.MembersFunctionsAndValues
+                            |> Seq.tryFind (fun mfv -> mfv.DisplayName = shortName))
+                        |> function
+                            | Some mb -> Some(mfvToCref mb)
+                            | None ->
+                                Some
+                                    { IsInternal = true
+                                      ReferenceLink = internalCrossReference urlBaseName
+                                      NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
+                    | None ->
+                        // A reference to something external, currently assumed to be in .NET
+                        let simple = getMemberName 2 false memberName
+                        Some(externalDocsLink true simple typeName memberName)
             | None ->
                 Log.errorf "Assumed '%s' was a member but we cannot extract a type!" memberXmlSig
                 None
+
+
+    // Try to resolve a cref that has no XML doc prefix (e.g. "MyType", "MyType.MyMember", "Map<K,V>")
+    let tryResolveUnqualifiedCref (cref: string) =
+        let baseName = stripGenericSuffix cref
+
+        if baseName.Contains('.') then
+            // Try Type.Member pattern: split on last dot
+            let lastDot = baseName.LastIndexOf('.')
+            let typePart = stripGenericSuffix (baseName.Substring(0, lastDot))
+            let memberPart = baseName.Substring(lastDot + 1)
+
+            match niceNameEntityLookup.TryGetValue(typePart) with
+            | true, entities ->
+                match Seq.toList entities with
+                | entity :: _ ->
+                    let urlBaseName = getUrlBaseNameForRegisteredEntity entity
+
+                    entity.MembersFunctionsAndValues
+                    |> Seq.tryFind (fun mfv -> mfv.DisplayName = memberPart)
+                    |> function
+                        | Some mfv -> Some(mfvToCref mfv)
+                        | None ->
+                            // Fall back to linking to the type page
+                            Some
+                                { IsInternal = true
+                                  ReferenceLink = internalCrossReference urlBaseName
+                                  NiceName = typePart + "." + memberPart }
+                | _ -> None
+            | _ -> None
+        else
+            // Try unqualified type name
+            match niceNameEntityLookup.TryGetValue(baseName) with
+            | true, entities ->
+                match Seq.toList entities with
+                | entity :: _ ->
+                    let urlBaseName = getUrlBaseNameForRegisteredEntity entity
+
+                    Some
+                        { IsInternal = true
+                          ReferenceLink = internalCrossReference urlBaseName
+                          NiceName = entity.DisplayName }
+                | _ -> None
+            | _ -> None
 
     member _.ResolveCref(cref: string) =
         if (cref.Length < 2) then
@@ -439,10 +575,13 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
             None
         // ApiDocMember
         | _ when cref.[1] = ':' -> tryResolveCrossReferenceForMemberByXmlSig cref
-        // No idea
+        // Try tolerant resolution for unqualified references (no XML doc prefix)
         | _ ->
-            Log.warnf "Unresolved reference '%s'!" cref
-            None
+            match tryResolveUnqualifiedCref cref with
+            | Some r -> Some r
+            | None ->
+                Log.warnf "Unresolved reference '%s'!" cref
+                None
 
     member _.RegisterEntity entity = registerEntity entity
 

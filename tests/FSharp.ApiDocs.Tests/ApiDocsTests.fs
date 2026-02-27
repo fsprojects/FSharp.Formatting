@@ -773,7 +773,9 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
     // reference class in same assembly
     files.[(sprintf "creflib2-class1.%s" format.Extension)]
     |> shouldContainText "Class2"
-    //files.[(sprintf "creflib2-class1.%s" format.Extension)] |> shouldContainText (sprintf "creflib2-class2%s" format.ExtensionInUrl)
+    // tolerant resolution: unqualified type name now resolves within the same assembly set
+    files.[(sprintf "creflib2-class1.%s" format.Extension)]
+    |> shouldContainText (sprintf "creflib2-class2%s" format.ExtensionInUrl)
     // reference to another assembly
     files.[(sprintf "creflib2-class2.%s" format.Extension)]
     |> shouldContainText "Class1"
@@ -813,6 +815,35 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
 
     files.[(sprintf "creflib2-class8.%s" format.Extension)]
     |> shouldContainText "https://learn.microsoft.com/dotnet/api/system.reflection.assembly"
+
+    // F# tests - tolerant resolution: unqualified type reference
+    files.[(sprintf "creflib2-class9.%s" format.Extension)]
+    |> shouldContainText "Class2"
+
+    files.[(sprintf "creflib2-class9.%s" format.Extension)]
+    |> shouldContainText (sprintf "creflib2-class2%s" format.ExtensionInUrl)
+
+    // F# tests - tolerant resolution: unqualified Type.Member reference
+    files.[(sprintf "creflib2-class10.%s" format.Extension)]
+    |> shouldContainText (
+        sprintf "<a href=\"/reference/creflib2-class2%s#Other\">Class2.Other</a>" format.ExtensionInUrl
+    )
+
+    files.[(sprintf "creflib2-class10.%s" format.Extension)]
+    |> shouldContainText (
+        sprintf "and <a href=\"/reference/creflib2-class2%s#Method0\">Class2.Method0</a>" format.ExtensionInUrl
+    )
+
+    // F# tests - tolerant resolution: unqualified generic type reference
+    files.[(sprintf "creflib2-class11.%s" format.Extension)]
+    |> shouldContainText (sprintf "creflib2-genericclass2-1%s" format.ExtensionInUrl)
+
+    files.[(sprintf "creflib2-class11.%s" format.Extension)]
+    |> shouldContainText (
+        sprintf
+            "<a href=\"/reference/creflib2-genericclass2-1%s#Property\">GenericClass2.Property</a>"
+            format.ExtensionInUrl
+    )
 
 [<Test>]
 [<TestCaseSource("formats")>]
