@@ -1505,14 +1505,14 @@ type CoreBuildOptions(watch) =
             printfn ""
             printfn "Inputs for API Docs:"
 
-            for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
                 printfn "    %s" dllFile
 
         //printfn "Comand lines for API Docs:"
-        //for (_, runArguments, _, _, _, _, _, _, _, _) in crackedProjects do
+        //for (_, runArguments, _, _, _, _, _, _, _, _, _) in crackedProjects do
         //    printfn "    %O" runArguments
 
-        for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
+        for (dllFile, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
             if not (File.Exists dllFile) then
                 let msg =
                     sprintf
@@ -1531,7 +1531,7 @@ type CoreBuildOptions(watch) =
             // The substitutions may differ for some projects due to different settings in the project files, if so show that
             let pd = dict docsSubstitutions
 
-            for (dllFile, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
                 for (((ParamKey pkv2) as pk2), p2) in projectParameters do
                     if pd.ContainsKey pk2 && pd.[pk2] <> p2 then
                         printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
@@ -1546,6 +1546,7 @@ type CoreBuildOptions(watch) =
                    projectWarn,
                    projectSourceFolder,
                    projectSourceRepo,
+                   projectNoInheritedMembers,
                    projectParameters) in crackedProjects ->
                   let sourceRepo =
                       match projectSourceRepo with
@@ -1579,7 +1580,8 @@ type CoreBuildOptions(watch) =
                     Substitutions = Some projectParameters
                     MarkdownComments = this.mdcomments || projectMarkdownComments
                     Warn = projectWarn
-                    PublicOnly = not this.nonpublic } ]
+                    PublicOnly = not this.nonpublic
+                    ShowInheritedMembers = not projectNoInheritedMembers } ]
 
         // Compute the merge of all referenced DLLs across all projects
         // so they can be resolved during API doc generation.
@@ -1587,7 +1589,7 @@ type CoreBuildOptions(watch) =
         // TODO: This is inaccurate: the different projects might not be referencing the same DLLs.
         // We should do doc generation for each output of each proejct separately
         let apiDocOtherFlags =
-            [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _) in crackedProjects do
+            [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _, _) in crackedProjects do
                   for otherFlag in otherFlags do
                       if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
                           if File.Exists(otherFlag.[3..]) then

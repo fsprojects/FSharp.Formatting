@@ -51,11 +51,23 @@ type ApiDocInput =
 
         /// Whether to generate only public things
         PublicOnly: bool
+
+        /// Whether to show members inherited from documented base types.
+        /// Defaults to true. Set to false to suppress "Inherited from X" sections.
+        ShowInheritedMembers: bool
     }
 
     static member FromFile
-        (assemblyPath: string, ?mdcomments, ?substitutions, ?sourceRepo, ?sourceFolder, ?publicOnly, ?warn)
-        =
+        (
+            assemblyPath: string,
+            ?mdcomments,
+            ?substitutions,
+            ?sourceRepo,
+            ?sourceFolder,
+            ?publicOnly,
+            ?warn,
+            ?showInheritedMembers
+        ) =
         { Path = assemblyPath
           XmlFile = None
           SourceFolder = sourceFolder
@@ -63,7 +75,8 @@ type ApiDocInput =
           Warn = defaultArg warn false
           Substitutions = substitutions
           PublicOnly = defaultArg publicOnly true
-          MarkdownComments = defaultArg mdcomments false }
+          MarkdownComments = defaultArg mdcomments false
+          ShowInheritedMembers = defaultArg showInheritedMembers true }
 
 
 
@@ -211,7 +224,8 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                             mdcomments,
                             urlMap,
                             codeFormatCompilerArgs,
-                            project.Warn
+                            project.Warn,
+                            project.ShowInheritedMembers
                         )
                         |> Some)
 

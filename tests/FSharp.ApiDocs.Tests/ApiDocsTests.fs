@@ -533,8 +533,59 @@ let ``ApiDocs renders inherited members section in output (issue 590)`` (format:
     files.[derivedKey.Value] |> shouldContainText "BaseStaticMethod"
 
 [<Test>]
+let ``ApiDocs ShowInheritedMembers false suppresses InheritedMembers on model (issue 590)`` () =
+    let libraries = [ testBin </> "FsLib2.dll" ]
+
+    let inputs =
+        [ for lib in libraries ->
+              { ApiDocInput.FromFile(lib, mdcomments = false) with
+                  ShowInheritedMembers = false } ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let derivedEntity =
+        model.Collection.Namespaces.[0].Entities
+        |> List.tryFind (fun e -> e.Name = "DerivedClassForInheritance")
+
+    derivedEntity.IsSome |> shouldEqual true
+
+    // With ShowInheritedMembers = false the inherited list should be empty
+    derivedEntity.Value.InheritedMembers.IsEmpty |> shouldEqual true
+
+[<Test>]
 [<TestCaseSource("formats")>]
-let ``ApiDocs generates Go to GitHub source links`` (format: OutputFormat) =
+let ``ApiDocs ShowInheritedMembers false suppresses inherited section in output (issue 590)`` (format: OutputFormat) =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+    let output = getOutputDir format "FsLib2_no_inherited"
+
+    let inputs =
+        [ { ApiDocInput.FromFile(library, mdcomments = false) with
+              ShowInheritedMembers = false } ]
+
+    let _metadata =
+        DocsGenerator(format)
+            .Run(
+                inputs,
+                output = output,
+                collectionName = "Collection",
+                template = docTemplate format,
+                substitutions = substitutions,
+                libDirs = [ root ]
+            )
+
+    let fileNames = Directory.GetFiles(output </> "reference")
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+    let derivedKey = files.Keys |> Seq.tryFind (fun k -> k.Contains("derivedclassforinheritance"))
+
+    derivedKey.IsSome |> shouldEqual true
+
+    // The inherited-from section should NOT appear
+    files.[derivedKey.Value] |> shouldNotContainText "Inherited from"
+    // The base class's members should not appear as inherited
+    files.[derivedKey.Value] |> shouldNotContainText "BaseMethod"
+
+
     let libraries = [ testBin </> "FsLib1.dll"; testBin </> "FsLib2.dll" ] |> fullpaths
 
     let inputs =

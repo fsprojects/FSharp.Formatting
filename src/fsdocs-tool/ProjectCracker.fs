@@ -230,6 +230,7 @@ module Crack =
           FsDocsTheme: string option
           FsDocsWarnOnMissingDocs: bool
           FsDocsAllowExecutableProject: bool
+          FsDocsNoInheritedMembers: bool
           PackageProjectUrl: string option
           Authors: string option
           GenerateDocumentationFile: bool
@@ -263,6 +264,7 @@ module Crack =
               "FsDocsSourceRepository"
               "FsDocsWarnOnMissingDocs"
               "FsDocsAllowExecutableProject"
+              "FsDocsNoInheritedMembers"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -350,6 +352,7 @@ module Crack =
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
                   FsDocsAllowExecutableProject =
                     msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
+                  FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                   PackageProjectUrl = msbuildPropString "PackageProjectUrl"
                   Authors = msbuildPropString "Authors"
@@ -596,6 +599,7 @@ module Crack =
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
               FsDocsAllowExecutableProject = false
+              FsDocsNoInheritedMembers = false
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
@@ -689,6 +693,7 @@ module Crack =
                         info.FsDocsWarnOnMissingDocs,
                         info.FsDocsSourceFolder,
                         info.FsDocsSourceRepository,
+                        info.FsDocsNoInheritedMembers,
                         substitutions
                     )
                 | _ -> None)

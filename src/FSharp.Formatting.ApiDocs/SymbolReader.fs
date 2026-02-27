@@ -36,7 +36,8 @@ module internal SymbolReader =
           SourceFolderRepository: (string * string) option
           AssemblyPath: string
           CompilerOptions: string
-          Substitutions: Substitutions }
+          Substitutions: Substitutions
+          ShowInheritedMembers: bool }
 
         member x.XmlMemberLookup(key) =
             match x.XmlMemberMap.TryGetValue(key) with
@@ -55,7 +56,8 @@ module internal SymbolReader =
                 assemblyPath,
                 fscOptions,
                 substitutions,
-                warn
+                warn,
+                showInheritedMembers
             ) =
 
             { PublicOnly = publicOnly
@@ -68,7 +70,8 @@ module internal SymbolReader =
               SourceFolderRepository = sourceFolderRepo
               AssemblyPath = assemblyPath
               CompilerOptions = fscOptions
-              Substitutions = substitutions }
+              Substitutions = substitutions
+              ShowInheritedMembers = showInheritedMembers }
 
     let inline private getCompiledName (s: ^a :> FSharpSymbol) =
         let compiledName = (^a: (member CompiledName: string) (s))
@@ -1470,7 +1473,11 @@ module internal SymbolReader =
 
             let rqa = hasAttrib<RequireQualifiedAccessAttribute> typ.Attributes
 
-            let inheritedMembers = getInheritedMemberGroups typ
+            let inheritedMembers =
+                if ctx.ShowInheritedMembers then
+                    getInheritedMemberGroups typ
+                else
+                    []
 
             let nsdocs = combineNamespaceDocs [ nsdocs1; nsdocs2; nsdocs3; nsdocs4; nsdocs5; nsdocs6 ]
 
@@ -1618,7 +1625,8 @@ module internal SymbolReader =
             mdcomments,
             urlMap,
             codeFormatCompilerArgs,
-            warn
+            warn,
+            showInheritedMembers
         ) =
         let assemblyName = AssemblyName(assembly.QualifiedName)
 
@@ -1661,7 +1669,8 @@ module internal SymbolReader =
                 asmPath,
                 codeFormatCompilerArgs,
                 substitutions,
-                warn
+                warn,
+                showInheritedMembers
             )
 
         //
