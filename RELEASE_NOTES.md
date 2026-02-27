@@ -9,6 +9,8 @@
 * Add `{{fsdocs-logo-alt}}` substitution (configurable via `<FsDocsLogoAlt>` MSBuild property, defaults to `Logo`) for accessible alt text on the header logo image. [#626](https://github.com/fsprojects/FSharp.Formatting/issues/626)
 * Add `fsdocs init` command to scaffold a minimal `docs/index.md` (and optionally `_template.html`) for new projects. [#872](https://github.com/fsprojects/FSharp.Formatting/issues/872)
 * `IFsiEvaluator` now inherits `IDisposable`; `FsiEvaluator` disposes its underlying FSI session when disposed, preventing session leaks in long-running processes. [#341](https://github.com/fsprojects/FSharp.Formatting/issues/341)
+* Show inherited members from documented base types in a new "Inherited members" section on type pages (MSDN-style). [#590](https://github.com/fsprojects/FSharp.Formatting/issues/590)
+* Add `<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` project file setting to suppress "Inherited from" sections in generated API docs. [#1039](https://github.com/fsprojects/FSharp.Formatting/pull/1039)
 * Generate `llms.txt` and `llms-full.txt` for LLM consumption by default (opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>`); when enabled, markdown output is always generated alongside HTML (even without a user-provided `_template.md`) and `llms.txt` links point to the `.md` files. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951) [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 
 ### Fixed

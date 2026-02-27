@@ -231,6 +231,7 @@ module Crack =
           FsDocsWarnOnMissingDocs: bool
           FsDocsGenerateLlmsTxt: bool
           FsDocsAllowExecutableProject: bool
+          FsDocsNoInheritedMembers: bool
           PackageProjectUrl: string option
           Authors: string option
           GenerateDocumentationFile: bool
@@ -265,6 +266,7 @@ module Crack =
               "FsDocsWarnOnMissingDocs"
               "FsDocsGenerateLlmsTxt"
               "FsDocsAllowExecutableProject"
+              "FsDocsNoInheritedMembers"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -353,6 +355,7 @@ module Crack =
                   FsDocsGenerateLlmsTxt = msbuildPropBool "FsDocsGenerateLlmsTxt" |> Option.defaultValue true
                   FsDocsAllowExecutableProject =
                     msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
+                  FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                   PackageProjectUrl = msbuildPropString "PackageProjectUrl"
                   Authors = msbuildPropString "Authors"
@@ -613,6 +616,7 @@ module Crack =
               FsDocsWarnOnMissingDocs = false
               FsDocsGenerateLlmsTxt = projectInfos |> List.forall (fun i -> i.FsDocsGenerateLlmsTxt)
               FsDocsAllowExecutableProject = false
+              FsDocsNoInheritedMembers = false
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
@@ -706,6 +710,7 @@ module Crack =
                         info.FsDocsWarnOnMissingDocs,
                         info.FsDocsSourceFolder,
                         info.FsDocsSourceRepository,
+                        info.FsDocsNoInheritedMembers,
                         substitutions
                     )
                 | _ -> None)
