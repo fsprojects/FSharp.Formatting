@@ -2,6 +2,10 @@
 // F# CodeFormat (ToolTipReader.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
+
+/// Internal module that reads FSharp.Compiler.Service tool-tip data and converts it
+/// into the <see cref="T:FSharp.Formatting.CodeFormat.ToolTipSpan"/> representation
+/// used for rendering hover documentation in code snippets.
 module internal FSharp.Formatting.CodeFormat.ToolTipReader
 
 open System.Text
@@ -14,6 +18,8 @@ open FSharp.Compiler.Text
 // Implements formatting of tool tips
 // --------------------------------------------------------------------------------------
 
+/// Converts an array of <see cref="T:FSharp.Compiler.Text.TaggedText"/> values emitted by
+/// the F# compiler into a sequence of plain strings, splitting on newline-tagged spaces.
 let linesFromTaggedText (tags: TaggedText array) =
     seq {
         let content = StringBuilder()
