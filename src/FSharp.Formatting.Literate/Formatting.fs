@@ -8,6 +8,9 @@ open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.Templating
 
+/// Internal module that converts a <see cref="T:FSharp.Formatting.Literate.LiterateDocument"/> into a
+/// formatted output string (HTML, Latex, Markdown, .fsx, or .ipynb) and computes the
+/// substitution key–value pairs used by the templating engine to populate page templates.
 module internal Formatting =
 
     /// Format document with the specified output kind
@@ -111,6 +114,11 @@ module internal Formatting =
                       yield line ]
             |> String.concat "\n"
 
+    /// Formats a literate document and produces the full set of template substitutions for the output page.
+    /// Extracts YAML front-matter metadata (title, category, index, description, keywords), builds
+    /// previous/next navigation links from <paramref name="filesWithFrontMatter"/>, formats the document
+    /// body, and returns a <see cref="T:FSharp.Formatting.Literate.FormattedDocument"/> record ready for
+    /// template rendering.
     let transformDocument
         // This array was sorted in BuildCommand.fs
         (filesWithFrontMatter: FrontMatterFile array)
