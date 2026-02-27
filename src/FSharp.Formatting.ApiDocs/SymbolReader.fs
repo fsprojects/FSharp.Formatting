@@ -37,7 +37,8 @@ module internal SymbolReader =
           AssemblyPath: string
           CompilerOptions: string
           Substitutions: Substitutions
-          ShowInheritedMembers: bool }
+          ShowInheritedMembers: bool
+          ShowTypeConstraints: bool }
 
         member x.XmlMemberLookup(key) =
             match x.XmlMemberMap.TryGetValue(key) with
@@ -57,7 +58,8 @@ module internal SymbolReader =
                 fscOptions,
                 substitutions,
                 warn,
-                showInheritedMembers
+                showInheritedMembers,
+                showTypeConstraints
             ) =
 
             { PublicOnly = publicOnly
@@ -71,7 +73,8 @@ module internal SymbolReader =
               AssemblyPath = assemblyPath
               CompilerOptions = fscOptions
               Substitutions = substitutions
-              ShowInheritedMembers = showInheritedMembers }
+              ShowInheritedMembers = showInheritedMembers
+              ShowTypeConstraints = showTypeConstraints }
 
     let inline private getCompiledName (s: ^a :> FSharpSymbol) =
         let compiledName = (^a: (member CompiledName: string) (s))
@@ -285,7 +288,11 @@ module internal SymbolReader =
 
         let typars = formatTypeArgumentsAsText tps
 
-        let constraints = formatConstraintsAsText tps
+        let constraints =
+            if ctx.ShowTypeConstraints then
+                formatConstraintsAsText tps
+            else
+                []
 
         let retTypeHtml = retType |> Option.map (formatTypeAsHtml ctx.UrlMap >> codeHtml)
 
@@ -1631,7 +1638,8 @@ module internal SymbolReader =
             urlMap,
             codeFormatCompilerArgs,
             warn,
-            showInheritedMembers
+            showInheritedMembers,
+            showTypeConstraints
         ) =
         let assemblyName = AssemblyName(assembly.QualifiedName)
 
@@ -1675,7 +1683,8 @@ module internal SymbolReader =
                 codeFormatCompilerArgs,
                 substitutions,
                 warn,
-                showInheritedMembers
+                showInheritedMembers,
+                showTypeConstraints
             )
 
         //

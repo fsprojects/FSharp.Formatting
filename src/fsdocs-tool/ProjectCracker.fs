@@ -232,6 +232,7 @@ module Crack =
           FsDocsGenerateLlmsTxt: bool
           FsDocsAllowExecutableProject: bool
           FsDocsNoInheritedMembers: bool
+          FsDocsShowTypeConstraints: bool
           PackageProjectUrl: string option
           Authors: string option
           GenerateDocumentationFile: bool
@@ -267,6 +268,7 @@ module Crack =
               "FsDocsGenerateLlmsTxt"
               "FsDocsAllowExecutableProject"
               "FsDocsNoInheritedMembers"
+              "FsDocsShowTypeConstraints"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -356,6 +358,7 @@ module Crack =
                   FsDocsAllowExecutableProject =
                     msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
                   FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
+                  FsDocsShowTypeConstraints = msbuildPropBool "FsDocsShowTypeConstraints" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                   PackageProjectUrl = msbuildPropString "PackageProjectUrl"
                   Authors = msbuildPropString "Authors"
@@ -617,6 +620,7 @@ module Crack =
               FsDocsGenerateLlmsTxt = projectInfos |> List.forall (fun i -> i.FsDocsGenerateLlmsTxt)
               FsDocsAllowExecutableProject = false
               FsDocsNoInheritedMembers = false
+              FsDocsShowTypeConstraints = false
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
@@ -711,6 +715,7 @@ module Crack =
                         info.FsDocsSourceFolder,
                         info.FsDocsSourceRepository,
                         info.FsDocsNoInheritedMembers,
+                        info.FsDocsShowTypeConstraints,
                         substitutions
                     )
                 | _ -> None)
