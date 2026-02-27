@@ -80,26 +80,26 @@ module internal TypeFormatter =
         let typarName = formatTypeArgumentAsText typar
 
         if cx.IsEqualityConstraint then
-            Some $"{typarName} : equality"
+            Some $"%s{typarName} : equality"
         elif cx.IsComparisonConstraint then
-            Some $"{typarName} : comparison"
+            Some $"%s{typarName} : comparison"
         elif cx.IsNonNullableValueTypeConstraint then
-            Some $"{typarName} : struct"
+            Some $"%s{typarName} : struct"
         elif cx.IsReferenceTypeConstraint then
-            Some $"{typarName} : not struct"
+            Some $"%s{typarName} : not struct"
         elif cx.IsRequiresDefaultConstructorConstraint then
-            Some $"{typarName} : (new : unit -> {typarName})"
+            Some $"%s{typarName} : (new : unit -> %s{typarName})"
         elif cx.IsUnmanagedConstraint then
-            Some $"{typarName} : unmanaged"
+            Some $"%s{typarName} : unmanaged"
         elif cx.IsCoercesToConstraint then
-            Some $"{typarName} :> {cx.CoercesToTarget.Format(FSharpDisplayContext.Empty)}"
+            Some $"%s{typarName} :> %s{cx.CoercesToTarget.Format(FSharpDisplayContext.Empty)}"
         elif cx.IsEnumConstraint then
-            Some $"{typarName} : enum<{cx.EnumConstraintTarget.Format(FSharpDisplayContext.Empty)}>"
+            Some $"%s{typarName} : enum<%s{cx.EnumConstraintTarget.Format(FSharpDisplayContext.Empty)}>"
         elif cx.IsDelegateConstraint then
             let d = cx.DelegateConstraintData
 
             Some
-                $"{typarName} : delegate<{d.DelegateTupledArgumentType.Format(FSharpDisplayContext.Empty)}, {d.DelegateReturnType.Format(FSharpDisplayContext.Empty)}>"
+                $"%s{typarName} : delegate<%s{d.DelegateTupledArgumentType.Format(FSharpDisplayContext.Empty)}, %s{d.DelegateReturnType.Format(FSharpDisplayContext.Empty)}>"
         elif cx.IsMemberConstraint then
             let d = cx.MemberConstraintData
 
@@ -110,7 +110,7 @@ module internal TypeFormatter =
 
             let retType = d.MemberReturnType.Format(FSharpDisplayContext.Empty)
             let staticKw = if d.MemberIsStatic then "static member" else "member"
-            Some $"{typarName} : ({staticKw} {d.MemberName} : {argTypes} -> {retType})"
+            Some $"%s{typarName} : (%s{staticKw} %s{d.MemberName} : %s{argTypes} -> %s{retType})"
         else
             None
 
