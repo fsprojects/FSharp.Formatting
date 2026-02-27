@@ -563,14 +563,27 @@ let rec trimSpaces numSpaces (s: string) =
 // Parsing of Markdown - second part handles paragraph-level formatting (headings, etc.)
 // --------------------------------------------------------------------------------------
 
+/// Checks if a string is a valid CommonMark setext heading underline for the given character.
+/// Allows 0–3 leading spaces, then one or more repeated identical characters, then optional
+/// trailing whitespace only (4+ leading spaces would be an indented code block, not a heading).
+let isSetextUnderline (ch: char) (line: string) =
+    let trimmedEnd = line.TrimEnd()
+    let leadingSpaces = trimmedEnd.Length - trimmedEnd.TrimStart(' ').Length
+
+    leadingSpaces <= 3
+    && (let inner = trimmedEnd.TrimStart(' ')
+        inner.Length >= 1 && inner |> Seq.forall ((=) ch))
+
 /// Recognizes heading, either prefixed with #s or followed by === or --- line
 let (|Heading|_|) lines =
     match lines with
-    | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd(StringPosition.EqualsRepeated("=",
-                                                                                                            MarkdownRange.zero))) as line2) :: rest ->
+    | ((StringPosition.TrimBoth header) as line1) :: ((s, _) as line2) :: rest when
+        fst header <> "" && isSetextUnderline '=' s
+        ->
         Some(1, header, [ line1; line2 ], rest)
-    | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd(StringPosition.EqualsRepeated("-",
-                                                                                                            MarkdownRange.zero))) as line2) :: rest ->
+    | ((StringPosition.TrimBoth header) as line1) :: ((s, _) as line2) :: rest when
+        fst header <> "" && isSetextUnderline '-' s
+        ->
         Some(2, header, [ line1; line2 ], rest)
     | ((line1text, ln1) as line1) :: rest ->
         // ATX heading (CommonMark): optional 0–3 leading spaces, then 1–6 '#' characters,
@@ -634,25 +647,36 @@ let (|YamlFrontmatter|_|) lines =
         Some(yamlTextLines, MarkdownRange.mergeRanges (p :: List.map snd yaml), rest)
     | _ -> None
 
-/// Recognizes a horizontal rule written using *, _ or -
+/// Recognizes a horizontal rule written using *, _ or -.
+/// Per CommonMark: at most 3 leading spaces are allowed (4+ would be an indented code block).
 let (|HorizontalRule|_|) (line: string, _n: MarkdownRange) =
-    let rec loop ((h, a, u) as arg) i =
-        if (h >= 3 || a >= 3 || u >= 3) && i = line.Length then
-            Some(line.[0])
-        elif i = line.Length then
-            None
-        elif Char.IsWhiteSpace line.[i] then
-            loop arg (i + 1)
-        elif line.[i] = '-' && a = 0 && u = 0 then
-            loop (h + 1, a, u) (i + 1)
-        elif line.[i] = '*' && h = 0 && u = 0 then
-            loop (h, a + 1, u) (i + 1)
-        elif line.[i] = '_' && a = 0 && h = 0 then
-            loop (h, a, u + 1) (i + 1)
-        else
-            None
+    // Count leading spaces; reject if 4 or more (CommonMark spec § 4.1)
+    let mutable leadingSpaces = 0
 
-    loop (0, 0, 0) 0
+    while leadingSpaces < line.Length && line.[leadingSpaces] = ' ' do
+        leadingSpaces <- leadingSpaces + 1
+
+    if leadingSpaces > 3 then
+        None
+    else
+
+        let rec loop ((h, a, u) as arg) i =
+            if (h >= 3 || a >= 3 || u >= 3) && i = line.Length then
+                Some(line.[leadingSpaces])
+            elif i = line.Length then
+                None
+            elif Char.IsWhiteSpace line.[i] then
+                loop arg (i + 1)
+            elif line.[i] = '-' && a = 0 && u = 0 then
+                loop (h + 1, a, u) (i + 1)
+            elif line.[i] = '*' && h = 0 && u = 0 then
+                loop (h, a + 1, u) (i + 1)
+            elif line.[i] = '_' && a = 0 && h = 0 then
+                loop (h, a, u + 1) (i + 1)
+            else
+                None
+
+        loop (0, 0, 0) leadingSpaces
 
 /// Recognizes a code block - lines starting with four spaces (including blank)
 let (|NestedCodeBlock|_|) lines =
@@ -803,11 +827,13 @@ let (|ListStart|_|) =
         Some(Ordered, startIndent, endIndent, (item, MarkdownRange.zero))
     | _ -> None
 
-/// Splits input into lines until whitespace or starting of a list and the rest.
+/// Splits input into lines until whitespace, starting of a list, or a thematic break and the rest.
+/// A thematic break (e.g. ---) interrupts a list item in CommonMark.
 let (|LinesUntilListOrWhite|) lines =
     lines
     |> List.partitionUntil (function
         | ListStart _
+        | HorizontalRule _
         | StringPosition.WhiteSpace -> true
         | _ -> false)
 
@@ -1135,7 +1161,8 @@ let (|BlockquoteStart|_|) (line: string, n: MarkdownRange) =
         None
 
 /// Takes lines that belong to a continuing paragraph until
-/// a white line or start of other paragraph-item is found
+/// a white line or start of other paragraph-item is found.
+/// A thematic break (HorizontalRule) also interrupts a paragraph in CommonMark.
 let (|TakeParagraphLines|_|) input =
     match
         List.partitionWhileLookahead
@@ -1144,6 +1171,7 @@ let (|TakeParagraphLines|_|) input =
             | FencedCodeBlock _ -> false
             | BlockquoteStart _ :: _ -> false
             | StringPosition.WhiteSpace :: _ -> false
+            | (HorizontalRule _) :: _ -> false
             | _ -> true)
             input
     with
@@ -1161,7 +1189,8 @@ let (|HtmlBlock|_|) (lines: (string * MarkdownRange) list) =
     | _ -> None
 
 /// "Markdown allows you to be lazy and only put the > before the first line of a hard-wrapped paragraph"
-// Continues taking lines until a whitespace line or start of a blockquote
+// Continues taking lines until a whitespace line, start of a blockquote, or a thematic break.
+// A thematic break (HorizontalRule) ends the lazy continuation in CommonMark.
 let (|LinesUntilBlockquoteEnds|) input =
     input
     |> List.partitionUntilLookahead (fun next ->
@@ -1169,6 +1198,7 @@ let (|LinesUntilBlockquoteEnds|) input =
         | BlockquoteStart _ :: _ -> true
         | Heading _ -> true
         | StringPosition.WhiteSpace :: _ -> true
+        | (HorizontalRule _) :: _ -> true
         | _ -> false)
 
 /// Recognizes blockquote - continues taking paragraphs
