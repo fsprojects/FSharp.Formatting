@@ -82,8 +82,10 @@ type SourceError =
     /// error kind and the message
     | SourceError of start: (int * int) * finish: (int * int) * errorKind: ErrorKind * message: string
 
+/// Internal helpers for mapping TokenKind values to CSS class names.
 module internal CodeFormatHelper =
 
+    /// Map a TokenKind to the corresponding CSS class name string using the default CSS class map.
     let defaultTokenMap kind =
         match kind with
         | TokenKind.Comment -> CSS.Comment
