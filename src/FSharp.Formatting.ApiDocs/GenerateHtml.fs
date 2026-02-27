@@ -1,3 +1,5 @@
+/// Internal module that generates HTML documentation output from an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>.
+/// Produces one HTML file per namespace and per entity, plus an index file.
 module internal FSharp.Formatting.ApiDocs.GenerateHtml
 
 open System
@@ -13,6 +15,8 @@ open FSharp.Formatting.HtmlModel.Html
 /// Embed some HTML generated in GenerateModel
 let embed (x: ApiDocHtml) = !!x.HtmlText
 
+/// Wraps the HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> in a summary paragraph,
+/// unless the content starts with a <c>&lt;pre&gt;</c> tag (which cannot be nested inside <c>&lt;p&gt;</c>).
 let fsdocsSummary (x: ApiDocHtml) =
     // the <pre> tag is not allowed inside a <p> tag.
     if x.HtmlText.StartsWith("<pre>", StringComparison.Ordinal) then
@@ -20,6 +24,9 @@ let fsdocsSummary (x: ApiDocHtml) =
     else
         div [ Class "fsdocs-summary-contents" ] [ p [ Class "fsdocs-summary" ] [ embed x ] ]
 
+/// Renders HTML API documentation for all namespaces and entities in an
+/// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>. Writes one file per namespace
+/// and per entity to the output directory using the supplied template.
 type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
@@ -506,6 +513,31 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 div [] (renderMembers "Constructors" "Constructor" constructors)
                 div [] (renderMembers "Instance members" "Instance member" instanceMembers)
                 div [] (renderMembers "Static members" "Static member" staticMembers)
+
+            let inheritedMemberGroups =
+                entity.InheritedMembers
+                |> List.choose (fun (baseTypeHtml, members) ->
+                    let instMembers =
+                        members
+                        |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember && not m.IsObsolete)
+
+                    let statMembers =
+                        members
+                        |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember && not m.IsObsolete)
+
+                    if not (List.isEmpty instMembers) || not (List.isEmpty statMembers) then
+                        Some(baseTypeHtml, instMembers, statMembers)
+                    else
+                        None
+                )
+
+            if not (List.isEmpty inheritedMemberGroups) then
+                h3 [] [ !!"Inherited members" ]
+
+                for (baseTypeHtml, instMembers, statMembers) in inheritedMemberGroups do
+                    h4 [] [ !!"Inherited from "; embed baseTypeHtml ]
+                    div [] (renderMembers "Instance members" "Instance member" instMembers)
+                    div [] (renderMembers "Static members" "Static member" statMembers)
         ]
 
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =

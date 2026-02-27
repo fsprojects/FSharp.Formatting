@@ -1,12 +1,18 @@
+/// Internal model for building Jupyter Notebook (.ipynb) JSON output.
+/// Provides types and helpers that mirror the nbformat 4 structure used
+/// by .NET Interactive / Polyglot Notebooks.
 module internal FSharp.Formatting.PynbModel
 
 open System.Web
 
+/// JavaScript-encodes and wraps a string in double quotes for use in JSON.
 let escapeAndQuote (txt: string) =
     HttpUtility.JavaScriptStringEncode(txt, true)
 
+/// Ensures the string ends with a newline, as required by the nbformat source arrays.
 let addLineEnd (s: string) = if s.EndsWith '\n' then s else s + "\n"
 
+/// A single output data payload keyed by MIME type (e.g. "text/plain").
 type OutputData =
     | OutputData of kind: string * lines: string array
 
@@ -20,6 +26,7 @@ type OutputData =
             kind
             (String.concat ",\n" (Array.map escapeAndQuote lines))
 
+/// A cell output record (e.g. display_data or execute_result) containing MIME data and metadata.
 type Output =
     { data: OutputData
       execution_count: int option
@@ -42,6 +49,7 @@ type Output =
             this.metadata
             this.output_type
 
+/// A notebook cell with its type ("code", "markdown", or "raw"), source lines, and outputs.
 type Cell =
     { cell_type: string
       execution_count: int option
@@ -91,6 +99,7 @@ type Cell =
              |> Array.map (addLineEnd >> escapeAndQuote)
              |> String.concat ",\n    ")
 
+/// Kernel specification metadata embedded in the notebook (identifies the .NET F# kernel).
 type Kernelspec =
     { display_name: string
       language: string
@@ -112,6 +121,7 @@ type Kernelspec =
             (escapeAndQuote this.language)
             (escapeAndQuote this.name)
 
+/// Language info metadata describing the F# language for syntax highlighting and MIME types.
 type LanguageInfo =
     { file_extension: string
       mimetype: string
@@ -137,6 +147,7 @@ type LanguageInfo =
             (escapeAndQuote this.name)
             (escapeAndQuote this.pygments_lexer)
 
+/// Polyglot Notebook kernel info block (used by .NET Interactive).
 type DefaultKernelInfo =
     { defaultKernelName: string
       languageName: string
@@ -165,6 +176,7 @@ type DefaultKernelInfo =
             (escapeAndQuote this.languageName)
             (escapeAndQuote this.name)
 
+/// Top-level notebook metadata aggregating kernel spec, language info, and polyglot info.
 type Metadata =
     { kernelspec: Kernelspec
       language_info: LanguageInfo
@@ -186,6 +198,7 @@ type Metadata =
             this.language_info
             this.defaultKernelInfo
 
+/// A complete Jupyter Notebook document (nbformat 4) with cells and metadata.
 type Notebook =
     { nbformat: int
       nbformat_minor: int
@@ -213,9 +226,11 @@ type Notebook =
             this.nbformat
             this.nbformat_minor
 
+/// Splits a string on newlines (normalising CRLF), returning an array of lines.
 let internal splitLines (s: string) =
     s.Replace("\r\n", "\n").Split([| '\n' |])
 
+/// Creates a code cell from the given source lines, execution count, and outputs.
 let codeCell (lines: string array) executionCount outputs =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 
@@ -228,11 +243,13 @@ let codeCell (lines: string array) executionCount outputs =
 
     cell
 
+/// Creates a raw (unprocessed) cell from the given string.
 let rawCell (s: string) =
     { Cell.Default with
         cell_type = "raw"
         source = splitLines s }
 
+/// Creates a markdown cell from the given source lines.
 let markdownCell (lines: string array) =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 

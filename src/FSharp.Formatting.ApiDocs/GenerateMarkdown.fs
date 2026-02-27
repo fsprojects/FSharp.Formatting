@@ -1,3 +1,5 @@
+/// Internal module that generates Markdown documentation output from an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>.
+/// Produces one Markdown file per namespace and per entity, plus an index file.
 module internal FSharp.Formatting.ApiDocs.GenerateMarkdown
 
 open System
@@ -8,10 +10,13 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
+/// HTML-encodes a string and additionally escapes pipe characters for safe use in Markdown tables.
 let encode (x: string) =
     HttpUtility.HtmlEncode(x).Replace("|", "&#124;")
 
+/// URL-encodes a string (for use in anchor hrefs).
 let urlEncode (x: string) = HttpUtility.UrlEncode x
+/// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value.
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
 let htmlStringSafe (x: ApiDocHtml) =
@@ -21,6 +26,9 @@ let embed (x: ApiDocHtml) = !!(htmlString x)
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
 let br = !!"<br />"
 
+/// Renders Markdown API documentation for all namespaces and entities in an
+/// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>. Writes one file per namespace
+/// and per entity to <paramref name="outDir"/> using the supplied template.
 type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
@@ -31,82 +39,74 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           | None -> ()
           | Some href -> link [ img "Link to source code" (sprintf "%scontent/img/github.png" root) ] (href) ]
 
-    let renderMembers header tableHeader (members: ApiDocMember list) =
+    let renderMembers header (members: ApiDocMember list) =
         [ if members.Length > 0 then
               ``###`` [ !!header ]
 
-              table
-                  [ [ p [ !!tableHeader ] ]; [ p [ !!"Description" ] ]; [ p [ !!"Source" ] ] ]
-                  [ AlignLeft; AlignLeft; AlignCenter ]
-                  [ for m in members ->
-                        [ [ p [ link [ embedSafe (m.UsageHtml) ] ("#" + urlEncode (m.Name)) ] ]
-                          [ let summary = m.Comment.Summary
+              for m in members do
+                  // HTML anchor so existing per-member links (#Name) continue to work
+                  p [ !!(sprintf "<a name=\"%s\"></a>" (urlEncode m.Name)) ]
 
-                            let emptySummary = summary.HtmlText |> String.IsNullOrWhiteSpace
+                  // Member heading containing the full usage signature
+                  ``####`` [ embed m.UsageHtml ]
 
-                            if not emptySummary then
-                                p [ embedSafe m.Comment.Summary; br ]
+                  let summary = m.Comment.Summary
 
-                            match m.Comment.Remarks with
-                            | None -> ()
-                            | Some r -> p [ embedSafe r; br ]
+                  if not (summary.HtmlText |> String.IsNullOrWhiteSpace) then
+                      p [ embed m.Comment.Summary ]
 
-                            if not m.Parameters.IsEmpty then
-                                p [ !!"Parameters" ]
-                                p []
+                  match m.Comment.Remarks with
+                  | None -> ()
+                  | Some r -> p [ embed r ]
 
-                                yield!
-                                    m.Parameters
-                                    |> List.collect (fun parameter ->
-                                        [ p
-                                              [ strong [ !!parameter.ParameterNameText ]
-                                                !!": "
-                                                embedSafe parameter.ParameterType ]
-                                          match parameter.ParameterDocs with
-                                          | None -> ()
-                                          | Some d -> p [ !!(sprintf ": %s" (htmlStringSafe d)) ]
+                  if not m.Parameters.IsEmpty then
+                      p [ strong [ !!"Parameters:" ] ]
 
-                                          ])
+                      for parameter in m.Parameters do
+                          p [ strong [ !!parameter.ParameterNameText ]; !!": "; embed parameter.ParameterType ]
 
-                                p []
+                          match parameter.ParameterDocs with
+                          | None -> ()
+                          | Some d -> p [ embed d ]
 
-                            match m.ExtendedType with
-                            | None -> ()
-                            | Some(_, extendedTypeHtml) -> p [ !!"Extended Type: "; embedSafe extendedTypeHtml; br ]
+                  match m.ExtendedType with
+                  | None -> ()
+                  | Some(_, extendedTypeHtml) -> p [ !!"Extended Type: "; embed extendedTypeHtml ]
 
-                            match m.ReturnInfo.ReturnType with
-                            | None -> ()
-                            | Some(_, returnTypeHtml) ->
-                                p
-                                    [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
-                                             "Returns: "
-                                         else
-                                             "Field type: ")
-                                      embedSafe returnTypeHtml
-                                      br
-                                      match m.ReturnInfo.ReturnDocs with
-                                      | None -> ()
-                                      | Some r ->
-                                          embedSafe r
-                                          br ]
+                  match m.ReturnInfo.ReturnType with
+                  | None -> ()
+                  | Some(_, returnTypeHtml) ->
+                      p
+                          [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
+                                   "Returns: "
+                               else
+                                   "Field type: ")
+                            embed returnTypeHtml ]
 
-                            if not m.Comment.Exceptions.IsEmpty then
-                                for (nm, url, html) in m.Comment.Exceptions do
-                                    p
-                                        [ match url with
-                                          | None -> ()
-                                          | Some href -> link [ !!nm ] href
-                                          embed html
-                                          br ]
+                      match m.ReturnInfo.ReturnDocs with
+                      | None -> ()
+                      | Some r -> p [ embed r ]
 
-                            for e in m.Comment.Notes do
-                                p [ !!"Note" ]
-                                p [ embed e; br ]
+                  if not m.Comment.Exceptions.IsEmpty then
+                      for (nm, url, html) in m.Comment.Exceptions do
+                          p
+                              [ match url with
+                                | None -> ()
+                                | Some href -> link [ !!nm ] href
+                                embed html ]
 
-                            for e in m.Comment.Examples do
-                                p [ !!"Example" ]
-                                p [ embed e; br ] ]
-                          [ p [ yield! sourceLink m.SourceLocation ] ] ] ] ]
+                  for e in m.Comment.Notes do
+                      ``#####`` [ !!"Note" ]
+                      p [ embed e ]
+
+                  for e in m.Comment.Examples do
+                      ``#####`` [ !!"Example" ]
+                      p [ embed e ]
+
+                  let sl = sourceLink m.SourceLocation
+
+                  if not sl.IsEmpty then
+                      p sl ]
 
     let renderEntities (entities: ApiDocEntity list) =
         [ if entities.Length > 0 then
@@ -268,15 +268,39 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               let instanceMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)
               let staticMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)
 
-              yield! renderMembers "Functions and values" "Function or value" functionsOrValues
-              yield! renderMembers "Type extensions" "Type extension" extensions
-              yield! renderMembers "Active patterns" "Active pattern" activePatterns
-              yield! renderMembers "Union cases" "Union case" unionCases
-              yield! renderMembers "Record fields" "Record Field" recordFields
-              yield! renderMembers "Static parameters" "Static parameters" staticParameters
-              yield! renderMembers "Constructors" "Constructor" constructors
-              yield! renderMembers "Instance members" "Instance member" instanceMembers
-              yield! renderMembers "Static members" "Static member" staticMembers ]
+              yield! renderMembers "Functions and values" functionsOrValues
+              yield! renderMembers "Type extensions" extensions
+              yield! renderMembers "Active patterns" activePatterns
+              yield! renderMembers "Union cases" unionCases
+              yield! renderMembers "Record fields" recordFields
+              yield! renderMembers "Static parameters" staticParameters
+              yield! renderMembers "Constructors" constructors
+              yield! renderMembers "Instance members" instanceMembers
+              yield! renderMembers "Static members" staticMembers
+
+          let inheritedMemberGroups =
+              entity.InheritedMembers
+              |> List.choose (fun (baseTypeHtml, members) ->
+                  let instMembers =
+                      members
+                      |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember && not m.IsObsolete)
+
+                  let statMembers =
+                      members
+                      |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember && not m.IsObsolete)
+
+                  if not (List.isEmpty instMembers) || not (List.isEmpty statMembers) then
+                      Some(baseTypeHtml, instMembers, statMembers)
+                  else
+                      None)
+
+          if not (List.isEmpty inheritedMemberGroups) then
+              ``###`` [ !!"Inherited members" ]
+
+              for (baseTypeHtml, instMembers, statMembers) in inheritedMemberGroups do
+                  ``####`` [ !!"Inherited from "; embed baseTypeHtml ]
+                  yield! renderMembers "Instance members" instMembers
+                  yield! renderMembers "Static members" statMembers ]
 
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)

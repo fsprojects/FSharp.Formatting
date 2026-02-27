@@ -172,3 +172,18 @@ module CommentExamples =
     /// </example>
     ///
     let attribInCodeExample () = ()
+
+/// Base class for testing inherited members (issue #590)
+type BaseClassForInheritance() =
+    /// A documented instance method on the base class
+    member x.BaseMethod() = 42
+
+    /// A documented static method on the base class
+    static member BaseStaticMethod() = "hello"
+
+/// Derived class that inherits documented members from BaseClassForInheritance (issue #590)
+type DerivedClassForInheritance() =
+    inherit BaseClassForInheritance()
+
+    /// A method on the derived class
+    member x.DerivedMethod() = 100

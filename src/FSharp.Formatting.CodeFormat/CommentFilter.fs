@@ -2,6 +2,9 @@
 // F# CodeFormat (CommentProcessing.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
+/// Internal module for pre-processing F# source snippets: extracting named snippet regions
+/// (<c>// [snippet:Name]</c> / <c>// [/snippet]</c>), shrinking omitted blocks
+/// (<c>(*[omit:...]*)..(*[/omit]*)</c>), and surfacing FSI output markers (<c>// [fsi:...]</c>).
 module internal FSharp.Formatting.CodeFormat.CommentFilter
 
 open System.Text

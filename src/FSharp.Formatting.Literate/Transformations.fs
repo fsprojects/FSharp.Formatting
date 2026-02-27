@@ -10,6 +10,9 @@ open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Markdown
 
+/// Internal transformations applied to a LiterateDocument:
+/// formatting F# code snippets, evaluating them with FSI, resolving references,
+/// and replacing literate paragraphs with their final HTML/LaTeX/Fsx representations.
 module internal Transformations =
     // ----------------------------------------------------------------------------------------------
     // Replace all code snippets (assume F#) with their nicely formatted versions
@@ -460,7 +463,8 @@ module internal Transformations =
           | _ -> () ]
 
 
-    /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
+    /// Format a non-F# language-tagged code block as an HTML table with optional line numbers,
+    /// using the CSharpFormat syntax highlighter for the given language.
     let replaceHtmlTaggedCode (ctx: LiterateProcessingContext) (lang: string) (code: string) =
         let sb = new System.Text.StringBuilder()
         let writer = new System.IO.StringWriter(sb)

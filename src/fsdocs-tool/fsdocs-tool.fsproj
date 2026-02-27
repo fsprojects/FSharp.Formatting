@@ -19,12 +19,18 @@
     <Compile Include="Options.fs" />
     <Compile Include="ProjectCracker.fs" />
     <Compile Include="BuildCommand.fs" />
+    <Compile Include="InitCommand.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\docs\_template.html" LogicalName="fsdocs._template.html" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- NuGet package content -->
     <Content Include="..\..\docs\_template.html" PackagePath="templates" />
+    <Content Include="..\..\docs\_template.md" PackagePath="templates" />
     <Content Include="..\..\docs\_template.tex" PackagePath="templates" />
     <Content Include="..\..\docs\_template.ipynb" PackagePath="templates" />
     <Content Include="..\..\docs\Dockerfile" PackagePath="extras" />
