@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-02-27T10:56:39Z",
-  "run_id": "22482932796",
+  "last_run": "2026-02-27T11:08:15Z",
+  "run_id": "22483733595",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
     {"issue": 1022, "run": "22455635420", "note": "Reported BuildCommand.fs split progress"},
@@ -12,8 +12,7 @@
     {"issue": 468, "run": "22276980911", "note": "Code block language-xxx class is working"},
     {"issue": 163, "run": "22276980911", "note": "In-page TOC implementation approach"},
     {"issue": 362, "run": "22276980911", "note": "C# readonly fields bug analysis"},
-    {"issue": 944, "run": "22276980911", "note": "URL collision analysis for same-named types"},
-    {"pr": 1039, "run": "22482932796", "note": "Added tests, opt-out via FsDocsNoInheritedMembers, docs update, sample markdown pasted"}
+    {"issue": 944, "run": "22276980911", "note": "URL collision analysis for same-named types"}
   ],
   "fix_attempts": [
     {"issue": 1022, "pr": 1029, "status": "closed-conflict", "desc": "Split GenerateModel.fs v1"},
@@ -23,9 +22,10 @@
     {"issue": 1035, "pr": 1037, "status": "merged", "desc": "Doc comments batch 1 (11 files) - MERGED by dsyme"},
     {"issue": 1035, "pr": 1043, "status": "merged", "desc": "Doc comments batch 2 (PynbModel.fs, HtmlModel.fs, CrossReferenceResolver.fs, GenerateMarkdown.fs) - MERGED"},
     {"issue": 1035, "pr": 1044, "status": "closed-conflict", "desc": "Doc comments batch 2 v1 - closed due to conflicts"},
-    {"issue": 1035, "pr": 1048, "status": "open", "desc": "Doc comments batch 2 v2: GenerateHtml.fs, ParsePynb.fs, Pervasive.fs"},
-    {"issue": 1035, "pr": 1049, "status": "open", "desc": "Doc comments batch 3: ToolTipReader.fs, FsxFormatting.fs, MarkdownUtils.fs, Formatting.fs"},
-    {"issue": 590, "pr": 1039, "status": "open", "desc": "Show inherited members (MSDN-style) + opt-out + tests + docs"},
+    {"issue": 1035, "pr": 1048, "status": "merged", "desc": "Doc comments batch 2b: GenerateHtml.fs, ParsePynb.fs, Pervasive.fs - MERGED by dsyme"},
+    {"issue": 1035, "pr": 1049, "status": "merged", "desc": "Doc comments batch 3: ToolTipReader.fs, FsxFormatting.fs, MarkdownUtils.fs, Formatting.fs - MERGED by dsyme"},
+    {"issue": 1035, "pr": "batch4-pending", "status": "open", "desc": "Doc comments batch 4: ParseScript.fs, Transformations.fs, LatexFormatting.fs, SourceCode.fs, CommentFilter.fs - created in run 22483733595"},
+    {"issue": 590, "pr": 1039, "status": "open", "desc": "Show inherited members (MSDN-style)"},
     {"issue": 605, "pr": 1042, "status": "open", "desc": "Tolerant cross-references"},
     {"issue": 591, "pr": 1045, "status": "open", "desc": "Type constraints in API docs"},
     {"issue": 191, "pr": 1046, "status": "open", "desc": "CommonMark compliance improvements"}
@@ -33,7 +33,7 @@
   "important_instructions": [
     "dsyme: Hold off on splitting BuildCommand.fs until #1019 is merged (comment on #1035, 2026-02-26)"
   ],
-  "notes": "Monthly activity issue #973 updated. Doc comments: batch 1 (#1037) MERGED, batch 2a (#1043) MERGED, batch 2b (#1048) open, batch 3 (#1049) open. Next doc comment targets: SymbolReader.fs (1621 lines), ParseScript.fs (453 lines), Transformations.fs (620 lines). BuildCommand.fs split must wait for #1019 to merge. PR #1039: tests added, FsDocsNoInheritedMembers opt-out implemented, docs updated, markdown sample pasted in PR comment.",
+  "notes": "Monthly activity issue #973 updated. Doc comments: batch 1 (#1037) MERGED, batch 2a (#1043) MERGED, batch 2b (#1048) MERGED, batch 3 (#1049) MERGED, batch 4 (pending PR) created in this run. Next doc comment targets: SymbolReader.fs (1621 lines), BuildCommand.fs (waiting for #1019 to merge).",
   "backlog_cursor": {"issue": 1035},
   "monthly_activity_issue": 973
 }
