@@ -11,6 +11,8 @@ open FSharp.Compiler.Text
 [<assembly: InternalsVisibleTo("FSharp.CodeFormat.Tests")>]
 do ()
 
+/// Computation expression builder for <c>Async&lt;'T option&gt;</c> workflows,
+/// enabling monadic short-circuiting on <c>None</c>.
 [<Sealed>]
 type AsyncMaybeBuilder() =
 
@@ -93,6 +95,7 @@ type AsyncMaybeBuilder() =
 
 let asyncMaybe = AsyncMaybeBuilder()
 
+/// Lifts an <c>Async&lt;'T&gt;</c> into <c>Async&lt;'T option&gt;</c> by wrapping the result in <c>Some</c>.
 let inline liftAsync (computation: Async<'T>) : Async<'T option> =
     async {
         let! a = computation
@@ -100,9 +103,11 @@ let inline liftAsync (computation: Async<'T>) : Async<'T option> =
     }
 
 
+/// Additional async combinators used internally in the code-format pipeline.
 [<RequireQualifiedAccess>]
 module Async =
 
+    /// Maps a function over the result of an async workflow.
     let map (f: 'T -> 'U) (a: Async<'T>) : Async<'U> =
         async {
             let! a = a
