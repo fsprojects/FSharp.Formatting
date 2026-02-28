@@ -290,32 +290,19 @@ module Crack =
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
 
         let result =
+            // Needs to be done before any ProjectCollection is created
             let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
             let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
-            let toolsPath = Init.init cwd dotnetExe
-            let loader = WorkspaceLoader.Create(toolsPath, extraMsbuildProperties)
+            let _toolsPath = Init.init cwd dotnetExe
+            let projectCollection = new Microsoft.Build.Evaluation.ProjectCollection(dict extraMsbuildProperties)
 
-            use _ =
-                loader.Notifications.Subscribe(fun msg ->
-                    match msg with
-                    | WorkspaceProjectState.Failed(_, err) -> loggedMessages.Enqueue(err.ToString())
-                    | _ -> ())
-
-            let projects =
-                loader.LoadProjects([ projectFile ], customProperties, BinaryLogGeneration.Off)
-                |> Seq.toList
-
-            match projects with
-            | projOptions :: _ -> Ok projOptions
-            | [] ->
-                let msgs = loggedMessages.ToArray() |> Array.toList
-
-                let errMsg =
-                    match msgs with
-                    | msg :: _ -> msg
-                    | [] -> sprintf "Failed to load project '%s'" projectFile
-
-                Error errMsg
+            match ProjectLoader.loadProject projectFile BinaryLogGeneration.Off projectCollection with
+            | Ok loadedProject ->
+                match ProjectLoader.getLoadedProjectInfo projectFile customProperties loadedProject with
+                | Ok(ProjectLoader.LoadedProjectInfo.StandardProjectInfo projOptions) -> Ok projOptions
+                | Ok _ -> Error $"project '%s{projectFile}' is not a standard project"
+                | Error e -> Error e
+            | Error e -> Error e
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
 
