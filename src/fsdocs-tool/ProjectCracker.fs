@@ -289,14 +289,33 @@ module Crack =
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
 
-
         let result =
-            // Needs to be done before anything else
             let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
             let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
-            let _toolsPath = Init.init cwd dotnetExe
-            ProjectLoader.getProjectInfo projectFile extraMsbuildProperties BinaryLogGeneration.Off customProperties
-        //file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
+            let toolsPath = Init.init cwd dotnetExe
+            let loader = WorkspaceLoader.Create(toolsPath, extraMsbuildProperties)
+
+            use _ =
+                loader.Notifications.Subscribe(fun msg ->
+                    match msg with
+                    | WorkspaceProjectState.Failed(_, err) -> loggedMessages.Enqueue(err.ToString())
+                    | _ -> ())
+
+            let projects =
+                loader.LoadProjects([ projectFile ], customProperties, BinaryLogGeneration.Off)
+                |> Seq.toList
+
+            match projects with
+            | projOptions :: _ -> Ok projOptions
+            | [] ->
+                let msgs = loggedMessages.ToArray() |> Array.toList
+
+                let errMsg =
+                    match msgs with
+                    | msg :: _ -> msg
+                    | [] -> sprintf "Failed to load project '%s'" projectFile
+
+                Error errMsg
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
 
@@ -428,7 +447,7 @@ module Crack =
 
     let getProjectsFromSlnFile (slnPath: string) =
         match InspectSln.tryParseSln slnPath with
-        | Ok(_, slnData) -> InspectSln.loadingBuildOrder slnData
+        | Ok slnData -> InspectSln.loadingBuildOrder slnData
 
         //this.LoadProjects(projs, crosstargetingStrategy, useBinaryLogger, numberOfThreads)
         | Error e -> raise (exn ("cannot load the sln", e))
