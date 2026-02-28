@@ -91,6 +91,12 @@ type LiterateParagraph =
     /// Block simply emitted without any formatting equivalent to <pre> tag in html
     | RawBlock of lines: Line list * paragraphOptions: LiterateParagraphOptions
 
+    /// <summary>
+    /// <c>(*** include-toc ***)</c> — Insert a table of contents listing all headings in the document.<br/>
+    /// <c>(*** include-toc:N ***)</c> — Limit to headings up to depth N (default 3).
+    /// </summary>
+    | TableOfContents of maxDepth: int * paragraphOptions: LiterateParagraphOptions
+
     member x.ParagraphOptions =
         match x with
         | CodeReference(paragraphOptions = popts)
@@ -102,7 +108,8 @@ type LiterateParagraph =
         | ValueReference(paragraphOptions = popts)
         | LiterateCode(paragraphOptions = popts)
         | LanguageTaggedCode(paragraphOptions = popts)
-        | RawBlock(paragraphOptions = popts) -> popts
+        | RawBlock(paragraphOptions = popts)
+        | TableOfContents(paragraphOptions = popts) -> popts
 
     interface MarkdownEmbedParagraphs with
         member x.Render() =

@@ -3,6 +3,7 @@ namespace FSharp.Formatting.Literate
 open System
 open System.IO
 open System.Collections.Generic
+open System.Text.RegularExpressions
 
 open FSharp.Formatting.CSharpFormat
 open FSharp.Patterns
@@ -547,6 +548,9 @@ module internal Transformations =
                                 | OutputKind.Markdown -> code
 
                             Some(InlineHtmlBlock(inlined, None, None))
+                        | TableOfContents _ ->
+                            // Should have been replaced by generateTableOfContents before this stage
+                            None
         // Traverse all other structures recursively
         | MarkdownPatterns.ParagraphNested(pn, nested) ->
             let nested = List.map (List.choose (replaceLiterateParagraph ctx formatted)) nested
@@ -623,3 +627,87 @@ module internal Transformations =
         let newParagraphs = doc.Paragraphs |> List.choose (replaceLiterateParagraph ctx lookup)
 
         doc.With(paragraphs = newParagraphs, formattedTips = formatted.ToolTip)
+
+    // ----------------------------------------------------------------------------------------------
+    // Replace (*** include-toc ***) directives with generated table-of-contents list blocks
+    // ----------------------------------------------------------------------------------------------
+
+    /// Compute a heading anchor name from its spans, using the same algorithm as
+    /// <c>HtmlFormatting.formatAnchor</c> (words joined with "-", falling back to "header").
+    let private computeHeadingAnchor (spans: MarkdownSpans) =
+        let extractWords (text: string) =
+            Regex.Matches(text, @"\w+")
+            |> Seq.cast<System.Text.RegularExpressions.Match>
+            |> Seq.map (fun m -> m.Value)
+
+        let rec gather span =
+            seq {
+                match span with
+                | Literal(str, _) -> yield! extractWords str
+                | Strong(body, _) -> yield! gathers body
+                | Emphasis(body, _) -> yield! gathers body
+                | DirectLink(body, _, _, _) -> yield! gathers body
+                | _ -> ()
+            }
+
+        and gathers spans = Seq.collect gather spans
+
+        spans
+        |> gathers
+        |> String.concat "-"
+        |> fun name -> if String.IsNullOrWhiteSpace(name) then "header" else name
+
+    /// Replace every <c>TableOfContents</c> paragraph with a <c>ListBlock</c> of links to the
+    /// headings found in the document. Uses the same anchor-name generation as
+    /// <c>HtmlFormatting.formatAnchor</c> so that links resolve correctly when
+    /// <c>generateAnchors = true</c> (the fsdocs default).
+    let generateTableOfContents (doc: LiterateDocument) =
+        // Collect all headings in document order (top-level only; we do not descend into
+        // list items or quotes because headings cannot appear there in Markdown anyway).
+        let allHeadings =
+            doc.Paragraphs
+            |> List.choose (function
+                | Heading(level, spans, _) -> Some(level, spans)
+                | _ -> None)
+
+        if allHeadings.IsEmpty then
+            doc
+        else
+            // Simulate UniqueNameGenerator from HtmlFormatting to produce identical anchor names.
+            let counts = Dictionary<string, int>()
+
+            let getUniqueName (name: string) =
+                let ok, i = counts.TryGetValue name
+
+                if ok then
+                    counts.[name] <- i + 1
+                    sprintf "%s-%d" name i
+                else
+                    counts.[name] <- 1
+                    name
+
+            let headingsWithAnchors =
+                allHeadings
+                |> List.map (fun (level, spans) ->
+                    let anchor = computeHeadingAnchor spans |> getUniqueName
+                    level, spans, anchor)
+
+            let rec replaceInParagraph para =
+                match para with
+                | MarkdownPatterns.LiterateParagraph(TableOfContents(maxDepth, _)) ->
+                    let items =
+                        headingsWithAnchors
+                        |> List.choose (fun (level, spans, anchor) ->
+                            if level <= maxDepth then
+                                Some [ Span([ DirectLink(spans, "#" + anchor, None, None) ], None) ]
+                            else
+                                None)
+
+                    Some(ListBlock(MarkdownListKind.Unordered, items, None))
+                | MarkdownPatterns.ParagraphNested(pn, nested) ->
+                    let nested = List.map (List.choose replaceInParagraph) nested
+                    Some(MarkdownPatterns.ParagraphNested(pn, nested))
+                | par -> Some par
+
+            let newParagraphs = doc.Paragraphs |> List.choose replaceInParagraph
+            doc.With(paragraphs = newParagraphs)

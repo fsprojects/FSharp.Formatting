@@ -187,7 +187,10 @@ module internal Formatting =
                 defaultArg (findHeadings doc.Paragraphs ctx.GenerateHeaderAnchors ctx.OutputKind) name
 
         // Replace all special elements with ordinary Html/Latex Markdown
-        let doc = Transformations.replaceLiterateParagraphs ctx doc
+        let doc =
+            doc
+            |> Transformations.generateTableOfContents
+            |> Transformations.replaceLiterateParagraphs ctx
 
         // construct previous and next urls
         let nextPreviousPageSubstitutions =

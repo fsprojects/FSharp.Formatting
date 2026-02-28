@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+* Add `(*** include-toc ***)` and `(*** include-toc:N ***)` directives for literate F# scripts (`.fsx`) to generate an inline table of contents listing all document headings (up to depth N, default 3). [#163](https://github.com/fsprojects/FSharp.Formatting/issues/163)
+
 ### Refactored
 * Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
 

@@ -275,6 +275,19 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
             transformBlocks false None count noEval (p :: acc) defs blocks
 
+        // Include table of contents (optionally limited to headings up to depth N)
+        | BlockCommand(Command "include-toc" depthStr as cmds) :: blocks, _ ->
+            let popts = getParaOptions cmds
+
+            let depth =
+                match System.Int32.TryParse(depthStr) with
+                | true, n when n > 0 -> n
+                | _ -> 3
+
+            let p = EmbedParagraphs(TableOfContents(depth, popts), None)
+
+            transformBlocks false None count noEval (p :: acc) defs blocks
+
         // Include code without evaluation
         | BlockCommand(Command "raw" _ as cmds) :: BlockSnippet(snip) :: blocks, _ ->
             let popts = getParaOptions cmds
