@@ -291,12 +291,15 @@ module Crack =
 
 
         let result =
-            // Needs to be done before anything else
-            let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
-            let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
-            let _toolsPath = Init.init cwd dotnetExe
-            ProjectLoader.getProjectInfo projectFile extraMsbuildProperties BinaryLogGeneration.Off customProperties
-        //file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
+            let projectCollection = new Microsoft.Build.Evaluation.ProjectCollection(dict extraMsbuildProperties)
+
+            match ProjectLoader.loadProject projectFile BinaryLogGeneration.Off projectCollection with
+            | Ok loadedProject ->
+                match ProjectLoader.getLoadedProjectInfo projectFile customProperties loadedProject with
+                | Ok(ProjectLoader.LoadedProjectInfo.StandardProjectInfo projOptions) -> Ok projOptions
+                | Ok _ -> Error $"project '%s{projectFile}' is not a standard project"
+                | Error e -> Error e
+            | Error e -> Error e
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
 
@@ -428,7 +431,7 @@ module Crack =
 
     let getProjectsFromSlnFile (slnPath: string) =
         match InspectSln.tryParseSln slnPath with
-        | Ok(_, slnData) -> InspectSln.loadingBuildOrder slnData
+        | Ok slnData -> InspectSln.loadingBuildOrder slnData
 
         //this.LoadProjects(projs, crosstargetingStrategy, useBinaryLogger, numberOfThreads)
         | Error e -> raise (exn ("cannot load the sln", e))
@@ -437,6 +440,11 @@ module Crack =
         (onError, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects, ignoreProjects)
         =
         let slnDir = Path.GetFullPath "."
+
+        // Initialize the MSBuild integration - must be done before any ProjectCollection is created
+        let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
+        let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
+        let _toolsPath = Init.init cwd dotnetExe
 
         //printfn "x.projects = %A" x.projects
         let collectionName, projectFiles =
