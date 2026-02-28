@@ -139,3 +139,23 @@ type Class8() =
     /// <see cref="T:System.Reflection.Assembly" />
     /// </summary>
     member this.X = "F#"
+
+/// <summary>
+/// Test unqualified type cref: <see cref="Class2" />
+/// </summary>
+type Class9() =
+    member this.X = "F#"
+
+/// <summary>
+/// Test unqualified type.member cref: <see cref="Class2.Other" />
+/// and <see cref="Class2.Method0" />
+/// </summary>
+type Class10() =
+    member this.X = "F#"
+
+/// <summary>
+/// Test unqualified generic type cref: <see cref="GenericClass2`1" />
+/// and <see cref="GenericClass2`1.Property" />
+/// </summary>
+type Class11() =
+    member this.X = "F#"

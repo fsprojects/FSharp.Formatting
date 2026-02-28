@@ -67,6 +67,19 @@ For example, a project will be skipped if:
   <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>
 ```
 
+## Controlling inherited-member display
+
+By default, API documentation pages for a type show an **"Inherited from X"** section listing
+instance and static members inherited from documented base types within the same docs set.
+Members from external types such as `System.Object` are never shown.
+
+To suppress inherited-member sections for a project, add the following property to the `.fsproj` file:
+
+```xml
+<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>
+```
+
+
 ## The watch command
 
 This command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input

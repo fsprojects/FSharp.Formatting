@@ -647,7 +647,7 @@ type internal DocContent
                           (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
                           filesWithFrontMatter ]
 
-    member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs) =
+    member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs, ?defaultMdTemplate: string) =
 
         let inputDirectories = extraInputs @ [ (rootInputFolderAsGiven, ".") ]
 
@@ -681,7 +681,14 @@ type internal DocContent
         [ for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
               yield!
                   processFolder
-                      (htmlTemplate, None, None, None, None, false, Some rootInputFolderAsGiven, fullPathFileMap)
+                      (htmlTemplate,
+                       None,
+                       None,
+                       None,
+                       defaultMdTemplate,
+                       false,
+                       Some rootInputFolderAsGiven,
+                       fullPathFileMap)
                       rootInputFolderAsGiven
                       outputFolderRelativeToRoot
                       filesWithFrontMatter ]
@@ -1301,6 +1308,127 @@ module Serve =
 
         startWebServerAsync serverConfig app |> snd |> Async.Start
 
+/// Helpers for generating llms.txt and llms-full.txt content.
+module internal LlmsTxt =
+
+    /// Decode HTML entities (e.g. &quot; → ", &gt; → >) in a string.
+    let private decodeHtml (s: string) = System.Net.WebUtility.HtmlDecode(s)
+
+    /// Strip FSharp.Formatting --eval warning lines from content.
+    let private stripEvalWarnings (s: string) =
+        s.Split('\n')
+        |> Array.filter (fun line ->
+            not (
+                line
+                    .TrimStart()
+                    .StartsWith(
+                        "Warning: Output, it-value and value references require --eval",
+                        System.StringComparison.Ordinal
+                    )
+            ))
+        |> String.concat "\n"
+
+    /// Collapse three or more consecutive newlines into at most two.
+    let private collapseBlankLines (s: string) =
+        System.Text.RegularExpressions.Regex.Replace(s, @"\n{3,}", "\n\n")
+
+    /// Normalise a title: trim and collapse internal whitespace/newlines to a single space.
+    let private normaliseTitle (s: string) =
+        System.Text.RegularExpressions.Regex.Replace(s.Trim(), @"\s+", " ")
+
+    /// Decode HTML entities and remove --eval noise from content.
+    let private cleanContent (s: string) =
+        s
+        |> decodeHtml
+        |> stripEvalWarnings
+        |> collapseBlankLines
+        |> fun t -> t.Trim()
+
+    /// Build a section of llms.txt from a set of search index entries.
+    /// When <c>withContent</c> is true, entry content is appended under a heading per entry.
+    /// When false, entries are listed as bullet-point links (index format).
+    /// <c>uriTransform</c> is applied to each entry's URI before rendering.
+    let buildSection
+        sectionTitle
+        (entries: ApiDocsSearchIndexEntry array)
+        withContent
+        (uriTransform: string -> string)
+        =
+        if entries.Length = 0 then
+            ""
+        else
+            let sb = System.Text.StringBuilder()
+            sb.Append(sprintf "## %s\n\n" sectionTitle) |> ignore
+
+            for e in entries do
+                let title = normaliseTitle e.title
+                let uri = uriTransform e.uri
+
+                if withContent then
+                    sb.Append(sprintf "### [%s](%s)\n\n" title uri) |> ignore
+
+                    if not (System.String.IsNullOrWhiteSpace(e.content)) then
+                        sb.Append(cleanContent e.content) |> ignore
+                        sb.Append("\n\n") |> ignore
+                else
+                    sb.Append(sprintf "- [%s](%s)\n" title uri) |> ignore
+
+            sb.ToString()
+
+    /// Returns a URI transformer that rewrites links to use .md when markdown output is available.
+    /// <c>docContentUsesMarkdown</c> – doc pages were generated with a _template.md.
+    /// <c>apiDocUsesMarkdown</c> – API reference was generated with GenerateMarkdownPhased
+    ///   (URIs have no file extension; .md must be appended).
+    let buildUriTransform (docContentUsesMarkdown: bool) (apiDocUsesMarkdown: bool) (entryType: string) =
+        fun (uri: string) ->
+            match entryType with
+            | "content" when docContentUsesMarkdown ->
+                if uri.EndsWith(".html", System.StringComparison.OrdinalIgnoreCase) then
+                    uri.[.. uri.Length - 6] + ".md"
+                else
+                    uri
+            | "apiDocs" when apiDocUsesMarkdown ->
+                // In markdown mode InUrl="" so URIs have no extension; append .md.
+                // Strip any #anchor before appending, then re-attach it.
+                let hashIdx = uri.IndexOf('#')
+
+                if hashIdx >= 0 then
+                    uri.[.. hashIdx - 1] + ".md" + uri.[hashIdx..]
+                else
+                    uri + ".md"
+            | _ -> uri
+
+    /// Generate the text content of llms.txt (index) and llms-full.txt (with content).
+    /// Returns a tuple of (llms.txt content, llms-full.txt content).
+    /// When <c>docContentUsesMarkdown</c> is true, doc page links use .md extensions.
+    /// When <c>apiDocUsesMarkdown</c> is true, API reference links use .md extensions.
+    let buildContent
+        (collectionName: string)
+        (entries: ApiDocsSearchIndexEntry array)
+        (docContentUsesMarkdown: bool)
+        (apiDocUsesMarkdown: bool)
+        =
+        let contentEntries = entries |> Array.filter (fun e -> e.``type`` = "content")
+        let apiEntries = entries |> Array.filter (fun e -> e.``type`` = "apiDocs")
+        // For the index, exclude per-member entries (identified by a '#' anchor in the URI).
+        let apiIndexEntries = apiEntries |> Array.filter (fun e -> not (e.uri.Contains("#")))
+        let header = sprintf "# %s\n\n" collectionName
+
+        let contentTransform = buildUriTransform docContentUsesMarkdown apiDocUsesMarkdown "content"
+        let apiDocTransform = buildUriTransform docContentUsesMarkdown apiDocUsesMarkdown "apiDocs"
+
+        let llmsTxt =
+            header
+            + buildSection "Docs" contentEntries false contentTransform
+            + buildSection "API Reference" apiIndexEntries false apiDocTransform
+
+        let llmsFullTxt =
+            header
+            + buildSection "Docs" contentEntries true contentTransform
+            + buildSection "API Reference" apiEntries true apiDocTransform
+
+        llmsTxt, llmsFullTxt
+
 type CoreBuildOptions(watch) =
 
     [<Option("input", Required = false, Default = "docs", HelpText = "Input directory of documentation content.")>]
@@ -1458,7 +1586,7 @@ type CoreBuildOptions(watch) =
         // See https://github.com/ionide/proj-info/issues/123
         let prevDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")
 
-        let (root, collectionName, crackedProjects, paths, docsSubstitutions), _key =
+        let (root, collectionName, crackedProjects, paths, docsSubstitutions, generateLlmsTxt), _key =
             let projects = Seq.toList this.projects
             let cacheFile = ".fsdocs/cache"
 
@@ -1505,14 +1633,14 @@ type CoreBuildOptions(watch) =
             printfn ""
             printfn "Inputs for API Docs:"
 
-            for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
                 printfn "    %s" dllFile
 
         //printfn "Comand lines for API Docs:"
-        //for (_, runArguments, _, _, _, _, _, _, _, _) in crackedProjects do
+        //for (_, runArguments, _, _, _, _, _, _, _, _, _) in crackedProjects do
         //    printfn "    %O" runArguments
 
-        for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
+        for (dllFile, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
             if not (File.Exists dllFile) then
                 let msg =
                     sprintf
@@ -1531,7 +1659,7 @@ type CoreBuildOptions(watch) =
             // The substitutions may differ for some projects due to different settings in the project files, if so show that
             let pd = dict docsSubstitutions
 
-            for (dllFile, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
                 for (((ParamKey pkv2) as pk2), p2) in projectParameters do
                     if pd.ContainsKey pk2 && pd.[pk2] <> p2 then
                         printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
@@ -1546,6 +1674,7 @@ type CoreBuildOptions(watch) =
                    projectWarn,
                    projectSourceFolder,
                    projectSourceRepo,
+                   projectNoInheritedMembers,
                    projectParameters) in crackedProjects ->
                   let sourceRepo =
                       match projectSourceRepo with
@@ -1579,7 +1708,8 @@ type CoreBuildOptions(watch) =
                     Substitutions = Some projectParameters
                     MarkdownComments = this.mdcomments || projectMarkdownComments
                     Warn = projectWarn
-                    PublicOnly = not this.nonpublic } ]
+                    PublicOnly = not this.nonpublic
+                    ShowInheritedMembers = not projectNoInheritedMembers } ]
 
         // Compute the merge of all referenced DLLs across all projects
         // so they can be resolved during API doc generation.
@@ -1587,7 +1717,7 @@ type CoreBuildOptions(watch) =
         // TODO: This is inaccurate: the different projects might not be referencing the same DLLs.
         // We should do doc generation for each output of each proejct separately
         let apiDocOtherFlags =
-            [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _) in crackedProjects do
+            [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _, _) in crackedProjects do
                   for otherFlag in otherFlags do
                       if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
                           if File.Exists(otherFlag.[3..]) then
@@ -1634,6 +1764,35 @@ type CoreBuildOptions(watch) =
             else
                 None
 
+        // Default markdown template – used when generateLlmsTxt is enabled and no user _template.md exists.
+        // An empty (or minimal) _template.md causes the processor to emit just the document content, which
+        // is ideal for LLM consumption.
+        let defaultMdTemplateAttempt1 =
+            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "templates", "_template.md"))
+
+        let defaultMdTemplateAttempt2 =
+            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.md"))
+
+        let defaultMdTemplate =
+            if this.nodefaultcontent then
+                None
+            else if
+                (try
+                    File.Exists(defaultMdTemplateAttempt1)
+                 with _ ->
+                     false)
+            then
+                Some defaultMdTemplateAttempt1
+            elif
+                (try
+                    File.Exists(defaultMdTemplateAttempt2)
+                 with _ ->
+                     false)
+            then
+                Some defaultMdTemplateAttempt2
+            else
+                None
+
         let extraInputs =
             [ if not this.nodefaultcontent then
                   // The "extras" content goes in "."
@@ -1673,6 +1832,7 @@ type CoreBuildOptions(watch) =
         let mutable latestApiDocCodeReferenceResolver = (fun _ -> None)
         let mutable latestApiDocPhase2 = (fun _ -> ())
         let mutable latestApiDocSearchIndexEntries = [||]
+        let mutable latestApiDocOutputKind = OutputKind.Html
         let mutable latestDocContentPhase2 = (fun _ -> ())
         let mutable latestDocContentResults = Map.empty
         let mutable latestDocContentSearchIndexEntries = [||]
@@ -1688,6 +1848,24 @@ type CoreBuildOptions(watch) =
             let indxTxt = System.Text.Json.JsonSerializer.Serialize index
 
             File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "index.json"), indxTxt)
+
+        // Capture the bool value before it is shadowed by the generateLlmsTxt function below.
+        let generateLlmsTxtEnabled = generateLlmsTxt
+
+        let generateLlmsTxt () =
+            if generateLlmsTxtEnabled then
+                let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
+                // When FsDocsGenerateLlmsTxt is enabled, markdown is always generated alongside HTML
+                // (using the bundled default markdown template if the user hasn't provided a _template.md).
+                let docContentUsesMarkdown = true
+
+                let apiDocUsesMarkdown = latestApiDocOutputKind = OutputKind.Markdown
+
+                let llmsTxt, llmsFullTxt =
+                    LlmsTxt.buildContent collectionName index docContentUsesMarkdown apiDocUsesMarkdown
+
+                File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms.txt"), llmsTxt)
+                File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms-full.txt"), llmsFullTxt)
 
         /// get the hot reload script if running in watch mode
         let getLatestWatchScript () =
@@ -1731,6 +1909,8 @@ type CoreBuildOptions(watch) =
                                     defaultTemplateAttempt1
 
                                 OutputKind.Html, None
+
+                    latestApiDocOutputKind <- outputKind
 
                     printfn ""
                     printfn "API docs:"
@@ -1823,7 +2003,25 @@ type CoreBuildOptions(watch) =
                         onError
                     )
 
-                let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
+                let docModels =
+                    // When llms.txt generation is enabled, ensure a markdown template is available so that
+                    // .md versions of content pages are written alongside .html files, enabling
+                    // llms.txt to link to the more LLM-friendly markdown versions.
+                    // An empty template causes the processor to emit just the document content,
+                    // which is ideal for LLM consumption.
+                    let mdTemplate =
+                        if generateLlmsTxtEnabled then
+                            match defaultMdTemplate with
+                            | Some _ -> defaultMdTemplate
+                            | None ->
+                                let tempMdTemplate = Path.GetTempFileName()
+                                File.WriteAllText(tempMdTemplate, "")
+                                Some tempMdTemplate
+                        else
+                            None
+
+                    docContent.Convert(this.input, defaultTemplate, extraInputs, ?defaultMdTemplate = mdTemplate)
+
                 let actualDocModels = docModels |> List.map fst |> List.choose id
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
@@ -1963,6 +2161,7 @@ type CoreBuildOptions(watch) =
             // bespoke file for namespaces etc.
             let ok1 = ok1 && runDocContentPhase2 ()
             regenerateSearchIndex ()
+            generateLlmsTxt ()
             ok1 && ok2
 
         //-----------------------------------------
@@ -2024,7 +2223,8 @@ type CoreBuildOptions(watch) =
 
                             if runDocContentPhase1 () then
                                 if runDocContentPhase2 () then
-                                    regenerateSearchIndex ())
+                                    regenerateSearchIndex ()
+                                    generateLlmsTxt ())
 
                         Serve.refreshEvent.Trigger fileName
                     }
@@ -2045,7 +2245,8 @@ type CoreBuildOptions(watch) =
 
                             if runGeneratePhase1 () then
                                 if runGeneratePhase2 () then
-                                    regenerateSearchIndex ())
+                                    regenerateSearchIndex ()
+                                    generateLlmsTxt ())
 
                         Serve.refreshEvent.Trigger "full"
                     }
