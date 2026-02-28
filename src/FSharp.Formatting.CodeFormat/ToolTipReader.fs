@@ -9,6 +9,7 @@
 module internal FSharp.Formatting.CodeFormat.ToolTipReader
 
 open System.Text
+open System.Text.RegularExpressions
 open FSharp.Collections
 open FSharp.Compiler.Symbols
 open FSharp.Compiler.EditorServices
@@ -34,6 +35,14 @@ let linesFromTaggedText (tags: TaggedText array) =
         if content.Length <> 0 then
             yield string<StringBuilder> content
     }
+
+/// Strips F# attribute annotations (e.g. [<Optional>], [<DefaultParameterValue(null)>])
+/// from a tooltip line. These are technically accurate but make tooltips hard to read,
+/// particularly for methods with many attributed optional parameters.
+let private attributeAnnotationPattern = Regex(@"\s*\[<[^>]*>\]")
+
+let private stripParameterAttributes (line: string) =
+    attributeAnnotationPattern.Replace(line, "")
 
 /// Turn string into a sequence of lines interleaved with line breaks
 let formatMultilineString (lines: string array) =
@@ -71,6 +80,8 @@ let private formatElement tooltip =
               yield!
                   it.MainDescription
                   |> linesFromTaggedText
+                  |> Seq.map stripParameterAttributes
+                  |> Seq.filter (fun s -> s.Trim() <> "")
                   |> Seq.toArray
                   |> formatMultilineString
 
