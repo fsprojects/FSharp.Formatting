@@ -495,13 +495,13 @@ type ApiDocMember
         else
             let toShort (full: string) =
                 // Coercion: "'T :> Type" → ":> Type"
-                let coerceIdx = full.IndexOf(" :> ")
+                let coerceIdx = full.IndexOf(" :> ", StringComparison.Ordinal)
 
                 if coerceIdx >= 0 then
                     full[coerceIdx + 1 ..]
                 else
                     // Regular constraint: "'T : equality" → "equality"
-                    let colonIdx = full.IndexOf(" : ")
+                    let colonIdx = full.IndexOf(" : ", StringComparison.Ordinal)
                     if colonIdx >= 0 then full[colonIdx + 3 ..] else full
 
             let shortForms = x.Constraints |> List.map toShort

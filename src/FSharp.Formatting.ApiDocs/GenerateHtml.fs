@@ -195,7 +195,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                                 if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short then
                                                     match m.FormatShortTypeConstraints with
                                                     | None -> encode v
-                                                    | Some c -> encode ($"{v} (requires {c})")
+                                                    | Some c -> encode ($"%s{v} (requires %s{c})")
                                                 else
                                                     encode v
 

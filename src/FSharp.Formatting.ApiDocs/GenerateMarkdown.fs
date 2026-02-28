@@ -93,7 +93,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                       if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short then
                           match m.FormatShortTypeConstraints with
                           | None -> p [ !!("Type parameters: " + v) ]
-                          | Some c -> p [ !!($"Type parameters: {v} (requires {c})") ]
+                          | Some c -> p [ !!(sprintf "Type parameters: %s (requires %s)" v c) ]
                       else
                           p [ !!("Type parameters: " + v) ]
 
