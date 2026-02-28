@@ -1,9 +1,9 @@
 {
-  "last_run": "2026-02-27T13:48:56Z",
-  "run_id": "22488762219",
+  "last_run": "2026-02-28T08:35:35Z",
+  "run_id": "22517217772",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
-    {"issue": 1022, "run": "22455635420", "note": "Reported BuildCommand.fs split progress"},
+    {"issue": 1022, "run": "22488762219", "note": "PR created for splitting MarkdownParser.fs"},
     {"issue": 590, "run": "22455510854", "note": "Explained inherited-member code path"},
     {"issue": 591, "run": "22456244326", "note": "Implementation summary and PR link"},
     {"issue": 605, "run": "22455859434", "note": "Implementation summary and PR link"},
@@ -13,7 +13,8 @@
     {"issue": 163, "run": "22276980911", "note": "In-page TOC implementation approach"},
     {"issue": 362, "run": "22276980911", "note": "C# readonly fields bug analysis"},
     {"issue": 944, "run": "22276980911", "note": "URL collision analysis for same-named types"},
-    {"issue": 1022, "run": "22488762219", "note": "PR created for splitting MarkdownParser.fs"}
+    {"issue": 858, "run": "22517217772", "note": "Tooltip attribute analysis - ToolTipReader.fs filter approach and upstream fix path"},
+    {"issue": 1056, "run": "22517217772", "note": "Commented on PR #1056 about competing PR #1055"}
   ],
   "fix_attempts": [
     {"issue": 1022, "pr": 1029, "status": "closed-conflict", "desc": "Split GenerateModel.fs v1"},
@@ -25,19 +26,20 @@
     {"issue": 1035, "pr": 1044, "status": "closed-conflict", "desc": "Doc comments batch 2 v1 - closed due to conflicts"},
     {"issue": 1035, "pr": 1048, "status": "merged", "desc": "Doc comments batch 2b: GenerateHtml.fs, ParsePynb.fs, Pervasive.fs - MERGED by dsyme"},
     {"issue": 1035, "pr": 1049, "status": "merged", "desc": "Doc comments batch 3: ToolTipReader.fs, FsxFormatting.fs, MarkdownUtils.fs, Formatting.fs - MERGED by dsyme"},
-    {"issue": 1035, "pr": "batch4-pending", "status": "open", "desc": "Doc comments batch 4: ParseScript.fs, Transformations.fs, LatexFormatting.fs, SourceCode.fs, CommentFilter.fs"},
-    {"issue": 590, "pr": 1039, "status": "open", "desc": "Show inherited members (MSDN-style)"},
-    {"issue": 605, "pr": 1042, "status": "open", "desc": "Tolerant cross-references"},
+    {"issue": 590, "pr": 1039, "status": "merged", "desc": "Show inherited members (MSDN-style) - MERGED by dsyme"},
+    {"issue": 605, "pr": 1042, "status": "merged", "desc": "Tolerant cross-references - MERGED by dsyme"},
     {"issue": 591, "pr": 1045, "status": "open", "desc": "Type constraints in API docs"},
-    {"issue": 191, "pr": 1046, "status": "open", "desc": "CommonMark compliance improvements"},
-    {"issue": 1022, "pr": "split-markdownparser", "status": "open", "desc": "Split MarkdownParser.fs into MarkdownInlineParser.fs + MarkdownParser.fs - created in run 22488762219"}
+    {"issue": 191, "pr": 1046, "status": "merged", "desc": "CommonMark compliance improvements - MERGED by dsyme"},
+    {"issue": 1022, "pr": 1052, "status": "open", "desc": "Split MarkdownParser.fs into MarkdownInlineParser.fs + MarkdownParser.fs"},
+    {"issue": "code-scanning", "pr": 1053, "status": "open", "desc": "Fix IONIDE-012: add [(Struct)] to LiterateCodeVisibility and EvalKey DUs"},
+    {"issue": 1054, "pr": 1056, "status": "open", "desc": "Update Ionide.ProjInfo to 0.74.2 (competing with #1055 by Smaug123)"}
   ],
   "important_instructions": [
     "dsyme: Avoid splitting files being changed in existing open pull requests, eg BuildCommand.fs (comment on #1022, 2026-02-27)",
     "Files in PR #1019: BuildCommand.fs, Literate.fs, Program.fs, build.fsx - DO NOT TOUCH",
     "Files in PR #1045: ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs - DO NOT TOUCH"
   ],
-  "notes": "Issue #1035 closed as completed by dsyme. Monthly activity issue #973. Files to avoid (in open PRs): BuildCommand.fs, Literate.fs, Program.fs, build.fsx (PR #1019); ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs (PR #1045). Next file split candidates: YaafFSharpScripting.fs (1123 lines).",
-  "backlog_cursor": {"issue": 1022},
+  "notes": "Issue #1035 closed as completed by dsyme. Issue #993 and #1033 both closed. Monthly activity issue #973. Files to avoid (in open PRs): BuildCommand.fs, Literate.fs, Program.fs, build.fsx (PR #1019); ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs (PR #1045). Next file split candidates: YaafFSharpScripting.fs (1123 lines). PRs #980, #1039, #1042, #1046 all merged by dsyme. Issue #858: tooltip filter approach documented in comment.",
+  "backlog_cursor": {"issue": 858},
   "monthly_activity_issue": 973
 }
