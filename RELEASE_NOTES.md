@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+* Migrate theme color variables to use CSS `light-dark()` function, eliminating the separate `[data-theme=dark]` block of variable overrides and automatically honouring `prefers-color-scheme` media query when the user has not manually set a preference. [#1004](https://github.com/fsprojects/FSharp.Formatting/issues/1004)
+
 ### Refactored
 * Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
 
