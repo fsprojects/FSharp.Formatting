@@ -290,24 +290,34 @@ module Crack =
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
 
         let result =
-            // Needs to be done before any ProjectCollection is created
             let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
             let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
-            let _toolsPath = Init.init cwd dotnetExe
-            let projectCollection = new Microsoft.Build.Evaluation.ProjectCollection(dict extraMsbuildProperties)
+            let toolsPath = Init.init cwd dotnetExe
+            let loader = WorkspaceLoader.Create(toolsPath, extraMsbuildProperties)
 
-            match ProjectLoader.loadProject projectFile BinaryLogGeneration.Off projectCollection with
-            | Ok loadedProject ->
-                match ProjectLoader.getLoadedProjectInfo projectFile customProperties loadedProject with
-                | Ok(ProjectLoader.LoadedProjectInfo.StandardProjectInfo projOptions) -> Ok projOptions
-                | Ok _ -> Error $"project '%s{projectFile}' is not a standard project"
-                | Error e -> Error e
-            | Error e -> Error e
+            use _ =
+                loader.Notifications.Subscribe(fun msg ->
+                    match msg with
+                    | WorkspaceProjectState.Failed(_, err) -> loggedMessages.Enqueue(err.ToString())
+                    | _ -> ())
+
+            let projects =
+                loader.LoadProjects([ projectFile ], customProperties, BinaryLogGeneration.Off)
+                |> Seq.toList
+
+            match projects with
+            | projOptions :: _ -> Ok(Some projOptions)
+            | [] ->
+                let msgs = loggedMessages.ToArray() |> Array.toList
+                let detail = msgs |> List.tryHead |> Option.defaultWith (fun () -> "not a standard project")
+                printfn $"  skipping project '%s{Path.GetFileName projectFile}': %s{detail}"
+                Ok None
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
 
         match result with
-        | Ok projOptions ->
+        | Ok None -> Ok None
+        | Ok(Some projOptions) ->
 
             let props =
                 projOptions.CustomProperties
@@ -373,7 +383,7 @@ module Crack =
                   PackageIconUrl = msbuildPropString "PackageIconUrl"
                   RepositoryCommit = msbuildPropString "RepositoryCommit" }
 
-            Ok(targetFrameworks, projOptions2)
+            Ok(Some(targetFrameworks, projOptions2))
         | Error err -> GetProjectOptionsErrors(err, msgs) |> Result.Error
 
     let private ensureProjectWasRestored (file: string) =
@@ -407,13 +417,14 @@ module Crack =
                 // subsequent cracking step will fail with a more specific error.
                 printfn $"Warning: could not verify that project '%s{file}' was restored. Proceeding anyway."
 
-    let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo =
+    let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo option =
         ensureProjectWasRestored file
 
         let result = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties file
         //printfn "msgs = %A" msgs
         match result with
-        | Ok(Some targetFrameworks, crackedProjectInfo) when
+        | Ok None -> None
+        | Ok(Some(Some targetFrameworks, crackedProjectInfo)) when
             crackedProjectInfo.TargetPath.IsNone && targetFrameworks.Length > 1
             ->
             // no targetpath and there are multiple target frameworks
@@ -425,10 +436,11 @@ module Crack =
                 crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildPropertiesAndFirstTargetFramework file
 
             match result2 with
-            | Ok(_, crackedProjectInfo) -> crackedProjectInfo
+            | Ok None -> None
+            | Ok(Some(_, crackedProjectInfo)) -> Some crackedProjectInfo
             | Error(GetProjectOptionsErrors(err, msgs)) ->
                 failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
-        | Ok(_, crackedProjectInfo) -> crackedProjectInfo
+        | Ok(Some(_, crackedProjectInfo)) -> Some crackedProjectInfo
         | Error(GetProjectOptionsErrors(err, msgs)) ->
             failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
 
@@ -508,7 +520,7 @@ module Crack =
             |> Array.ofList
             |> Array.choose (fun p ->
                 try
-                    Some(crackProjectFile slnDir extraMsbuildProperties p)
+                    crackProjectFile slnDir extraMsbuildProperties p
                 with e ->
                     printfn
                         "  skipping project '%s' because an error occurred while cracking it: %O"
