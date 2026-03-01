@@ -41,7 +41,7 @@ let linesFromTaggedText (tags: TaggedText array) =
 /// particularly for methods with many attributed optional parameters.
 let private attributeAnnotationPattern = Regex(@"\s*\[<[^>]*>\]")
 
-let private stripParameterAttributes (line: string) =
+let internal stripParameterAttributes (line: string) =
     attributeAnnotationPattern.Replace(line, "")
 
 /// Turn string into a sequence of lines interleaved with line breaks
