@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+* Tooltip elements (`div.fsdocs-tip`) now use the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) when available (Baseline 2024). This places tooltips in the browser's top layer, ensuring they always render above overlapping content without relying on `z-index`. Also fixes a positioning bug where tooltips would appear offset when the page was scrolled. Falls back to the previous `display` toggle approach in browsers without Popover API support. [#422](https://github.com/fsprojects/FSharp.Formatting/issues/422)
+
 ### Refactored
 * Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
 
