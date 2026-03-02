@@ -2,9 +2,6 @@
 
 ## [Unreleased]
 
-### Changed
-* Migrate theme color variables to use CSS `light-dark()` function, eliminating the separate `[data-theme=dark]` block of variable overrides and automatically honouring `prefers-color-scheme` media query when the user has not manually set a preference. [#1004](https://github.com/fsprojects/FSharp.Formatting/issues/1004)
-
 ### Refactored
 * Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
 
@@ -40,6 +37,7 @@
 * Markdown API docs for members now use section-based layout (per-member `####` headings) instead of a Markdown table, eliminating embedded `<br />` separators, `&#124;` pipe escaping, and improving rendering of multi-line content and code examples. [#725](https://github.com/fsprojects/FSharp.Formatting/issues/725)
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
 * Reduce dark mode header border contrast to match the visual subtlety of light mode borders. [#885](https://github.com/fsprojects/FSharp.Formatting/issues/885)
+* **breaking** Migrate theme color variables to use CSS `light-dark()` function, eliminating the separate `[data-theme=dark]` block of variable overrides and automatically honouring `prefers-color-scheme` media query when the user has not manually set a preference. [#1004](https://github.com/fsprojects/FSharp.Formatting/issues/1004)
 
 ## 21.0.0 - 2025-11-12
 
