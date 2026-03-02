@@ -80,8 +80,9 @@ let private formatElement tooltip =
               yield!
                   it.MainDescription
                   |> linesFromTaggedText
-                  |> Seq.map stripParameterAttributes
-                  |> Seq.filter (fun s -> s.Trim() <> "")
+                  |> Seq.choose (fun s ->
+                      let stripped = stripParameterAttributes s
+                      if stripped.Trim() <> "" then Some stripped else None)
                   |> Seq.toArray
                   |> formatMultilineString
 
