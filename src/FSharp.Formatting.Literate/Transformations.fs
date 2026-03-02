@@ -306,9 +306,10 @@ module internal Transformations =
     // ----------------------------------------------------------------------------------------------
 
     /// Represents key in a dictionary with evaluation results
+    [<Struct>]
     type EvalKey =
-        | OutputRef of string
-        | ValueRef of string
+        | OutputRef of outputName: string
+        | ValueRef of valueName: string
 
     /// Unparse a Line list to a string - for evaluation by fsi.
     let unparse (lines: Line list) =
