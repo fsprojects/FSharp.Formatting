@@ -2045,3 +2045,108 @@ let ``Emoji in ConvertScriptFile Markdown output file are preserved`` () =
     md |> shouldContainText emojiStar
 
 // End emoji tests
+
+// --------------------------------------------------------------------------------------
+// Tests for (*** include-toc ***) directive
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``include-toc parses as TableOfContents with default depth 3`` () =
+    let content =
+        """
+(** # Heading One *)
+(*** include-toc ***)
+let x = 1
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "A.fsx")
+
+    doc.Paragraphs
+    |> shouldMatchPar (function
+        | EmbedParagraphs(:? LiterateParagraph as lp, _) ->
+            match lp with
+            | TableOfContents(3, _) -> true
+            | _ -> false
+        | _ -> false)
+
+[<Test>]
+let ``include-toc:2 parses as TableOfContents with depth 2`` () =
+    let content =
+        """
+(** # Heading One *)
+(*** include-toc:2 ***)
+let x = 1
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "A.fsx")
+
+    doc.Paragraphs
+    |> shouldMatchPar (function
+        | EmbedParagraphs(:? LiterateParagraph as lp, _) ->
+            match lp with
+            | TableOfContents(2, _) -> true
+            | _ -> false
+        | _ -> false)
+
+[<Test>]
+let ``include-toc generates anchor links for all headings in HTML output`` () =
+    let content =
+        """
+(**
+# My Document
+*)
+(*** include-toc ***)
+(**
+## Section One
+
+Some content.
+
+## Section Two
+
+More content.
+*)
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "A.fsx")
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText "href=\"#My-Document\""
+    html |> shouldContainText "href=\"#Section-One\""
+    html |> shouldContainText "href=\"#Section-Two\""
+
+[<Test>]
+let ``include-toc:N filters out headings deeper than N`` () =
+    let content =
+        """
+(**
+# Top Level
+*)
+(*** include-toc:1 ***)
+(**
+## Sub Section
+*)
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "A.fsx")
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText "href=\"#Top-Level\""
+    html |> shouldNotContainText "href=\"#Sub-Section\""
+
+[<Test>]
+let ``include-toc handles duplicate heading names with unique anchors`` () =
+    let content =
+        """
+(**
+# Introduction
+*)
+(*** include-toc ***)
+(**
+## Notes
+
+## Notes
+*)
+"""
+
+    let doc = Literate.ParseScriptString(content, "C" </> "A.fsx")
+    let html = Literate.ToHtml(doc)
+    html |> shouldContainText "href=\"#Notes\""
+    html |> shouldContainText "href=\"#Notes-1\""

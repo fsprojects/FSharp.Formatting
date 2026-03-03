@@ -283,7 +283,10 @@ type Literate private () =
                 mdlinkResolver
                 tokenKindToCss
 
-        let doc = Transformations.replaceLiterateParagraphs ctx doc
+        let doc =
+            doc
+            |> Transformations.generateTableOfContents
+            |> Transformations.replaceLiterateParagraphs ctx
 
         let doc =
             MarkdownDocument(doc.Paragraphs @ [ InlineHtmlBlock(doc.FormattedTips, None, None) ], doc.DefinedLinks)
@@ -332,7 +335,10 @@ type Literate private () =
                 mdlinkResolver
                 tokenKindToCss
 
-        let doc = Transformations.replaceLiterateParagraphs ctx doc
+        let doc =
+            doc
+            |> Transformations.generateTableOfContents
+            |> Transformations.replaceLiterateParagraphs ctx
 
         let paragraphs = doc.Paragraphs @ [ InlineHtmlBlock(doc.FormattedTips, None, None) ], doc.DefinedLinks
 
@@ -367,7 +373,10 @@ type Literate private () =
                 mdlinkResolver
                 None
 
-        let doc = Transformations.replaceLiterateParagraphs ctx doc
+        let doc =
+            doc
+            |> Transformations.generateTableOfContents
+            |> Transformations.replaceLiterateParagraphs ctx
 
         Markdown.ToLatex(
             MarkdownDocument(doc.Paragraphs, doc.DefinedLinks),
@@ -401,7 +410,10 @@ type Literate private () =
                 mdlinkResolver
                 None
 
-        let doc = Transformations.replaceLiterateParagraphs ctx doc
+        let doc =
+            doc
+            |> Transformations.generateTableOfContents
+            |> Transformations.replaceLiterateParagraphs ctx
 
         Markdown.WriteLatex(
             MarkdownDocument(doc.Paragraphs, doc.DefinedLinks),
@@ -416,7 +428,12 @@ type Literate private () =
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let substitutions = defaultArg substitutions []
         let ctx = makeFormattingContext OutputKind.Pynb None None None substitutions crefResolver mdlinkResolver None
-        let doc = Transformations.replaceLiterateParagraphs ctx doc
+
+        let doc =
+            doc
+            |> Transformations.generateTableOfContents
+            |> Transformations.replaceLiterateParagraphs ctx
+
         Markdown.ToPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), substitutions = substitutions)
 
     /// Formate the literate document as an .fsx script
@@ -425,7 +442,12 @@ type Literate private () =
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let substitutions = defaultArg substitutions []
         let ctx = makeFormattingContext OutputKind.Fsx None None None substitutions crefResolver mdlinkResolver None
-        let doc = Transformations.replaceLiterateParagraphs ctx doc
+
+        let doc =
+            doc
+            |> Transformations.generateTableOfContents
+            |> Transformations.replaceLiterateParagraphs ctx
+
         Markdown.ToFsx(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), substitutions = substitutions)
 
     /// Parse and transform a markdown document

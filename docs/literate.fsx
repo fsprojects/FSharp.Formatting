@@ -101,6 +101,42 @@ F# language.
 |   `(*** include-it-raw: output-name ***)`            | The unformatted result of the snippet (named with define-output)   |
 |   `(*** include-value: value-name ***)`              | The formatted value, an F# identifier name  |
 
+### Table of Contents
+
+The `include-toc` command inserts an inline table of contents at the point where the command appears.
+It generates an unordered list of hyperlinks to every heading in the document.
+
+|  Literate Command     | Description               |
+|:-----------------------|:----------------------------|
+|   `(*** include-toc ***)`     | Insert a TOC listing all headings up to depth 3 (default) |
+|   `(*** include-toc:N ***)`   | Insert a TOC listing headings up to depth N (e.g. `include-toc:2` for H1 and H2 only) |
+
+The links point to the anchor names generated for each heading (e.g. `#Section-One`).
+This requires `generateAnchors = true`, which is the default when using `fsdocs build`.
+
+Example:
+
+```text
+(**
+# My Document
+*)
+(*** include-toc:2 ***)
+(**
+## Section One
+
+Some content here.
+
+## Section Two
+
+More content here.
+*)
+```
+
+This renders the TOC as:
+- [My Document](#My-Document)
+- [Section One](#Section-One)
+- [Section Two](#Section-Two)
+
 #### Hiding code snippets
 
 The command `hide` specifies that the following F# code block (until the next comment or command) should be
