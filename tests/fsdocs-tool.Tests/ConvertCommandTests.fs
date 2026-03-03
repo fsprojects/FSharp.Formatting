@@ -52,6 +52,23 @@ let ``ConvertCommand converts .fsx file to HTML`` () =
     html |> shouldContainText "Code sample"
 
 [<Test>]
+let ``ConvertCommand omits fsdocs-tip divs when no template given`` () =
+    let inputFile = literateTestFiles </> "simple1.fsx"
+    let outputFile = Path.GetTempPath() </> "fsdocs-tool-tests" </> "simple1-no-template.html"
+    Directory.CreateDirectory(Path.GetDirectoryName(outputFile)) |> ignore
+
+    let cmd = ConvertCommand()
+    cmd.input <- inputFile
+    cmd.output <- outputFile
+    cmd.outputFormat <- "html"
+    // no template set
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    let html = File.ReadAllText(outputFile)
+    html |> shouldNotContainText "fsdocs-tip"
+
+[<Test>]
 let ``ConvertCommand converts .ipynb file to HTML`` () =
     let inputFile = literateTestFiles </> "simple3.ipynb"
     let outputFile = Path.GetTempPath() </> "fsdocs-tool-tests" </> "simple3-convert.html"
