@@ -79,6 +79,47 @@ You can use the `include-value` command to format a specific value:
 
 You can use `fsi.AddPrinter`, `fsi.AddPrintTransformer` and `fsi.AddHtmlPrinter` to extend the formatting of objects.
 
+`fsi.AddHtmlPrinter` lets you register a function that renders values of a particular type as raw HTML.
+The function receives the value and returns a sequence of CSS/JS resource pairs and an HTML string.
+Registered printers are invoked automatically when a value of the matching type is included via
+`(*** include-it ***)` or `(*** include-it-raw ***)`.
+
+A common use-case is embedding chart or plot images. For example, if your charting library produces
+values of type `MyChart`, you can register a printer that converts them to an `<img>` tag:
+
+    [lang=fsharp]
+    fsi.AddHtmlPrinter(fun (chart: MyChart) ->
+        // Convert the chart to a PNG byte array
+        let bytes = chart.ToPngBytes()
+        let b64 = System.Convert.ToBase64String(bytes)
+        // Return (no extra resources, HTML string)
+        Seq.empty, sprintf """<img src="data:image/png;base64,%s" />""" b64)
+
+    let myChart = MyChart.Create(data)
+    (*** include-it ***)
+
+With this printer registered, `(*** include-it ***)` will emit the chart as an inline Base64 image
+in the HTML output.
+
+If you don't have a custom type but still want to embed an image produced by your script, you can
+use a plain helper function together with `(*** include-it-raw ***)`:
+
+    [lang=fsharp]
+    let inlinePng (fileName: string) =
+        let bytes = System.IO.File.ReadAllBytes(fileName)
+        let b64 = System.Convert.ToBase64String(bytes)
+        sprintf """<img src="data:image/png;base64,%s" />""" b64
+
+    // Generate the image, then embed it:
+    // myChart.SavePng("chart.png")
+    (*** hide ***)
+    // inlinePng "chart.png"
+    (*** include-it-raw ***)
+
+The `(*** hide ***)` command suppresses the source code of the expression so that only the rendered
+image appears in the output. See [Embedding Images](commandline.html#embedding-images) in the command-line
+reference for more details, including the `--saveimages` flag for downloading remote images.
+
 ## Emitting Raw Text
 
 To emit raw text in F# literate scripts use the following:
