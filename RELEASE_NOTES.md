@@ -18,6 +18,7 @@
 
 ### Fixed
 * Strip parameter attribute annotations (e.g. `[<Optional>]`, `[<DefaultParameterValue(null)>]`) from hover tooltips in code snippets — these attributes made tooltips unreadable for methods with many optional parameters. [#858](https://github.com/fsprojects/FSharp.Formatting/issues/858)
+* Update `Ionide.ProjInfo` from 0.62.0 to 0.74.2, fixing a URI format exception in `VisualTree.relativePathOf` when paths contain unusual characters; migrate to the new `WorkspaceLoader` API and remove the now-defunct `Ionide.ProjInfo.Sln` package. [#1054](https://github.com/fsprojects/FSharp.Formatting/issues/1054)
 * Fix project restore detection for projects with nonstandard artifact locations (e.g. `<UseArtifactsOutput>` or the dotnet/fsharp repo layout): when the MSBuild call to locate `project.assets.json` fails, emit a warning and proceed instead of hard-failing. [#592](https://github.com/fsprojects/FSharp.Formatting/issues/592)
 * Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)
 * Fix `_menu_template.html` and `_menu-item_template.html` being copied to the output directory. [#803](https://github.com/fsprojects/FSharp.Formatting/issues/803)
