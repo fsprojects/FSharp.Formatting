@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-03T00:57:59Z",
-  "run_id": "22603112211",
+  "last_run": "2026-03-03T01:00:00Z",
+  "run_id": "22603136556",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
     {"issue": 1022, "run": "22488762219", "note": "PR created for splitting MarkdownParser.fs"},
@@ -19,9 +19,8 @@
     {"issue": 1004, "run": "22539594492", "note": "PR #1059 created for CSS light-dark() migration"},
     {"issue": 586, "run": "22456220892", "note": "FSharp.Core links appear to already be implemented"},
     {"issue": 585, "run": "22567869992", "note": "Implementation analysis for grouping overloaded methods"},
-    {"issue": 422, "run": "22321192031", "note": "CSS tooltip hybrid approach analysis"},
     {"issue": 422, "run": "22567869992", "note": "PR #1060 created for Popover API tooltips"},
-    {"issue": 735, "run": "22603112211", "note": "Fix implemented: ApiDocParameter and ApiDocReturnInfo named record types; PR created"}
+    {"issue": 742, "run": "22603136556", "note": "PR created for non-optional MarkdownRange (dsyme /repo-assist command)"}
   ],
   "fix_attempts": [
     {"issue": 1022, "pr": 1029, "status": "closed-conflict", "desc": "Split GenerateModel.fs v1"},
@@ -44,15 +43,14 @@
     {"issue": 163, "pr": 1058, "status": "open", "desc": "Add (*** include-toc ***) directive for inline table of contents"},
     {"issue": 1004, "pr": 1059, "status": "open", "desc": "Migrate theme colors to CSS light-dark() function (CSS-only change)"},
     {"issue": 422, "pr": 1060, "status": "open", "desc": "Use Popover API for code snippet tooltips; fix scroll-offset positioning"},
-    {"issue": 683, "pr": 1065, "status": "open", "desc": "Document --saveimages flag and image embedding patterns"},
-    {"issue": 735, "pr": "TBD-post-run", "status": "open", "desc": "Add ApiDocParameter and ApiDocReturnInfo named record types - replaces anonymous records in Parameters and ReturnInfo"}
+    {"issue": 742, "pr": "TBD-non-optional-ranges", "status": "open", "desc": "Make MarkdownRange non-optional throughout Markdown AST - dsyme /repo-assist command"}
   ],
   "important_instructions": [
     "dsyme: Avoid splitting files being changed in existing open pull requests, eg BuildCommand.fs (comment on #1022, 2026-02-27)",
     "Files in PR #1019: BuildCommand.fs, Literate.fs, Program.fs, build.fsx - DO NOT TOUCH",
-    "Files in PR #1045: ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs - DO NOT TOUCH (until #1045 merges)"
+    "Files in PR #1045: ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs - DO NOT TOUCH"
   ],
-  "notes": "Issue #1035 closed as completed by dsyme. Issue #993 and #1033 both closed. Monthly activity issue for March 2026: #1060. Issue #735 fixed via PR (number TBD post-run). PR #1065 created for #683 docs (by another parallel run 22603067958). Files to avoid (in open PRs): BuildCommand.fs, Literate.fs, Program.fs, build.fsx (PR #1019); ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs (PR #1045 - but note #735 PR also touches ApiDocTypes.fs). PR #1045 awaiting nojaf sign-off.",
-  "backlog_cursor": {"issue": 735},
-  "monthly_activity_issue": 1060
+  "notes": "Issue #742: PR created for non-optional MarkdownRange (breaking change). Issue #1035 closed as completed by dsyme. Monthly activity issue for March: to be created. Files to avoid (in open PRs): BuildCommand.fs, Literate.fs, Program.fs, build.fsx (PR #1019); ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs (PR #1045).",
+  "backlog_cursor": {"issue": 536},
+  "monthly_activity_issue": "TBD-NEW-MARCH"
 }
