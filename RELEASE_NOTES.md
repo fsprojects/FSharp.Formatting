@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## 22.0.0 - 2026-02-27
+## 22.0.0-alpha.1 - 2026-03-03
 
 ### Added
 * Add `///` documentation comments to all public types, modules and members, and succinct internal comments, as part of ongoing effort to document the codebase. [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
