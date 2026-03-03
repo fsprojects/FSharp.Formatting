@@ -30,19 +30,19 @@ type MarkdownColumnAlignment =
 /// Represents inline formatting inside a paragraph. This can be literal (with text), various
 /// formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.
 type MarkdownSpan =
-    | Literal of text: string * range: MarkdownRange option
-    | InlineCode of code: string * range: MarkdownRange option
-    | Strong of body: MarkdownSpans * range: MarkdownRange option
-    | Emphasis of body: MarkdownSpans * range: MarkdownRange option
-    | AnchorLink of link: string * range: MarkdownRange option
-    | DirectLink of body: MarkdownSpans * link: string * title: string option * range: MarkdownRange option
-    | IndirectLink of body: MarkdownSpans * original: string * key: string * range: MarkdownRange option
-    | DirectImage of body: string * link: string * title: string option * range: MarkdownRange option
-    | IndirectImage of body: string * link: string * key: string * range: MarkdownRange option
-    | HardLineBreak of range: MarkdownRange option
-    | LatexInlineMath of code: string * range: MarkdownRange option
-    | LatexDisplayMath of code: string * range: MarkdownRange option
-    | EmbedSpans of customSpans: MarkdownEmbedSpans * range: MarkdownRange option
+    | Literal of text: string * range: MarkdownRange
+    | InlineCode of code: string * range: MarkdownRange
+    | Strong of body: MarkdownSpans * range: MarkdownRange
+    | Emphasis of body: MarkdownSpans * range: MarkdownRange
+    | AnchorLink of link: string * range: MarkdownRange
+    | DirectLink of body: MarkdownSpans * link: string * title: string option * range: MarkdownRange
+    | IndirectLink of body: MarkdownSpans * original: string * key: string * range: MarkdownRange
+    | DirectImage of body: string * link: string * title: string option * range: MarkdownRange
+    | IndirectImage of body: string * link: string * key: string * range: MarkdownRange
+    | HardLineBreak of range: MarkdownRange
+    | LatexInlineMath of code: string * range: MarkdownRange
+    | LatexDisplayMath of code: string * range: MarkdownRange
+    | EmbedSpans of customSpans: MarkdownEmbedSpans * range: MarkdownRange
 
 /// A type alias for a list of MarkdownSpan values
 type MarkdownSpans = MarkdownSpan list
@@ -56,8 +56,8 @@ type MarkdownEmbedSpans =
 /// Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
 /// also embedded LaTeX blocks.
 type MarkdownParagraph =
-    | Heading of size: int * body: MarkdownSpans * range: MarkdownRange option
-    | Paragraph of body: MarkdownSpans * range: MarkdownRange option
+    | Heading of size: int * body: MarkdownSpans * range: MarkdownRange
+    | Paragraph of body: MarkdownSpans * range: MarkdownRange
 
     /// A code block, whether fenced or via indentation
     | CodeBlock of
@@ -66,41 +66,41 @@ type MarkdownParagraph =
         fence: string option *
         language: string *
         ignoredLine: string *
-        range: MarkdownRange option
+        range: MarkdownRange
 
     /// A HTML block
-    | InlineHtmlBlock of code: string * executionCount: int option * range: MarkdownRange option
+    | InlineHtmlBlock of code: string * executionCount: int option * range: MarkdownRange
 
     /// A Markdown List block
-    | ListBlock of kind: MarkdownListKind * items: MarkdownParagraphs list * range: MarkdownRange option
+    | ListBlock of kind: MarkdownListKind * items: MarkdownParagraphs list * range: MarkdownRange
 
     /// A Markdown Quote block
-    | QuotedBlock of paragraphs: MarkdownParagraphs * range: MarkdownRange option
+    | QuotedBlock of paragraphs: MarkdownParagraphs * range: MarkdownRange
 
     /// A Markdown Span block
-    | Span of body: MarkdownSpans * range: MarkdownRange option
+    | Span of body: MarkdownSpans * range: MarkdownRange
 
     /// A Markdown Latex block
-    | LatexBlock of env: string * body: string list * range: MarkdownRange option
+    | LatexBlock of env: string * body: string list * range: MarkdownRange
 
     /// A Markdown Horizontal rule
-    | HorizontalRule of character: char * range: MarkdownRange option
+    | HorizontalRule of character: char * range: MarkdownRange
 
     /// A Markdown Table
     | TableBlock of
         headers: MarkdownTableRow option *
         alignments: MarkdownColumnAlignment list *
         rows: MarkdownTableRow list *
-        range: MarkdownRange option
+        range: MarkdownRange
 
     /// Represents a block of markdown produced when parsing of code or tables or quoted blocks is suppressed
-    | OtherBlock of lines: (string * MarkdownRange) list * range: MarkdownRange option
+    | OtherBlock of lines: (string * MarkdownRange) list * range: MarkdownRange
 
     /// A special addition for computing paragraphs
-    | EmbedParagraphs of customParagraphs: MarkdownEmbedParagraphs * range: MarkdownRange option
+    | EmbedParagraphs of customParagraphs: MarkdownEmbedParagraphs * range: MarkdownRange
 
     /// A special addition for YAML-style frontmatter
-    | YamlFrontmatter of yaml: string list * range: MarkdownRange option
+    | YamlFrontmatter of yaml: string list * range: MarkdownRange
 
     /// A special addition for inserted outputs
     | OutputBlock of output: string * kind: string * executionCount: int option
@@ -122,29 +122,35 @@ type MarkdownEmbedParagraphs =
 /// </summary>
 module Dsl =
     /// Creates an H1 heading paragraph
-    let ``#`` value = Heading(1, value, None)
+    let ``#`` value = Heading(1, value, MarkdownRange.zero)
     /// Creates an H2 heading paragraph
-    let ``##`` value = Heading(2, value, None)
+    let ``##`` value = Heading(2, value, MarkdownRange.zero)
     /// Creates an H3 heading paragraph
-    let ``###`` value = Heading(3, value, None)
+    let ``###`` value = Heading(3, value, MarkdownRange.zero)
     /// Creates an H4 heading paragraph
-    let ``####`` value = Heading(4, value, None)
+    let ``####`` value = Heading(4, value, MarkdownRange.zero)
     /// Creates an H5 heading paragraph
-    let ``#####`` value = Heading(5, value, None)
+    let ``#####`` value = Heading(5, value, MarkdownRange.zero)
     /// Creates a strong (bold) inline span
-    let strong value = Strong(value, None)
+    let strong value = Strong(value, MarkdownRange.zero)
     /// Creates a paragraph block
-    let p value = Paragraph(value, None)
+    let p value = Paragraph(value, MarkdownRange.zero)
     /// Creates a span block
-    let span value = Span(value, None)
+    let span value = Span(value, MarkdownRange.zero)
     /// Creates a literal (plain text) inline span
-    let (!!) value = Literal(value, None)
+    let (!!) value = Literal(value, MarkdownRange.zero)
+
     /// Creates a direct hyperlink span
-    let link content url = DirectLink(content, url, None, None)
+    let link content url =
+        DirectLink(content, url, None, MarkdownRange.zero)
+
     /// Creates an unordered list block
-    let ul value = ListBlock(Unordered, value, None)
+    let ul value =
+        ListBlock(Unordered, value, MarkdownRange.zero)
+
     /// Creates an ordered list block
-    let ol value = ListBlock(Ordered, value, None)
+    let ol value =
+        ListBlock(Ordered, value, MarkdownRange.zero)
 
     /// Creates a table block; an empty header list is treated as no header row
     let table headers alignments rows =
@@ -153,10 +159,11 @@ module Dsl =
             | [] -> None
             | hs -> Some hs
 
-        TableBlock(hs, alignments, rows, None)
+        TableBlock(hs, alignments, rows, MarkdownRange.zero)
 
     /// Creates a direct image span
-    let img body link = DirectImage(body, link, None, None)
+    let img body link =
+        DirectImage(body, link, None, MarkdownRange.zero)
 // --------------------------------------------------------------------------------------
 // Patterns that make recursive Markdown processing easier
 // --------------------------------------------------------------------------------------

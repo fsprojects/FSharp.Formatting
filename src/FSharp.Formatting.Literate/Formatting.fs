@@ -80,14 +80,15 @@ module internal Formatting =
     /// entire source code of the specified document (with possible fsx formatting)
     let getSourceDocument (doc: LiterateDocument) =
         match doc.Source with
-        | LiterateSource.Markdown text -> doc.With(paragraphs = [ CodeBlock(text, None, None, "", "", None) ])
+        | LiterateSource.Markdown text ->
+            doc.With(paragraphs = [ CodeBlock(text, None, None, "", "", MarkdownRange.zero) ])
         | LiterateSource.Script snippets ->
             let mutable count = 0
 
             let paragraphs =
                 [ for Snippet(name, lines) in snippets do
                       if snippets.Length > 1 then
-                          yield Heading(3, [ Literal(name, None) ], None)
+                          yield Heading(3, [ Literal(name, MarkdownRange.zero) ], MarkdownRange.zero)
 
                       let id =
                           count <- count + 1
@@ -100,7 +101,7 @@ module internal Formatting =
                             Visibility = LiterateCodeVisibility.VisibleCode }
 
                       let popts = { Condition = None }
-                      yield EmbedParagraphs(LiterateCode(lines, opts, popts), None) ]
+                      yield EmbedParagraphs(LiterateCode(lines, opts, popts), MarkdownRange.zero) ]
 
             doc.With(paragraphs = paragraphs)
 

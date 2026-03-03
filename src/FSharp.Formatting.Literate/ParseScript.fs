@@ -183,7 +183,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand((Command "include" ref) as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(CodeReference(ref, popts), None)
+            let p = EmbedParagraphs(CodeReference(ref, popts), MarkdownRange.zero)
 
             transformBlocks false None count noEval (p :: acc) defs blocks
 
@@ -191,7 +191,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-output" EmptyString as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(OutputReference(prevCodeId, popts), None)
+            let p1 = EmbedParagraphs(OutputReference(prevCodeId, popts), MarkdownRange.zero)
 
             transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
@@ -199,7 +199,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-output" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(OutputReference(ref, popts), None)
+            let p = EmbedParagraphs(OutputReference(ref, popts), MarkdownRange.zero)
 
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
@@ -207,7 +207,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-fsi-output" EmptyString as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(FsiOutputReference(prevCodeId, popts), None)
+            let p1 = EmbedParagraphs(FsiOutputReference(prevCodeId, popts), MarkdownRange.zero)
 
             transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
@@ -215,7 +215,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-fsi-output" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(FsiOutputReference(ref, popts), None)
+            let p = EmbedParagraphs(FsiOutputReference(ref, popts), MarkdownRange.zero)
 
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
@@ -223,7 +223,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-fsi-merged-output" EmptyString as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(FsiMergedOutputReference(prevCodeId, popts), None)
+            let p1 = EmbedParagraphs(FsiMergedOutputReference(prevCodeId, popts), MarkdownRange.zero)
 
             transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
@@ -231,7 +231,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-fsi-merged-output" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(FsiMergedOutputReference(ref, popts), None)
+            let p = EmbedParagraphs(FsiMergedOutputReference(ref, popts), MarkdownRange.zero)
 
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
@@ -239,7 +239,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand((Command "include-it" EmptyString) as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(ItValueReference(prevCodeId, popts), None)
+            let p1 = EmbedParagraphs(ItValueReference(prevCodeId, popts), MarkdownRange.zero)
 
             transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
@@ -247,7 +247,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-it" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(ItValueReference(ref, popts), None)
+            let p = EmbedParagraphs(ItValueReference(ref, popts), MarkdownRange.zero)
 
             transformBlocks false None count noEval (p :: acc) defs blocks
 
@@ -255,7 +255,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand((Command "include-it-raw" EmptyString) as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(ItRawReference(prevCodeId, popts), None)
+            let p1 = EmbedParagraphs(ItRawReference(prevCodeId, popts), MarkdownRange.zero)
 
             transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
@@ -263,7 +263,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-it-raw" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(ItRawReference(ref, popts), None)
+            let p = EmbedParagraphs(ItRawReference(ref, popts), MarkdownRange.zero)
 
             transformBlocks false None count noEval (p :: acc) defs blocks
 
@@ -271,7 +271,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "include-value" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(ValueReference(ref, popts), None)
+            let p = EmbedParagraphs(ValueReference(ref, popts), MarkdownRange.zero)
 
             transformBlocks false None count noEval (p :: acc) defs blocks
 
@@ -279,7 +279,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | BlockCommand(Command "raw" _ as cmds) :: BlockSnippet(snip) :: blocks, _ ->
             let popts = getParaOptions cmds
 
-            let p = EmbedParagraphs(RawBlock(snip, popts), None)
+            let p = EmbedParagraphs(RawBlock(snip, popts), MarkdownRange.zero)
 
             transformBlocks false None count noEval (p :: acc) defs blocks
 
@@ -304,7 +304,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
             let popts = getParaOptions cmds
 
-            let code = EmbedParagraphs(LiterateCode(snip, opts, popts), None)
+            let code = EmbedParagraphs(LiterateCode(snip, opts, popts), MarkdownRange.zero)
 
             transformBlocks false (Some outputName) count noEval (code :: acc) defs blocks
 
@@ -329,7 +329,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
             let popts = { Condition = None }
 
-            let p = EmbedParagraphs(LiterateCode(snip, opts, popts), None)
+            let p = EmbedParagraphs(LiterateCode(snip, opts, popts), MarkdownRange.zero)
 
             transformBlocks false (Some id) count noEval (p :: acc) defs blocks
 

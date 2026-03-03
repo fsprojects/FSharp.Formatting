@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+* Changed `range` fields in `MarkdownSpan` and `MarkdownParagraph` DU cases from `MarkdownRange option` to `MarkdownRange`, using `MarkdownRange.zero` as the default/placeholder value instead of `None`.
+
 ### Refactored
 * Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
 
