@@ -289,6 +289,28 @@ type ApiDocMemberKind =
     | RecordField = 101
     | StaticParameter = 102
 
+/// Represents a parameter of an API member, with its symbol, name, type, and optional documentation
+type ApiDocParameter =
+    {
+        /// The FSharp symbol for the parameter (either a parameter or a record field)
+        ParameterSymbol: Choice<FSharpParameter, FSharpField>
+        /// The parameter name as text
+        ParameterNameText: string
+        /// The formatted HTML type of the parameter
+        ParameterType: ApiDocHtml
+        /// Optional documentation for the parameter
+        ParameterDocs: ApiDocHtml option
+    }
+
+/// Represents the return information for an API member, including its type and optional documentation
+type ApiDocReturnInfo =
+    {
+        /// The return type of the member (tuple of FSharpType and formatted HTML), if any
+        ReturnType: (FSharpType * ApiDocHtml) option
+        /// Optional documentation for the return value
+        ReturnDocs: ApiDocHtml option
+    }
+
 type ApiDocMemberDetails =
     | ApiDocMemberDetails of
         usageHtml: ApiDocHtml *
@@ -369,10 +391,10 @@ type ApiDocMember
                             nm
 
         [ for (psym, pnm, pn, pty) in paramTypes ->
-              {| ParameterSymbol = psym
-                 ParameterNameText = pn
-                 ParameterType = pty
-                 ParameterDocs = tdocs.TryFind pnm |} ]
+              { ParameterSymbol = psym
+                ParameterNameText = pn
+                ParameterType = pty
+                ParameterDocs = tdocs.TryFind pnm } ]
 
     do
         let knownExampleIds = comment.Examples |> List.choose (fun x -> x.Id) |> List.countBy id
@@ -418,8 +440,8 @@ type ApiDocMember
 
     /// The return section in a typical tooltip
     member x.ReturnInfo =
-        {| ReturnDocs = comment.Returns
-           ReturnType = returnType |}
+        { ReturnDocs = comment.Returns
+          ReturnType = returnType }
 
     //    /// The full signature section in a typical tooltip
     //  member x.SignatureTooltip : ApiDocHtml = signatureTooltip
