@@ -427,6 +427,48 @@ ApiDocs.GenerateHtml(
 )
 
 (**
+### Working with API member parameters and return information
+
+When traversing the generated `cref:T:FSharp.Formatting.ApiDocs.ApiDocModel` programmatically, each
+`cref:T:FSharp.Formatting.ApiDocs.ApiDocMember` exposes its parameters and return information using
+the named record types `cref:T:FSharp.Formatting.ApiDocs.ApiDocParameter` and
+`cref:T:FSharp.Formatting.ApiDocs.ApiDocReturnInfo`.
+
+```fsharp
+let model =
+    ApiDocs.GenerateModel(
+        [ projectInput ],
+        collectionName = "Project X",
+        substitutions = []
+    )
+
+for ns in model.Collection.Namespaces do
+    for mdl in ns.Modules do
+        for m in mdl.Members do
+            // Parameters is ApiDocParameter list
+            for p in m.Parameters do
+                printfn "  param %s : %s" p.ParameterNameText (p.ParameterType.HtmlText)
+
+            // ReturnInfo is ApiDocReturnInfo
+            match m.ReturnInfo.ReturnType with
+            | Some (_, html) -> printfn "  returns: %s" html.HtmlText
+            | None -> ()
+```
+
+Because `ApiDocParameter` and `ApiDocReturnInfo` are named record types (not anonymous records),
+you can define your own functions that accept them directly:
+
+```fsharp
+let summariseParam (p: ApiDocParameter) =
+    sprintf "%s : %s" p.ParameterNameText p.ParameterType.HtmlText
+
+let summariseReturn (r: ApiDocReturnInfo) =
+    r.ReturnType |> Option.map (fun (_, html) -> html.HtmlText) |> Option.defaultValue "unit"
+```
+
+*)
+
+(**
 ## Rebasing Links
 
 The `root` parameter is used for the base of page and image links in the generated documentation. By default, it is derived from the project's `<PackageProjectUrl>` property.
