@@ -3,6 +3,16 @@
 ## [Unreleased]
 
 ### Added
+* Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
+* `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+
+### Changed
+* When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+## 22.0.0-alpha.1 - 2026-03-03
+
+### Added
 * Add `///` documentation comments to all public types, modules and members, and succinct internal comments, as part of ongoing effort to document the codebase. [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
 * Add "Copy" button to all code blocks in generated documentation, making it easy to copy code samples to the clipboard. [#72](https://github.com/fsprojects/FSharp.Formatting/issues/72)
 * Add `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` project file setting to include executable projects (OutputType=Exe/WinExe) in API documentation generation. [#918](https://github.com/fsprojects/FSharp.Formatting/issues/918)
@@ -15,6 +25,8 @@
 * Generate `llms.txt` and `llms-full.txt` for LLM consumption by default (opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>`); when enabled, markdown output is always generated alongside HTML (even without a user-provided `_template.md`) and `llms.txt` links point to the `.md` files. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951) [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
 
 ### Fixed
+* Strip parameter attribute annotations (e.g. `[<Optional>]`, `[<DefaultParameterValue(null)>]`) from hover tooltips in code snippets — these attributes made tooltips unreadable for methods with many optional parameters. [#858](https://github.com/fsprojects/FSharp.Formatting/issues/858)
+* Update `Ionide.ProjInfo` from 0.62.0 to 0.74.2, fixing a URI format exception in `VisualTree.relativePathOf` when paths contain unusual characters; migrate to the new `WorkspaceLoader` API and remove the now-defunct `Ionide.ProjInfo.Sln` package. [#1054](https://github.com/fsprojects/FSharp.Formatting/issues/1054)
 * Fix project restore detection for projects with nonstandard artifact locations (e.g. `<UseArtifactsOutput>` or the dotnet/fsharp repo layout): when the MSBuild call to locate `project.assets.json` fails, emit a warning and proceed instead of hard-failing. [#592](https://github.com/fsprojects/FSharp.Formatting/issues/592)
 * Fix doc generation failure for members with 5D/6D+ array parameters by correctly formatting array type signatures in XML doc format (e.g. `System.Double[0:,0:,0:,0:,0:]` for a 5D array). [#702](https://github.com/fsprojects/FSharp.Formatting/issues/702)
 * Fix `_menu_template.html` and `_menu-item_template.html` being copied to the output directory. [#803](https://github.com/fsprojects/FSharp.Formatting/issues/803)
@@ -29,11 +41,13 @@
 * Normalize `--projects` paths to absolute paths before passing to the project cracker, fixing failures when relative paths are supplied. [#793](https://github.com/fsprojects/FSharp.Formatting/issues/793)
 * Fix incorrect paragraph indentation for loose list items: a paragraph indented at the outer list item's continuation level is now correctly treated as a sibling of surrounding sublists rather than being absorbed into the first sublist item's body. [#347](https://github.com/fsprojects/FSharp.Formatting/issues/347)
 * Improve CommonMark compliance for ATX headings: reject `#` not followed by a space (e.g. `#NoSpace` is now a paragraph), reject more than 6 `#` characters as a heading, support 0–3 leading spaces before the opening `#` sequence, and fix empty content when the entire header body is a closing `###` sequence. [#191](https://github.com/fsprojects/FSharp.Formatting/issues/191)
+* Improve CommonMark compliance for thematic breaks, setext headings, and paragraph/list/blockquote interaction: thematic breaks now correctly interrupt paragraphs, list items, and lazy blockquote continuations; setext heading underlines now accept 0–3 leading spaces; and thematic breaks with 4+ leading spaces are no longer recognised (they are indented code blocks instead). [#191](https://github.com/fsprojects/FSharp.Formatting/issues/191)
 
 ### Changed
 * Markdown API docs for members now use section-based layout (per-member `####` headings) instead of a Markdown table, eliminating embedded `<br />` separators, `&#124;` pipe escaping, and improving rendering of multi-line content and code examples. [#725](https://github.com/fsprojects/FSharp.Formatting/issues/725)
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
 * Reduce dark mode header border contrast to match the visual subtlety of light mode borders. [#885](https://github.com/fsprojects/FSharp.Formatting/issues/885)
+* **breaking** Migrate theme color variables to use CSS `light-dark()` function, eliminating the separate `[data-theme=dark]` block of variable overrides and automatically honouring `prefers-color-scheme` media query when the user has not manually set a preference. [#1004](https://github.com/fsprojects/FSharp.Formatting/issues/1004)
 
 ## 21.0.0 - 2025-11-12
 

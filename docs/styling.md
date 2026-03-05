@@ -112,16 +112,14 @@ found [here](https://github.com/fsprojects/FSharp.Formatting/blob/main/docs/cont
 
 ```css
 :root {
-    --text-color: red;
-}
-
-[data-theme=dark] {
-    --text-color: darkred;
+    --text-color: light-dark(red, darkred);
 }
 ```
 
-Please be aware that the `dark` mode in the default theme is using the same variables.
-When you override a variable, it will also be used in `dark` mode unless redefined in a `[data-theme=dark]` CSS query.
+The default theme uses the CSS [`light-dark()`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark)
+function so that each variable carries both its light and dark values.
+The active value is resolved automatically based on the `color-scheme` property.
+When you override a variable, use `light-dark(light-value, dark-value)` to supply both variants in a single declaration.
 
 ### CSS classes
 

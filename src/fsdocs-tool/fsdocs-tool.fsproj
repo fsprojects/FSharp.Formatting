@@ -51,7 +51,6 @@
     <PackageReference Include="FSharp.Core" />
     <PackageReference Include="CommandLineParser" />
     <PackageReference Include="Ionide.ProjInfo" />
-    <PackageReference Include="Ionide.ProjInfo.Sln" />
     <PackageReference Include="Suave" />
   </ItemGroup>
 </Project>

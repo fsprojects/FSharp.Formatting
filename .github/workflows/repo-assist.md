@@ -71,7 +71,7 @@ tools:
   bash: true
   repo-memory: true
 
-source: githubnext/agentics/workflows/repo-assist.md@afb00b92a9514fee9a14c583f059a03d05738f70
+source: githubnext/agentics/workflows/repo-assist.md@10f087607af87e4e89439161f1e5d4724235f396
 ---
 
 # Repo Assist
