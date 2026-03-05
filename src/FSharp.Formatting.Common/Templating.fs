@@ -285,15 +285,13 @@ module internal SimpleTemplating =
 
         match opt with
         | None ->
-            // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
+            // If there is no template or the template is an empty file, return just the document content.
+            // Tooltips are omitted: they rely on JavaScript/CSS provided by a template to function.
             let lookup = readOnlyDict substitutions
 
             (match lookup.TryGetValue ParamKeys.``fsdocs-content`` with
              | true, lookupContent -> lookupContent
              | false, _ -> "")
-            + (match lookup.TryGetValue ParamKeys.``fsdocs-tooltips`` with
-               | true, lookupTips -> "\n\n" + lookupTips
-               | false, _ -> "")
         | Some templateText -> ApplySubstitutionsInText substitutions templateText
 
     let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =
