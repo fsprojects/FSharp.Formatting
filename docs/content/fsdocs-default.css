@@ -993,10 +993,16 @@ div.fsdocs-tip {
     font-variant-ligatures: none;
     color: var(--code-color);
     box-shadow: 0 1px 1px var(--shadow-color);
+    margin: 0;
 
     & code {
         color: var(--code-color);
     }
+}
+
+/* When using the Popover API, the browser adds :popover-open when shown */
+div.fsdocs-tip:popover-open {
+    display: block;
 }
 
 span[onmouseout] {

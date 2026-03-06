@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Refactored
+* Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
+
 ### Added
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
@@ -9,7 +12,9 @@
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 
 ### Changed
+* Tooltip elements (`div.fsdocs-tip`) now use the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) when available (Baseline 2024). This places tooltips in the browser's top layer, ensuring they always render above overlapping content without relying on `z-index`. Also fixes a positioning bug where tooltips would appear offset when the page was scrolled. Falls back to the previous `display` toggle approach in browsers without Popover API support. [#422](https://github.com/fsprojects/FSharp.Formatting/issues/422)
 * When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+
 ## 22.0.0-alpha.1 - 2026-03-03
 
 ### Added
