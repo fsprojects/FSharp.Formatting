@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-05T08:37:01Z",
-  "run_id": "22709375415",
+  "last_run": "2026-03-06T08:36:28Z",
+  "run_id": "22755624488",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
     {"issue": 1022, "run": "22488762219", "note": "PR created for splitting MarkdownParser.fs"},
@@ -29,7 +29,9 @@
     {"issue": 924, "run": "22350097619", "note": "(prior run) --watch remote mode analysis; BuildCommand.fs fix identified"},
     {"issue": 927, "run": "22421661210", "note": "(prior run) nested categories: use / separator in category field, BuildCommand.fs nav changes needed"},
     {"issue": 811, "run": "22285125658", "note": "(prior run) fsdocs convert implementation approach; PR #1019 created later"},
-    {"issue": 1068, "run": "22709375415", "note": "embed-resources for fsdocs convert: implementation sketch + labelled enhancement"}
+    {"issue": 1068, "run": "22709375415", "note": "embed-resources for fsdocs convert: implementation sketch + labelled enhancement"},
+    {"issue": 949, "run": "22755624488", "note": "Tooltip system: noted PR #1061 (Popover API) and trade-offs vs Tippy.js/CSS Anchor Positioning"},
+    {"issue": 929, "run": "22755624488", "note": "Signature-like API docs: PR #932 closure status, incremental path forward (after #1045 + #1066 land)"}
   ],
   "fix_attempts": [
     {"issue": 1022, "pr": 1029, "status": "closed-conflict", "desc": "Split GenerateModel.fs v1"},
@@ -61,7 +63,7 @@
     "Files in PR #1019: BuildCommand.fs, Literate.fs, Program.fs, build.fsx - DO NOT TOUCH",
     "Files in PR #1045: ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs - DO NOT TOUCH"
   ],
-  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs: #1045 (type constraints, opt-in per dsyme), #1058 (include-toc), #1059 (CSS light-dark), #1061 (Popover API tooltips), #1065 (--saveimages docs), #1066 (ApiDocParameter named records + docs updated), #1067 (MarkdownRange non-optional). Non-RA open PRs: #1019 (fsdocs convert, nojaf), #1031 (release 22.0.0). Merged since last check: #1056 (Ionide.ProjInfo), #1057 (strip tooltip attrs). Closed: #1055 (Smaug123's Ionide update, superseded by #1056). New issue #1068: embed-resources for fsdocs convert - labelled + commented. Issues commented but not yet acted on: #680 (nojaf workaround exists, issue stale), #705 (API examples - stale 2021), #804 (literate guidance - largely answered), #910 (watch expectation - answered), #928 (include images in docs - stalled).",
+  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs: #1045 (type constraints, opt-in per dsyme), #1058 (include-toc), #1059 (CSS light-dark), #1061 (Popover API tooltips), #1065 (--saveimages docs), #1066 (ApiDocParameter named records + docs updated), #1067 (MarkdownRange non-optional). Non-RA open PRs: #1019 (fsdocs convert, nojaf), #1031 (release 22.0.0). PR #932 (signature-like API experiment by MangelMaxime) was closed 2026-02-22 without merging. Issue #929 and #949 now have Repo Assist comments. All 24 open issues have been reviewed; remaining issues without RA comments: none in backlog through #1068. Next to consider: #949 tooltip rewrite (blocked on #929 direction), #585 overloaded methods grouping.",
   "backlog_cursor": {"issue": 1068},
   "monthly_activity_issue": 1060
 }
