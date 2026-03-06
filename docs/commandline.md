@@ -51,6 +51,30 @@ settings in your .fsproj project files:
 | `--sourcerepo`         |       Source repository for github links (`<FsDocsSourceRepository>`) |
 | `--mdcomments`           |     Assume comments in F# code are markdown (`<UsesMarkdownComments>`) |
 
+## Project file settings
+
+Many fsdocs behaviours can be controlled via MSBuild properties in your `.fsproj` (or `Directory.Build.props`) file.
+
+| Property | Default | Description |
+|:---------|:--------|:------------|
+| `<GenerateDocumentationFile>true</GenerateDocumentationFile>` | `false` | Required — enables XML doc generation so fsdocs can produce API docs for this project. |
+| `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` | `false` | Include this project even though its `OutputType` is not `Library`. |
+| `<UsesMarkdownComments>true</UsesMarkdownComments>` | `false` | Treat `///` doc comments as Markdown rather than XML doc. Equivalent to `--mdcomments`. |
+| `<FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>` | `false` | Emit warnings for public members that have no documentation comments. |
+| `<FsDocsSourceFolder>src</FsDocsSourceFolder>` | *(auto)* | Root source folder used when constructing source-link URLs. Equivalent to `--sourcefolder`. |
+| `<FsDocsSourceRepository>https://github.com/…/blob/main</FsDocsSourceRepository>` | *(auto from repo)* | Repository URL prefix for source links. Equivalent to `--sourcerepo`. |
+| `<FsDocsCollectionNameLink>https://example.com</FsDocsCollectionNameLink>` | *(none)* | URL for the collection-name link in the navigation header. |
+| `<FsDocsLogoSource>img/logo.png</FsDocsLogoSource>` | *(none)* | Path to the logo image shown in the header. |
+| `<FsDocsLogoAlt>My Project</FsDocsLogoAlt>` | `Logo` | Alt text for the header logo (accessibility). |
+| `<FsDocsLogoLink>https://example.com</FsDocsLogoLink>` | *(none)* | URL the logo links to. |
+| `<FsDocsFaviconSource>img/favicon.ico</FsDocsFaviconSource>` | *(none)* | Path to the favicon. |
+| `<FsDocsTheme>default</FsDocsTheme>` | `default` | Theme to use for generated HTML. |
+| `<FsDocsLicenseLink>https://…/LICENSE</FsDocsLicenseLink>` | *(none)* | URL to the project licence, shown in the footer. |
+| `<FsDocsReleaseNotesLink>https://…/RELEASE_NOTES.md</FsDocsReleaseNotesLink>` | *(none)* | URL to the release notes, shown in the footer. |
+| `<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` | `false` | Suppress the "Inherited from X" sections on type pages. |
+| `<FsDocsTypeConstraints>Short</FsDocsTypeConstraints>` | `Short` | Controls how generic type constraints are displayed in member tooltips. `None` hides constraints entirely; `Short` (default) shows them inline using the compact `(requires ...)` style (e.g. `'T (requires equality)`); `Full` shows them in a separate "Constraints:" section with full `when` syntax. |
+| `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>` | `true` | Generate `llms.txt` and `llms-full.txt` for LLM consumption alongside the HTML output. |
+
 The command will report on any `.fsproj` files that it finds, telling you if it decides to skip a particular file and why.
 
 For example, a project will be skipped if:
@@ -65,18 +89,6 @@ For example, a project will be skipped if:
 * The project `OutputType` is not `Library`. To include an executable project, add this to the project file:
 ```
   <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>
-```
-
-## Controlling inherited-member display
-
-By default, API documentation pages for a type show an **"Inherited from X"** section listing
-instance and static members inherited from documented base types within the same docs set.
-Members from external types such as `System.Object` are never shown.
-
-To suppress inherited-member sections for a project, add the following property to the `.fsproj` file:
-
-```xml
-<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>
 ```
 
 

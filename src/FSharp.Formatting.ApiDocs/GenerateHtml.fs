@@ -185,12 +185,27 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                                 encode (m.FormatModifiers)
                                                 br []
 
-                                                // We suppress the display of ill-formatted type parameters for places
-                                                // where these have not been explicitly declared
-                                                match m.FormatTypeArguments with
+                                            // We suppress the display of ill-formatted type parameters for places
+                                            // where these have not been explicitly declared
+                                            match m.FormatTypeArguments with
+                                            | None -> ()
+                                            | Some v ->
+                                                !!"Type parameters: "
+
+                                                if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short then
+                                                    match m.FormatShortTypeConstraints with
+                                                    | None -> encode v
+                                                    | Some c -> encode ($"%s{v} (requires %s{c})")
+                                                else
+                                                    encode v
+
+                                                br []
+
+                                            if m.TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full then
+                                                match m.FormatTypeConstraints with
                                                 | None -> ()
                                                 | Some v ->
-                                                    !!"Type parameters: "
+                                                    !!"Constraints: "
                                                     encode (v)
                                         ]
                                     ]

@@ -37,7 +37,8 @@ module internal SymbolReader =
           AssemblyPath: string
           CompilerOptions: string
           Substitutions: Substitutions
-          ShowInheritedMembers: bool }
+          ShowInheritedMembers: bool
+          TypeConstraintDisplayMode: TypeConstraintDisplayMode }
 
         member x.XmlMemberLookup(key) =
             match x.XmlMemberMap.TryGetValue(key) with
@@ -57,7 +58,8 @@ module internal SymbolReader =
                 fscOptions,
                 substitutions,
                 warn,
-                showInheritedMembers
+                showInheritedMembers,
+                typeConstraintDisplayMode
             ) =
 
             { PublicOnly = publicOnly
@@ -71,7 +73,8 @@ module internal SymbolReader =
               AssemblyPath = assemblyPath
               CompilerOptions = fscOptions
               Substitutions = substitutions
-              ShowInheritedMembers = showInheritedMembers }
+              ShowInheritedMembers = showInheritedMembers
+              TypeConstraintDisplayMode = typeConstraintDisplayMode }
 
     let inline private getCompiledName (s: ^a :> FSharpSymbol) =
         let compiledName = (^a: (member CompiledName: string) (s))
@@ -285,7 +288,12 @@ module internal SymbolReader =
 
         let typars = formatTypeArgumentsAsText tps
 
-        //let cxs  = indexedConstraints v.GenericParameters
+        let constraints =
+            match ctx.TypeConstraintDisplayMode with
+            | TypeConstraintDisplayMode.None -> []
+            | TypeConstraintDisplayMode.Short
+            | TypeConstraintDisplayMode.Full -> formatConstraintsAsText tps
+
         let retTypeHtml = retType |> Option.map (formatTypeAsHtml ctx.UrlMap >> codeHtml)
 
         let returnType =
@@ -328,6 +336,8 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typars,
+            constraints,
+            ctx.TypeConstraintDisplayMode,
             extendedType,
             location,
             getCompiledName v
@@ -392,6 +402,8 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typeParams,
+            List.empty,
+            TypeConstraintDisplayMode.None,
             None,
             location,
             getCompiledName case
@@ -430,6 +442,8 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typeParams,
+            List.empty,
+            TypeConstraintDisplayMode.None,
             None,
             location,
             if field.Name <> field.DisplayName then
@@ -475,6 +489,8 @@ module internal SymbolReader =
             returnType,
             modifiers,
             typeParams,
+            List.empty,
+            TypeConstraintDisplayMode.None,
             None,
             location,
             if staticParam.Name <> staticParam.DisplayName then
@@ -1626,7 +1642,8 @@ module internal SymbolReader =
             urlMap,
             codeFormatCompilerArgs,
             warn,
-            showInheritedMembers
+            showInheritedMembers,
+            typeConstraintDisplayMode
         ) =
         let assemblyName = AssemblyName(assembly.QualifiedName)
 
@@ -1670,7 +1687,8 @@ module internal SymbolReader =
                 codeFormatCompilerArgs,
                 substitutions,
                 warn,
-                showInheritedMembers
+                showInheritedMembers,
+                typeConstraintDisplayMode
             )
 
         //

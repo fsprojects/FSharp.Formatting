@@ -55,6 +55,10 @@ type ApiDocInput =
         /// Whether to show members inherited from documented base types.
         /// Defaults to true. Set to false to suppress "Inherited from X" sections.
         ShowInheritedMembers: bool
+
+        /// Controls how type constraints on generic members are displayed.
+        /// Defaults to Short, which appends constraints inline as a 'when' clause.
+        TypeConstraintDisplayMode: TypeConstraintDisplayMode
     }
 
     static member FromFile
@@ -66,7 +70,8 @@ type ApiDocInput =
             ?sourceFolder,
             ?publicOnly,
             ?warn,
-            ?showInheritedMembers
+            ?showInheritedMembers,
+            ?typeConstraintDisplayMode
         ) =
         { Path = assemblyPath
           XmlFile = None
@@ -76,7 +81,8 @@ type ApiDocInput =
           Substitutions = substitutions
           PublicOnly = defaultArg publicOnly true
           MarkdownComments = defaultArg mdcomments false
-          ShowInheritedMembers = defaultArg showInheritedMembers true }
+          ShowInheritedMembers = defaultArg showInheritedMembers true
+          TypeConstraintDisplayMode = defaultArg typeConstraintDisplayMode TypeConstraintDisplayMode.Short }
 
 
 
@@ -225,7 +231,8 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                             urlMap,
                             codeFormatCompilerArgs,
                             project.Warn,
-                            project.ShowInheritedMembers
+                            project.ShowInheritedMembers,
+                            project.TypeConstraintDisplayMode
                         )
                         |> Some)
 
