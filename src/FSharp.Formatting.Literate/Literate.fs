@@ -701,6 +701,55 @@ type Literate private () =
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
+    /// Convert a pynb notebook file into HTML or another output kind
+    static member ConvertPynbFile
+        (
+            input,
+            ?template,
+            ?output,
+            ?outputKind,
+            ?prefix,
+            ?fscOptions,
+            ?lineNumbers,
+            ?references,
+            ?substitutions,
+            ?generateAnchors,
+            ?imageSaver,
+            ?rootInputFolder,
+            ?crefResolver,
+            ?mdlinkResolver,
+            ?onError,
+            ?filesWithFrontMatter
+        ) =
+
+        let outputKind = defaultArg outputKind OutputKind.Html
+        let output = defaultOutput output input outputKind
+        let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+        let substitutions = defaultArg substitutions []
+        let filesWithFrontMatter = defaultArg filesWithFrontMatter Array.empty
+
+        let res =
+            Literate.ParseAndTransformPynbFile(
+                input,
+                output = output,
+                outputKind = outputKind,
+                prefix = prefix,
+                fscOptions = fscOptions,
+                lineNumbers = lineNumbers,
+                references = references,
+                substitutions = substitutions,
+                generateAnchors = generateAnchors,
+                imageSaver = imageSaver,
+                rootInputFolder = rootInputFolder,
+                crefResolver = crefResolver,
+                mdlinkResolver = mdlinkResolver,
+                onError = onError,
+                filesWithFrontMatter = filesWithFrontMatter
+            )
+
+        SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
+
 
 [<assembly: InternalsVisibleTo("fsdocs")>]
 [<assembly: InternalsVisibleTo("FSharp.Formatting.TestHelpers")>]

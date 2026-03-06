@@ -1633,14 +1633,14 @@ type CoreBuildOptions(watch) =
             printfn ""
             printfn "Inputs for API Docs:"
 
-            for (dllFile, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
                 printfn "    %s" dllFile
 
         //printfn "Comand lines for API Docs:"
-        //for (_, runArguments, _, _, _, _, _, _, _, _, _) in crackedProjects do
+        //for (_, runArguments, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
         //    printfn "    %O" runArguments
 
-        for (dllFile, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
+        for (dllFile, _, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
             if not (File.Exists dllFile) then
                 let msg =
                     sprintf
@@ -1659,7 +1659,7 @@ type CoreBuildOptions(watch) =
             // The substitutions may differ for some projects due to different settings in the project files, if so show that
             let pd = dict docsSubstitutions
 
-            for (dllFile, _, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
                 for (((ParamKey pkv2) as pk2), p2) in projectParameters do
                     if pd.ContainsKey pk2 && pd.[pk2] <> p2 then
                         printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
@@ -1675,6 +1675,7 @@ type CoreBuildOptions(watch) =
                    projectSourceFolder,
                    projectSourceRepo,
                    projectNoInheritedMembers,
+                   projectShowTypeConstraints,
                    projectParameters) in crackedProjects ->
                   let sourceRepo =
                       match projectSourceRepo with
@@ -1709,7 +1710,8 @@ type CoreBuildOptions(watch) =
                     MarkdownComments = this.mdcomments || projectMarkdownComments
                     Warn = projectWarn
                     PublicOnly = not this.nonpublic
-                    ShowInheritedMembers = not projectNoInheritedMembers } ]
+                    ShowInheritedMembers = not projectNoInheritedMembers
+                    TypeConstraintDisplayMode = projectShowTypeConstraints } ]
 
         // Compute the merge of all referenced DLLs across all projects
         // so they can be resolved during API doc generation.
@@ -1717,7 +1719,7 @@ type CoreBuildOptions(watch) =
         // TODO: This is inaccurate: the different projects might not be referencing the same DLLs.
         // We should do doc generation for each output of each proejct separately
         let apiDocOtherFlags =
-            [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _, _) in crackedProjects do
+            [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
                   for otherFlag in otherFlags do
                       if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
                           if File.Exists(otherFlag.[3..]) then
@@ -2322,6 +2324,158 @@ type CoreBuildOptions(watch) =
 
     abstract port_option: int
     default x.port_option = 0
+
+[<Verb("convert",
+       HelpText =
+           "convert a single document (.md, .fsx, .ipynb) to HTML or another output format without building a full documentation site")>]
+type ConvertCommand() =
+
+    [<Value(0, MetaName = "input", Required = true, HelpText = "Input file to convert (.md, .fsx or .ipynb).")>]
+    member val input = "" with get, set
+
+    [<Option('o',
+             "output",
+             Required = false,
+             HelpText =
+                 "Output file path. Defaults to the input filename with the output format extension in the current directory.")>]
+    member val output = "" with get, set
+
+    [<Option("template",
+             Required = false,
+             HelpText = "Path to an HTML (or other format) template file. When omitted, raw content is written.")>]
+    member val template = "" with get, set
+
+    [<Option("outputformat",
+             Required = false,
+             Default = "",
+             HelpText =
+                 "Output format: html (default), ipynb, latex, fsx, markdown. When not specified, inferred from the output file extension.")>]
+    member val outputFormat = "" with get, set
+
+    [<Option("eval", Default = false, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
+    member val eval = false with get, set
+
+    [<Option("linenumbers", Default = false, Required = false, HelpText = "Add line numbers.")>]
+    member val linenumbers = false with get, set
+
+    [<Option("parameters",
+             Required = false,
+             HelpText = "Additional substitution parameters, e.g. --parameters key1 value1 key2 value2")>]
+    member val parameters = Seq.empty<string> with get, set
+
+    member this.Execute() =
+        let inputFile = Path.GetFullPath(this.input)
+
+        if not (File.Exists inputFile) then
+            printfn "error: input file '%s' does not exist" inputFile
+            1
+        else
+
+            // Infer output format: explicit flag > extension of -o > default html
+            let resolvedFormat =
+                if not (String.IsNullOrWhiteSpace this.outputFormat) then
+                    this.outputFormat.ToLowerInvariant()
+                elif not (String.IsNullOrWhiteSpace this.output) then
+                    let ext = Path.GetExtension(this.output).TrimStart('.').ToLowerInvariant()
+
+                    match ext with
+                    | "md" -> "markdown"
+                    | "ipynb" -> "ipynb"
+                    | "tex" -> "latex"
+                    | "fsx" -> "fsx"
+                    | _ -> "html"
+                else
+                    "html"
+
+            let outputKind =
+                match resolvedFormat with
+                | "ipynb" -> OutputKind.Pynb
+                | "latex" -> OutputKind.Latex
+                | "fsx" -> OutputKind.Fsx
+                | "markdown" -> OutputKind.Markdown
+                | _ -> OutputKind.Html
+
+            let outputFile =
+                if String.IsNullOrWhiteSpace this.output then
+                    let basename = Path.GetFileNameWithoutExtension(inputFile)
+                    sprintf "%s.%s" basename outputKind.Extension
+                else
+                    this.output
+
+            let templateOpt =
+                if String.IsNullOrWhiteSpace this.template then
+                    None
+                else
+                    Some this.template
+
+            let userSubstitutions =
+                let parameters = Array.ofSeq this.parameters
+
+                if parameters.Length % 2 = 1 then
+                    printfn "The --parameters option's argument count must be even"
+                    exit 1
+
+                evalPairwiseStringsNoOption parameters
+                |> List.map (fun (a, b) -> (ParamKey a, b))
+
+            let isFsx = inputFile.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
+            let isMd = inputFile.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
+            let isPynb = inputFile.EndsWith(".ipynb", StringComparison.OrdinalIgnoreCase)
+
+            try
+                if isMd then
+                    printfn "converting %s --> %s" inputFile outputFile
+
+                    Literate.ConvertMarkdownFile(
+                        inputFile,
+                        ?template = templateOpt,
+                        output = outputFile,
+                        outputKind = outputKind,
+                        lineNumbers = this.linenumbers,
+                        substitutions = userSubstitutions
+                    )
+
+                    0
+                elif isFsx then
+                    printfn "converting %s --> %s" inputFile outputFile
+
+                    let fsiEvaluator =
+                        if this.eval then
+                            Some(FsiEvaluator(options = [| "--multiemit-" |]) :> IFsiEvaluator)
+                        else
+                            None
+
+                    Literate.ConvertScriptFile(
+                        inputFile,
+                        ?template = templateOpt,
+                        output = outputFile,
+                        outputKind = outputKind,
+                        lineNumbers = this.linenumbers,
+                        ?fsiEvaluator = fsiEvaluator,
+                        substitutions = userSubstitutions
+                    )
+
+                    0
+                elif isPynb then
+                    printfn "converting %s --> %s" inputFile outputFile
+
+                    Literate.ConvertPynbFile(
+                        inputFile,
+                        ?template = templateOpt,
+                        output = outputFile,
+                        outputKind = outputKind,
+                        lineNumbers = this.linenumbers,
+                        substitutions = userSubstitutions
+                    )
+
+                    0
+                else
+                    printfn "error: unsupported input file type '%s'" (Path.GetExtension inputFile)
+                    printfn "supported types: .md, .fsx, .ipynb"
+                    1
+            with ex ->
+                printfn "Error during conversion: %O" ex
+                1
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =

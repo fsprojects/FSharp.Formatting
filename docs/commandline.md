@@ -30,7 +30,7 @@ The command line options accepted are:
 | `--noapidocs`        | Disable generation of API docs                                                                                                                                                                                                                                                                                                                                                                                  |
 | `--ignoreprojects`   | Disable project cracking                                                                                                                                                                                                                                                                                                                                                                                        |
 | `--eval`             | Evaluate F# fragments in scripts                                                                                                                                                                                                                                                                                                                                                                                |
-| `--saveimages`       | Save images referenced in docs                                                                                                                                                                                                                                                                                                                                                                                  |
+| `--saveimages`       | Save images referenced in docs (`none`\|`some`\|`all`, default: `none`). If `some`, images are downloaded and saved locally for LaTeX (`.tex`) and notebook (`.ipynb`) outputs. If `all`, images are also saved for HTML and Markdown outputs. See [Embedding Images](#embedding-images) for details.          |
 | `--nolinenumbers`    | Don't add line numbers, the default is to add line numbers.                                                                                                                                                                                                                                                                                                                                                          |
 | `--parameters`       | Additional substitution parameters for templates                                                                                                                                                                                                                                                                                                                                                                |
 | `--nonpublic`        | The tool will also generate documentation for non-public members                                                                                                                                                                                                                                                                                                                                                |
@@ -51,6 +51,30 @@ settings in your .fsproj project files:
 | `--sourcerepo`         |       Source repository for github links (`<FsDocsSourceRepository>`) |
 | `--mdcomments`           |     Assume comments in F# code are markdown (`<UsesMarkdownComments>`) |
 
+## Project file settings
+
+Many fsdocs behaviours can be controlled via MSBuild properties in your `.fsproj` (or `Directory.Build.props`) file.
+
+| Property | Default | Description |
+|:---------|:--------|:------------|
+| `<GenerateDocumentationFile>true</GenerateDocumentationFile>` | `false` | Required — enables XML doc generation so fsdocs can produce API docs for this project. |
+| `<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` | `false` | Include this project even though its `OutputType` is not `Library`. |
+| `<UsesMarkdownComments>true</UsesMarkdownComments>` | `false` | Treat `///` doc comments as Markdown rather than XML doc. Equivalent to `--mdcomments`. |
+| `<FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>` | `false` | Emit warnings for public members that have no documentation comments. |
+| `<FsDocsSourceFolder>src</FsDocsSourceFolder>` | *(auto)* | Root source folder used when constructing source-link URLs. Equivalent to `--sourcefolder`. |
+| `<FsDocsSourceRepository>https://github.com/…/blob/main</FsDocsSourceRepository>` | *(auto from repo)* | Repository URL prefix for source links. Equivalent to `--sourcerepo`. |
+| `<FsDocsCollectionNameLink>https://example.com</FsDocsCollectionNameLink>` | *(none)* | URL for the collection-name link in the navigation header. |
+| `<FsDocsLogoSource>img/logo.png</FsDocsLogoSource>` | *(none)* | Path to the logo image shown in the header. |
+| `<FsDocsLogoAlt>My Project</FsDocsLogoAlt>` | `Logo` | Alt text for the header logo (accessibility). |
+| `<FsDocsLogoLink>https://example.com</FsDocsLogoLink>` | *(none)* | URL the logo links to. |
+| `<FsDocsFaviconSource>img/favicon.ico</FsDocsFaviconSource>` | *(none)* | Path to the favicon. |
+| `<FsDocsTheme>default</FsDocsTheme>` | `default` | Theme to use for generated HTML. |
+| `<FsDocsLicenseLink>https://…/LICENSE</FsDocsLicenseLink>` | *(none)* | URL to the project licence, shown in the footer. |
+| `<FsDocsReleaseNotesLink>https://…/RELEASE_NOTES.md</FsDocsReleaseNotesLink>` | *(none)* | URL to the release notes, shown in the footer. |
+| `<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` | `false` | Suppress the "Inherited from X" sections on type pages. |
+| `<FsDocsTypeConstraints>Short</FsDocsTypeConstraints>` | `Short` | Controls how generic type constraints are displayed in member tooltips. `None` hides constraints entirely; `Short` (default) shows them inline using the compact `(requires ...)` style (e.g. `'T (requires equality)`); `Full` shows them in a separate "Constraints:" section with full `when` syntax. |
+| `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>` | `true` | Generate `llms.txt` and `llms-full.txt` for LLM consumption alongside the HTML output. |
+
 The command will report on any `.fsproj` files that it finds, telling you if it decides to skip a particular file and why.
 
 For example, a project will be skipped if:
@@ -65,18 +89,6 @@ For example, a project will be skipped if:
 * The project `OutputType` is not `Library`. To include an executable project, add this to the project file:
 ```
   <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>
-```
-
-## Controlling inherited-member display
-
-By default, API documentation pages for a type show an **"Inherited from X"** section listing
-instance and static members inherited from documented base types within the same docs set.
-Members from external types such as `System.Object` are never shown.
-
-To suppress inherited-member sections for a project, add the following property to the `.fsproj` file:
-
-```xml
-<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>
 ```
 
 
@@ -123,3 +135,47 @@ To add search to your own `_template.html`:
 </dialog>
 <script type="module" src="{`{root}}content/fsdocs-search.js"></script>
 ```
+
+
+## Embedding Images
+
+### Downloading Remote Images (`--saveimages`)
+
+The `--saveimages` flag controls whether images referenced in your docs are downloaded and saved locally alongside the generated output. This is primarily useful for non-HTML output formats such as LaTeX (PDF) and Jupyter Notebook (`.ipynb`), which cannot reference remote URLs at display time.
+
+| Value | Behaviour |
+|-------|-----------|
+| `none` (default) | Images are referenced by their original URL; nothing is downloaded. |
+| `some` | Images are downloaded and saved for LaTeX and notebook outputs only. |
+| `all`  | Images are downloaded and saved for all output formats including HTML and Markdown. |
+
+Example:
+
+    [lang=text]
+    fsdocs build --saveimages some
+
+### Embedding Images Generated by Scripts
+
+When using `--eval` to evaluate literate F# scripts, you can embed images produced by code (e.g. charts, plots) directly into the HTML output.
+
+**Option 1: Inline Base64 image using `include-it-raw`**
+
+Write a helper that reads an image file and returns an HTML `<img>` tag with the image data embedded as a Base64 string. Then use `(*** include-it-raw ***)` to inject the raw HTML into the output:
+
+    [lang=fsharp]
+    let inlinePng (fileName: string) =
+        let bytes = System.IO.File.ReadAllBytes(fileName)
+        let b64 = System.Convert.ToBase64String(bytes)
+        sprintf """<img src="data:image/png;base64,%s" />""" b64
+
+    // Generate the image in your script, then embed it:
+    // myChart.SavePng("chart.png")
+    // (*** hide ***)
+    // inlinePng "chart.png"
+    // (*** include-it-raw ***)
+
+The `(*** hide ***)` command suppresses the source code of the expression, so only the rendered image appears in the output.
+
+**Option 2: Custom HTML printer via `fsi.AddHtmlPrinter`**
+
+If your charting library produces values of a known type, you can register a custom HTML printer so that values of that type are automatically rendered as images whenever they appear via `(*** include-it ***)`. See [Embedding Script Output](evaluation.html#using-addprinter-and-addhtmlprinter) for details.
