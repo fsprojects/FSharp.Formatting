@@ -2150,3 +2150,58 @@ let ``include-toc handles duplicate heading names with unique anchors`` () =
     let html = Literate.ToHtml(doc)
     html |> shouldContainText "href=\"#Notes\""
     html |> shouldContainText "href=\"#Notes-1\""
+
+// Tests for Literate.ConvertPynbFile
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ConvertPynbFile converts notebook to HTML without template`` () =
+    use temp = new TempFile()
+
+    Literate.ConvertPynbFile(__SOURCE_DIRECTORY__ </> "files" </> "simple3.ipynb", output = temp.File)
+
+    temp.Content |> shouldContainText "Heading"
+    temp.Content |> shouldContainText "Code sample"
+
+[<Test>]
+let ``ConvertPynbFile converts notebook to HTML with template`` () =
+    let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
+
+    use temp = new TempFile()
+
+    Literate.ConvertPynbFile(
+        __SOURCE_DIRECTORY__ </> "files" </> "simple3.ipynb",
+        template = templateHtml,
+        output = temp.File
+    )
+
+    temp.Content |> shouldContainText "Heading"
+    temp.Content |> shouldContainText "Code sample"
+    temp.Content |> shouldContainText "<title>"
+
+[<Test>]
+let ``ConvertPynbFile converts notebook to Markdown output kind`` () =
+    let outputFile = __SOURCE_DIRECTORY__ </> "output" </> "simple3-from-pynb.md"
+
+    Literate.ConvertPynbFile(
+        __SOURCE_DIRECTORY__ </> "files" </> "simple3.ipynb",
+        outputKind = OutputKind.Markdown,
+        output = outputFile
+    )
+
+    let md = File.ReadAllText outputFile
+    md |> shouldContainText "Heading"
+    md |> shouldContainText "Code sample"
+
+[<Test>]
+let ``ConvertPynbFile converts notebook to FSX output kind`` () =
+    let outputFile = __SOURCE_DIRECTORY__ </> "output" </> "simple3-from-pynb.fsx"
+
+    Literate.ConvertPynbFile(
+        __SOURCE_DIRECTORY__ </> "files" </> "simple3.ipynb",
+        outputKind = OutputKind.Fsx,
+        output = outputFile
+    )
+
+    let fsx = File.ReadAllText outputFile
+    fsx |> shouldContainText "Code sample"
