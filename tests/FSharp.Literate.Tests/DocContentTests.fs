@@ -1,6 +1,7 @@
 module FSharp.Literate.Tests.DocContent
 
 open System.IO
+open FSharp.Formatting.Literate
 open FSharp.Formatting.Templating
 open fsdocs
 open NUnit.Framework

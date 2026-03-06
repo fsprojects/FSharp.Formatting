@@ -2,8 +2,15 @@
 
 ## [Unreleased]
 
-### Refactored
-* Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
+### Added
+* Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
+* `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+
+### Changed
+* When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+## 22.0.0-alpha.1 - 2026-03-03
 
 ### Added
 * Add `///` documentation comments to all public types, modules and members, and succinct internal comments, as part of ongoing effort to document the codebase. [#1035](https://github.com/fsprojects/FSharp.Formatting/issues/1035)
@@ -40,6 +47,7 @@
 * Markdown API docs for members now use section-based layout (per-member `####` headings) instead of a Markdown table, eliminating embedded `<br />` separators, `&#124;` pipe escaping, and improving rendering of multi-line content and code examples. [#725](https://github.com/fsprojects/FSharp.Formatting/issues/725)
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
 * Reduce dark mode header border contrast to match the visual subtlety of light mode borders. [#885](https://github.com/fsprojects/FSharp.Formatting/issues/885)
+* **breaking** Migrate theme color variables to use CSS `light-dark()` function, eliminating the separate `[data-theme=dark]` block of variable overrides and automatically honouring `prefers-color-scheme` media query when the user has not manually set a preference. [#1004](https://github.com/fsprojects/FSharp.Formatting/issues/1004)
 
 ## 21.0.0 - 2025-11-12
 
