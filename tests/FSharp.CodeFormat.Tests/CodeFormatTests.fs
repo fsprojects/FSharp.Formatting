@@ -428,3 +428,54 @@ let getFsx (source: string) =
 let ``Simple code snippet is formatted as code cell content`` () =
     let content = getFsx """let hello = 10"""
     content |> shouldEqual "let hello = 10"
+
+// --------------------------------------------------------------------------------------
+// Tests for parameter attribute stripping in tooltips (issue #858)
+// --------------------------------------------------------------------------------------
+
+open FSharp.Formatting.CodeFormat.ToolTipReader
+
+[<Test>]
+let ``stripParameterAttributes removes Optional attribute annotation`` () =
+    stripParameterAttributes "[<Optional>] x: obj" |> shouldEqual " x: obj"
+
+[<Test>]
+let ``stripParameterAttributes removes DefaultParameterValue attribute annotation`` () =
+    stripParameterAttributes "[<DefaultParameterValue(null)>] x: obj"
+    |> shouldEqual " x: obj"
+
+[<Test>]
+let ``stripParameterAttributes removes attribute annotation with leading whitespace`` () =
+    stripParameterAttributes "    [<Optional>]" |> shouldEqual ""
+
+[<Test>]
+let ``stripParameterAttributes leaves array types unaffected`` () =
+    stripParameterAttributes "x: int[]" |> shouldEqual "x: int[]"
+
+[<Test>]
+let ``stripParameterAttributes leaves plain parameter type unaffected`` () =
+    stripParameterAttributes "member Foo.Bar: x: int -> int"
+    |> shouldEqual "member Foo.Bar: x: int -> int"
+
+[<Test>]
+let ``stripParameterAttributes removes inline attribute from method signature`` () =
+    stripParameterAttributes "member Foo.Bar: [<Optional>] x: obj -> obj"
+    |> shouldEqual "member Foo.Bar: x: obj -> obj"
+
+[<Test>]
+let ``Parameter attribute annotations are stripped from HTML tooltips`` () =
+    let source =
+        """
+open System.Runtime.InteropServices
+
+type MyClass() =
+    member _.Method([<Optional; DefaultParameterValue(null: obj)>] x: obj) = x
+
+let c = MyClass()
+c.Method()
+"""
+
+    let _content, tooltip = getContentAndToolTip source
+    // Attribute annotations should not appear in rendered tooltips
+    tooltip |> shouldNotContainText "[&lt;Optional"
+    tooltip |> shouldNotContainText "[&lt;DefaultParameterValue"
