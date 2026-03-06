@@ -22,6 +22,7 @@
 * Show inherited members from documented base types in a new "Inherited members" section on type pages (MSDN-style). [#590](https://github.com/fsprojects/FSharp.Formatting/issues/590)
 * Add `<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` project file setting to suppress "Inherited from" sections in generated API docs. [#1039](https://github.com/fsprojects/FSharp.Formatting/pull/1039)
 * Generate `llms.txt` and `llms-full.txt` for LLM consumption by default (opt out via `<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>`); when enabled, markdown output is always generated alongside HTML (even without a user-provided `_template.md`) and `llms.txt` links point to the `.md` files. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951) [#980](https://github.com/fsprojects/FSharp.Formatting/pull/980)
+* Document `--saveimages` flag (`none`|`some`|`all`) with an explanation of each mode, and add a new "Embedding Images" section covering inline Base64 images and `fsi.AddHtmlPrinter` usage for chart/plot output. [#683](https://github.com/fsprojects/FSharp.Formatting/issues/683)
 
 ### Fixed
 * Strip parameter attribute annotations (e.g. `[<Optional>]`, `[<DefaultParameterValue(null)>]`) from hover tooltips in code snippets — these attributes made tooltips unreadable for methods with many optional parameters. [#858](https://github.com/fsprojects/FSharp.Formatting/issues/858)
