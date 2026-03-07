@@ -594,14 +594,17 @@ let (|EmacsTableBlock|_|) (lines) =
     | _ -> None
 
 /// Recognizes a start of a blockquote
-let (|BlockquoteStart|_|) (line: string, n: MarkdownRange) =
-    let regex =
+let private blockquoteRegex =
+    Regex(
         "^ {0,3}" // Up to three leading spaces
         + ">" // Blockquote character
         + "\s?" // Maybe one whitespace character
-        + "(.*)" // Capture everything else
+        + "(.*)", // Capture everything else
+        RegexOptions.Compiled
+    )
 
-    let match' = Regex.Match(line, regex)
+let (|BlockquoteStart|_|) (line: string, n: MarkdownRange) =
+    let match' = blockquoteRegex.Match(line)
 
     if match'.Success then
         let group = match'.Groups.Item(1)
