@@ -6,11 +6,9 @@ for documentation generation. The primary tool is "fsdocs".
 
 See https://fsprojects.github.io/FSharp.Formatting/
 
-
 ## Development
 
     dotnet fsi build.fsx
-
 
 Once built, you can run the command-line tool to self-build the docs for this directory using 
 
@@ -34,6 +32,6 @@ This is useful to run locally before submitting your PR.
 ## Maintainer(s)
 
 - [@dsyme](https://github.com/dsyme)
-- [@baronfel](https://github.com/baronfel)
+- [@nojaf](https://github.com/nojaf)
 - [@nhirschey](https://github.com/nhirschey)
 - [@nojaf](https://github.com/nojaf)
