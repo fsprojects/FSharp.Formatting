@@ -4,17 +4,11 @@ fsdocs and FSharp.Formatting ![Build and Test](https://github.com/fsprojects/FSh
 The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
 for documentation generation. The primary tool is "fsdocs".
 
-The `FSharp.Formatting.ApiDocs` library can also be used programmatically to generate and traverse API documentation.
-`ApiDocMember.Parameters` returns `ApiDocParameter list` and `ApiDocMember.ReturnInfo` returns `ApiDocReturnInfo` —
-named record types that can be passed to your own functions across assembly boundaries.
-
 See https://fsprojects.github.io/FSharp.Formatting/
-
 
 ## Development
 
     dotnet fsi build.fsx
-
 
 Once built, you can run the command-line tool to self-build the docs for this directory using 
 
@@ -38,6 +32,6 @@ This is useful to run locally before submitting your PR.
 ## Maintainer(s)
 
 - [@dsyme](https://github.com/dsyme)
-- [@baronfel](https://github.com/baronfel)
+- [@nojaf](https://github.com/nojaf)
 - [@nhirschey](https://github.com/nhirschey)
 - [@nojaf](https://github.com/nojaf)
