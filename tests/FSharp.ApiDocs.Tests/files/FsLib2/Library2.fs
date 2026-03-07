@@ -187,3 +187,28 @@ type DerivedClassForInheritance() =
 
     /// A method on the derived class
     member x.DerivedMethod() = 100
+
+/// Module with functions that have type constraints for testing constraint display modes
+module TypeConstraintTests =
+
+    /// A function that requires equality constraint
+    let requiresEquality (x: 'T) (y: 'T) : bool when 'T: equality = x = y
+
+    /// A function that requires comparison constraint
+    let requiresComparison (items: seq<'T>) : 'T list when 'T: comparison = items |> Seq.toList |> List.sort
+
+    /// A function with a coercion (base type) constraint
+    let requiresCoercion<'T when 'T :> System.IComparable> (x: 'T) : int = x.CompareTo(x)
+
+    /// A function with a struct (value type) constraint
+    let requiresStruct<'T when 'T: struct> (x: 'T) : 'T = x
+
+    /// A function with an unmanaged constraint
+    let requiresUnmanaged<'T when 'T: unmanaged> (x: 'T) : 'T = x
+
+    /// A generic class with a type constraint
+    type ComparisonWrapper<'T when 'T: comparison>(value: 'T) =
+        /// Gets the wrapped value
+        member _.Value = value
+        /// Compares with another wrapper
+        member x.CompareTo(other: ComparisonWrapper<'T>) = compare x.Value other.Value

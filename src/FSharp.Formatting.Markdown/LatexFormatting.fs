@@ -33,15 +33,6 @@ let latexEncode s =
     specialChars
     |> Array.fold (fun (acc: string) (k, v) -> acc.Replace(k, v)) (System.Net.WebUtility.HtmlDecode s)
 
-/// Lookup a specified key in a dictionary, possibly
-/// ignoring newlines or spaces in the key.
-let (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
-    [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); key.Replace("\n", ""); key.Replace("\n", " ") ]
-    |> List.tryPick (fun key ->
-        match dict.TryGetValue(key) with
-        | true, v -> Some v
-        | _ -> None)
-
 /// Context passed around while formatting the LaTEX
 type FormattingContext =
     { LineBreak: unit -> unit

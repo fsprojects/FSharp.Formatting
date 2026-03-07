@@ -110,6 +110,16 @@ module internal Utils =
             else if String.IsNullOrEmpty a.Value then None
             else Some a.Value
 
+/// Controls how type constraints on generic members are displayed in generated API docs.
+[<RequireQualifiedAccess>]
+type TypeConstraintDisplayMode =
+    /// Do not display type constraints.
+    | None
+    /// Display constraints inline as a 'when' clause appended to the type parameters (default).
+    | Short
+    /// Display constraints in a separate 'Constraints:' section in the member tooltip.
+    | Full
+
 /// Represents some HTML formatted by model generation
 type ApiDocHtml(html: string, id: string option) =
 
@@ -318,6 +328,8 @@ type ApiDocMemberDetails =
         returnType: (FSharpType * ApiDocHtml) option *
         modifiers: string list *
         typars: string list *
+        constraints: string list *
+        constraintMode: TypeConstraintDisplayMode *
         extendedType: (FSharpEntity * ApiDocHtml) option *
         location: string option *
         compiledName: string option
@@ -339,7 +351,16 @@ type ApiDocMember
         warn
     ) =
 
-    let (ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, extendedType, location, compiledName)) =
+    let (ApiDocMemberDetails(usageHtml,
+                             paramTypes,
+                             returnType,
+                             modifiers,
+                             typars,
+                             constraints,
+                             constraintMode,
+                             extendedType,
+                             location,
+                             compiledName)) =
         details
 
     let m = defaultArg symbol.DeclarationLocation range0
@@ -435,6 +456,12 @@ type ApiDocMember
     /// The member's type arguments
     member x.TypeArguments: string list = typars
 
+    /// The member's type constraints
+    member x.Constraints: string list = constraints
+
+    /// How type constraints are displayed for this member
+    member x.TypeConstraintDisplayMode: TypeConstraintDisplayMode = constraintMode
+
     /// The usage section in a typical tooltip
     member x.UsageHtml: ApiDocHtml = usageHtml
 
@@ -472,6 +499,35 @@ type ApiDocMember
             None
         else
             Some res
+
+    /// Formats type constraints as a 'when' clause (full form, e.g. "'T : equality")
+    member x.FormatTypeConstraints =
+        if x.Constraints.IsEmpty then
+            None
+        else
+            Some(String.concat " and " x.Constraints)
+
+    /// Formats type constraints in the short 'requires' form used by the F# compiler's shortConstraints mode.
+    /// Strips the type-parameter prefix from each constraint (e.g. "'T : equality" → "equality",
+    /// "'T :> IComparable" → ":> IComparable") and joins them with " and ".
+    /// Returns None when there are no constraints.
+    member x.FormatShortTypeConstraints =
+        if x.Constraints.IsEmpty then
+            None
+        else
+            let toShort (full: string) =
+                // Coercion: "'T :> Type" → ":> Type"
+                let coerceIdx = full.IndexOf(" :> ", StringComparison.Ordinal)
+
+                if coerceIdx >= 0 then
+                    full[coerceIdx + 1 ..]
+                else
+                    // Regular constraint: "'T : equality" → "equality"
+                    let colonIdx = full.IndexOf(" : ", StringComparison.Ordinal)
+                    if colonIdx >= 0 then full[colonIdx + 3 ..] else full
+
+            let shortForms = x.Constraints |> List.map toShort
+            Some(String.concat " and " shortForms)
 
     /// Formats modifiers
     member x.FormatModifiers = String.concat " " x.Modifiers

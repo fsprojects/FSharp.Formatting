@@ -232,6 +232,7 @@ module Crack =
           FsDocsGenerateLlmsTxt: bool
           FsDocsAllowExecutableProject: bool
           FsDocsNoInheritedMembers: bool
+          FsDocsTypeConstraints: FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode
           PackageProjectUrl: string option
           Authors: string option
           GenerateDocumentationFile: bool
@@ -267,6 +268,7 @@ module Crack =
               "FsDocsGenerateLlmsTxt"
               "FsDocsAllowExecutableProject"
               "FsDocsNoInheritedMembers"
+              "FsDocsTypeConstraints"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -372,6 +374,15 @@ module Crack =
                   FsDocsAllowExecutableProject =
                     msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
                   FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
+                  FsDocsTypeConstraints =
+                    msbuildPropString "FsDocsTypeConstraints"
+                    |> Option.bind (fun s ->
+                        match s.Trim() with
+                        | "None" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.None
+                        | "Short" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
+                        | "Full" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Full
+                        | _ -> None)
+                    |> Option.defaultValue FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                   PackageProjectUrl = msbuildPropString "PackageProjectUrl"
                   Authors = msbuildPropString "Authors"
@@ -635,6 +646,7 @@ module Crack =
               FsDocsGenerateLlmsTxt = projectInfos |> List.forall (fun i -> i.FsDocsGenerateLlmsTxt)
               FsDocsAllowExecutableProject = false
               FsDocsNoInheritedMembers = false
+              FsDocsTypeConstraints = FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
@@ -729,6 +741,7 @@ module Crack =
                         info.FsDocsSourceFolder,
                         info.FsDocsSourceRepository,
                         info.FsDocsNoInheritedMembers,
+                        info.FsDocsTypeConstraints,
                         substitutions
                     )
                 | _ -> None)

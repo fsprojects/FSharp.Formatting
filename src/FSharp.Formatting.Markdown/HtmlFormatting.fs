@@ -25,15 +25,6 @@ let internal htmlEncode (code: string) =
 let internal htmlEncodeQuotes (code: string) =
     (htmlEncode code).Replace("\"", "&quot;")
 
-/// Lookup a specified key in a dictionary, possibly
-/// ignoring newlines or spaces in the key.
-let internal (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
-    [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); key.Replace("\n", ""); key.Replace("\n", " ") ]
-    |> List.tryPick (fun key ->
-        match dict.TryGetValue(key) with
-        | true, v -> Some v
-        | _ -> None)
-
 /// Generates a unique string out of given input
 type internal UniqueNameGenerator() =
     let generated = new System.Collections.Generic.Dictionary<string, int>()
