@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-06T08:36:28Z",
-  "run_id": "22755624488",
+  "last_run": "2026-03-07T08:35:58Z",
+  "run_id": "22795694142",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
     {"issue": 1022, "run": "22488762219", "note": "PR created for splitting MarkdownParser.fs"},
@@ -31,7 +31,7 @@
     {"issue": 811, "run": "22285125658", "note": "(prior run) fsdocs convert implementation approach; PR #1019 created later"},
     {"issue": 1068, "run": "22709375415", "note": "embed-resources for fsdocs convert: implementation sketch + labelled enhancement"},
     {"issue": 949, "run": "22755624488", "note": "Tooltip system: noted PR #1061 (Popover API) and trade-offs vs Tippy.js/CSS Anchor Positioning"},
-    {"issue": 929, "run": "22755624488", "note": "Signature-like API docs: PR #932 closure status, incremental path forward (after #1045 + #1066 land)"}
+    {"issue": 929, "run": "22755624488", "note": "Signature-like API docs: PR #932 closure status, incremental path forward (after #1066 lands)"}
   ],
   "fix_attempts": [
     {"issue": 1022, "pr": 1029, "status": "closed-conflict", "desc": "Split GenerateModel.fs v1"},
@@ -45,25 +45,27 @@
     {"issue": 1035, "pr": 1049, "status": "merged", "desc": "Doc comments batch 3: ToolTipReader.fs, FsxFormatting.fs, MarkdownUtils.fs, Formatting.fs - MERGED by dsyme"},
     {"issue": 590, "pr": 1039, "status": "merged", "desc": "Show inherited members (MSDN-style) - MERGED by dsyme"},
     {"issue": 605, "pr": 1042, "status": "merged", "desc": "Tolerant cross-references - MERGED by dsyme"},
-    {"issue": 591, "pr": 1045, "status": "open", "desc": "Type constraints in API docs - awaiting nojaf sign-off; dsyme asked make opt-in + doc all project settings"},
+    {"issue": 591, "pr": 1045, "status": "merged-or-closed", "desc": "Type constraints in API docs - no longer open as of 2026-03-07"},
     {"issue": 191, "pr": 1046, "status": "merged", "desc": "CommonMark compliance improvements - MERGED by dsyme"},
     {"issue": 1022, "pr": 1052, "status": "merged", "desc": "Split MarkdownParser.fs - MERGED by dsyme"},
     {"issue": "code-scanning", "pr": 1053, "status": "merged", "desc": "Fix IONIDE-012: add [(Struct)] to LiterateCodeVisibility and EvalKey DUs - MERGED by dsyme"},
     {"issue": 1054, "pr": 1056, "status": "merged", "desc": "Update Ionide.ProjInfo to 0.74.2 - MERGED by dsyme (2026-03-03)"},
     {"issue": 858, "pr": 1057, "status": "merged", "desc": "Strip parameter attribute annotations from hover tooltips - MERGED by dsyme (2026-03-03)"},
-    {"issue": 163, "pr": 1058, "status": "open", "desc": "Add (*** include-toc ***) directive for inline table of contents"},
-    {"issue": 1004, "pr": 1059, "status": "open", "desc": "Migrate theme colors to CSS light-dark() function (CSS-only change)"},
+    {"issue": 163, "pr": 1058, "status": "merged-or-closed", "desc": "Add (*** include-toc ***) directive - no longer open as of 2026-03-07"},
+    {"issue": 1004, "pr": 1059, "status": "merged-or-closed", "desc": "Migrate theme colors to CSS light-dark() - no longer open as of 2026-03-07"},
     {"issue": 422, "pr": 1061, "status": "open", "desc": "Use Popover API for code snippet tooltips; fix scroll-offset positioning"},
-    {"issue": 683, "pr": 1065, "status": "open", "desc": "Document --saveimages flag and image embedding patterns"},
+    {"issue": 683, "pr": 1065, "status": "merged-or-closed", "desc": "Document --saveimages flag - no longer open as of 2026-03-07"},
     {"issue": 735, "pr": 1066, "status": "open", "desc": "Add ApiDocParameter and ApiDocReturnInfo named record types; docs updated per dsyme request"},
-    {"issue": 742, "pr": 1067, "status": "open", "desc": "Make MarkdownRange non-optional throughout Markdown AST - dsyme /repo-assist command"}
+    {"issue": 742, "pr": 1067, "status": "open", "desc": "Make MarkdownRange non-optional throughout Markdown AST - dsyme /repo-assist command"},
+    {"issue": "duplicate-lookupkey", "pr": 1069, "status": "open", "desc": "Remove duplicate LookupKey active patterns from HtmlFormatting.fs and LatexFormatting.fs"},
+    {"issue": "perf-regexes", "pr": 1070, "status": "open", "desc": "Precompile markdown parser regexes (Punctuation, HtmlEntity, BlockquoteStart) to avoid per-call construction"}
   ],
   "important_instructions": [
     "dsyme: Avoid splitting files being changed in existing open pull requests, eg BuildCommand.fs (comment on #1022, 2026-02-27)",
-    "Files in PR #1019: BuildCommand.fs, Literate.fs, Program.fs, build.fsx - DO NOT TOUCH",
-    "Files in PR #1045: ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs - DO NOT TOUCH"
+    "Files in PR #1019: BuildCommand.fs, Literate.fs, Program.fs, build.fsx - DO NOT TOUCH (check if #1019 is still open)",
+    "Files in PR #1045: ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs - DO NOT TOUCH (check if #1045 is still open)"
   ],
-  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs: #1045 (type constraints, opt-in per dsyme), #1058 (include-toc), #1059 (CSS light-dark), #1061 (Popover API tooltips), #1065 (--saveimages docs), #1066 (ApiDocParameter named records + docs updated), #1067 (MarkdownRange non-optional). Non-RA open PRs: #1019 (fsdocs convert, nojaf), #1031 (release 22.0.0). PR #932 (signature-like API experiment by MangelMaxime) was closed 2026-02-22 without merging. Issue #929 and #949 now have Repo Assist comments. All 24 open issues have been reviewed; remaining issues without RA comments: none in backlog through #1068. Next to consider: #949 tooltip rewrite (blocked on #929 direction), #585 overloaded methods grouping.",
+  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs as of 2026-03-07: #1061 (Popover API tooltips), #1066 (ApiDocParameter named records), #1067 (MarkdownRange non-optional), #1069 (remove duplicate LookupKey), #1070 (precompile markdown regexes). Non-RA PRs #1019 (fsdocs convert) and #1031 (release 22.0.0) appear closed. PRs #1045, #1058, #1059, #1065 also no longer open. HtmlFormatting.fs and LatexFormatting.fs now cleaned up. Next: group overloaded methods (#585), multi-TFM support (#1064), investigate remaining issues.",
   "backlog_cursor": {"issue": 1068},
   "monthly_activity_issue": 1060
 }
