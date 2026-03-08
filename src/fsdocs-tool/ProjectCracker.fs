@@ -14,12 +14,16 @@ open Ionide.ProjInfo
 open Ionide.ProjInfo.Types
 
 [<AutoOpen>]
+/// General utility helpers shared across the fsdocs tool.
 module Utils =
 
+    /// <c>true</c> when the current OS is Windows.
     let isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
 
+    /// The name of the dotnet host executable for the current OS.
     let dotnet = if isWindows then "dotnet.exe" else "dotnet"
 
+    /// Returns <c>true</c> when a file exists at the given path, silently returning <c>false</c> on error.
     let fileExists pathToFile =
         try
             File.Exists(pathToFile)
@@ -27,6 +31,7 @@ module Utils =
             false
 
     // Look for global install of dotnet sdk
+    /// Looks for a globally installed dotnet SDK host at the standard Program Files location.
     let getDotnetGlobalHostPath () =
         let pf = Environment.GetEnvironmentVariable("ProgramW6432")
 
@@ -45,6 +50,9 @@ module Utils =
             None
 
     // from dotnet/fsharp
+    /// Probes for the dotnet host executable, trying (in order) the <c>DOTNET_HOST_PATH</c>
+    /// environment variable, the SDK install location relative to the current assembly,
+    /// and finally the PATH.
     let getDotnetHostPath () =
         // How to find dotnet.exe --- woe is me; probing rules make me sad.
         // Algorithm:
@@ -81,12 +89,14 @@ module Utils =
                 | Some f -> Some(Path.Combine(f, dotnet))
                 | None -> getDotnetGlobalHostPath ()
 
+    /// Creates the directory at <c>path</c> if it does not already exist.
     let ensureDirectory path =
         let dir = DirectoryInfo(path)
 
         if not dir.Exists then
             dir.Create()
 
+    /// Serialises <c>object</c> to <c>fileName</c> using <see cref="DataContractSerializer"/> binary XML format.
     let saveBinary (object: 'T) (fileName: string) =
         try
             Directory.CreateDirectory(Path.GetDirectoryName(fileName)) |> ignore
@@ -101,6 +111,8 @@ module Utils =
         formatter.WriteObject(xw, object)
         fs.Flush()
 
+    /// Deserialises a value from <c>fileName</c> using <see cref="DataContractSerializer"/> binary XML format,
+    /// returning <c>None</c> on any error.
     let loadBinary<'T> (fileName: string) : 'T option =
         let formatter = DataContractSerializer(typeof<'T>)
         use fs = File.OpenRead(fileName)
@@ -113,6 +125,9 @@ module Utils =
         with _ ->
             None
 
+    /// Attempts to restore a previously cached value from <c>cacheFile</c>. If the cache
+    /// is absent or invalid (as judged by <c>cacheValid</c>), calls <c>f</c> to compute
+    /// a fresh value and saves it to the cache.
     let cacheBinary cacheFile cacheValid (f: unit -> 'T) : 'T =
         let attempt =
             if File.Exists(cacheFile) then
@@ -137,12 +152,15 @@ module Utils =
             saveBinary res cacheFile
             res
 
+    /// Appends a trailing <c>/</c> to a URL or path string if it does not already end with
+    /// <c>/</c> or <c>.html</c>.
     let ensureTrailingSlash (s: string) =
         if s.EndsWith '/' || s.EndsWith(".html", StringComparison.Ordinal) then
             s
         else
             s + "/"
 
+/// Thin wrappers around dotnet CLI commands used during project cracking.
 module DotNetCli =
 
     /// Run `dotnet msbuild <args>` and receive the trimmed standard output.
@@ -159,6 +177,8 @@ module DotNetCli =
         ps.WaitForExit()
         output.Trim()
 
+/// Project-cracking logic: uses Ionide.ProjInfo to load MSBuild project options
+/// and extract the fsdocs-specific MSBuild properties.
 module Crack =
 
     [<return: Struct>]
@@ -168,6 +188,8 @@ module Crack =
         else
             ValueNone
 
+    /// Parses a trimmed MSBuild property string as an optional boolean
+    /// (<c>None</c> for whitespace-only values, <c>Some true</c> for "True").
     let msbuildPropBool (s: string) =
         let trimmed = s.Trim()
 
@@ -178,6 +200,8 @@ module Crack =
             | ConditionEquals "True" -> Some true
             | _ -> Some false
 
+    /// Runs an external process, routing stdout and stderr lines to <c>log</c>,
+    /// and returns the exit code together with the process arguments for diagnostics.
     let runProcess (log: string -> unit) (workingDir: string) (exePath: string) (args: string) =
         let psi = System.Diagnostics.ProcessStartInfo()
         psi.FileName <- exePath
@@ -208,6 +232,8 @@ module Crack =
 
     type private CrackErrors = GetProjectOptionsErrors of error: string * messages: string list
 
+    /// All fsdocs-relevant MSBuild properties and Ionide project options for a single project,
+    /// obtained after cracking the project file.
     type CrackedProjectInfo =
         { ProjectFileName: string
           ProjectOptions: ProjectOptions option
@@ -247,6 +273,8 @@ module Crack =
           //PackageReleaseNotes : string option
           RepositoryCommit: string option }
 
+    /// Uses Ionide.ProjInfo to load the MSBuild project options and custom fsdocs properties
+    /// for a single project file, returning the target-framework list alongside the cracked info.
     let private crackProjectFileAndIncludeTargetFrameworks _slnDir extraMsbuildProperties (projectFile: string) =
         let additionalInfo =
             [ "OutputType"
@@ -397,6 +425,8 @@ module Crack =
             Ok(Some(targetFrameworks, projOptions2))
         | Error err -> GetProjectOptionsErrors(err, msgs) |> Result.Error
 
+    /// Checks whether the project has been restored (i.e. the assets file exists) and
+    /// calls <c>dotnet restore</c> if not.
     let private ensureProjectWasRestored (file: string) =
         let projDir = Path.GetDirectoryName(file)
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
@@ -428,6 +458,9 @@ module Crack =
                 // subsequent cracking step will fail with a more specific error.
                 printfn $"Warning: could not verify that project '%s{file}' was restored. Proceeding anyway."
 
+    /// Cracks a single F# project file, selecting the appropriate target framework when
+    /// the project multi-targets, and returns the full <see cref="CrackedProjectInfo"/> or
+    /// <c>None</c> when the project cannot be loaded.
     let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo option =
         ensureProjectWasRestored file
 
@@ -455,6 +488,7 @@ module Crack =
         | Error(GetProjectOptionsErrors(err, msgs)) ->
             failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
 
+    /// Parses a Visual Studio solution file and returns the ordered list of project file paths.
     let getProjectsFromSlnFile (slnPath: string) =
         match InspectSln.tryParseSln slnPath with
         | Ok slnData -> InspectSln.loadingBuildOrder slnData
@@ -462,6 +496,8 @@ module Crack =
         //this.LoadProjects(projs, crosstargetingStrategy, useBinaryLogger, numberOfThreads)
         | Error e -> raise (exn ("cannot load the sln", e))
 
+    /// Discovers project files (from solutions, directories, or explicit lists),
+    /// cracks each one, and returns the collection name, collection URL, and per-project info.
     let crackProjects
         (onError, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects, ignoreProjects)
         =
