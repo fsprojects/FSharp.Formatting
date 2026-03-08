@@ -51,17 +51,17 @@ b""",
     //[/test]
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph([ Literal("a", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) -> true
+        | Paragraph([ Literal("a", { StartLine = 2 }) ], { StartLine = 2 }) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph([ Literal("b", Some({ StartLine = 6 })) ], Some({ StartLine = 6 })) -> true
+        | Paragraph([ Literal("b", { StartLine = 6 }) ], { StartLine = 6 }) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | EmbedParagraphs(:? LiterateParagraph as cd, Some({ StartLine = 4 })) ->
+        | EmbedParagraphs(:? LiterateParagraph as cd, { StartLine = 4 }) ->
             match cd with
             | LanguageTaggedCode("csharp", text, _popts) -> text.Contains "magic"
             | _ -> false
@@ -89,8 +89,7 @@ let test = 42"""
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) ],
-                    Some({ StartLine = 1 })) -> true
+        | Paragraph([ Strong([ Literal("hello", { StartLine = 1 }) ], { StartLine = 1 }) ], { StartLine = 1 }) -> true
         | _ -> false)
 
 [<Test>]
@@ -221,7 +220,7 @@ let test = 42"""
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading(2, [ Literal("Heading", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
+        | Heading(2, [ Literal("Heading", { StartLine = 1 }) ], { StartLine = 1 }) -> true
         | _ -> false)
 
 [<Test>]
@@ -243,8 +242,7 @@ let ``Can parse markdown with F# snippet`` () =
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) ],
-                    Some({ StartLine = 2 })) -> true
+        | Paragraph([ Strong([ Literal("hello", { StartLine = 2 }) ], { StartLine = 2 }) ], { StartLine = 2 }) -> true
         | _ -> false)
 
 [<Test>]
@@ -268,8 +266,7 @@ let test = 42
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) ],
-                    Some({ StartLine = 2 })) -> true
+        | Paragraph([ Strong([ Literal("hello", { StartLine = 2 }) ], { StartLine = 2 }) ], { StartLine = 2 }) -> true
         | _ -> false)
 
 [<Test>]
@@ -310,12 +307,12 @@ some [link][ref] to
 
     doc.Paragraphs
     |> shouldMatchSpan (function
-        | Literal("Article", None) -> true
+        | Literal("Article", _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchSpan (function
-        | Literal(" - Author", None) -> true
+        | Literal(" - Author", _) -> true
         | _ -> false)
 
 [<Test>]
@@ -958,7 +955,7 @@ let add a b = a + b
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading(_, [ Literal("demo", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo", { StartLine = 1 }) ], { StartLine = 1 }) -> true
         | _ -> false)
 
 
@@ -977,12 +974,12 @@ let mul a b = a * b
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading(_, [ Literal("demo1", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo1", { StartLine = 1 }) ], { StartLine = 1 }) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading(_, [ Literal("demo2", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo2", { StartLine = 1 }) ], { StartLine = 1 }) -> true
         | _ -> false)
 
 [<Test>]

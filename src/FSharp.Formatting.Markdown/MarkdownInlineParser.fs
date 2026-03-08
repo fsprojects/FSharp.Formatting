@@ -292,7 +292,7 @@ let (|Emphasised|_|) =
         match run @ post with
         | DelimitedMarkdown [ '_'; '_'; '_' ] (body, rest)
         | DelimitedMarkdown [ '*'; '*'; '*' ] (body, rest) ->
-            Some(pre, body, Emphasis >> List.singleton >> (fun s -> Strong(s, None)), rest)
+            Some(pre, body, Emphasis >> List.singleton >> (fun s -> Strong(s, MarkdownRange.zero)), rest)
         | DelimitedMarkdown [ '_'; '_' ] (body, rest)
         | DelimitedMarkdown [ '*'; '*' ] (body, rest) -> Some(pre, body, Strong, rest)
         | DelimitedMarkdown [ '_' ] (body, rest)
@@ -322,7 +322,7 @@ type ParsingContext =
     { Links: Dictionary<string, string * string option>
       Newline: string
       IsFirst: bool
-      CurrentRange: MarkdownRange option
+      CurrentRange: MarkdownRange
       ParseOptions: MarkdownParseOptions }
 
     member x.ParseCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseCodeAsOther) <> enum 0
@@ -335,18 +335,13 @@ type ParsingContext =
 let private advanceCtxBy n ctx =
     { ctx with
         CurrentRange =
-            match ctx.CurrentRange with
-            | Some r ->
-                Some
-                    { r with
-                        StartColumn = r.StartColumn + n }
-            | None -> None }
+            { ctx.CurrentRange with
+                StartColumn = ctx.CurrentRange.StartColumn + n } }
 
 /// Computes a span range starting at ctx.StartColumn and spanning n characters.
 let private spanRange n ctx =
-    match ctx.CurrentRange with
-    | Some r -> Some { r with EndColumn = r.StartColumn + n }
-    | None -> None
+    { ctx.CurrentRange with
+        EndColumn = ctx.CurrentRange.StartColumn + n }
 
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx: ParsingContext) =
@@ -359,24 +354,14 @@ let rec parseChars acc input (ctx: ParsingContext) =
                     ([], ctx)
                 else
                     let range =
-                        match ctx.CurrentRange with
-                        | Some(n) ->
-                            Some(
-                                { n with
-                                    EndColumn = n.StartColumn + acc.Length }
-                            )
-                        | None -> None
+                        { ctx.CurrentRange with
+                            EndColumn = ctx.CurrentRange.StartColumn + acc.Length }
 
                     let ctx =
                         { ctx with
                             CurrentRange =
-                                match ctx.CurrentRange with
-                                | Some(n) ->
-                                    Some(
-                                        { n with
-                                            StartColumn = n.StartColumn + acc.Length }
-                                    )
-                                | None -> None }
+                                { ctx.CurrentRange with
+                                    StartColumn = ctx.CurrentRange.StartColumn + acc.Length } }
 
                     let text = String(List.rev acc |> Array.ofList)
                     ([ Literal(text, range) ], ctx))
@@ -409,13 +394,9 @@ let rec parseChars acc input (ctx: ParsingContext) =
             yield! value
 
             let rng =
-                match ctx.CurrentRange with
-                | Some(n) ->
-                    Some
-                        { n with
-                            StartColumn = n.StartColumn + s
-                            EndColumn = n.StartColumn + s + body.Length }
-                | None -> None
+                { ctx.CurrentRange with
+                    StartColumn = ctx.CurrentRange.StartColumn + s
+                    EndColumn = ctx.CurrentRange.StartColumn + s + body.Length }
 
             yield InlineCode(String(Array.ofList body).Trim(), rng)
             yield! parseChars [] rest (advanceCtxBy (s + body.Length + e) ctx)
@@ -434,13 +415,8 @@ let rec parseChars acc input (ctx: ParsingContext) =
             let ctx =
                 { ctx with
                     CurrentRange =
-                        match ctx.CurrentRange with
-                        | Some(n) ->
-                            Some(
-                                { n with
-                                    StartColumn = n.StartColumn + 1 }
-                            )
-                        | None -> None }
+                        { ctx.CurrentRange with
+                            StartColumn = ctx.CurrentRange.StartColumn + 1 } }
 
             yield! value
             let code = String(Array.ofList body).Trim()
@@ -448,13 +424,8 @@ let rec parseChars acc input (ctx: ParsingContext) =
             yield
                 LatexInlineMath(
                     code,
-                    match ctx.CurrentRange with
-                    | Some(n) ->
-                        Some(
-                            { n with
-                                EndColumn = n.StartColumn + code.Length }
-                        )
-                    | None -> None
+                    { ctx.CurrentRange with
+                        EndColumn = ctx.CurrentRange.StartColumn + code.Length }
                 )
 
             yield! parseChars [] rest ctx
@@ -552,7 +523,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
 
 /// Parse body of a paragraph into a list of Markdown inline spans
 let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
-    let ctx = { ctx with CurrentRange = Some(n) }
+    let ctx = { ctx with CurrentRange = n }
 
     parseChars [] (s.ToCharArray() |> List.ofArray) ctx |> List.ofSeq
 

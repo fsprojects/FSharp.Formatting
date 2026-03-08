@@ -152,9 +152,11 @@ let test = [1;2;3]
 
     fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
         if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
-            let items = [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([ Literal(it.ToString(), None) ], None) ] ]
+            let items =
+                [ for it in Seq.cast<obj> (unbox o) ->
+                      [ Paragraph([ Literal(it.ToString(), MarkdownRange.zero) ], MarkdownRange.zero) ] ]
 
-            Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
+            Some [ ListBlock(MarkdownListKind.Ordered, items, MarkdownRange.zero) ]
         else
             None)
 
@@ -162,10 +164,10 @@ let test = [1;2;3]
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | ListBlock(Ordered, items, None) ->
-            items = [ [ Paragraph([ Literal("1", None) ], None) ]
-                      [ Paragraph([ Literal("2", None) ], None) ]
-                      [ Paragraph([ Literal("3", None) ], None) ] ]
+        | ListBlock(Ordered, items, _) ->
+            items = [ [ Paragraph([ Literal("1", MarkdownRange.zero) ], MarkdownRange.zero) ]
+                      [ Paragraph([ Literal("2", MarkdownRange.zero) ], MarkdownRange.zero) ]
+                      [ Paragraph([ Literal("3", MarkdownRange.zero) ], MarkdownRange.zero) ] ]
         | _ -> false)
 
 [<Test>]

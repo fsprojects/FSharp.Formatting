@@ -742,8 +742,8 @@ let (|LinkDefinition|_|) s =
 
 let updateCurrentRange lines =
     match lines with
-    | [] -> None
-    | (_, l) :: _ -> Some(l)
+    | [] -> MarkdownRange.zero
+    | (_, l) :: _ -> l
 
 /// Parse a list of lines into a sequence of markdown paragraphs
 let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) list) =
@@ -755,7 +755,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
         let frontMatter, (Lines.TrimBlankStart(_, moreLines)) =
             if ctx.IsFirst && ctx.AllowYamlFrontMatter then
                 match lines with
-                | YamlFrontmatter(yaml, loc, rest) -> Some(YamlFrontmatter(yaml, Some loc)), rest
+                | YamlFrontmatter(yaml, loc, rest) -> Some(YamlFrontmatter(yaml, loc)), rest
                 | _ -> None, lines
             else
                 None, lines

@@ -286,7 +286,11 @@ type Literate private () =
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
         let doc =
-            MarkdownDocument(doc.Paragraphs @ [ InlineHtmlBlock(doc.FormattedTips, None, None) ], doc.DefinedLinks)
+            MarkdownDocument(
+                doc.Paragraphs
+                @ [ InlineHtmlBlock(doc.FormattedTips, None, MarkdownRange.zero) ],
+                doc.DefinedLinks
+            )
 
         let sb = System.Text.StringBuilder()
         use wr = new StringWriter(sb)
@@ -334,7 +338,10 @@ type Literate private () =
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
-        let paragraphs = doc.Paragraphs @ [ InlineHtmlBlock(doc.FormattedTips, None, None) ], doc.DefinedLinks
+        let paragraphs =
+            doc.Paragraphs
+            @ [ InlineHtmlBlock(doc.FormattedTips, None, MarkdownRange.zero) ],
+            doc.DefinedLinks
 
         let doc = MarkdownDocument(paragraphs)
 

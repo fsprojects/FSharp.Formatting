@@ -39,19 +39,15 @@ let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
         [ Paragraph(
               [ Literal(
                     """<a href="mailto:a@b.c">hi</a>""",
-                    Some(
-                        { StartLine = 1
-                          StartColumn = 0
-                          EndLine = 1
-                          EndColumn = 29 }
-                    )
+                    { StartLine = 1
+                      StartColumn = 0
+                      EndLine = 1
+                      EndColumn = 29 }
                 ) ],
-              Some(
-                  { StartLine = 1
-                    StartColumn = 0
-                    EndLine = 1
-                    EndColumn = 29 }
-              )
+              { StartLine = 1
+                StartColumn = 0
+                EndLine = 1
+                EndColumn = 29 }
           ) ]
 
 // --------------------------------------------------------------------------------------
@@ -182,36 +178,28 @@ Some more"""
               2,
               [ Literal(
                     "Hello F#",
-                    Some(
-                        { StartLine = 2
-                          StartColumn = 3
-                          EndLine = 2
-                          EndColumn = 11 }
-                    )
+                    { StartLine = 2
+                      StartColumn = 3
+                      EndLine = 2
+                      EndColumn = 11 }
                 ) ],
-              Some(
-                  { StartLine = 2
-                    StartColumn = 0
-                    EndLine = 2
-                    EndColumn = 11 }
-              )
+              { StartLine = 2
+                StartColumn = 0
+                EndLine = 2
+                EndColumn = 11 }
           )
           Paragraph(
               [ Literal(
                     "Some more",
-                    Some(
-                        { StartLine = 3
-                          StartColumn = 0
-                          EndLine = 3
-                          EndColumn = 9 }
-                    )
+                    { StartLine = 3
+                      StartColumn = 0
+                      EndLine = 3
+                      EndColumn = 9 }
                 ) ],
-              Some(
-                  { StartLine = 3
-                    StartColumn = 0
-                    EndLine = 3
-                    EndColumn = 9 }
-              )
+              { StartLine = 3
+                StartColumn = 0
+                EndLine = 3
+                EndColumn = 9 }
           ) ]
 
 [<Test>]
@@ -228,36 +216,28 @@ Some more"""
               2,
               [ Literal(
                     "Hello",
-                    Some(
-                        { StartLine = 2
-                          StartColumn = 3
-                          EndLine = 2
-                          EndColumn = 8 }
-                    )
+                    { StartLine = 2
+                      StartColumn = 3
+                      EndLine = 2
+                      EndColumn = 8 }
                 ) ],
-              Some(
-                  { StartLine = 2
-                    StartColumn = 0
-                    EndLine = 2
-                    EndColumn = 13 }
-              )
+              { StartLine = 2
+                StartColumn = 0
+                EndLine = 2
+                EndColumn = 13 }
           )
           Paragraph(
               [ Literal(
                     "Some more",
-                    Some(
-                        { StartLine = 3
-                          StartColumn = 0
-                          EndLine = 3
-                          EndColumn = 9 }
-                    )
+                    { StartLine = 3
+                      StartColumn = 0
+                      EndLine = 3
+                      EndColumn = 9 }
                 ) ],
-              Some(
-                  { StartLine = 3
-                    StartColumn = 0
-                    EndLine = 3
-                    EndColumn = 9 }
-              )
+              { StartLine = 3
+                StartColumn = 0
+                EndLine = 3
+                EndColumn = 9 }
           ) ]
 
 [<Test>]
@@ -274,45 +254,37 @@ let ``Should be able to create nested list item with two paragraphs`` () =
         [ Paragraph(
               [ Literal(
                     "b",
-                    Some(
-                        { StartLine = 3
-                          StartColumn = 4
-                          EndLine = 3
-                          EndColumn = 5 }
-                    )
+                    { StartLine = 3
+                      StartColumn = 4
+                      EndLine = 3
+                      EndColumn = 5 }
                 ) ],
-              Some(
-                  { StartLine = 3
-                    StartColumn = 4
-                    EndLine = 3
-                    EndColumn = 5 }
-              )
+              { StartLine = 3
+                StartColumn = 4
+                EndLine = 3
+                EndColumn = 5 }
           )
           Paragraph(
               [ Literal(
                     "c",
-                    Some(
-                        { StartLine = 5
-                          StartColumn = 4
-                          EndLine = 5
-                          EndColumn = 5 }
-                    )
+                    { StartLine = 5
+                      StartColumn = 4
+                      EndLine = 5
+                      EndColumn = 5 }
                 ) ],
-              Some(
-                  { StartLine = 5
-                    StartColumn = 4
-                    EndLine = 5
-                    EndColumn = 5 }
-              )
+              { StartLine = 5
+                StartColumn = 4
+                EndLine = 5
+                EndColumn = 5 }
           ) ]
 
     match doc.Paragraphs.Head with
     | ListBlock(Unordered,
                 [ [ Span([ Literal("a",
-                                   Some({ StartLine = 2
-                                          StartColumn = 2
-                                          EndLine = 2
-                                          EndColumn = 3 })) ],
+                                   { StartLine = 2
+                                     StartColumn = 2
+                                     EndLine = 2
+                                     EndColumn = 3 }) ],
                          _)
                     ListBlock(Unordered, [ body ], _) ] ],
                 _) -> body |> shouldEqual expectedBody
@@ -327,26 +299,20 @@ let ``Can escape special characters such as "*" in emphasis`` () =
             [ Emphasis(
                   [ Literal(
                         "foo**bar",
-                        Some(
-                            { StartLine = 1
-                              StartColumn = 0
-                              EndLine = 1
-                              EndColumn = 8 }
-                        )
+                        { StartLine = 1
+                          StartColumn = 0
+                          EndLine = 1
+                          EndColumn = 8 }
                     ) ],
-                  Some(
-                      { StartLine = 1
-                        StartColumn = 0
-                        EndLine = 1
-                        EndColumn = 12 }
-                  )
+                  { StartLine = 1
+                    StartColumn = 0
+                    EndLine = 1
+                    EndColumn = 12 }
               ) ],
-            Some(
-                { StartLine = 1
-                  StartColumn = 0
-                  EndLine = 1
-                  EndColumn = 12 }
-            )
+            { StartLine = 1
+              StartColumn = 0
+              EndLine = 1
+              EndColumn = 12 }
         )
 
     doc.Paragraphs.Head |> shouldEqual expected
@@ -359,28 +325,22 @@ let ``Can escape special characters in LaTex inline math`` () =
         Paragraph(
             [ Literal(
                   "test $ is: ",
-                  Some(
-                      { StartLine = 1
-                        StartColumn = 0
-                        EndLine = 1
-                        EndColumn = 11 }
-                  )
+                  { StartLine = 1
+                    StartColumn = 0
+                    EndLine = 1
+                    EndColumn = 11 }
               )
               LatexInlineMath(
                   "foo\$\$bar<>\$\&\%\$\#\_\{\}",
-                  Some(
-                      { StartLine = 1
-                        StartColumn = 12
-                        EndLine = 1
-                        EndColumn = 40 }
-                  )
+                  { StartLine = 1
+                    StartColumn = 12
+                    EndLine = 1
+                    EndColumn = 40 }
               ) ],
-            Some(
-                { StartLine = 1
-                  StartColumn = 0
-                  EndLine = 1
-                  EndColumn = 42 }
-            )
+            { StartLine = 1
+              StartColumn = 0
+              EndLine = 1
+              EndColumn = 42 }
         )
 
     doc.Paragraphs.Head |> shouldEqual expected
@@ -393,19 +353,15 @@ let ``Test special character _ in LaTex inline math`` () =
         Paragraph(
             [ LatexInlineMath(
                   "\\bigcap_{x \\in A} p_{x}A",
-                  Some(
-                      { StartLine = 1
-                        StartColumn = 1
-                        EndLine = 1
-                        EndColumn = 25 }
-                  )
+                  { StartLine = 1
+                    StartColumn = 1
+                    EndLine = 1
+                    EndColumn = 25 }
               ) ],
-            Some(
-                { StartLine = 1
-                  StartColumn = 0
-                  EndLine = 1
-                  EndColumn = 26 }
-            )
+            { StartLine = 1
+              StartColumn = 0
+              EndLine = 1
+              EndColumn = 26 }
         )
 
     doc.Paragraphs.Head |> shouldEqual expected
@@ -418,19 +374,15 @@ let ``Inline code can contain backticks when wrapped with spaces`` () =
         Paragraph(
             [ InlineCode(
                   "``h``",
-                  Some(
-                      { StartLine = 1
-                        StartColumn = 2
-                        EndLine = 1
-                        EndColumn = 7 }
-                  )
+                  { StartLine = 1
+                    StartColumn = 2
+                    EndLine = 1
+                    EndColumn = 7 }
               ) ],
-            Some(
-                { StartLine = 1
-                  StartColumn = 0
-                  EndLine = 1
-                  EndColumn = 9 }
-            )
+            { StartLine = 1
+              StartColumn = 0
+              EndLine = 1
+              EndColumn = 9 }
         )
 
     doc.Paragraphs.Head |> shouldEqual expected
@@ -698,48 +650,38 @@ let ``Transform horizontal rules correctly`` () =
     |> shouldEqual
         [ HorizontalRule(
               '*',
-              Some(
-                  { StartLine = 1
-                    StartColumn = 0
-                    EndLine = 1
-                    EndColumn = 5 }
-              )
+              { StartLine = 1
+                StartColumn = 0
+                EndLine = 1
+                EndColumn = 5 }
           )
           HorizontalRule(
               '*',
-              Some(
-                  { StartLine = 3
-                    StartColumn = 0
-                    EndLine = 3
-                    EndColumn = 3 }
-              )
+              { StartLine = 3
+                StartColumn = 0
+                EndLine = 3
+                EndColumn = 3 }
           )
           HorizontalRule(
               '*',
-              Some(
-                  { StartLine = 5
-                    StartColumn = 0
-                    EndLine = 5
-                    EndColumn = 5 }
-              )
+              { StartLine = 5
+                StartColumn = 0
+                EndLine = 5
+                EndColumn = 5 }
           )
           HorizontalRule(
               '-',
-              Some(
-                  { StartLine = 7
-                    StartColumn = 0
-                    EndLine = 7
-                    EndColumn = 5 }
-              )
+              { StartLine = 7
+                StartColumn = 0
+                EndLine = 7
+                EndColumn = 5 }
           )
           HorizontalRule(
               '-',
-              Some(
-                  { StartLine = 9
-                    StartColumn = 0
-                    EndLine = 9
-                    EndColumn = 39 }
-              )
+              { StartLine = 9
+                StartColumn = 0
+                EndLine = 9
+                EndColumn = 39 }
           ) ]
 
     Markdown.ToHtml doc |> shouldEqual expected
@@ -791,29 +733,23 @@ a"
     let expected =
         [ QuotedBlock(
               [],
-              Some(
-                  { StartLine = 1
-                    StartColumn = 0
-                    EndLine = 1
-                    EndColumn = 1 }
-              )
+              { StartLine = 1
+                StartColumn = 0
+                EndLine = 1
+                EndColumn = 1 }
           )
           Paragraph(
               [ Literal(
                     "a",
-                    Some(
-                        { StartLine = 2
-                          StartColumn = 0
-                          EndLine = 2
-                          EndColumn = 1 }
-                    )
+                    { StartLine = 2
+                      StartColumn = 0
+                      EndLine = 2
+                      EndColumn = 1 }
                 ) ],
-              Some(
-                  { StartLine = 2
-                    StartColumn = 0
-                    EndLine = 2
-                    EndColumn = 1 }
-              )
+              { StartLine = 2
+                StartColumn = 0
+                EndLine = 2
+                EndColumn = 1 }
           ) ]
 
     (Markdown.Parse doc).Paragraphs |> shouldEqual expected
@@ -830,43 +766,33 @@ a"
               [ Paragraph(
                     [ Literal(
                           "a",
-                          Some(
-                              { StartLine = 1
-                                StartColumn = 1
-                                EndLine = 1
-                                EndColumn = 2 }
-                          )
+                          { StartLine = 1
+                            StartColumn = 1
+                            EndLine = 1
+                            EndColumn = 2 }
                       ) ],
-                    Some(
-                        { StartLine = 1
-                          StartColumn = 1
-                          EndLine = 1
-                          EndColumn = 2 }
-                    )
+                    { StartLine = 1
+                      StartColumn = 1
+                      EndLine = 1
+                      EndColumn = 2 }
                 ) ],
-              Some(
-                  { StartLine = 1
-                    StartColumn = 0
-                    EndLine = 1
-                    EndColumn = 2 }
-              )
+              { StartLine = 1
+                StartColumn = 0
+                EndLine = 1
+                EndColumn = 2 }
           )
           Paragraph(
               [ Literal(
                     "a",
-                    Some(
-                        { StartLine = 3
-                          StartColumn = 0
-                          EndLine = 3
-                          EndColumn = 1 }
-                    )
+                    { StartLine = 3
+                      StartColumn = 0
+                      EndLine = 3
+                      EndColumn = 1 }
                 ) ],
-              Some(
-                  { StartLine = 3
-                    StartColumn = 0
-                    EndLine = 3
-                    EndColumn = 1 }
-              )
+              { StartLine = 3
+                StartColumn = 0
+                EndLine = 3
+                EndColumn = 1 }
           ) ]
 
     (Markdown.Parse doc).Paragraphs |> shouldEqual expected
@@ -880,26 +806,20 @@ let ``Parse blockquote with three leading spaces`` () =
               [ Paragraph(
                     [ Literal(
                           "a",
-                          Some(
-                              { StartLine = 1
-                                StartColumn = 4
-                                EndLine = 1
-                                EndColumn = 5 }
-                          )
+                          { StartLine = 1
+                            StartColumn = 4
+                            EndLine = 1
+                            EndColumn = 5 }
                       ) ],
-                    Some(
-                        { StartLine = 1
-                          StartColumn = 4
-                          EndLine = 1
-                          EndColumn = 5 }
-                    )
+                    { StartLine = 1
+                      StartColumn = 4
+                      EndLine = 1
+                      EndColumn = 5 }
                 ) ],
-              Some(
-                  { StartLine = 1
-                    StartColumn = 0
-                    EndLine = 1
-                    EndColumn = 5 }
-              )
+              { StartLine = 1
+                StartColumn = 0
+                EndLine = 1
+                EndColumn = 5 }
           ) ]
 
     (Markdown.Parse doc).Paragraphs |> shouldEqual expected
@@ -913,26 +833,20 @@ let ``Underscore inside italic is preserved`` () =
               [ Emphasis(
                     [ Literal(
                           "fsharp_space_after_comma",
-                          Some(
-                              { StartLine = 1
-                                StartColumn = 0
-                                EndLine = 1
-                                EndColumn = 24 }
-                          )
+                          { StartLine = 1
+                            StartColumn = 0
+                            EndLine = 1
+                            EndColumn = 24 }
                       ) ],
-                    Some(
-                        { StartLine = 1
-                          StartColumn = 0
-                          EndLine = 1
-                          EndColumn = 26 }
-                    )
+                    { StartLine = 1
+                      StartColumn = 0
+                      EndLine = 1
+                      EndColumn = 26 }
                 ) ],
-              Some(
-                  { StartLine = 1
-                    StartColumn = 0
-                    EndLine = 1
-                    EndColumn = 26 }
-              )
+              { StartLine = 1
+                StartColumn = 0
+                EndLine = 1
+                EndColumn = 26 }
           ) ]
 
     (Markdown.Parse doc).Paragraphs |> shouldEqual expected
@@ -951,32 +865,28 @@ Always use a bar before every case in the declaration of a discriminated union.
               3,
               [ Literal(
                     "fsharp_bar_before_discriminated_union_declaration",
-                    Some
-                        { StartLine = 2
-                          StartColumn = 4
-                          EndLine = 2
-                          EndColumn = 53 }
+                    { StartLine = 2
+                      StartColumn = 4
+                      EndLine = 2
+                      EndColumn = 53 }
                 ) ],
-              Some
-                  { StartLine = 2
-                    StartColumn = 0
-                    EndLine = 2
-                    EndColumn = 53 }
+              { StartLine = 2
+                StartColumn = 0
+                EndLine = 2
+                EndColumn = 53 }
           )
           Paragraph(
               [ Literal(
                     "Always use a bar before every case in the declaration of a discriminated union.",
-                    Some
-                        { StartLine = 4
-                          StartColumn = 0
-                          EndLine = 4
-                          EndColumn = 79 }
+                    { StartLine = 4
+                      StartColumn = 0
+                      EndLine = 4
+                      EndColumn = 79 }
                 ) ],
-              Some
-                  { StartLine = 4
-                    StartColumn = 0
-                    EndLine = 4
-                    EndColumn = 79 }
+              { StartLine = 4
+                StartColumn = 0
+                EndLine = 4
+                EndColumn = 79 }
           ) ]
 
     (Markdown.Parse doc).Paragraphs |> shouldEqual expected
@@ -1153,47 +1063,37 @@ let ``Indirect link and subsequent literal have correct column ranges`` () =
         [ Paragraph(
               [ Literal(
                     "Before ",
-                    Some(
-                        { StartLine = 1
-                          StartColumn = 0
-                          EndLine = 1
-                          EndColumn = 7 }
-                    )
+                    { StartLine = 1
+                      StartColumn = 0
+                      EndLine = 1
+                      EndColumn = 7 }
                 )
                 IndirectLink(
                     [ Literal(
                           "indirectLink",
-                          Some(
-                              { StartLine = 1
-                                StartColumn = 8
-                                EndLine = 1
-                                EndColumn = 20 }
-                          )
+                          { StartLine = 1
+                            StartColumn = 8
+                            EndLine = 1
+                            EndColumn = 20 }
                       ) ],
                     "",
                     "indirectLink",
-                    Some(
-                        { StartLine = 1
-                          StartColumn = 7
-                          EndLine = 1
-                          EndColumn = 21 }
-                    )
+                    { StartLine = 1
+                      StartColumn = 7
+                      EndLine = 1
+                      EndColumn = 21 }
                 )
                 Literal(
                     " After",
-                    Some(
-                        { StartLine = 1
-                          StartColumn = 21
-                          EndLine = 1
-                          EndColumn = 27 }
-                    )
+                    { StartLine = 1
+                      StartColumn = 21
+                      EndLine = 1
+                      EndColumn = 27 }
                 ) ],
-              Some(
-                  { StartLine = 1
-                    StartColumn = 0
-                    EndLine = 1
-                    EndColumn = 27 }
-              )
+              { StartLine = 1
+                StartColumn = 0
+                EndLine = 1
+                EndColumn = 27 }
           ) ]
 
 [<Test>]
@@ -1209,29 +1109,26 @@ let ``Direct link and subsequent literal have correct column ranges`` () =
                   _) ] ->
         litRange1
         |> shouldEqual (
-            Some
-                { StartLine = 1
-                  StartColumn = 0
-                  EndLine = 1
-                  EndColumn = 7 }
+            { StartLine = 1
+              StartColumn = 0
+              EndLine = 1
+              EndColumn = 7 }
         )
 
         linkRange
         |> shouldEqual (
-            Some
-                { StartLine = 1
-                  StartColumn = 7
-                  EndLine = 1
-                  EndColumn = 27 }
+            { StartLine = 1
+              StartColumn = 7
+              EndLine = 1
+              EndColumn = 27 }
         )
 
         litRange2
         |> shouldEqual (
-            Some
-                { StartLine = 1
-                  StartColumn = 27
-                  EndLine = 1
-                  EndColumn = 33 }
+            { StartLine = 1
+              StartColumn = 27
+              EndLine = 1
+              EndColumn = 33 }
         )
     | _ -> Assert.Fail "Expected paragraph with literal + direct link + literal"
 
@@ -1244,29 +1141,26 @@ let ``Inline code and subsequent literal have correct column ranges`` () =
     | [ Paragraph([ Literal("foo ", litRange1); InlineCode("bar", codeRange); Literal(" baz", litRange2) ], _) ] ->
         litRange1
         |> shouldEqual (
-            Some
-                { StartLine = 1
-                  StartColumn = 0
-                  EndLine = 1
-                  EndColumn = 4 }
+            { StartLine = 1
+              StartColumn = 0
+              EndLine = 1
+              EndColumn = 4 }
         )
 
         codeRange
         |> shouldEqual (
-            Some
-                { StartLine = 1
-                  StartColumn = 5
-                  EndLine = 1
-                  EndColumn = 8 }
+            { StartLine = 1
+              StartColumn = 5
+              EndLine = 1
+              EndColumn = 8 }
         )
 
         litRange2
         |> shouldEqual (
-            Some
-                { StartLine = 1
-                  StartColumn = 9
-                  EndLine = 1
-                  EndColumn = 13 }
+            { StartLine = 1
+              StartColumn = 9
+              EndLine = 1
+              EndColumn = 13 }
         )
     | _ -> Assert.Fail "Expected paragraph with literal + inline code + literal"
 

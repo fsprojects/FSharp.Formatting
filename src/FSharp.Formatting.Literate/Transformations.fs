@@ -264,25 +264,35 @@ module internal Transformations =
 
                       yield
                           [ Span(
-                                [ Literal(sprintf "[%d] " i, None)
-                                  DirectLink([ Literal(name.Trim(), None) ], link, Some title, None)
-                                  Literal(" - " + auth, None) ],
-                                None
+                                [ Literal(sprintf "[%d] " i, MarkdownRange.zero)
+                                  DirectLink(
+                                      [ Literal(name.Trim(), MarkdownRange.zero) ],
+                                      link,
+                                      Some title,
+                                      MarkdownRange.zero
+                                  )
+                                  Literal(" - " + auth, MarkdownRange.zero) ],
+                                MarkdownRange.zero
                             ) ]
                   else
                       yield
                           [ Span(
-                                [ Literal(sprintf "[%d] " i, None)
-                                  DirectLink([ Literal(title, None) ], link, Some title, None) ],
-                                None
+                                [ Literal(sprintf "[%d] " i, MarkdownRange.zero)
+                                  DirectLink(
+                                      [ Literal(title, MarkdownRange.zero) ],
+                                      link,
+                                      Some title,
+                                      MarkdownRange.zero
+                                  ) ],
+                                MarkdownRange.zero
                             ) ] ]
 
         // Return the document together with dictionary for looking up indices
         let id = DateTime.Now.ToString("yyMMddhh")
 
-        [ Paragraph([ AnchorLink(id, None) ], None)
-          Heading(3, [ Literal("References", None) ], None)
-          ListBlock(MarkdownListKind.Unordered, refList, None) ],
+        [ Paragraph([ AnchorLink(id, MarkdownRange.zero) ], MarkdownRange.zero)
+          Heading(3, [ Literal("References", MarkdownRange.zero) ], MarkdownRange.zero)
+          ListBlock(MarkdownListKind.Unordered, refList, MarkdownRange.zero) ],
         refLookup
 
     /// Turn all indirect links into a references
@@ -417,8 +427,8 @@ module internal Transformations =
                     { opts with
                         ExecutionCount = Some executionCount }
 
-                [ EmbedParagraphs(LiterateCode(lines, opts, popts), None) ]
-            | _ -> [ EmbedParagraphs(special, None) ]
+                [ EmbedParagraphs(LiterateCode(lines, opts, popts), MarkdownRange.zero) ]
+            | _ -> [ EmbedParagraphs(special, MarkdownRange.zero) ]
 
         // Traverse all other structrues recursively
         | MarkdownPatterns.ParagraphNested(pn, nested) ->
@@ -517,7 +527,7 @@ module internal Transformations =
                     | LiterateCode(_, { Visibility = LiterateCodeVisibility.NamedCode _ }, _) -> None
                     | _ ->
                         match special with
-                        | RawBlock(lines, _) -> Some(InlineHtmlBlock(unparse lines, None, None))
+                        | RawBlock(lines, _) -> Some(InlineHtmlBlock(unparse lines, None, MarkdownRange.zero))
                         | LiterateCode(lines, _, _) -> Some(formatted.[Choice1Of2 lines])
                         | CodeReference(ref, _) ->
                             match formatted.TryGetValue(Choice2Of2 ref) with
@@ -536,7 +546,7 @@ module internal Transformations =
                             let msg = "Warning: Output, it-value and value references require --eval"
 
                             printfn "%s" msg
-                            Some(InlineHtmlBlock(msg, None, None))
+                            Some(InlineHtmlBlock(msg, None, MarkdownRange.zero))
                         | LanguageTaggedCode(lang, code, _) ->
                             let inlined =
                                 match ctx.OutputKind with
@@ -546,7 +556,7 @@ module internal Transformations =
                                 | OutputKind.Fsx -> code
                                 | OutputKind.Markdown -> code
 
-                            Some(InlineHtmlBlock(inlined, None, None))
+                            Some(InlineHtmlBlock(inlined, None, MarkdownRange.zero))
         // Traverse all other structures recursively
         | MarkdownPatterns.ParagraphNested(pn, nested) ->
             let nested = List.map (List.choose (replaceLiterateParagraph ctx formatted)) nested
@@ -602,7 +612,7 @@ module internal Transformations =
             [ for (key, (_, executionCount)), fmtd in Seq.zip codes formatted.Snippets ->
                   let block =
                       match ctx.OutputKind with
-                      | OutputKind.Html -> InlineHtmlBlock(fmtd.Content, executionCount, None)
+                      | OutputKind.Html -> InlineHtmlBlock(fmtd.Content, executionCount, MarkdownRange.zero)
                       | OutputKind.Fsx
                       | OutputKind.Markdown
                       | OutputKind.Latex
@@ -613,7 +623,7 @@ module internal Transformations =
                               fence = Some "```",
                               language = "fsharp",
                               ignoredLine = "",
-                              range = None
+                              range = MarkdownRange.zero
                           )
 
                   key, block ]
