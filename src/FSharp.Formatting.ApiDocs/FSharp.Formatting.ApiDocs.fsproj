@@ -13,6 +13,7 @@
     <Compile Include="ApiDocTypes.fs" />
     <Compile Include="CrossReferenceResolver.fs" />
     <Compile Include="TypeFormatter.fs" />
+    <Compile Include="XmlDocReader.fs" />
     <Compile Include="SymbolReader.fs" />
     <Compile Include="GenerateModel.fs" />
     <Compile Include="Categorise.fs" />
