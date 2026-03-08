@@ -2330,6 +2330,22 @@ module private ConvertHelpers =
 
     open System.Text.RegularExpressions
 
+    // Compiled at module load; shared across all calls to embedResourcesInHtml.
+    let private cssPattern =
+        Regex(
+            """<link\b(?=[^>]*\brel=["']stylesheet["'])[^>]*\bhref=["']([^"']+)["'][^>]*/?>""",
+            RegexOptions.IgnoreCase ||| RegexOptions.Compiled
+        )
+
+    let private jsPattern =
+        Regex(
+            """<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*</script>""",
+            RegexOptions.IgnoreCase ||| RegexOptions.Compiled
+        )
+
+    let private imgPattern =
+        Regex("""(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)""", RegexOptions.IgnoreCase ||| RegexOptions.Compiled)
+
     /// Return candidate directories in which to search for locally-referenced assets (CSS, JS, images).
     /// The search order is: output directory → template directory → default content directories.
     let findContentSearchDirs (outputFile: string) (templateFile: string option) =
@@ -2387,16 +2403,10 @@ module private ConvertHelpers =
                     let fullPath = Path.GetFullPath(Path.Combine(dir, normalized))
                     if File.Exists(fullPath) then Some fullPath else None)
 
-        let mutable html = File.ReadAllText(htmlPath)
+        let html = File.ReadAllText(htmlPath)
 
         // Inline CSS: handles both <link rel="stylesheet" href="..."> and <link href="..." rel="stylesheet">
-        let cssPattern =
-            Regex(
-                """<link\b(?=[^>]*\brel=["']stylesheet["'])[^>]*\bhref=["']([^"']+)["'][^>]*/?>""",
-                RegexOptions.IgnoreCase
-            )
-
-        html <-
+        let html =
             cssPattern.Replace(
                 html,
                 fun m ->
@@ -2408,9 +2418,7 @@ module private ConvertHelpers =
             )
 
         // Inline JS: <script src="..."></script>  (self-closing or with optional whitespace body)
-        let jsPattern = Regex("""<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*</script>""", RegexOptions.IgnoreCase)
-
-        html <-
+        let html =
             jsPattern.Replace(
                 html,
                 fun m ->
@@ -2423,9 +2431,7 @@ module private ConvertHelpers =
 
         // Inline local images as base64 data-URIs.
         // Capture groups: 1 = everything up to and including src=", 2 = path, 3 = " and rest of tag.
-        let imgPattern = Regex("""(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)""", RegexOptions.IgnoreCase)
-
-        html <-
+        let html =
             imgPattern.Replace(
                 html,
                 fun m ->
