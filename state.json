@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-08T15:41:06Z",
-  "run_id": "22824250845",
+  "last_run": "2026-03-08T15:40:26Z",
+  "run_id": "22824241610",
   "comments_made": [
     {"issue": 590, "run": "22455510854", "note": "Explained inherited-member code path"},
     {"issue": 591, "run": "22456244326", "note": "Implementation summary and PR link"},
@@ -19,11 +19,12 @@
     {"issue": 1064, "run": "22614872361", "note": "Multi-TFM docs: labelled enhancement/help-wanted + implementation analysis comment"},
     {"issue": 828, "run": "22661444802", "note": "Multi-target F# libs: connected to #1064, discussed TFM picker, devdocs.io integration"},
     {"issue": 949, "run": "22755624488", "note": "Tooltip system: noted PR #1061 (Popover API) and trade-offs"},
-    {"issue": 929, "run": "22755624488", "note": "Signature-like API docs: PR #932 closure status, incremental path forward"},
-    {"issue": 926, "run": "22787127687", "note": "HTML AST from Markdown: MarkdownDocument as public AST, two options"},
+    {"issue": 929, "run": "22755624488", "note": "Signature-like API docs: PR #932 closure status, incremental path forward (after #1066)"},
+    {"issue": 926, "run": "22787127687", "note": "HTML AST from Markdown: MarkdownDocument as public AST, two options for embedding"},
+    {"issue": 1068, "run": "22709375415", "note": "embed-resources for fsdocs convert: implementation sketch + labelled enhancement"},
     {"issue": 1068, "run": "22817473777", "note": "Responded to dsyme's question: --embed-resources should be default for fsdocs convert"},
-    {"issue": 1068, "run": "22821749540", "note": "PR #1072 created: prototype --embed-resources implementation"},
-    {"issue": 1022, "run": "22824250845", "note": "PR created: Split MarkdownTableParser.fs out of MarkdownBlockParser.fs (branch: repo-assist/fix-issue-1022-split-markdowntableparser)"}
+    {"issue": 1068, "run": "22821749540", "note": "PR created: prototype --embed-resources implementation"},
+    {"issue": 1035, "run": "22824241610", "note": "Batch 5: PR created for CrossReferenceResolver.fs, CodeFormatAgent.fs, YaafFSharpScripting.fs"}
   ],
   "fix_attempts": [
     {"issue": 1022, "pr": 1032, "status": "merged", "desc": "Split GenerateModel.fs v2 - MERGED by dsyme"},
@@ -46,20 +47,18 @@
     {"issue": 683, "pr": 1065, "status": "merged", "desc": "Document --saveimages flag - MERGED"},
     {"issue": 735, "pr": 1066, "status": "merged", "desc": "Add ApiDocParameter and ApiDocReturnInfo named record types - MERGED by dsyme"},
     {"issue": 742, "pr": 1067, "status": "merged", "desc": "Make MarkdownRange non-optional - MERGED by dsyme"},
-    {"issue": "duplicate-lookupkey", "pr": 1069, "status": "merged", "desc": "Remove duplicate LookupKey active patterns - MERGED"},
-    {"issue": "perf-regexes", "pr": 1070, "status": "merged", "desc": "Precompile markdown parser regexes - MERGED"},
-    {"issue": "perf-entity-names", "pr": 1071, "status": "merged", "desc": "Precompute entity name counts in renderEntities - MERGED"},
-    {"issue": 1068, "pr": 1072, "status": "open", "desc": "Add --embed-resources to fsdocs convert (self-contained HTML by default)"},
-    {"issue": 1022, "pr": 1073, "status": "merged", "desc": "Split XmlDocReader.fs out of SymbolReader.fs - MERGED"},
-    {"issue": 1035, "pr": 1074, "status": "open", "desc": "Doc comments batch 4: SymbolReader.fs, TypeFormatter.fs, ProjectCracker.fs"},
-    {"issue": 1022, "pr": "pending-22824250845", "status": "open", "desc": "Split MarkdownTableParser.fs out of MarkdownBlockParser.fs (958->760 lines) - branch repo-assist/fix-issue-1022-split-markdowntableparser"}
+    {"issue": "duplicate-lookupkey", "pr": 1069, "status": "merged", "desc": "Remove duplicate LookupKey active patterns - MERGED by dsyme"},
+    {"issue": "perf-regexes", "pr": 1070, "status": "merged", "desc": "Precompile markdown parser regexes - MERGED by dsyme"},
+    {"issue": "perf-entity-names", "pr": 1071, "status": "open", "desc": "Precompute entity name counts in renderEntities (O(N) vs O(N^2))"},
+    {"issue": 1035, "pr": 1074, "status": "merged", "desc": "Doc comments batch 4: SymbolReader.fs, TypeFormatter.fs, ProjectCracker.fs - MERGED by dsyme"},
+    {"issue": 1068, "pr": "pending-1072ish", "status": "open", "desc": "Add --embed-resources to fsdocs convert (self-contained HTML by default)"},
+    {"issue": 1035, "pr": "pending-batch5", "status": "open", "desc": "Doc comments batch 5: CrossReferenceResolver.fs, CodeFormatAgent.fs, YaafFSharpScripting.fs - branch repo-assist/doc-comments-batch5-cross-codeformat"}
   ],
   "important_instructions": [
     "dsyme: Avoid splitting files being changed in existing open pull requests",
-    "PR #1019 (fsdocs convert feature) - MERGED 2026-03-05, safe to touch BuildCommand.fs now",
-    "PR #1072 touches BuildCommand.fs - avoid until merged"
+    "PR #1019 appears to be the fsdocs convert feature - MERGED 2026-03-05, safe to touch BuildCommand.fs now"
   ],
-  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs as of 2026-03-08: #1061 (Popover API tooltips), #1072 (embed-resources for fsdocs convert), #1074 (doc comments batch 4), plus new pending PR for MarkdownTableParser split (#1022).",
+  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs: #1061 (Popover API tooltips), #1071 (entity name perf fix), pending embed-resources PR, batch5 doc comments PR. Remaining doc-comment targets: BuildCommand.fs (2506 lines, huge), remaining FsiOptions/Shell/IFsiSession sections of YaafFSharpScripting.fs, some Literate files.",
   "backlog_cursor": {"issue": 1068},
   "monthly_activity_issue": 1060
 }
