@@ -2325,6 +2325,135 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
+/// Helpers for the <c>fsdocs convert</c> command.
+module private ConvertHelpers =
+
+    open System.Text.RegularExpressions
+
+    /// Return candidate directories in which to search for locally-referenced assets (CSS, JS, images).
+    /// The search order is: output directory → template directory → default content directories.
+    let findContentSearchDirs (outputFile: string) (templateFile: string option) =
+        let dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+
+        [ yield Path.GetDirectoryName(Path.GetFullPath(outputFile))
+
+          match templateFile with
+          | Some t when not (String.IsNullOrWhiteSpace t) -> yield Path.GetDirectoryName(Path.GetFullPath(t))
+          | _ -> ()
+
+          // NuGet package layout: <package-root>/extras contains a "content" sub-directory.
+          let nugetExtras = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+
+          if
+              (try
+                  Directory.Exists(nugetExtras)
+               with _ ->
+                   false)
+          then
+              yield nugetExtras
+
+          // In-repo development layout: src/fsdocs-tool/bin/…/fsdocs.exe → docs/
+          let repoDocs = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs"))
+
+          if
+              (try
+                  Directory.Exists(repoDocs)
+               with _ ->
+                   false)
+          then
+              yield repoDocs ]
+
+    /// Inline local CSS, JS, and image resources that are referenced in the generated HTML file.
+    /// Remote URLs (http/https) and data-URIs are left untouched.
+    let embedResourcesInHtml (htmlPath: string) (searchDirs: string list) =
+        let isRemote (href: string) =
+            href.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("//", StringComparison.OrdinalIgnoreCase)
+
+        let tryFindFile (href: string) =
+            if isRemote href then
+                None
+            else
+                let normalized =
+                    if href.StartsWith("./", StringComparison.Ordinal) then
+                        href[2..]
+                    else
+                        href
+
+                searchDirs
+                |> List.tryPick (fun dir ->
+                    let fullPath = Path.GetFullPath(Path.Combine(dir, normalized))
+                    if File.Exists(fullPath) then Some fullPath else None)
+
+        let mutable html = File.ReadAllText(htmlPath)
+
+        // Inline CSS: handles both <link rel="stylesheet" href="..."> and <link href="..." rel="stylesheet">
+        let cssPattern =
+            Regex(
+                """<link\b(?=[^>]*\brel=["']stylesheet["'])[^>]*\bhref=["']([^"']+)["'][^>]*/?>""",
+                RegexOptions.IgnoreCase
+            )
+
+        html <-
+            cssPattern.Replace(
+                html,
+                fun m ->
+                    let href = m.Groups[1].Value
+
+                    match tryFindFile href with
+                    | Some fullPath -> sprintf "<style>%s</style>" (File.ReadAllText(fullPath))
+                    | None -> m.Value
+            )
+
+        // Inline JS: <script src="..."></script>  (self-closing or with optional whitespace body)
+        let jsPattern = Regex("""<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*</script>""", RegexOptions.IgnoreCase)
+
+        html <-
+            jsPattern.Replace(
+                html,
+                fun m ->
+                    let src = m.Groups[1].Value
+
+                    match tryFindFile src with
+                    | Some fullPath -> sprintf "<script>%s</script>" (File.ReadAllText(fullPath))
+                    | None -> m.Value
+            )
+
+        // Inline local images as base64 data-URIs.
+        // Capture groups: 1 = everything up to and including src=", 2 = path, 3 = " and rest of tag.
+        let imgPattern = Regex("""(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)""", RegexOptions.IgnoreCase)
+
+        html <-
+            imgPattern.Replace(
+                html,
+                fun m ->
+                    let src = m.Groups[2].Value
+
+                    match tryFindFile src with
+                    | Some fullPath ->
+                        let bytes = File.ReadAllBytes(fullPath)
+                        let ext = Path.GetExtension(fullPath).TrimStart('.').ToLowerInvariant()
+
+                        let mimeType =
+                            match ext with
+                            | "png" -> "image/png"
+                            | "jpg"
+                            | "jpeg" -> "image/jpeg"
+                            | "gif" -> "image/gif"
+                            | "svg" -> "image/svg+xml"
+                            | "ico" -> "image/x-icon"
+                            | "webp" -> "image/webp"
+                            | _ -> "image/png"
+
+                        let b64 = Convert.ToBase64String(bytes)
+                        sprintf "%sdata:%s;base64,%s%s" m.Groups[1].Value mimeType b64 m.Groups[3].Value
+                    | None -> m.Value
+            )
+
+        File.WriteAllText(htmlPath, html)
+
 [<Verb("convert",
        HelpText =
            "convert a single document (.md, .fsx, .ipynb) to HTML or another output format without building a full documentation site")>]
@@ -2342,7 +2471,8 @@ type ConvertCommand() =
 
     [<Option("template",
              Required = false,
-             HelpText = "Path to an HTML (or other format) template file. When omitted, raw content is written.")>]
+             HelpText =
+                 "Path to an HTML template file, or 'fsdocs' to use the built-in default template. When omitted, raw content is written.")>]
     member val template = "" with get, set
 
     [<Option("outputformat",
@@ -2362,6 +2492,13 @@ type ConvertCommand() =
              Required = false,
              HelpText = "Additional substitution parameters, e.g. --parameters key1 value1 key2 value2")>]
     member val parameters = Seq.empty<string> with get, set
+
+    [<Option("no-embed-resources",
+             Default = false,
+             Required = false,
+             HelpText =
+                 "Disable automatic inlining of local CSS, JS, and images into the output HTML. By default, when a template is used for HTML output, all locally-referenced assets are embedded so the output is a self-contained single file.")>]
+    member val noEmbedResources = false with get, set
 
     member this.Execute() =
         let inputFile = Path.GetFullPath(this.input)
@@ -2402,11 +2539,28 @@ type ConvertCommand() =
                 else
                     this.output
 
-            let templateOpt =
+            // Handle --template fsdocs: extract the embedded default template to a temp file.
+            // Handle --template <path>: use as-is.
+            // Handle no template: raw content only (no resource embedding needed).
+            let templateOpt, tempFileToCleanUp =
                 if String.IsNullOrWhiteSpace this.template then
-                    None
+                    None, None
+                elif this.template.Equals("fsdocs", StringComparison.OrdinalIgnoreCase) then
+                    let asm = Assembly.GetExecutingAssembly()
+                    use stream = asm.GetManifestResourceStream("fsdocs._template.html")
+                    use reader = new StreamReader(stream)
+                    let content = reader.ReadToEnd()
+
+                    let tmp =
+                        Path.Combine(
+                            Path.GetTempPath(),
+                            sprintf "fsdocs-template-%s.html" (Guid.NewGuid().ToString("N"))
+                        )
+
+                    File.WriteAllText(tmp, content)
+                    Some tmp, Some tmp
                 else
-                    Some this.template
+                    Some this.template, None
 
             let userSubstitutions =
                 let parameters = Array.ofSeq this.parameters
@@ -2417,6 +2571,20 @@ type ConvertCommand() =
 
                 evalPairwiseStringsNoOption parameters
                 |> List.map (fun (a, b) -> (ParamKey a, b))
+
+            // When embedding resources we need {{root}} to resolve to "" so that paths like
+            // "{{root}}content/fsdocs-default.css" become "content/fsdocs-default.css".
+            // Only add this default if the user has not already supplied a root substitution.
+            let embedResources = not this.noEmbedResources && outputKind = OutputKind.Html && templateOpt.IsSome
+
+            let substitutions =
+                if
+                    embedResources
+                    && not (userSubstitutions |> List.exists (fun (k, _) -> k = ParamKeys.root))
+                then
+                    userSubstitutions @ [ (ParamKeys.root, "") ]
+                else
+                    userSubstitutions
 
             let isFsx = inputFile.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
             let isMd = inputFile.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
@@ -2432,7 +2600,7 @@ type ConvertCommand() =
                         output = outputFile,
                         outputKind = outputKind,
                         lineNumbers = this.linenumbers,
-                        substitutions = userSubstitutions
+                        substitutions = substitutions
                     )
 
                     0
@@ -2452,7 +2620,7 @@ type ConvertCommand() =
                         outputKind = outputKind,
                         lineNumbers = this.linenumbers,
                         ?fsiEvaluator = fsiEvaluator,
-                        substitutions = userSubstitutions
+                        substitutions = substitutions
                     )
 
                     0
@@ -2465,7 +2633,7 @@ type ConvertCommand() =
                         output = outputFile,
                         outputKind = outputKind,
                         lineNumbers = this.linenumbers,
-                        substitutions = userSubstitutions
+                        substitutions = substitutions
                     )
 
                     0
@@ -2476,6 +2644,25 @@ type ConvertCommand() =
             with ex ->
                 printfn "Error during conversion: %O" ex
                 1
+            |> fun exitCode ->
+                // Clean up any temporary template file we created.
+                match tempFileToCleanUp with
+                | Some tmp ->
+                    try
+                        File.Delete(tmp)
+                    with _ ->
+                        ()
+                | None -> ()
+
+                // Post-process the HTML to inline all local asset references.
+                if exitCode = 0 && embedResources then
+                    let searchDirs =
+                        ConvertHelpers.findContentSearchDirs outputFile (Option.map Path.GetFullPath templateOpt)
+
+                    printfn "embedding resources into %s (search dirs: %s)" outputFile (String.concat ", " searchDirs)
+                    ConvertHelpers.embedResourcesInHtml outputFile searchDirs
+
+                exitCode
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =

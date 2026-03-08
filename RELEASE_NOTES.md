@@ -10,6 +10,7 @@
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* `fsdocs convert` now embeds CSS, JS, and local images directly into the HTML output by default, producing a single self-contained file. Use `--no-embed-resources` to disable. Pass `--template fsdocs` to use the built-in default template without needing a local `_template.html`. [#1068](https://github.com/fsprojects/FSharp.Formatting/issues/1068)
 
 ### Changed
 * Changed `range` fields in `MarkdownSpan` and `MarkdownParagraph` DU cases from `MarkdownRange option` to `MarkdownRange`, using `MarkdownRange.zero` as the default/placeholder value instead of `None`.
