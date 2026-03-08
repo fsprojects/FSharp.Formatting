@@ -137,11 +137,13 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                       p [ !!"Description" ]
                       p [ !!"Source" ] ] ]
                   [ AlignLeft; AlignLeft; AlignCenter ]
-                  [ for e in entities do
+                  [ let nameCounts = entities |> List.countBy (fun e -> e.Name) |> dict
+
+                    for e in entities do
                         [ [ p
                                 [ let nm = e.Name
 
-                                  let multi = (entities |> List.filter (fun e -> e.Name = nm) |> List.length) > 1
+                                  let multi = nameCounts.[nm] > 1
 
                                   let nmWithSiffix =
                                       if multi then
