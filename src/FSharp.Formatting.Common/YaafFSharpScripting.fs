@@ -24,49 +24,74 @@ open FSharp.Compiler.Symbols
 [<assembly: InternalsVisibleTo("FSharp.Formatting.Markdown")>]
 do ()
 
+/// Small environment helpers used throughout FSharp.Formatting.Internal.
 module internal Env =
+    /// Returns <c>true</c> if the object reference is null.
     let inline isNull o = obj.ReferenceEquals(null, o)
+    /// Combines two path segments using <see cref="M:System.IO.Path.Combine"/>.
     let (++) a b = System.IO.Path.Combine(a, b)
 
+    /// Case-insensitive string equality.
     let (=?) s1 s2 =
         System.String.Equals(s1, s2, System.StringComparison.OrdinalIgnoreCase)
 
+    /// Case-insensitive string inequality.
     let (<>?) s1 s2 = not (s1 =? s2)
 
+    /// Indicates whether this binary was compiled for .NET Core (always <c>true</c> in the current build).
     let isNetCoreApp = true
 
 open Env
 
+/// Lightweight structured logger backed by a <see cref="T:System.Diagnostics.TraceSource"/>
+/// named <c>"FSharp.Formatting.Internal"</c>.
 module internal Log =
     let source = new TraceSource("FSharp.Formatting.Internal")
 
+    /// Emits a trace event of type <paramref name="t"/> using a printf-style format string.
     let traceEventf t f =
         Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
 
+    /// Logs an information message.
     let infof f =
         traceEventf TraceEventType.Information f
 
+    /// Logs an error message.
     let errorf f = traceEventf TraceEventType.Error f
+    /// Logs a warning message.
     let warnf f = traceEventf TraceEventType.Warning f
+    /// Logs a critical message.
     let critf f = traceEventf TraceEventType.Critical f
+    /// Logs a verbose/diagnostic message.
     let verbf f = traceEventf TraceEventType.Verbose f
 
+    /// Formats a sequence of arguments as a newline-indented list string for log messages.
     let formatArgs (args: _ seq) =
         System.String.Join("\n  ", args) |> sprintf "\n  %s"
 
+    /// Formats a sequence of file-path strings as a bracketed newline-separated list for log messages.
     let formatPaths paths =
         System.String.Join("\n  ", paths |> Seq.map (sprintf "\"%s\""))
         |> sprintf "\n[ %s ]"
 
+/// Extensions and helpers built on top of the F# Compiler Service, including an
+/// <see cref="T:FSharp.Compiler.CodeAnalysis.FSharpChecker"/> singleton, assembly loading utilities,
+/// and extension methods on FCS types.
 [<AutoOpen>]
 module internal CompilerServiceExtensions =
 
+    /// Utility functions for locating FSharp.Core, constructing checker arguments, and resolving assembly references.
     module FSharpAssemblyHelper =
+        /// The shared <see cref="T:FSharp.Compiler.CodeAnalysis.FSharpChecker"/> instance.
         let checker = FSharpChecker.Create()
+        /// The default framework version string passed to the checker when building project options.
         let defaultFrameworkVersion = "4.6.1"
 
+        /// Returns the full path to a DLL named <paramref name="nm"/> in directory <paramref name="dir"/>.
         let getLib dir nm = dir ++ nm + ".dll"
 
+        /// Lazily resolves the set of default .NET Core framework <c>-r:</c> references
+        /// by asking the checker to parse a trivial script.
         let getNetCoreAppFrameworkDependencies =
             lazy
                 (let options, _ =
@@ -87,15 +112,18 @@ module internal CompilerServiceExtensions =
                  //|> Seq.map (fun path -> path.Replace("\\\\", "\\"))
                  |> Array.toList)
 
+        /// Returns the candidate directories in which to search for FSharp.Core.dll.
         let fscoreResolveDirs libDirs =
             [ yield System.AppContext.BaseDirectory
 
               yield! libDirs
               yield System.IO.Directory.GetCurrentDirectory() ]
 
+        /// Returns <c>Some path</c> if a file exists at <paramref name="fscorePath"/>, otherwise <c>None</c>.
         let tryCheckFsCore fscorePath =
             if File.Exists fscorePath then Some fscorePath else None
 
+        /// Locates the FSharp.Core.dll to use, searching the provided DLL list then the standard resolver directories.
         let findFSCore dllFiles libDirs =
             // lets find ourself some FSharp.Core.dll
             let tried =
@@ -110,9 +138,12 @@ module internal CompilerServiceExtensions =
                 printfn "Could not find a FSharp.Core.dll in %s" paths
                 failwithf "Could not find a FSharp.Core.dll in %s" paths
 
+        /// Returns <c>true</c> if any DLL in the list has the base name <paramref name="asm"/> (case-insensitive).
         let isAssembly asm l =
             l |> List.exists (fun (a: string) -> Path.GetFileNameWithoutExtension a =? asm)
 
+        /// Builds the set of command-line arguments passed to the FCS checker for compiling or type-checking
+        /// a temporary project, including framework references, optimisation flags, and user-provided extras.
         let getCheckerArguments
             frameworkVersion
             defaultReferences
@@ -169,6 +200,8 @@ module internal CompilerServiceExtensions =
 
             projFileName, args
 
+        /// Resolves the transitive assembly references for the given DLL files by parsing and type-checking
+        /// a temporary project with the checker, then extracting the referenced assembly paths.
         let getProjectReferences frameworkVersion otherFlags (libDirs: string list option) (dllFiles: string list) =
             let otherFlags = defaultArg otherFlags Seq.empty
             let libDirs = defaultArg libDirs []
@@ -235,10 +268,13 @@ module internal CompilerServiceExtensions =
 
             references
 
+        /// Builds a map from file path to <see cref="T:FSharp.Compiler.Symbols.FSharpAssembly"/> for a reference list.
         let referenceMap references =
             references
             |> List.choose (fun (r: FSharpAssembly) -> r.FileName |> Option.map (fun f -> f, r))
 
+        /// Pairs each requested DLL file with the resolved <see cref="T:FSharp.Compiler.Symbols.FSharpAssembly"/>
+        /// (or <c>None</c> if the file is not in the reference set).
         let resolve (dllFiles: string list) references =
             let referenceDict = referenceMap references |> dict
 
@@ -249,14 +285,17 @@ module internal CompilerServiceExtensions =
                  | true, refFile -> Some refFile
                  | false, _ -> None))
 
+        /// Convenience wrapper: resolves references for a list of DLL files using default options.
         let getProjectReferencesSimple frameworkVersion (dllFiles: string list) =
             getProjectReferences frameworkVersion None None dllFiles |> resolve dllFiles
 
+        /// Resolves a single DLL file to its <see cref="T:FSharp.Compiler.Symbols.FSharpAssembly"/>.
         let getProjectReferenceFromFile frameworkVersion dllFile =
             getProjectReferencesSimple frameworkVersion [ dllFile ]
             |> List.exactlyOne
             |> snd
 
+        /// Returns a flat list of an entity and all its transitively nested entities.
         let rec enumerateEntities (e: FSharpEntity) =
             [ yield e; yield! e.NestedEntities |> Seq.collect enumerateEntities ]
 
@@ -273,6 +312,8 @@ module internal CompilerServiceExtensions =
 
     type FSharpAssembly with
 
+        /// Loads a set of DLL files as <see cref="T:FSharp.Compiler.Symbols.FSharpAssembly"/> values,
+        /// searching for additional references in the supplied library directories.
         static member LoadFiles(dllFiles: string list, ?libDirs: string list, ?otherFlags) =
             let libDirs = defaultArg libDirs []
 
@@ -307,6 +348,7 @@ module internal CompilerServiceExtensions =
 
             result
 
+        /// Tries to find the FCS entity corresponding to the given CLR <see cref="T:System.Type"/>.
         member x.FindType(t: Type) =
             x.Contents.Entities
             |> Seq.collect FSharpAssemblyHelper.enumerateEntities
@@ -317,11 +359,13 @@ module internal CompilerServiceExtensions =
                 | Some fullName when namespaceName = fullName -> Some entity
                 | _ -> None)
 
+/// Captured stdout/stderr output from a single FSI interaction split into FSI-produced and script-produced parts.
 type internal OutputData =
     { FsiOutput: string
       ScriptOutput: string
       Merged: string }
 
+/// The captured output and error streams from an FSI interaction round-trip.
 type internal InteractionOutputs =
     { Output: OutputData
       Error: OutputData }
@@ -368,6 +412,7 @@ type internal FsiExpressionTypeException =
     member x.Value = x.value
     member x.ExpectedType = x.expected
 
+/// The result of handling an FSI evaluation: a typed result, an invalid expression type, or a compilation error.
 type internal HandledResult<'a> =
     | InvalidExpressionType of FsiExpressionTypeException
     | InvalidCode of FsiEvaluationException

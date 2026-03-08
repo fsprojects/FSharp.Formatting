@@ -154,6 +154,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
     let niceNameEntityLookup = Dictionary<_, _>()
     let extensions = extensions
 
+    /// Generates a unique, filesystem-safe URL base name for the given symbol name by
+    /// replacing invalid characters and appending a numeric suffix when the name collides.
     let nameGen (name: string) =
         let nice =
             (toReplace
@@ -172,6 +174,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         usedNames.Add(found, true)
         found
 
+    /// Registers the XML doc signature for a member so it can be looked up during cross-reference resolution.
     let registerMember (memb: FSharpMemberOrFunctionOrValue) =
         let xmlsig = getXmlDocSigForMember memb
 
@@ -184,6 +187,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
             xmlDocNameToSymbol.[xmlsig] <- memb
 
+    /// Recursively registers an entity and all its nested entities and members so they can
+    /// be resolved as cross-references. Assigns a unique URL base name to each entity.
     let rec registerEntity (entity: FSharpEntity) =
         let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
 
@@ -205,12 +210,15 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         for memb in entity.TryGetMembersFunctionsAndValues() do
             registerMember memb
 
+    /// Returns the previously-assigned URL base name for a registered entity,
+    /// raising an exception if the entity has not been registered.
     let getUrlBaseNameForRegisteredEntity (entity: FSharpEntity) =
         match registeredSymbolsToUrlBaseName.TryGetValue(entity) with
         | true, v -> v
         | _ ->
             failwithf "The entity %s was not registered before!" (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
 
+    /// Strips a trailing parameter list "(…)" from a member name, returning just the base name.
     let removeParen (memberName: string) =
         let firstParen = memberName.IndexOf('(')
 
@@ -219,7 +227,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         else
             memberName
 
-    // Strip generic parameters from a type name: "Map<K,V>" -> "Map", "List`1" -> "List"
+    /// Strips generic parameters from a type name, e.g. <c>"Map&lt;K,V&gt;"</c> → <c>"Map"</c>, <c>"List`1"</c> → <c>"List"</c>.
     let stripGenericSuffix (name: string) =
         let angleIdx = name.IndexOf('<')
         let backtickIdx = name.IndexOf('`')
@@ -233,6 +241,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
         name.Substring(0, cutAt)
 
+    /// Extracts the containing type name from a fully-qualified member name, e.g.
+    /// <c>"Ns.Type.Member(args)"</c> → <c>Some "Ns.Type"</c>; returns <c>None</c> if no period is found.
     let tryGetTypeFromMemberName (memberName: string) =
         let sub = removeParen memberName
         let lastPeriod = sub.LastIndexOf('.')
@@ -242,6 +252,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         else
             None
 
+    /// Extracts the short member name (without the containing type prefix) from a fully-qualified
+    /// member name, e.g. <c>"Ns.Type.Member(args)"</c> → <c>Some "Member(args)"</c>.
     let tryGetShortMemberNameFromMemberName (memberName: string) =
         let sub = removeParen memberName
         let lastPeriod = sub.LastIndexOf('.')
@@ -251,6 +263,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         else
             None
 
+    /// Returns a display name for a member by retaining the last <paramref name="keepParts"/> dot-separated
+    /// segments and optionally stripping a trailing "Module" suffix from the first segment.
     let getMemberName keepParts hasModuleSuffix (memberNameNoParen: string) =
         let splits = memberNameNoParen.Split('.') |> Array.toList
 
@@ -278,6 +292,9 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
         noGenerics
 
+    /// Builds an external documentation link for an FSharp.Core or .NET symbol.
+    /// FSharp.Core symbols are linked to <c>fsharp.github.io/fsharp-core-docs</c>;
+    /// all other symbols are linked to <c>learn.microsoft.com/dotnet/api</c>.
     let externalDocsLink isMember simple (typeName: string) (fullName: string) =
         if
             fullName.StartsWith("FSharp.", StringComparison.Ordinal)
@@ -340,12 +357,16 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
               ReferenceLink = link
               NiceName = simple }
 
+    /// Returns the URL for a registered entity within this documentation collection.
     let internalCrossReference urlBaseName =
         ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify, extensions.InUrl)
 
+    /// Returns the URL for a specific member of a registered entity within this documentation collection.
     let internalCrossReferenceForMember entityUrlBaseName (memb: FSharpMemberOrFunctionOrValue) =
         ApiDocMember.GetUrl(entityUrlBaseName, memb.DisplayName, root, collectionName, qualify, extensions.InUrl)
 
+    /// Tries to resolve a cross-reference for an FSharpEntity; returns an internal link if the entity
+    /// was registered, otherwise falls back to an external documentation link.
     let tryResolveCrossReferenceForEntity (entity: FSharpEntity) =
         match registeredSymbolsToUrlBaseName.TryGetValue(entity) with
         | true, _v ->
@@ -360,6 +381,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
             | None -> None
             | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
 
+    /// Resolves a type cross-reference given its XML doc signature (must start with <c>"T:"</c>).
+    /// Checks the registered symbol map first, then falls back to the nice-name entity lookup.
     let resolveCrossReferenceForTypeByXmlSig (typeXmlSig: string) =
         assert (typeXmlSig.StartsWith("T:", StringComparison.Ordinal))
 
@@ -428,6 +451,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                     let simple = getMemberName 1 false typeName
                     externalDocsLink false simple typeName typeName
 
+    /// Converts a registered <see cref="T:FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue"/> to an
+    /// internal <see cref="T:FSharp.Formatting.ApiDocs.CrefReference"/>.
     let mfvToCref (mfv: FSharpMemberOrFunctionOrValue) =
         match mfv.DeclaringEntity with
         | None -> failwith $"%s{mfv.DisplayName} does not have a DeclaringEntity"
@@ -438,6 +463,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
               ReferenceLink = internalCrossReferenceForMember entityUrlBaseName mfv
               NiceName = declaringEntity.DisplayName + "." + mfv.DisplayName }
 
+    /// Tries to resolve a cross-reference for a member given its XML doc signature
+    /// (must start with <c>"M:"</c>, <c>"P:"</c>, <c>"F:"</c>, or <c>"E:"</c>).
     let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
         assert
             (memberXmlSig.StartsWith("M:", StringComparison.Ordinal)
@@ -519,7 +546,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 None
 
 
-    // Try to resolve a cref that has no XML doc prefix (e.g. "MyType", "MyType.MyMember", "Map<K,V>")
+    /// Tries to resolve a cref that has no XML doc prefix (e.g. <c>"MyType"</c>, <c>"MyType.MyMember"</c>).
+    /// Attempts a "Type.Member" split first, then a bare type name lookup.
     let tryResolveUnqualifiedCref (cref: string) =
         let baseName = stripGenericSuffix cref
 
@@ -562,6 +590,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 | _ -> None
             | _ -> None
 
+    /// Resolves a <c>cref</c> string (with or without XML doc prefix such as <c>"T:"</c> or <c>"M:"</c>)
+    /// to a <see cref="T:FSharp.Formatting.ApiDocs.CrefReference"/>, or <c>None</c> if unresolvable.
     member _.ResolveCref(cref: string) =
         if (cref.Length < 2) then
             invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
@@ -583,19 +613,25 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 Log.warnf "Unresolved reference '%s'!" cref
                 None
 
+    /// Registers an entity (and all its nested entities and members) so that cross-references to it can be resolved.
     member _.RegisterEntity entity = registerEntity entity
 
+    /// Returns the URL base name that was assigned to the given registered entity.
     member _.ResolveUrlBaseNameForEntity entity =
         getUrlBaseNameForRegisteredEntity entity
 
+    /// Returns the URL base name for the entity if it has been registered, or <c>None</c>.
     member _.TryResolveUrlBaseNameForEntity(entity: FSharpEntity) =
         match registeredSymbolsToUrlBaseName.TryGetValue(entity) with
         | true, v -> Some v
         | _ -> None
 
+    /// Tries to resolve an <see cref="T:FSharp.Compiler.Symbols.FSharpEntity"/> to a cross-reference,
+    /// returning an internal reference if registered or an external link otherwise.
     member _.TryResolveEntity entity =
         tryResolveCrossReferenceForEntity entity
 
+    /// Returns <c>true</c> if the given cref resolves to an entity within this documentation collection.
     member x.IsLocal cref =
         match x.ResolveCref(cref) with
         | None -> false
