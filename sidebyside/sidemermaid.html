@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsprojects.github.io/FSharp.Formatting/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="Mermaid Diagrams" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="Mermaid Diagrams">
+    
+    <title>Mermaid Diagrams | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header active">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header active">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Example-Mermaid-Diagrams" class="anchor" href="#Example-Mermaid-Diagrams">Example: Mermaid Diagrams</a></h1>
+<p><a href="https://mermaid.js.org/">Mermaid</a> is a JavaScript-based diagramming and charting tool that renders Markdown-inspired text definitions into diagrams.</p>
+<h2><a name="Setup" class="anchor" href="#Setup">Setup</a></h2>
+<p>Add the Mermaid JavaScript library to your site by creating or editing a <code>_head.html</code> file in your <code>docs</code> folder:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip highlighted"><code lang="html"><span class="k">&lt;</span><span class="i">script</span> <span class="o">type</span><span class="k">="module"</span><span class="k">&gt;</span>
+  import mermaid from <span class="s">'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'</span>;
+<span class="k">&lt;/</span><span class="i">script</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<h2><a name="Usage" class="anchor" href="#Usage">Usage</a></h2>
+<p>To embed a Mermaid diagram, wrap your Mermaid syntax in a <code>&lt;div&gt;</code> element with the <code>mermaid</code> CSS class:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip highlighted"><code lang="html"><span class="k">&lt;</span><span class="i">div</span> <span class="o">class</span><span class="k">="mermaid"</span><span class="k">&gt;</span>
+graph LR
+    A[Input docs] --<span class="k">&gt;</span> B[fsdocs build]
+    B --<span class="k">&gt;</span> C[HTML output]
+    B --<span class="k">&gt;</span> D[API reference]
+<span class="k">&lt;/</span><span class="i">div</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>This renders as:</p>
+<div class="mermaid">
+graph LR
+    A[Input docs] --> B[fsdocs build]
+    B --> C[HTML output]
+    B --> D[API reference]
+</div>
+<h2><a name="More-Examples" class="anchor" href="#More-Examples">More Examples</a></h2>
+<p>Sequence diagram:</p>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant fsdocs
+    participant Browser
+    User->>fsdocs: dotnet fsdocs watch
+    fsdocs-->>Browser: Serve docs
+    User->>fsdocs: Edit .md or .fsx
+    fsdocs-->>Browser: Reload page
+</div>
+<p>Class diagram:</p>
+<div class="mermaid">
+classDiagram
+    class ApiDocComment {
+        +Summary: string
+        +Remarks: string option
+        +Parameters: ApiDocSection list
+    }
+    class ApiDocMember {
+        +Name: string
+        +Comment: ApiDocComment
+    }
+    ApiDocMember --> ApiDocComment
+</div>
+<h2><a name="Tips" class="anchor" href="#Tips">Tips</a></h2>
+<ul>
+<li>You can also use <code>&lt;div class="mermaid text-center"&gt;</code> to centre the diagram on the page.</li>
+<li>To customise the Mermaid theme, pass options to <code>mermaid.initialize()</code> before the <code>import</code> call.</li>
+<li>See the <a href="https://mermaid.js.org/intro/">Mermaid documentation</a> for the full list of supported diagram types.</li>
+</ul>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Example-Mermaid-Diagrams">
+      Example: Mermaid Diagrams
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Setup">
+      Setup
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Usage">
+      Usage
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#More-Examples">
+      More Examples
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Tips">
+      Tips
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>

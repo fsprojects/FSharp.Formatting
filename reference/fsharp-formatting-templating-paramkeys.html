@@ -1,0 +1,3128 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsprojects.github.io/FSharp.Formatting/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="ParamKeys (FSharp.Formatting)" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/{{fsdocs-source-basename}}.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="ParamKeys (FSharp.Formatting)">
+    
+    <title>ParamKeys (FSharp.Formatting) | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="api-docs">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <div>
+  <h2>
+    ParamKeys Module
+  </h2>
+  <dl class="fsdocs-metadata">
+    <dt>
+      Namespace: 
+      <a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating.html">
+        FSharp.Formatting.Templating
+      </a>
+    </dt>
+    <dt>
+      Assembly: FSharp.Formatting.Common.dll
+    </dt>
+  </dl>
+  <div class="fsdocs-xmldoc">
+    <div>
+      <div class="fsdocs-summary-contents">
+        <p class="fsdocs-summary">
+            Defines the parameter keys known to FSharp.Formatting processing code
+        </p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3>
+      Functions and values
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Function or value
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+            <fsdocs-details-toggle></fsdocs-details-toggle>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+                <p>
+                  <a id="``fsdocs-authors``">
+                    <a href="#``fsdocs-authors``">
+                      <code><span>ParamKeys.``fsdocs-authors``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="38">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-authors``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L83-83" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-authors\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-authors`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+                <p>
+                  <a id="``fsdocs-body-class``">
+                    <a href="#``fsdocs-body-class``">
+                      <code><span>ParamKeys.``fsdocs-body-class``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="39">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-body-class``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, either 'content' or 'api-doc'
+ Mean to be used on the `class` attribute in the `<body>` tag.
+ This helps to differentiate styles between API docs and custom content.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L213-213" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-body-class\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-body-class`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+                <p>
+                  <a id="``fsdocs-body-extra``">
+                    <a href="#``fsdocs-body-extra``">
+                      <code><span>ParamKeys.``fsdocs-body-extra``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="40">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-body-extra``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L208-208" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-body-extra\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-body-extra`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+                <p>
+                  <a id="``fsdocs-collection-name-link``">
+                    <a href="#``fsdocs-collection-name-link``">
+                      <code><span>ParamKeys.``fsdocs-collection-name-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="41">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-collection-name-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L95-95" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-collection-name-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-collection-name-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+                <p>
+                  <a id="``fsdocs-collection-name``">
+                    <a href="#``fsdocs-collection-name``">
+                      <code><span>ParamKeys.``fsdocs-collection-name``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="42">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-collection-name``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L86-86" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-collection-name\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-collection-name`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+                <p>
+                  <a id="``fsdocs-content``">
+                    <a href="#``fsdocs-content``">
+                      <code><span>ParamKeys.``fsdocs-content``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="43">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-content``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L89-89" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-content\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-content`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+                <p>
+                  <a id="``fsdocs-copyright``">
+                    <a href="#``fsdocs-copyright``">
+                      <code><span>ParamKeys.``fsdocs-copyright``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="44">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-copyright``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L98-98" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-copyright\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-copyright`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+                <p>
+                  <a id="``fsdocs-favicon-src``">
+                    <a href="#``fsdocs-favicon-src``">
+                      <code><span>ParamKeys.``fsdocs-favicon-src``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="45">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-favicon-src``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L119-119" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-favicon-src\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-favicon-src`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
+                <p>
+                  <a id="``fsdocs-head-extra``">
+                    <a href="#``fsdocs-head-extra``">
+                      <code><span>ParamKeys.``fsdocs-head-extra``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="46">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-head-extra``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L205-205" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-head-extra\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-head-extra`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+                <p>
+                  <a id="``fsdocs-license-link``">
+                    <a href="#``fsdocs-license-link``">
+                      <code><span>ParamKeys.``fsdocs-license-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="47">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-license-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L101-101" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-license-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-license-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
+                <p>
+                  <a id="``fsdocs-list-of-documents``">
+                    <a href="#``fsdocs-list-of-documents``">
+                      <code><span>ParamKeys.``fsdocs-list-of-documents``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="48">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-list-of-documents``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L107-107" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-list-of-documents\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-list-of-documents`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+                <p>
+                  <a id="``fsdocs-list-of-namespaces``">
+                    <a href="#``fsdocs-list-of-namespaces``">
+                      <code><span>ParamKeys.``fsdocs-list-of-namespaces``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="49">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-list-of-namespaces``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L104-104" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-list-of-namespaces\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-list-of-namespaces`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+                <p>
+                  <a id="``fsdocs-logo-alt``">
+                    <a href="#``fsdocs-logo-alt``">
+                      <code><span>ParamKeys.``fsdocs-logo-alt``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="50">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-logo-alt``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L116-116" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-logo-alt\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-logo-alt`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
+                <p>
+                  <a id="``fsdocs-logo-link``">
+                    <a href="#``fsdocs-logo-link``">
+                      <code><span>ParamKeys.``fsdocs-logo-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="51">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-logo-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L110-110" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-logo-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-logo-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+                <p>
+                  <a id="``fsdocs-logo-src``">
+                    <a href="#``fsdocs-logo-src``">
+                      <code><span>ParamKeys.``fsdocs-logo-src``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="52">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-logo-src``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L113-113" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-logo-src\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-logo-src`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+                <p>
+                  <a id="``fsdocs-menu-header-active-class``">
+                    <a href="#``fsdocs-menu-header-active-class``">
+                      <code><span>ParamKeys.``fsdocs-menu-header-active-class``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="53">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-header-active-class``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu_template.html
+ This will be an empty string if the category is not active.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L180-180" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-header-active-class\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-header-active-class`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+                <p>
+                  <a id="``fsdocs-menu-header-content``">
+                    <a href="#``fsdocs-menu-header-content``">
+                      <code><span>ParamKeys.``fsdocs-menu-header-content``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="54">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-header-content``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu_template.html
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L173-173" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-header-content\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-header-content`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+                <p>
+                  <a id="``fsdocs-menu-header-id``">
+                    <a href="#``fsdocs-menu-header-id``">
+                      <code><span>ParamKeys.``fsdocs-menu-header-id``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="55">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-header-id``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu_template.html
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L176-176" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-header-id\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-header-id`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+                <p>
+                  <a id="``fsdocs-menu-item-active-class``">
+                    <a href="#``fsdocs-menu-item-active-class``">
+                      <code><span>ParamKeys.``fsdocs-menu-item-active-class``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="56">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-item-active-class``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+ /// This will be an empty string if the item is not active.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L196-196" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-active-class\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-active-class`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
+                <p>
+                  <a id="``fsdocs-menu-item-content``">
+                    <a href="#``fsdocs-menu-item-content``">
+                      <code><span>ParamKeys.``fsdocs-menu-item-content``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="57">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-item-content``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L189-189" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-content\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-content`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+                <p>
+                  <a id="``fsdocs-menu-item-id``">
+                    <a href="#``fsdocs-menu-item-id``">
+                      <code><span>ParamKeys.``fsdocs-menu-item-id``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="58">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-item-id``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L192-192" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-id\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-id`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+                <p>
+                  <a id="``fsdocs-menu-item-link``">
+                    <a href="#``fsdocs-menu-item-link``">
+                      <code><span>ParamKeys.``fsdocs-menu-item-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="59">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-item-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L186-186" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-item-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+                <p>
+                  <a id="``fsdocs-menu-items``">
+                    <a href="#``fsdocs-menu-items``">
+                      <code><span>ParamKeys.``fsdocs-menu-items``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="60">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-menu-items``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available in _menu_template.html
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L183-183" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-items\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-menu-items`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
+                <p>
+                  <a id="``fsdocs-meta-tags``">
+                    <a href="#``fsdocs-meta-tags``">
+                      <code><span>ParamKeys.``fsdocs-meta-tags``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="61">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-meta-tags``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, it is HTML composed from additional frontmatter information.
+ Such as tags and description
+ This can be empty when both properties are not provided for the current page.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L218-218" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-meta-tags\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-meta-tags`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
+                <p>
+                  <a id="``fsdocs-next-page-link``">
+                    <a href="#``fsdocs-next-page-link``">
+                      <code><span>ParamKeys.``fsdocs-next-page-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="62">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-next-page-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L202-202" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-next-page-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-next-page-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
+                <p>
+                  <a id="``fsdocs-package-icon-url``">
+                    <a href="#``fsdocs-package-icon-url``">
+                      <code><span>ParamKeys.``fsdocs-package-icon-url``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="63">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-package-icon-url``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L134-134" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-icon-url\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-icon-url`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
+                <p>
+                  <a id="``fsdocs-package-license-expression``">
+                    <a href="#``fsdocs-package-license-expression``">
+                      <code><span>ParamKeys.``fsdocs-package-license-expression``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="64">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-package-license-expression``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L122-122" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-license-expression\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-license-expression`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '65', 65)" onmouseover="showTip(event, '65', 65)">
+                <p>
+                  <a id="``fsdocs-package-project-url``">
+                    <a href="#``fsdocs-package-project-url``">
+                      <code><span>ParamKeys.``fsdocs-package-project-url``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="65">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-package-project-url``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L125-125" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-project-url\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-project-url`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '66', 66)" onmouseover="showTip(event, '66', 66)">
+                <p>
+                  <a id="``fsdocs-package-tags``">
+                    <a href="#``fsdocs-package-tags``">
+                      <code><span>ParamKeys.``fsdocs-package-tags``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="66">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-package-tags``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L128-128" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-tags\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-tags`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '67', 67)" onmouseover="showTip(event, '67', 67)">
+                <p>
+                  <a id="``fsdocs-package-version``">
+                    <a href="#``fsdocs-package-version``">
+                      <code><span>ParamKeys.``fsdocs-package-version``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="67">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-package-version``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L131-131" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-version\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-package-version`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '68', 68)" onmouseover="showTip(event, '68', 68)">
+                <p>
+                  <a id="``fsdocs-page-content-list``">
+                    <a href="#``fsdocs-page-content-list``">
+                      <code><span>ParamKeys.``fsdocs-page-content-list``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="68">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-page-content-list``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L92-92" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-page-content-list\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-page-content-list`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '69', 69)" onmouseover="showTip(event, '69', 69)">
+                <p>
+                  <a id="``fsdocs-page-source``">
+                    <a href="#``fsdocs-page-source``">
+                      <code><span>ParamKeys.``fsdocs-page-source``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="69">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-page-source``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L140-140" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-page-source\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-page-source`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '70', 70)" onmouseover="showTip(event, '70', 70)">
+                <p>
+                  <a id="``fsdocs-page-title``">
+                    <a href="#``fsdocs-page-title``">
+                      <code><span>ParamKeys.``fsdocs-page-title``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="70">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-page-title``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L137-137" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-page-title\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-page-title`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
+                <p>
+                  <a id="``fsdocs-previous-page-link``">
+                    <a href="#``fsdocs-previous-page-link``">
+                      <code><span>ParamKeys.``fsdocs-previous-page-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="71">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-previous-page-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L199-199" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-previous-page-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-previous-page-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
+                <p>
+                  <a id="``fsdocs-release-notes-link``">
+                    <a href="#``fsdocs-release-notes-link``">
+                      <code><span>ParamKeys.``fsdocs-release-notes-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="72">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-release-notes-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L143-143" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-release-notes-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-release-notes-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
+                <p>
+                  <a id="``fsdocs-repository-branch``">
+                    <a href="#``fsdocs-repository-branch``">
+                      <code><span>ParamKeys.``fsdocs-repository-branch``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="73">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-repository-branch``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L146-146" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-repository-branch\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-repository-branch`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
+                <p>
+                  <a id="``fsdocs-repository-commit``">
+                    <a href="#``fsdocs-repository-commit``">
+                      <code><span>ParamKeys.``fsdocs-repository-commit``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="74">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-repository-commit``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L149-149" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-repository-commit\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-repository-commit`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
+                <p>
+                  <a id="``fsdocs-repository-link``">
+                    <a href="#``fsdocs-repository-link``">
+                      <code><span>ParamKeys.``fsdocs-repository-link``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="75">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-repository-link``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L152-152" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-repository-link\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-repository-link`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
+                <p>
+                  <a id="``fsdocs-source-basename``">
+                    <a href="#``fsdocs-source-basename``">
+                      <code><span>ParamKeys.``fsdocs-source-basename``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="76">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-source-basename``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L161-161" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-source-basename\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-source-basename`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
+                <p>
+                  <a id="``fsdocs-source-filename``">
+                    <a href="#``fsdocs-source-filename``">
+                      <code><span>ParamKeys.``fsdocs-source-filename``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="77">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-source-filename``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L158-158" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-source-filename\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-source-filename`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
+                <p>
+                  <a id="``fsdocs-source``">
+                    <a href="#``fsdocs-source``">
+                      <code><span>ParamKeys.``fsdocs-source``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="78">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-source``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L155-155" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-source\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-source`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
+                <p>
+                  <a id="``fsdocs-theme``">
+                    <a href="#``fsdocs-theme``">
+                      <code><span>ParamKeys.``fsdocs-theme``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="79">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-theme``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L164-164" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-theme\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-theme`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
+                <p>
+                  <a id="``fsdocs-tooltips``">
+                    <a href="#``fsdocs-tooltips``">
+                      <code><span>ParamKeys.``fsdocs-tooltips``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="80">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-tooltips``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L167-167" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-tooltips\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-tooltips`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
+                <p>
+                  <a id="``fsdocs-watch-script``">
+                    <a href="#``fsdocs-watch-script``">
+                      <code><span>ParamKeys.``fsdocs-watch-script``&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="81">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.``fsdocs-watch-script``&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L170-170" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.fsdocs-watch-script\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.fsdocs-watch-script`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
+                <p>
+                  <a id="root">
+                    <a href="#root">
+                      <code><span>ParamKeys.root&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="82">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ParamKeys.root&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       A parameter key known to FSharp.Formatting
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Templating.fs#L80-80" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:FSharp.Formatting.Templating.ParamKeys.root\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:FSharp.Formatting.Templating.ParamKeys.root`')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating-paramkey.html">ParamKey</a></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <div class="empty"></div>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>

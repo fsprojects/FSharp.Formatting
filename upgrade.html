@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsprojects.github.io/FSharp.Formatting/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="Upgrading to fsdocs
+" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="Upgrading to fsdocs
+">
+    
+    <title>Upgrading to fsdocs
+ | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header active">
+  Advanced
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header active">
+  Advanced
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Upgrading-to-fsdocs" class="anchor" href="#Upgrading-to-fsdocs">Upgrading to fsdocs</a></h1>
+<p>Here are the typical steps to upgrade a repo based on <code>ProjectScaffold</code> to use <code>fsdocs</code></p>
+<ol>
+<li>
+<p>Run</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">dotnet new tool
+dotnet tool install fsdocs-tool
+</code></pre></td></tr></table>
+</li>
+<li><p>Delete all of <code>docs\tools</code> particularly <code>docs\tool\generate.fsx</code>.  Keep a copy of any templates for reference as you'll have to copy some bits across to the new template.</p></li>
+<li><p>Put your docs directory so it reflects the final shape of the site. For example move the content of <code>docs\input\*</code> and <code>docs\files\*</code> directly to <code>docs\*</code></p></li>
+<li><p>Follow the notes in <a href="styling.html">styling</a> to start to style your site.</p></li>
+<li>
+<p>Run</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">dotnet fsdocs watch
+</code></pre></td></tr></table>
+<p>and edit and test your docs.</p>
+</li>
+<li>
+<p>If using FAKE adjust <code>build.fsx</code> e.g.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">Target.create "GenerateDocs" (fun _ -&gt;
+   Shell.cleanDir ".fsdocs"
+   DotNet.exec id "fsdocs" "build --clean" |&gt; ignore
+)
+
+Target.create "ReleaseDocs" (fun _ -&gt;
+    Git.Repository.clone "" projectRepo "temp/gh-pages"
+    Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
+    Shell.copyRecursive "output" "temp/gh-pages" true |&gt; printfn "%A"
+    Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |&gt; printfn "%s"
+    let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
+    Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |&gt; printfn "%s"
+    Git.Branches.push "temp/gh-pages"
+)
+</code></pre></td></tr></table>
+</li>
+<li>
+<p>Consider creating <code>docs\_template.fsx</code> and <code>docs\_template.ipynb</code> to enable co-generation of F# scripts and F# notebooks.</p>
+<p>If you add support for notebooks and scripts, consider adding mybinder links to each of your literate executable content pages. For example <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L19">like this</a>.</p>
+<p>Also add load sections to make sure your notebooks and scripts contain the right content to load packages out of repo.  For example <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L1">like this</a>.</p>
+</li>
+</ol>
+<p>Sample commands:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">dotnet tool install fsdocs-tool --local
+git add dotnet-tools.json   
+git rm -fr docs/tools
+git mv docs/input/* docs
+git mv docs/files/* docs
+
+&lt;manually download and fixup the _template.html&gt;
+
+dotnet fsdocs watch
+
+touch docs/_template.fsx
+touch docs/_template.ipynb
+git add docs/_template.fsx
+git add docs/_template.ipynb
+</code></pre></td></tr></table>
+<p>Here is an example PR: <a href="https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116">https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116</a></p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Upgrading-to-fsdocs">
+      Upgrading to fsdocs
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>

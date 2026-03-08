@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsprojects.github.io/FSharp.Formatting/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="Creating Content
+" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="Creating Content
+">
+    
+    <title>Creating Content
+ | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<p><a href="https://mybinder.org/v2/gh/fsprojects/fsharp.formatting/gh-pages?filepath=content.ipynb"><img src="img/badge-binder.svg" alt="Binder" /></a>&emsp;
+<a href="https://fsprojects.github.io/FSharp.Formatting//content.fsx"><img src="img/badge-script.svg" alt="Script" /></a>&emsp;
+<a href="https://fsprojects.github.io/FSharp.Formatting//content.ipynb"><img src="img/badge-notebook.svg" alt="Notebook" /></a></p>
+<h1><a name="Creating-Content" class="anchor" href="#Creating-Content">Creating Content</a></h1>
+<p>The <a href="commandline.html">"fsdocs" tool</a> allows documentation for a site to be built
+from content in a <code>docs</code> directory. The expected structure for a <code>docs</code> directory is</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">docs/**/*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
+docs/**/*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
+docs/**/*                     -- other content, copied over
+docs/**/_template.html        -- optional template, specifies the HTML template for this directory and its contents
+docs/**/_template.tex         -- optionally indicates Latex files should be generated
+docs/**/_template.ipynb       -- optionally indicates F# ipynb files should be generated
+docs/**/_template.fsx         -- optionally indicates F# fsx files should be generated (even from markdown)
+docs/reference/_template.html -- optionally specifies the default template for reference docs
+</code></pre></td></tr></table>
+<p>Processing is by these two commands:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">build</span>
+<span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">watch</span>
+</code></pre>
+<p>The output goes in <code>output/</code> by default.  Processing is recursive, making this a form of static site generation.</p>
+<h2><a name="Literate-Scripts-and-Markdown-Content" class="anchor" href="#Literate-Scripts-and-Markdown-Content">Literate Scripts and Markdown Content</a></h2>
+<p>The input directory may contain <a href="literate.html">literate scripts</a> and markdown content.</p>
+<h2><a name="Other-Content" class="anchor" href="#Other-Content">Other Content</a></h2>
+<p>Content that is not <code>*.fsx</code> or <code>*.md</code> is copied across.</p>
+<h2><a name="Default-Styling-Content" class="anchor" href="#Default-Styling-Content">Default Styling Content</a></h2>
+<p>By default additional content such as <code>fsdocs-search.js</code>, <code>fsdocs-tips.js</code> and <code>fsdocs-default.css</code> are included in
+the <code>content</code> directory of the output.  This can be suppressed with <code>--nodefaultcontent</code> or by having your own
+copy of this content in your <code>content</code> directory.</p>
+<h2><a name="Ignored-Content" class="anchor" href="#Ignored-Content">Ignored Content</a></h2>
+<p>Any file or directory beginning with <code>.</code> is ignored.</p>
+<h2><a name="Front-matter" class="anchor" href="#Front-matter">Front matter</a></h2>
+<p>Each content file can have an optional frontmatter.  This determines the navigation bar title, categorization ordering and meta tags.</p>
+<p>For markdown, the format is:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">---</span>
+<span class="id">title</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">Some</span> <span class="id">Title</span>
+<span class="id">category</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs1', 2)" onmouseover="showTip(event, 'fs1', 2)" class="id">Some</span> <span class="id">Category</span>
+<span class="id">categoryindex</span><span class="pn">:</span> <span class="n">2</span>
+<span class="id">index</span><span class="pn">:</span> <span class="n">3</span>
+<span class="id">description</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="id">Some</span> <span class="id">description</span>
+<span class="id">keywords</span><span class="pn">:</span> <span class="id">tag1</span><span class="pn">,</span> <span class="id">tag2</span><span class="pn">,</span> <span class="id">tag3</span>
+<span class="o">---</span>
+</code></pre>
+<p>For F# scripts the frontmatter is in this form:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">(**</span>
+<span class="c">---</span>
+<span class="c">title: A Literate Script</span>
+<span class="c">category: Examples</span>
+<span class="c">categoryindex: 2</span>
+<span class="c">index: 1</span>
+<span class="c">description: Some description</span>
+<span class="c">keywords: tag1, tag2, tag3</span>
+<span class="c">---</span>
+<span class="c">*)</span>
+</code></pre>
+<p>All entries are optional.
+The <code>categoryindex</code> determines the ordering of categories.
+The <code>index</code> determines the ordering of within each category.
+The <code>title</code> is used in the navigation bar instead of any title inferred from the document.
+The <code>description</code> is used in <code>&lt;meta name="description"</code> as part of the <code>{{fsdocs-meta-tags}}</code> substitution.
+The <code>keywords</code> are also used in a meta tag as part of <code>{{fsdocs-meta-tags}}</code>. Separate them using a <code>,</code>.</p>
+<h2><a name="Link-Translation-for-Inputs" class="anchor" href="#Link-Translation-for-Inputs">Link Translation for Inputs</a></h2>
+<p>If an input is used in markdown as a target of a markdown direct link, then that is replaced by the output file. For example:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span><span onmouseout="hideTip(event, 'fs1', 4)" onmouseover="showTip(event, 'fs1', 4)" class="id">Some</span> <span class="id">Text</span><span class="pn">]</span><span class="pn">(</span><span class="id">some</span><span class="o">-</span><span class="id">file</span><span class="pn">.</span><span class="id">md</span><span class="pn">)</span>
+</code></pre>
+<p>becomes</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span><span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="id">Some</span> <span class="id">Text</span><span class="pn">]</span><span class="pn">(</span><span class="id">some</span><span class="o">-</span><span class="id">file</span><span class="pn">.</span><span class="id">html</span><span class="pn">)</span>
+</code></pre>
+<p>if <code>some-file.md</code> is one of the inputs.</p>
+<h2><a name="Multi-language-Content" class="anchor" href="#Multi-language-Content">Multi-language Content</a></h2>
+<p>Versions of content in other languages should go in two-letter coded sub-directories, e.g.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">docs</span><span class="o">/</span><span class="id">ja</span><span class="o">/...</span>
+<span class="id">docs</span><span class="o">/</span><span class="id">de</span><span class="o">/...</span>
+</code></pre>
+<p>These will be elided from the main table-of-contents and search indexes.  (Currently no language-specific
+table of contents is built, nor language-specific site search indexes).</p>
+<h2><a name="Templates-and-Substitutions" class="anchor" href="#Templates-and-Substitutions">Templates and Substitutions</a></h2>
+<p>Templates are used for HTML (<code>_template.html</code>), LaTeX (<code>_template.tex</code>), Notebooks (<code>_template.ipynb)</code>
+and F# script outputs (<code>_template.fsx</code>).</p>
+<p>The following substitutions determine the primary (non-styling) content of your site.
+For example <code>{{fsdocs-content}}</code> is replaced with the generated content in each file.</p>
+<p>Substitutions are applied when generating content from HTML templates, IPYNB templates, FSX templates.
+They are also applied to content apart from Markdown inline code <code>`...`</code>, Markdown LaTeX and
+generated outputs.</p>
+<p>See <a href="styling.html">Styling</a> for information about template parameters and styling beyond the default template.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Substitution name</p></th>
+<th align="left"><p>Generated content</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>root</code></p></td>
+<td align="left"><p><code>&lt;PackageProjectUrl&gt;</code> else <code>/</code> followed by <code>fsdocs-collection-name</code>.</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-collection-name</code></p></td>
+<td align="left"><p>Name of .sln, single .fsproj or containing directory</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-content</code></p></td>
+<td align="left"><p>Main page content</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-list-of-namespaces</code></p></td>
+<td align="left"><p>HTML <code>&lt;li&gt;</code> list of namespaces with links</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-list-of-documents</code></p></td>
+<td align="left"><p>HTML <code>&lt;li&gt;</code> list of documents with  titles and links</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-page-title</code></p></td>
+<td align="left"><p>First h1 heading in literate file. Generated for API docs</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-source</code></p></td>
+<td align="left"><p>Original literate script or markdown source</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-source-filename</code></p></td>
+<td align="left"><p>Name of original input source, relative to the <code>docs</code> root</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-source-basename</code></p></td>
+<td align="left"><p>Name of original input source, excluding its extensions, relative to the <code>docs</code> root</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-tooltips</code></p></td>
+<td align="left"><p>Generated hidden div elements for tooltips</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-watch-script</code></p></td>
+<td align="left"><p>The websocket script used in watch mode to trigger hot reload</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-previous-page-link</code></p></td>
+<td align="left"><p>A relative link to the previous page based on the frontmatter index data</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-next-page-link</code></p></td>
+<td align="left"><p>A relative link to the next page based on the frontmatter index data</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-head-extra</code></p></td>
+<td align="left"><p>Additional html content loaded from the <code>_head.html</code> file if present in the <code>--input</code> folder</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-body-extra</code></p></td>
+<td align="left"><p>Additional html content loaded from the <code>_body.html</code> file if present in the <code>--input</code> folder</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-body-class</code></p></td>
+<td align="left"><p>A css class value to help distinguish between <code>content</code> and <code>api-docs</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-meta-tags</code></p></td>
+<td align="left"><p>A set of additional HTML meta tags, present when description and/or keywords are present in the frontmatter</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>The following substitutions are extracted from your project files and may or may not be used by the default
+template:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Substitution name</p></th>
+<th align="left"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-copyright</code></p></td>
+<td align="left"><p><code>&lt;Copyright&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-package-project-url</code></p></td>
+<td align="left"><p><code>&lt;PackageProjectUrl&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-package-license-expression</code></p></td>
+<td align="left"><p><code>&lt;PackageLicenseExpression&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-package-tags</code></p></td>
+<td align="left"><p><code>&lt;PackageTags&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-package-version</code></p></td>
+<td align="left"><p><code>&lt;Version&gt;</code></p></td>
+</tr>
+</tbody>
+</table>
+
+<p>For the <code>fsdocs</code> tool, additional substitutions can be specified using <code>--parameters</code>.</p>
+<h2><a name="Cross-References-to-API-Docs" class="anchor" href="#Cross-References-to-API-Docs">Cross References to API Docs</a></h2>
+<p>Markdown content can contain cross-references to API Docs.  Use inline
+markdown code snippets of the special form <code>`cref:T:MyNamespace.MyType`</code> where <code>T:MyNamespace.MyType</code>
+is a method, property or type xml doc sig reference, see <a href="apidocs.html">API Docs</a>.
+This can include any cross-references resolved by fsdocs.</p>
+<p>The generated API documentation includes buttons to copy the XML and Markdown forms of API doc references.</p>
+<p>For example, within this project,</p>
+<ul>
+<li><p>the text <code>`cref:T:FSharp.Formatting.Markdown.MarkdownParagraph`</code> resolves to the link <a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdownparagraph.html">MarkdownParagraph</a></p></li>
+<li><p>the text <code>`cref:T:System.Console`</code> resolves to the link <a href="https://learn.microsoft.com/dotnet/api/system.console">Console</a></p></li>
+<li><p>the text <code>`cref:M:System.Console.WriteLine`</code> resolves to the link <a href="https://learn.microsoft.com/dotnet/api/system.console.writeline">Console.WriteLine</a></p></li>
+<li><p>the text <code>`cref:M:System.Console.WriteLine(System.String)`</code> resolves to the link <a href="https://learn.microsoft.com/dotnet/api/system.console.writeline">Console.WriteLine</a></p></li>
+<li><p>the text <code>``cref:T:FSharp.Control.FSharpAsync`1``</code> resolves to the link <a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-control-fsharpasync-1">Async</a></p></li>
+<li><p>the text <code>`cref:T:FSharp.Control.FSharpAsync`</code> resolves to the link <a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-control-fsharpasync">Async</a></p></li>
+<li><p>the text <code>``cref:T:FSharp.Core.array`1``</code> resolves to the link <a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-array-1">array</a></p></li>
+<li><p>the text <code>`cref:T:FSharp.Core.OptionModule`</code> resolves to the link <a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-optionmodule">Option</a></p></li>
+<li><p>the text <code>```cref:M:FSharp.Collections.ListModule.Append``1```</code> resolves to the link <a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-listmodule#Append">ListModule.Append</a></p></li>
+</ul>
+<blockquote>
+<p>NOTE: These cases act as tests - if the links above do not work, then that indicates a bug or a change in the
+external link. <a href="https://github.com/fsprojects/FSharp.Formatting/issues/new">Please report it</a>.</p>
+</blockquote>
+<p>Determining xmldoc sig references is not simple.  The API doc generated pages come with
+buttons to copy out the XmlDoc signature.</p>
+<h2><a name="Generating-HTML-Output" class="anchor" href="#Generating-HTML-Output">Generating HTML Output</a></h2>
+<p>HTML is generated by default. You can also add a <code>_template.html</code>.  This should contain <code>{{fsdocs-content}}</code>,  <code>{{fsdocs-tooltips}}</code>
+and other placeholders. Substitutions are
+applied to this template.
+If a file <code>_template.html</code> exists, then it's used as the template for HTML generation for that directory and all sub-content.</p>
+<h2><a name="Generating-LaTeX-output" class="anchor" href="#Generating-LaTeX-output">Generating LaTeX output</a></h2>
+<p>To generate .tex output for each script and markdown file, add a <code>_template.tex</code>. Substitutions are
+applied to this template. The file is either empty or contains <code>{{fsdocs-content}}</code> as the key where the body
+of the document is placed.</p>
+<h2><a name="Generating-iPython-Notebook-output" class="anchor" href="#Generating-iPython-Notebook-output">Generating iPython Notebook output</a></h2>
+<p>To generate .ipynb output for each script and markdown file, add a <code>_template.ipynb</code>, usually empty. Substitutions are
+applied to this template.</p>
+<p>To add a <code>mybinder</code> badge to your generated notebook, ensure you have a <code>Dockerfile</code> and <code>NuGet.config</code>
+in your <code>docs</code> directory and use text like this:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span><span class="o">!</span><span class="pn">[</span><span class="id">Binder</span><span class="pn">]</span><span class="pn">(</span><span class="id">https</span><span class="pn">:</span><span class="c">//mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)</span>
+</code></pre>
+<h2><a name="Generating-Script-outputs" class="anchor" href="#Generating-Script-outputs">Generating Script outputs</a></h2>
+<p>To generate .fsx output for each script and markdown file, add a <code>_template.fsx</code>, usually empty. Substitutions are
+applied to this template. It is either empty or contains <code>{{fsdocs-content}}</code> as the key where the body
+of the script is placed.</p>
+
+        <div class="fsdocs-tip" id="fs1">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Creating-Content">
+      Creating Content
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Literate-Scripts-and-Markdown-Content">
+      Literate Scripts and Markdown Content
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Other-Content">
+      Other Content
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Default-Styling-Content">
+      Default Styling Content
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Ignored-Content">
+      Ignored Content
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Front-matter">
+      Front matter
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Link-Translation-for-Inputs">
+      Link Translation for Inputs
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Multi-language-Content">
+      Multi-language Content
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Templates-and-Substitutions">
+      Templates and Substitutions
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Cross-References-to-API-Docs">
+      Cross References to API Docs
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Generating-HTML-Output">
+      Generating HTML Output
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Generating-LaTeX-output">
+      Generating LaTeX output
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Generating-iPython-Notebook-output">
+      Generating iPython Notebook output
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Generating-Script-outputs">
+      Generating Script outputs
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>

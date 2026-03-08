@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsprojects.github.io/FSharp.Formatting/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="Getting Started" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="Getting Started">
+    
+    <title>Getting Started | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Getting-Started" class="anchor" href="#Getting-Started">Getting Started</a></h1>
+<h2><a name="From-zero-to-hero-deploying-to-GitHub-Pages" class="anchor" href="#From-zero-to-hero-deploying-to-GitHub-Pages">From zero to hero: deploying to GitHub Pages</a></h2>
+<p>This guide is meant for a typical setup of open-source projects on GitHub.<br />
+We start from a repository without any documentation and aim to end up with a published website on <a href="https://pages.github.com/">GitHub Pages</a>.</p>
+<h2><a name="Install-the-local-tool" class="anchor" href="#Install-the-local-tool">Install the local tool</a></h2>
+<p>If you don't have a <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use#create-a-manifest-file">dotnet tool manifest</a>, you can create one using <code>dotnet new tool-manifest</code>.</p>
+<p>Next, we can install <a href="https://www.nuget.org/packages/fsdocs-tool/">fsdocs-tool</a> using <code>dotnet tool install --local fsdocs-tool</code>.<br />
+It is recommended to install this tool as a local tool because it allows us to update to newer versions of the tool at our own pace.</p>
+<h2><a name="Create-the-docs-folder" class="anchor" href="#Create-the-docs-folder">Create the docs folder</a></h2>
+<p>After we've installed the tool, we can run <code>dotnet fsdocs --help</code> and see the available commands.<br />
+Both <code>build</code> and <code>watch</code> will generate the documentation for a solution and an input folder.<br />
+The default folder for <code>--input</code> is the <code>./docs</code> folder, relative to the current working directory.</p>
+<p>Typically, your project will be structured like this:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="o">/</span><span class="id">repository</span><span class="o">-</span><span class="id">root</span>
+  <span class="id">YourSolution</span><span class="pn">.</span><span class="id">sln</span>
+  <span class="pn">.</span><span class="o">/</span><span class="id">docs</span>
+    <span class="id">index</span><span class="pn">.</span><span class="id">md</span>
+    <span class="id">other</span><span class="o">-</span><span class="id">file</span><span class="pn">.</span><span class="id">md</span>
+  <span class="pn">.</span><span class="o">/</span><span class="id">src</span>
+    <span class="pn">.</span><span class="o">/</span><span class="id">Project1</span><span class="o">/</span><span class="id">Project1</span><span class="pn">.</span><span class="id">fsproj</span>
+    <span class="pn">.</span><span class="o">/</span><span class="id">Project2</span><span class="o">/</span><span class="id">Project2</span><span class="pn">.</span><span class="id">fsproj</span>
+</code></pre>
+<p>It is recommended to have a single solution at the root. In some editors, it is more convenient to open a solution at the root, to easily manipulate any file in the root repository folder.<br />
+When users clone your repository locally, they cannot be confused on how they need to open the project in their IDE.</p>
+<p>⚠️ Please avoid putting your solution in the <code>src</code> folder. When we open that solution, it can be more difficult to edit files in the <code>docs</code> folder, as we can sometimes only see the <code>src</code> folder.</p>
+<p>That being said, let's create the <code>docs</code> folder and a first Markdown file named <code>index.md</code>.<br />
+When <code>fsdocs</code> runs, it will transform this <code>index.md</code> file to <code>index.html</code>, which will be served at the root.</p>
+<p>We can put <code># Hello world</code> in the markdown file for now.</p>
+<p>Having this in place, should already serve the first page when we start the <code>watch</code> command:</p>
+<blockquote>
+<p>dotnet fsdocs watch</p>
+</blockquote>
+<p>Open <a href="http://localhost:8901"><a href="http://localhost:8901">http://localhost:8901</a></a> and you should see our first page!</p>
+<p>🪄 You might notice that there are some images missing. You can add these in the <code>docs</code> folder in the right location.</p>
+<h2><a name="Generating-API-documentation" class="anchor" href="#Generating-API-documentation">Generating API documentation</a></h2>
+<p>By default, <code>fsdocs</code> will generate API documentation for the configured <code>--projects</code>.<br />
+When this flag is not specified, <code>fsdocs</code> will look for solutions or projects in the working directory.<br />
+It will filter these found projects, the requirements are:</p>
+<ul>
+<li>Having <code>&lt;OutputType&gt;library&lt;/OutputType&gt;</code></li>
+<li>Having a binary, so you need to build your project first before the documentation can be generated.</li>
+<li>Not having <code>&lt;IsTestProject&gt;true&lt;/IsTestProject&gt;</code></li>
+<li>Having <code>&lt;GenerateDocumentationFile&gt;true&lt;/GenerateDocumentationFile&gt;</code></li>
+</ul>
+<p>🪄 If you made some changes in order to adhere to the rules, you may want to remove the <code>.fsdocs/cache</code> file.</p>
+<h2><a name="Adding-the-missing-properties" class="anchor" href="#Adding-the-missing-properties">Adding the missing properties</a></h2>
+<p>After our initial <code>watch</code> run, you may have noticed that some links aren't working yet.<br />
+<code>License</code>, <code>Releases Notes</code> and <code>Source Repository</code> can be provided by setting MSBuild properties.</p>
+<p>You can either add these properties to a single <code>.fsproj</code> file, or more typically, add them to a <a href="https://learn.microsoft.com/visualstudio/msbuild/customize-by-directory">Directory.Build.props</a> file.<br />
+The simplest <code>Directory.Build.props</code> file:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">Project</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">PropertyGroup</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">RepositoryUrl</span><span class="k">&gt;</span>https://github.com/fsprojects/FSharp.AWS.DynamoDB<span class="k">&lt;/</span><span class="i">RepositoryUrl</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">FsDocsLicenseLink</span><span class="k">&gt;</span>https://github.com/fsprojects/FSharp.AWS.DynamoDB/blob/master/License.md<span class="k">&lt;/</span><span class="i">FsDocsLicenseLink</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">FsDocsReleaseNotesLink</span><span class="k">&gt;</span>https://github.com/fsprojects/FSharp.AWS.DynamoDB/blob/master/RELEASE_NOTES.md<span class="k">&lt;/</span><span class="i">FsDocsReleaseNotesLink</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">PackageProjectUrl</span><span class="k">&gt;</span>https://fsprojects.github.io/FSharp.AWS.DynamoDB<span class="k">&lt;/</span><span class="i">PackageProjectUrl</span><span class="k">&gt;</span>
+    <span class="k">&lt;/</span><span class="i">PropertyGroup</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">Project</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>🪄 If you don't have any release notes yet, you could consider using <a href="https://github.com/ionide/KeepAChangelog">Ionide.KeepAChangelog</a>.</p>
+<p>Running <code>dotnet fsdocs watch</code> will now yield:</p>
+<pre class="fssnip highlighted"><code lang="fsharp">  <span class="id">root</span> <span class="o">--&gt;</span> <span class="id">https</span><span class="pn">:</span><span class="c">//github.com/fsprojects/FSharp.AWS.DynamoDB/</span>
+  <span class="o">..</span><span class="pn">.</span>
+  <span class="id">fsdocs</span><span class="o">-</span><span class="id">license</span><span class="o">-</span><span class="id">link</span> <span class="o">--&gt;</span> <span class="id">https</span><span class="pn">:</span><span class="c">//github.com/fsprojects/FSharp.AWS.DynamoDB/blob/master/License.md</span>
+  <span class="id">fsdocs</span><span class="o">-</span><span class="id">release</span><span class="o">-</span><span class="id">notes</span><span class="o">-</span><span class="id">link</span> <span class="o">--&gt;</span> <span class="id">https</span><span class="pn">:</span><span class="c">//github.com/fsprojects/FSharp.AWS.DynamoDB/blob/master/RELEASE_NOTES.md</span>
+  <span class="o">..</span><span class="pn">.</span>
+  <span class="id">fsdocs</span><span class="o">-</span><span class="id">repository</span><span class="o">-</span><span class="id">link</span> <span class="o">--&gt;</span> <span class="id">https</span><span class="pn">:</span><span class="c">//github.com/fsprojects/FSharp.AWS.DynamoDB/</span>
+</code></pre>
+<p>⚠️ Again, you might need to remove <code>.fsdocs/cache</code> in order for changes to be picked up!</p>
+<p><code>&lt;PackageProjectUrl&gt;</code> is actually a very important property when you run <code>dotnet fsdocs build</code>.<br />
+<code>build</code> will generate static files for the targeted production environment. In our case, this will be GitHub Pages.</p>
+<p>Pages will host your files from <a href="https://github.com/user/project">https://github.com/user/project</a> on <code>https://user.github.io/project/</code> by default.<br />
+You can change this by adding a custom domain so we need to be sure that all links and urls will be generated correctly during a build.</p>
+<p>Let's now run <code>dotnet fsdocs build</code>.</p>
+<p><code>&lt;PackageProjectUrl&gt;</code> will replace the <code>{{root}}</code> substitution, which is used all over the place in the default template.</p>
+<p>⚠️ You want to ensure that the static files in the <code>output</code> folder (after running the build) have the correct links.</p>
+<h3><a name="Previewing-the-built-output-locally" class="anchor" href="#Previewing-the-built-output-locally">Previewing the built output locally</a></h3>
+<p>When <code>&lt;PackageProjectUrl&gt;</code> is not set, <code>root</code> defaults to <code>/&lt;fsdocs-collection-name&gt;</code> (e.g. <code>/MyProject</code>).
+Opening the output files directly in a browser using the <code>file://</code> protocol will result in broken links to stylesheets and scripts,
+because the browser will try to load assets from an absolute path like <code>/MyProject/content/fsdocs-default.css</code> which does not exist on the filesystem.</p>
+<p>To work around this when building for a local preview, pass a relative root:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">build</span> <span class="o">--</span><span class="id">parameters</span> <span class="id">root</span> <span class="pn">.</span><span class="o">/</span>
+</code></pre>
+<p>This makes all asset links relative, so the output can be viewed directly from the filesystem without a web server.</p>
+<blockquote>
+<p>💡 Note that <code>dotnet fsdocs watch</code> serves files over HTTP and handles the <code>root</code> correctly for local development — this limitation only applies to <code>fsdocs build</code> when <code>&lt;PackageProjectUrl&gt;</code> is not configured.</p>
+</blockquote>
+<h2><a name="Ignore-generated-files" class="anchor" href="#Ignore-generated-files">Ignore generated files</a></h2>
+<p>Alright, at this point we've made a lot of progress. If you are using <code>git</code> you want to add the following to your <a href="https://git-scm.com/docs/gitignore">.gitignore</a> file.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang=".ignorelang"># FSharp.Formatting
+.fsdocs/
+output/
+tmp/
+</code></pre></td></tr></table>
+<h2><a name="Ship-it" class="anchor" href="#Ship-it">Ship it!</a></h2>
+<p>Once we are satisfied with our documentation, we want to publish it to GitHub Pages.
+We can use <a href="https://github.com/features/actions">GitHub Actions</a> to deploy our website.</p>
+<p>Deploy to Pages from GitHub Actions must be enabled in the repository settings:</p>
+<p><img src="./content/img/github-pages-settings.png" alt="Enable deploy from Actions" /></p>
+<p>The typical flow is to publish your documentation after a release or after new commits were added to the default branch.<br />
+Let's create a very basic Action that will deploy our website after pushing to the main:</p>
+<p>Create a file <code>.github/workflows/docs.yml</code>:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="yml">name: Docs
+
+# Trigger this Action when new code is pushed to the main branch
+on:
+  push:
+    branches:
+      - main
+
+# We need some permissions to publish to Github Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the source code
+      - uses: actions/checkout@v4
+      # Setup dotnet, please use a global.json to ensure the right SDK is used!
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+      # Restore the local tools
+      - name: Restore tools
+        run: dotnet tool restore
+      # Build the code for the API documentation
+      - name: Build code
+        run: dotnet build -c Release YourSolution.sln
+      # Generate the documentation files
+      - name: Generate the documentation'
+        run: dotnet fsdocs build --properties Configuration=Release
+      # Upload the static files
+      - name: Upload documentation
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./output
+  
+  # GitHub Actions recommends deploying in a separate job.
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+</code></pre></td></tr></table>
+<p>⚠️ Careful yaml is indentation sensitive!</p>
+<h2><a name="Next-steps" class="anchor" href="#Next-steps">Next steps</a></h2>
+<p>Mission accomplished, right? If everything went well, you should have a published website at this point!<br />
+Here are some next steps you could consider:</p>
+<h3><a name="Use-fsx-file-in-your-documentation" class="anchor" href="#Use-fsx-file-in-your-documentation">Use fsx file in your documentation</a></h3>
+<p>Create documentation using <a href="../literate.html">Literate Scripts</a>. A typical flow here is that you load your locate project binary into a script and create examples using the latest code:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;../src/Project1/bin/Debug/net6.0/Project1.dll&quot;</span>
+
+<span class="k">open</span> <span class="id">Project1</span>
+
+<span class="c">// Actual consumption of your project!</span>
+<span class="k">let</span> <span class="id">result</span> <span class="o">=</span> <span class="id">SomeType</span><span class="pn">.</span><span class="id">SomeMethod</span><span class="pn">(</span><span class="s">&quot;foo&quot;</span><span class="pn">)</span>
+</code></pre>
+<p>When using the <code>--strict</code> flag in <code>dotnet fsdocs build</code>, your documentation generation will fail if your script contains errors.<br />
+This is useful to ensure your documentation is always in sync with your latest public API!</p>
+<h3><a name="Automatically-update-to-newer-versions-of-fsdocs-tool" class="anchor" href="#Automatically-update-to-newer-versions-of-fsdocs-tool">Automatically update to newer versions of fsdocs-tool</a></h3>
+<p>Using <a href="https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates">Dependabot</a> you can easily receive new PR's with updates to your <code>dotnet</code> dependencies.</p>
+<p>Create a <code>.github/dependabot.yml</code> file with:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="yml">version: 2
+updates:
+  # Update to newer version of GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Update to newer NuGet dependencies
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "daily"
+</code></pre></td></tr></table>
+<p>This will automatically create a new PR when there is an update to the <code>fsdocs</code> tool.</p>
+<p>⚠️ P️lease be very careful, if you have followed along, we don't have any GitHub Actions right now that run against pull requests!<br />
+It is recommended to have an Action that builds your documentation against any incoming changes.<br />
+You typically want to lint code, run unit tests and perform other useful checks as well!</p>
+<p>Example Action, <code>.github/workflows/ci.yml</code>:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="yml">name: CI
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v3
+    - name: Restore tools
+      run: dotnet tool restore
+    - name: Build
+      run: dotnet build YourSolution.sln
+    - name: Documentation
+      run: dotnet fsdocs build
+</code></pre></td></tr></table>
+<p>⚠️ Also, never trust any update to <code>fsdocs</code> blindly, always check the <a href="https://github.com/fsprojects/FSharp.Formatting/blob/main/RELEASE_NOTES.md">release notes</a> to see if there are any breaking changes.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Getting-Started">
+      Getting Started
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#From-zero-to-hero-deploying-to-GitHub-Pages">
+      From zero to hero: deploying to GitHub Pages
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Install-the-local-tool">
+      Install the local tool
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Create-the-docs-folder">
+      Create the docs folder
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Generating-API-documentation">
+      Generating API documentation
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Adding-the-missing-properties">
+      Adding the missing properties
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Previewing-the-built-output-locally">
+      Previewing the built output locally
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Ignore-generated-files">
+      Ignore generated files
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Ship-it">
+      Ship it!
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Next-steps">
+      Next steps
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Use-fsx-file-in-your-documentation">
+      Use fsx file in your documentation
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Automatically-update-to-newer-versions-of-fsdocs-tool">
+      Automatically update to newer versions of fsdocs-tool
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>
