@@ -340,12 +340,14 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         ]
                     ]
                     tbody [] [
+                        let nameCounts = entities |> List.countBy (fun e -> e.Name) |> dict
+
                         for e in entities do
                             tr [] [
                                 td [ Class "fsdocs-entity-name" ] [
                                     let nm = e.Name
 
-                                    let multi = (entities |> List.filter (fun e -> e.Name = nm) |> List.length) > 1
+                                    let multi = nameCounts.[nm] > 1
 
                                     let nmWithSiffix =
                                         if multi then
