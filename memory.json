@@ -1,9 +1,10 @@
 {
-  "last_run": "2026-03-03T08:37:14Z",
-  "run_id": "22614872361",
+  "last_run": "2026-03-08T15:08:46Z",
+  "run_id": "22823695530",
   "comments_made": [
     {"issue": 1022, "run": "22452199872", "note": "Reported GenerateModel.fs split (PR #1032)"},
     {"issue": 1022, "run": "22488762219", "note": "PR created for splitting MarkdownParser.fs"},
+    {"issue": 1022, "run": "22823695530", "note": "PR created for splitting XmlDocReader out of SymbolReader.fs"},
     {"issue": 590, "run": "22455510854", "note": "Explained inherited-member code path"},
     {"issue": 591, "run": "22456244326", "note": "Implementation summary and PR link"},
     {"issue": 605, "run": "22455859434", "note": "Implementation summary and PR link"},
@@ -36,25 +37,29 @@
     {"issue": 1035, "pr": 1049, "status": "merged", "desc": "Doc comments batch 3: ToolTipReader.fs, FsxFormatting.fs, MarkdownUtils.fs, Formatting.fs - MERGED by dsyme"},
     {"issue": 590, "pr": 1039, "status": "merged", "desc": "Show inherited members (MSDN-style) - MERGED by dsyme"},
     {"issue": 605, "pr": 1042, "status": "merged", "desc": "Tolerant cross-references - MERGED by dsyme"},
-    {"issue": 591, "pr": 1045, "status": "open", "desc": "Type constraints in API docs - awaiting nojaf sign-off"},
+    {"issue": 591, "pr": 1045, "status": "merged", "desc": "Type constraints in API docs - MERGED by dsyme"},
     {"issue": 191, "pr": 1046, "status": "merged", "desc": "CommonMark compliance improvements - MERGED by dsyme"},
     {"issue": 1022, "pr": 1052, "status": "merged", "desc": "Split MarkdownParser.fs - MERGED by dsyme"},
     {"issue": "code-scanning", "pr": 1053, "status": "merged", "desc": "Fix IONIDE-012: add [(Struct)] to LiterateCodeVisibility and EvalKey DUs - MERGED by dsyme"},
-    {"issue": 1054, "pr": 1056, "status": "open", "desc": "Update Ionide.ProjInfo to 0.74.2 (competing with #1055 by Smaug123)"},
+    {"issue": 1054, "pr": 1056, "status": "merged", "desc": "Update Ionide.ProjInfo to 0.74.2 - MERGED by dsyme"},
     {"issue": 858, "pr": 1057, "status": "open", "desc": "Strip parameter attribute annotations from hover tooltips - tests added per dsyme request"},
     {"issue": 163, "pr": 1058, "status": "open", "desc": "Add (*** include-toc ***) directive for inline table of contents"},
     {"issue": 1004, "pr": 1059, "status": "open", "desc": "Migrate theme colors to CSS light-dark() function (CSS-only change)"},
     {"issue": 422, "pr": 1061, "status": "open", "desc": "Use Popover API for code snippet tooltips; fix scroll-offset positioning"},
     {"issue": 683, "pr": 1065, "status": "open", "desc": "Document --saveimages flag and image embedding patterns"},
-    {"issue": 735, "pr": 1066, "status": "open", "desc": "Add ApiDocParameter and ApiDocReturnInfo named record types"},
-    {"issue": 742, "pr": 1067, "status": "open", "desc": "Make MarkdownRange non-optional throughout Markdown AST - dsyme /repo-assist command"}
+    {"issue": 735, "pr": 1066, "status": "merged", "desc": "Add ApiDocParameter and ApiDocReturnInfo named record types - MERGED by dsyme"},
+    {"issue": 742, "pr": 1067, "status": "merged", "desc": "Make MarkdownRange non-optional throughout Markdown AST - MERGED by dsyme"},
+    {"issue": "perf", "pr": 1069, "status": "merged", "desc": "Remove duplicate LookupKey active patterns - MERGED by dsyme"},
+    {"issue": "perf", "pr": 1070, "status": "merged", "desc": "Precompile markdown parser regexes - MERGED by dsyme"},
+    {"issue": "perf", "pr": 1071, "status": "merged", "desc": "Precompute entity name counts in renderEntities - MERGED by dsyme"},
+    {"issue": 1068, "pr": 1072, "status": "open", "desc": "Add --embed-resources to fsdocs convert - self-contained HTML"},
+    {"issue": 1022, "pr": "pending-1073", "status": "open", "desc": "Split XmlDocReader.fs out of SymbolReader.fs (1703->1263 lines)"}
   ],
   "important_instructions": [
-    "dsyme: Avoid splitting files being changed in existing open pull requests, eg BuildCommand.fs (comment on #1022, 2026-02-27)",
-    "Files in PR #1019: BuildCommand.fs, Literate.fs, Program.fs, build.fsx - DO NOT TOUCH",
-    "Files in PR #1045: ApiDocTypes.fs, GenerateHtml.fs, GenerateModel.fs, SymbolReader.fs, TypeFormatter.fs, BuildCommand.fs, ProjectCracker.fs - DO NOT TOUCH"
+    "dsyme: Avoid splitting files being changed in existing open pull requests (comment on #1022)",
+    "PR #1072 currently open: touches BuildCommand.fs - DO NOT TOUCH BuildCommand.fs until #1072 merges"
   ],
-  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs: #1045 (type constraints), #1056 (Ionide.ProjInfo update), #1057 (strip attrs tooltips), #1058 (include-toc), #1059 (CSS light-dark), #1061 (Popover API tooltips), #1065 (--saveimages docs), #1066 (ApiDocParameter named records), #1067 (MarkdownRange non-optional). Non-RA open PRs: #1019 (fsdocs convert, nojaf), #1031 (release 22.0.0), #1055 (Ionide update, Smaug123). New issue #1064: multi-TFM docs - labelled + commented.",
+  "notes": "Monthly activity issue for March 2026: #1060. Open Repo Assist PRs: #1057 (strip attrs tooltips), #1058 (include-toc), #1059 (CSS light-dark), #1061 (Popover API tooltips), #1065 (--saveimages docs), #1072 (fsdocs convert embed-resources), pending-1073 (XmlDocReader split). Merged PRs: #1066, #1067, #1069, #1070, #1071. PR #1019 and #1045 both merged. Next large-file split candidates: BuildCommand.fs (2506 lines, wait for #1072 to merge), MarkdownBlockParser.fs (958 lines).",
   "backlog_cursor": {"issue": 1064},
   "monthly_activity_issue": 1060
 }
