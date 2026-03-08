@@ -4,6 +4,7 @@
 
 ### Refactored
 * Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
+* Split pipe-table and Emacs-table parsing out of `MarkdownBlockParser.fs` into a new `MarkdownTableParser.fs` (196 lines), reducing `MarkdownBlockParser.fs` from 958 to 760 lines. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
 
 ### Added
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
