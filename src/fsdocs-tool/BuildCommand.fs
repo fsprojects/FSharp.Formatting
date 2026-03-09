@@ -2583,14 +2583,58 @@ type ConvertCommand() =
             // Only add this default if the user has not already supplied a root substitution.
             let embedResources = not this.noEmbedResources && outputKind = OutputKind.Html && templateOpt.IsSome
 
+            // When a template is used, supply sensible defaults for every standard fsdocs template
+            // parameter so that {{fsdocs-*}} placeholders in the template are replaced with empty
+            // strings (or a meaningful value) rather than being left as raw text in the output.
+            // User-supplied --parameters values always take priority.
             let substitutions =
-                if
-                    embedResources
-                    && not (userSubstitutions |> List.exists (fun (k, _) -> k = ParamKeys.root))
-                then
-                    userSubstitutions @ [ (ParamKeys.root, "") ]
-                else
-                    userSubstitutions
+                match templateOpt with
+                | None -> userSubstitutions
+                | Some _ ->
+                    let pageTitle = Path.GetFileNameWithoutExtension(inputFile)
+
+                    let defaults =
+                        [ ParamKeys.root, (if embedResources then "" else "")
+                          ParamKeys.``fsdocs-page-title``, pageTitle
+                          ParamKeys.``fsdocs-source-basename``, pageTitle
+                          ParamKeys.``fsdocs-source-filename``, Path.GetFileName(inputFile)
+                          ParamKeys.``fsdocs-collection-name``, pageTitle
+                          ParamKeys.``fsdocs-authors``, ""
+                          ParamKeys.``fsdocs-body-class``, "content"
+                          ParamKeys.``fsdocs-body-extra``, ""
+                          ParamKeys.``fsdocs-copyright``, ""
+                          ParamKeys.``fsdocs-favicon-src``, ""
+                          ParamKeys.``fsdocs-head-extra``, ""
+                          ParamKeys.``fsdocs-license-link``, "#"
+                          ParamKeys.``fsdocs-list-of-documents``, ""
+                          ParamKeys.``fsdocs-list-of-namespaces``, ""
+                          ParamKeys.``fsdocs-logo-alt``, pageTitle
+                          ParamKeys.``fsdocs-logo-link``, "#"
+                          ParamKeys.``fsdocs-logo-src``, ""
+                          ParamKeys.``fsdocs-meta-tags``, ""
+                          ParamKeys.``fsdocs-page-content-list``, ""
+                          ParamKeys.``fsdocs-package-license-expression``, ""
+                          ParamKeys.``fsdocs-package-project-url``, ""
+                          ParamKeys.``fsdocs-package-tags``, ""
+                          ParamKeys.``fsdocs-package-version``, ""
+                          ParamKeys.``fsdocs-package-icon-url``, ""
+                          ParamKeys.``fsdocs-release-notes-link``, "#"
+                          ParamKeys.``fsdocs-repository-link``, "#"
+                          ParamKeys.``fsdocs-repository-branch``, ""
+                          ParamKeys.``fsdocs-repository-commit``, ""
+                          ParamKeys.``fsdocs-source``, ""
+                          ParamKeys.``fsdocs-theme``, ""
+                          ParamKeys.``fsdocs-tooltips``, ""
+                          ParamKeys.``fsdocs-watch-script``, ""
+                          ParamKeys.``fsdocs-collection-name-link``, "#"
+                          ParamKeys.``fsdocs-page-source``, "" ]
+
+                    // User-supplied values override defaults.
+                    let userKeys = userSubstitutions |> List.map fst |> set
+
+                    let filteredDefaults = defaults |> List.filter (fun (k, _) -> not (userKeys.Contains k))
+
+                    userSubstitutions @ filteredDefaults
 
             let isFsx = inputFile.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
             let isMd = inputFile.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
