@@ -1016,9 +1016,16 @@ div.fsdocs-tip:popover-open {
     display: block;
     position: fixed;
     inset: unset;
+    /* Explicitly override Chrome's UA top-layer background (canvas keyword) */
+    background-color: var(--doc-tip-background);
     animation: fsdocs-tip-fade-in 120ms ease-out;
 }
 
+[data-fsdocs-tip] {
+    cursor: pointer;
+}
+
+/* backward-compat: old generated HTML may still carry inline handlers */
 span[onmouseout] {
     cursor: pointer;
 }

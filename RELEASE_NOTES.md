@@ -13,6 +13,7 @@
 
 ### Changed
 * Tooltip elements (`div.fsdocs-tip`) now use the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) (Baseline 2024: Chrome 114+, Firefox 125+, Safari 17+). Tooltips are placed in the browser's top layer — no `z-index` needed, always above all other content. Fixes a positioning bug where tooltips appeared offset when the page was scrolled. The previous `display`-toggle fallback has been removed. Tooltips also fade in with a subtle animation. [#422](https://github.com/fsprojects/FSharp.Formatting/issues/422), [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
+* Generated code tokens no longer use inline `onmouseover`/`onmouseout` event handlers. Tooltips are now triggered via `data-fsdocs-tip` / `data-fsdocs-tip-unique` attributes and a delegated event listener in `fsdocs-tips.js`. The `popover` attribute is also added to API-doc tooltip divs so they use the same top-layer path. [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
 * When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 
 ## 22.0.0-alpha.1 - 2026-03-03

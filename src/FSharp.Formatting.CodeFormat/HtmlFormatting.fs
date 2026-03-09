@@ -23,8 +23,8 @@ type ToolTipFormatter(prefix) =
     let mutable count = 0
     let mutable uniqueId = 0
 
-    /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
-    member x.FormatTip (tip: ToolTipSpans) overlapping formatFunction =
+    /// Formats tip and returns data attributes for tooltip triggering
+    member x.FormatTip (tip: ToolTipSpans) _overlapping formatFunction =
         uniqueId <- uniqueId + 1
 
         let stringIndex =
@@ -34,26 +34,9 @@ type ToolTipFormatter(prefix) =
                 count <- count + 1
                 tips.Add(tip, (count, formatFunction tip))
                 count
-        // stringIndex is the index of the tool tip
-        // uniqueId is globally unique id of the occurrence
-        if overlapping then
-            // The <span> may contain other <span>, so we need to
-            // get the element and check where the mouse goes...
-            String.Format(
-                "id=\"{0}t{1}\" onmouseout=\"hideTip(event, '{0}{1}', {2})\" "
-                + "onmouseover=\"showTip(event, '{0}{1}', {2}, document.getElementById('{0}t{1}'))\" ",
-                prefix,
-                stringIndex,
-                uniqueId
-            )
-        else
-            String.Format(
-                "onmouseout=\"hideTip(event, '{0}{1}', {2})\" "
-                + "onmouseover=\"showTip(event, '{0}{1}', {2})\" ",
-                prefix,
-                stringIndex,
-                uniqueId
-            )
+        // stringIndex is the index of the tool tip div
+        // uniqueId is the globally unique id of this hover occurrence
+        String.Format("data-fsdocs-tip=\"{0}{1}\" data-fsdocs-tip-unique=\"{2}\" ", prefix, stringIndex, uniqueId)
 
 
     /// Returns all generated tool tip elements

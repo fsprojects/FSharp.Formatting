@@ -34,7 +34,7 @@ function showTip(evt, name, unique, owner) {
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
 
-    el.showPopover();
+    try { el.showPopover(); } catch (_) { }
 
     const rect = el.getBoundingClientRect();
     // Move tooltip if it would appear outside the viewport
@@ -48,6 +48,26 @@ function showTip(evt, name, unique, owner) {
         el.style.maxWidth = `${document.documentElement.clientWidth - x - 16}px`;
     }
 }
+
+// Event delegation: trigger tooltips from data-fsdocs-tip attributes
+// (avoids inline onmouseout/onmouseover handlers in generated HTML)
+document.addEventListener('mouseover', function (evt) {
+    const target = evt.target.closest('[data-fsdocs-tip]');
+    if (!target) return;
+    const name = target.dataset.fsdocsTip;
+    const unique = parseInt(target.dataset.fsdocsTipUnique, 10);
+    showTip(evt, name, unique);
+});
+
+document.addEventListener('mouseout', function (evt) {
+    const target = evt.target.closest('[data-fsdocs-tip]');
+    if (!target) return;
+    // Only hide when the mouse has left the trigger element entirely
+    if (target.contains(evt.relatedTarget)) return;
+    const name = target.dataset.fsdocsTip;
+    const unique = parseInt(target.dataset.fsdocsTipUnique, 10);
+    hideTip(evt, name, unique);
+});
 
 function Clipboard_CopyTo(value) {
     if (navigator.clipboard) {
