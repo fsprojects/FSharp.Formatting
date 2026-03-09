@@ -1,7 +1,7 @@
 let currentTip = null;
 let currentTipElement = null;
 
-function hideTip(evt, name, unique) {
+function hideTip(name) {
     const el = document.getElementById(name);
     if (el) {
         try { el.hidePopover(); } catch (_) { }
@@ -10,7 +10,7 @@ function hideTip(evt, name, unique) {
     currentTipElement = null;
 }
 
-function showTip(evt, name, unique, owner) {
+function showTip(evt, name, unique) {
     if (currentTip === unique) return;
 
     // Hide the previously shown tooltip before showing the new one
@@ -50,7 +50,6 @@ function showTip(evt, name, unique, owner) {
 }
 
 // Event delegation: trigger tooltips from data-fsdocs-tip attributes
-// (avoids inline onmouseout/onmouseover handlers in generated HTML)
 document.addEventListener('mouseover', function (evt) {
     const target = evt.target.closest('[data-fsdocs-tip]');
     if (!target) return;
@@ -66,7 +65,7 @@ document.addEventListener('mouseout', function (evt) {
     if (target.contains(evt.relatedTarget)) return;
     const name = target.dataset.fsdocsTip;
     const unique = parseInt(target.dataset.fsdocsTipUnique, 10);
-    hideTip(evt, name, unique);
+    hideTip(name);
 });
 
 function Clipboard_CopyTo(value) {
@@ -82,7 +81,4 @@ function Clipboard_CopyTo(value) {
     }
 }
 
-window.showTip = showTip;
-window.hideTip = hideTip;
-// Used by API documentation
 window.Clipboard_CopyTo = Clipboard_CopyTo;

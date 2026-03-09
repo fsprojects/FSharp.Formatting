@@ -1014,10 +1014,6 @@ div.fsdocs-tip:popover-open {
     cursor: pointer;
 }
 
-/* backward-compat: old generated HTML may still carry inline handlers */
-span[onmouseout] {
-    cursor: pointer;
-}
 
 /* API docs */
 #content > div > h2:first-child {

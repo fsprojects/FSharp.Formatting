@@ -24,7 +24,7 @@ type ToolTipFormatter(prefix) =
     let mutable uniqueId = 0
 
     /// Formats tip and returns data attributes for tooltip triggering
-    member x.FormatTip (tip: ToolTipSpans) _overlapping formatFunction =
+    member x.FormatTip (tip: ToolTipSpans) formatFunction =
         uniqueId <- uniqueId + 1
 
         let stringIndex =
@@ -54,7 +54,7 @@ type FormattingContext =
       CloseTag: string
       OpenLinesTag: string
       CloseLinesTag: string
-      FormatTip: ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string
+      FormatTip: ToolTipSpans -> (ToolTipSpans -> string) -> string
       TokenKindToCss: (TokenKind -> string) }
 
 // --------------------------------------------------------------------------------------
@@ -89,12 +89,12 @@ let rec formatTokenSpans (ctx: FormattingContext) =
         | TokenSpan.Error(_kind, message, body) when ctx.GenerateErrors ->
             let tip = ToolTipReader.formatMultilineString (message.Trim().Split('\n'))
 
-            let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
+            let tipAttributes = ctx.FormatTip tip formatToolTipSpans
 
             ctx.Writer.Write("<span ")
             ctx.Writer.Write(tipAttributes)
             ctx.Writer.Write("class=\"cerr\">")
-            formatTokenSpans { ctx with FormatTip = fun _ _ _ -> "" } body
+            formatTokenSpans { ctx with FormatTip = fun _ _ -> "" } body
             ctx.Writer.Write("</span>")
 
         | TokenSpan.Error(_, _, body) -> formatTokenSpans ctx body
@@ -107,7 +107,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
         | TokenSpan.Omitted(body, hidden) ->
             let tip = ToolTipReader.formatMultilineString (hidden.Trim().Split('\n'))
 
-            let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
+            let tipAttributes = ctx.FormatTip tip formatToolTipSpans
 
             ctx.Writer.Write("<span ")
             ctx.Writer.Write(tipAttributes)
@@ -119,7 +119,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
             // Generate additional attributes for ToolTip
             let tipAttributes =
                 match tip with
-                | Some(tip) -> ctx.FormatTip tip false formatToolTipSpans
+                | Some(tip) -> ctx.FormatTip tip formatToolTipSpans
                 | _ -> ""
 
             // Get CSS class name of the token
