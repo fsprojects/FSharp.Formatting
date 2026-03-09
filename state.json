@@ -1,8 +1,1 @@
-{
-  "last_run": "2026-03-09T08:37:00Z",
-  "run_id": "22845000373",
-  "open_prs": [1061, 1072, 1078],
-  "notes": "Open PRs: #1061 (Popover tooltips), #1072 (embed-resources), #1078 (view transitions). Batch 6 doc-comments PR pending on branch repo-assist/doc-comments-batch6-literate-20260309. Duplicate VT PR pending close (branch repo-assist/view-transitions-20260309). Monthly activity: #1060. Next: GenerateHtml.fs doc comments after #1072 merges.",
-  "backlog_cursor": 1077,
-  "monthly_activity_issue": 1060
-}
+{"run_id":"22857752834","open_prs":[1061,1072,1083,1084],"backlog_cursor":1081,"monthly_issue":1060}
