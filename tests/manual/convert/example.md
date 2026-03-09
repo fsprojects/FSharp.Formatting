@@ -24,6 +24,16 @@ greet "World"
 
 A [relative link](example.fsx) and an [external link](https://fsharp.org).
 
+## Images
+
+A local PNG image (will be inlined as a base64 data URI when `--embed-resources` is active):
+
+![Sample PNG](images/sample.png)
+
+A local SVG image (inlined as `image/svg+xml`):
+
+![Sample SVG](images/sample.svg)
+
 ## Maths-like content
 
 Some `inline code` and a list:

@@ -57,6 +57,7 @@ dotnet $FSDOCS convert tests/manual/convert/example.md \
 **What to check:**
 - The file is a **complete, self-contained HTML document** (has `<html>`, `<head>`, `<body>`).
 - CSS from `content/fsdocs-default.css` and `content/fsdocs-theme.css` is **inlined** as `<style>` blocks (no external `href` remaining).
+- Images in the `Images` section appear as `data:image/...;base64,...` URIs (no `src="images/..."` remaining).
 - `<title>` is `example` (input filename without extension).
 - No `{{...}}` placeholder text appears anywhere.
 - Opening the file in a browser renders the content with styling applied.
@@ -148,6 +149,59 @@ dotnet $FSDOCS convert tests/manual/convert/example.md \
 
 ---
 
+## Scenario 8 — Image inlining (PNG and SVG)
+
+`example.md` references two local images in `images/`: `sample.png` (raster) and `sample.svg`
+(vector). When resource embedding is active, both are inlined as base64 data URIs so the HTML
+file is fully self-contained.
+
+```bash
+dotnet $FSDOCS convert tests/manual/convert/example.md \
+    --template tests/manual/convert/_template-minimal.html \
+    -o /tmp/example-images.html
+```
+
+**What to check:**
+- Open `/tmp/example-images.html` in a browser. Two images should be visible: a blue rectangle
+  (PNG) and an "F#" badge (SVG).
+- Inspect the HTML source. Both `<img>` tags should have `src="data:image/...;base64,..."` — no
+  external `src` paths remain.
+- The PNG image is encoded as `data:image/png;base64,...`.
+- The SVG image is encoded as `data:image/svg+xml;base64,...`.
+
+### Verify with `grep`
+
+```bash
+grep -c 'src="data:image/' /tmp/example-images.html
+# Expected: 2
+```
+
+---
+
+## Scenario 9 — Image inlining disabled
+
+```bash
+dotnet $FSDOCS convert tests/manual/convert/example.md \
+    --template tests/manual/convert/_template-minimal.html \
+    --no-embed-resources \
+    -o /tmp/example-images-no-embed.html
+```
+
+**What to check:**
+- The `<img>` tags still have relative `src` attributes pointing to `images/sample.png` and
+  `images/sample.svg` — they are **not** replaced with data URIs.
+- Opening the file in a browser from a directory that doesn't contain the `images/` folder will
+  show broken images (expected — that's what `--no-embed-resources` means).
+
+### Verify with `grep`
+
+```bash
+grep 'src="images/' /tmp/example-images-no-embed.html
+# Expected: two lines, one for sample.png, one for sample.svg
+```
+
+---
+
 ## Common Issues
 
 | Symptom | Cause | Fix |
@@ -156,6 +210,8 @@ dotnet $FSDOCS convert tests/manual/convert/example.md \
 | Styled correctly only when served, not when opened as a file | `--no-embed-resources` was set, or embedding failed to find assets | Remove `--no-embed-resources`, or check that `content/` is in a search path |
 | `<title>` shows filename, not a nice title | Default — no `fsdocs-page-title` parameter | Supply `--parameters fsdocs-page-title "Nice Title"` |
 | Navigation links go to `#` | No project metadata available in standalone convert mode | Supply `--parameters fsdocs-repository-link "..."` etc., or use a simpler template |
+| Images show as broken / `src` still a file path | Embedding is skipped because no template or `--no-embed-resources` is set | Add `--template` to enable embedding, or remove `--no-embed-resources` |
+| Image `src` is a data URI but the image doesn't display | The image file was not found at the expected relative path | Place images relative to the input `.md` file, e.g. `images/sample.png` next to the `.md` |
 
 ---
 
