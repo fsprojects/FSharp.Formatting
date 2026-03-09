@@ -4,31 +4,20 @@ let currentTipElement = null;
 function hideTip(evt, name, unique) {
     const el = document.getElementById(name);
     if (el) {
-        if (el.hidePopover) {
-            try { el.hidePopover(); } catch (_) { }
-        } else {
-            el.style.display = "none";
-        }
+        try { el.hidePopover(); } catch (_) { }
     }
     currentTip = null;
     currentTipElement = null;
 }
 
-function hideUsingEsc(e) {
-    if (currentTipElement) {
-        hideTip(e, currentTipElement, currentTip);
-    }
-}
-
 function showTip(evt, name, unique, owner) {
-    document.onkeydown = hideUsingEsc;
     if (currentTip === unique) return;
 
-    // Hide the previously shown tooltip (for non-auto-popover fallback path)
+    // Hide the previously shown tooltip before showing the new one
     if (currentTipElement !== null) {
         const prev = document.getElementById(currentTipElement);
-        if (prev && !prev.showPopover) {
-            prev.style.display = "none";
+        if (prev) {
+            try { prev.hidePopover(); } catch (_) { }
         }
     }
 
@@ -45,15 +34,7 @@ function showTip(evt, name, unique, owner) {
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
 
-    if (el.showPopover) {
-        // Popover API path: element is placed in the top layer with fixed positioning
-        el.style.position = "fixed";
-        el.showPopover();
-    } else {
-        // Fallback for browsers without Popover API support
-        el.style.position = "absolute";
-        el.style.display = "block";
-    }
+    el.showPopover();
 
     const rect = el.getBoundingClientRect();
     // Move tooltip if it would appear outside the viewport

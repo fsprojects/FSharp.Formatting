@@ -1000,9 +1000,23 @@ div.fsdocs-tip {
     }
 }
 
-/* When using the Popover API, the browser adds :popover-open when shown */
+/* When using the Popover API, the browser adds :popover-open when shown.
+   Reset UA inset (inset: 0) so JS-supplied left/top control position without
+   the implicit right/bottom: 0 stretching the element across the viewport. */
+@keyframes fsdocs-tip-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 div.fsdocs-tip:popover-open {
     display: block;
+    position: fixed;
+    inset: unset;
+    animation: fsdocs-tip-fade-in 120ms ease-out;
 }
 
 span[onmouseout] {
