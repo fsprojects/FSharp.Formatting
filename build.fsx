@@ -88,10 +88,21 @@ pipeline "CI" {
     runIfOnlySpecified false
 }
 
+// Standalone doc-script type-check using the locally built fsdocs tool.
+// Assumes the solution has been built (e.g. after running the CI pipeline or
+// `dotnet build`). Catches type errors in .fsx documentation sources early,
+// matching the `--strict` check in the full GenerateDocs stage.
+let checkDocScriptsStage =
+    stage "CheckDocScripts" {
+        whenNot { envVar "RUNNER_OS" "Windows" }
+        run $"src/fsdocs-tool/bin/Release/net10.0/fsdocs build --strict --clean --properties Configuration=Release"
+    }
+
 pipeline "Verify" {
     lintStage
     testStage
     stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
+    checkDocScriptsStage
     runIfOnlySpecified true
 }
 

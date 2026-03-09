@@ -370,14 +370,14 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         let sourceSnippets, diagnostics =
             CodeFormatter.ParseAndCheckSource(filePath, content, ctx.CompilerOptions, defines, onError)
 
-        let mutable fail = false
+        let mutable hasErrors = false
 
         for (SourceError((l0, c0), (l1, c1), kind, msg)) in diagnostics do
             printfn
                 "   %s: %s(%d,%d)-(%d,%d) %s"
                 filePath
                 (if kind = ErrorKind.Error then
-                     fail <- true
+                     hasErrors <- true
                      "error"
                  else
                      "warning")
@@ -387,8 +387,8 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                 c1
                 msg
 
-        if fail then
-            ctx.OnError "errors parsing or checking script"
+        if hasErrors then
+            ctx.OnError(sprintf "errors found in '%s'" filePath)
 
         let parsedBlocks =
             [ for Snippet(name, lines) in sourceSnippets do

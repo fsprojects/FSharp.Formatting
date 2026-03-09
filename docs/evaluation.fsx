@@ -158,7 +158,7 @@ let a = 10
 (*** include-value:a ***)"""
 
 // Create evaluator and parse script
-let fsi = FsiEvaluator()
+let fsi = new FsiEvaluator()
 
 let doc = Literate.ParseScriptString(content, fsiEvaluator = fsi)
 
@@ -192,7 +192,7 @@ This can be done by calling `cref:M:FSharp.Formatting.Literate.Evaluation.FsiEva
 
 *)
 // Create evaluator & register simple formatter for lists
-let fsiEvaluator = FsiEvaluator()
+let fsiEvaluator = new FsiEvaluator()
 
 fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
     // If the type of value is an F# list, format it nicely
