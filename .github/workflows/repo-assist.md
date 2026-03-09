@@ -32,6 +32,7 @@ network:
   - python
   - rust
   - java
+  - developer.mozilla.org
 
 safe-outputs:
   add-comment:
