@@ -1239,7 +1239,7 @@ span[onmouseout] {
 }
 
 /* Search */
-::backdrop {
+dialog::backdrop {
     background-color: #020202;
     opacity: 0.5;
 }
