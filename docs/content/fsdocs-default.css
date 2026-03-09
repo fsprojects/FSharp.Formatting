@@ -983,8 +983,6 @@ table.pre, code, pre.fssnip {
 
 /* tooltips */
 div.fsdocs-tip {
-    z-index: 1000;
-    display: none;
     background-color: var(--doc-tip-background);
     border-radius: var(--radius);
     border: 1px solid var(--header-border);
@@ -1000,24 +998,15 @@ div.fsdocs-tip {
     }
 }
 
-/* When using the Popover API, the browser adds :popover-open when shown.
-   Reset UA inset (inset: 0) so JS-supplied left/top control position without
-   the implicit right/bottom: 0 stretching the element across the viewport. */
 @keyframes fsdocs-tip-fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
+/* Reset UA inset so JS-supplied left/top control position. */
 div.fsdocs-tip:popover-open {
-    display: block;
     position: fixed;
     inset: unset;
-    /* Explicitly override Chrome's UA top-layer background (canvas keyword) */
-    background-color: var(--doc-tip-background);
     animation: fsdocs-tip-fade-in 120ms ease-out;
 }
 
