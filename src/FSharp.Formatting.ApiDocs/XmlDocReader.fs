@@ -16,6 +16,8 @@ open FSharp.Patterns
 /// XML documentation comment reading and combining utilities.
 [<AutoOpen>]
 module internal XmlDocReader =
+    /// Normalises leading whitespace from a multi-line XML doc comment string, removing
+    /// the common indentation prefix that .NET compilers emit.
     let removeSpaces (comment: string) =
         use reader = new StringReader(comment)
 
@@ -28,6 +30,10 @@ module internal XmlDocReader =
 
         String.removeSpaces lines
 
+    /// Converts a Markdown-style literate document (used when a doc comment was written as
+    /// free Markdown text) into an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocComment"/>.
+    /// Sections headed with <c>## Returns</c>, <c>## Examples</c>, <c>## Notes</c>, and
+    /// <c>## Remarks</c> are mapped to the corresponding ApiDocComment fields.
     let readMarkdownCommentAsHtml el (doc: LiterateDocument) =
         let groups = System.Collections.Generic.List<(_ * _)>()
 
@@ -107,6 +113,8 @@ module internal XmlDocReader =
             rawData = raw
         )
 
+    /// Tries to parse a <c>[key:value]</c> command embedded inside an XML doc text node.
+    /// Returns <c>Some (key, value)</c> on success or <c>None</c> if the text is not a command.
     let findCommand cmd =
         match cmd with
         | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), _rest) -> Some(k, v)
@@ -137,6 +145,11 @@ module internal XmlDocReader =
             else
                 $"<pre>%s{trimmed}</pre>"
 
+    /// Recursively converts an <see cref="T:System.Xml.Linq.XElement"/> to an HTML string,
+    /// resolving <c>&lt;see cref="…"/&gt;</c> references via <paramref name="urlMap"/> and
+    /// collecting any embedded <c>[key:value]</c> commands into <paramref name="cmds"/>.
+    /// When <paramref name="anyTagsOK"/> is <c>true</c>, unknown XML elements are passed
+    /// through as raw HTML; otherwise they are silently dropped.
     let rec readXmlElementAsHtml
         anyTagsOK
         (urlMap: CrossReferenceResolver)
@@ -217,12 +230,20 @@ module internal XmlDocReader =
                         let elemAsXml = elem.ToString()
                         html.Append(elemAsXml) |> ignore
 
+    /// Active pattern that matches a <c>&lt;summary&gt;</c> element that contains only text
+    /// (no child elements). Used to take a fast path that avoids the full HTML builder.
     let (|SummaryWithoutChildren|_|) (e: XElement) =
         if e.Name.LocalName = "summary" && not e.HasElements then
             Some e
         else
             None
 
+    /// Core function that processes a standard C#/F# XML documentation element (the root
+    /// <c>&lt;member …&gt;</c> or <c>&lt;doc&gt;</c> element) into an
+    /// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocComment"/> plus an optional list of
+    /// <c>&lt;namespacedoc&gt;</c> sub-elements (for namespace-level summaries).
+    /// When <paramref name="summaryExpected"/> is <c>true</c>, a missing <c>&lt;summary&gt;</c>
+    /// child is treated as raw HTML content.
     let readXmlCommentAsHtmlAux
         summaryExpected
         (urlMap: CrossReferenceResolver)
@@ -409,15 +430,22 @@ module internal XmlDocReader =
 
         comment, nsels
 
+    /// Concatenates the HTML text of two <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> values,
+    /// separated by a newline.
     let combineHtml (h1: ApiDocHtml) (h2: ApiDocHtml) =
         ApiDocHtml(String.concat "\n" [ h1.HtmlText; h2.HtmlText ], None)
 
+    /// Combines two optional <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> values:
+    /// returns the non-<c>None</c> side, or concatenates both when both are present.
     let combineHtmlOptions (h1: ApiDocHtml option) (h2: ApiDocHtml option) =
         match h1, h2 with
         | x, None -> x
         | None, x -> x
         | Some x, Some y -> Some(combineHtml x y)
 
+    /// Merges two <see cref="T:FSharp.Formatting.ApiDocs.ApiDocComment"/> values by
+    /// concatenating their HTML sections (summary, remarks, parameters, examples, etc.).
+    /// Used when a symbol has documentation spread across multiple XML doc elements.
     let combineComments (c1: ApiDocComment) (c2: ApiDocComment) =
         ApiDocComment(
             xmldoc =
@@ -434,6 +462,9 @@ module internal XmlDocReader =
             rawData = c1.RawData @ c2.RawData
         )
 
+    /// Reduces a list of optional <see cref="T:FSharp.Formatting.ApiDocs.ApiDocComment"/> values
+    /// (namespace-level doc fragments) by combining all non-<c>None</c> entries into one.
+    /// Returns <c>None</c> when the list is empty or all entries are <c>None</c>.
     let combineNamespaceDocs nspDocs =
         nspDocs
         |> List.choose id
@@ -441,12 +472,18 @@ module internal XmlDocReader =
             | [] -> None
             | xs -> Some(List.reduce combineComments xs)
 
+    /// Top-level XML doc reader: parses a <c>&lt;member&gt;</c> element (or similar) into an
+    /// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocComment"/> and a separate namespace-doc
+    /// comment extracted from any embedded <c>&lt;namespacedoc&gt;</c> elements.
     let rec readXmlCommentAsHtml (urlMap: CrossReferenceResolver) (doc: XElement) (cmds: IDictionary<_, _>) =
         let doc, nsels = readXmlCommentAsHtmlAux true urlMap doc cmds
 
         let nsdocs = readNamespaceDocs urlMap nsels
         doc, nsdocs
 
+    /// Reads the contents of <c>&lt;namespacedoc&gt;</c> elements into a combined namespace
+    /// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocComment"/>, or returns <c>None</c> when
+    /// the list is empty.
     and readNamespaceDocs (urlMap: CrossReferenceResolver) (nsels: XElement list option) =
         let nscmds = Dictionary() :> IDictionary<_, _>
 
