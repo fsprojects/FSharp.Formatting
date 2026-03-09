@@ -11,6 +11,7 @@
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* Experiment: View Transitions API support in the default fsdocs template. Cross-document navigation now fades smoothly (Chrome 126+, Safari 18.2+); theme toggling uses `document.startViewTransition()` when available. Degrades gracefully in unsupporting browsers. [#1077](https://github.com/fsprojects/FSharp.Formatting/issues/1077)
 
 ### Changed
 * Changed `range` fields in `MarkdownSpan` and `MarkdownParagraph` DU cases from `MarkdownRange option` to `MarkdownRange`, using `MarkdownRange.zero` as the default/placeholder value instead of `None`.

@@ -22,9 +22,17 @@ export class ThemeToggle extends LitElement {
     `;
 
     changeTheme() {
-        this._theme = this._theme === 'light' ? 'dark' : 'light';
-        localStorage.setItem('theme', this._theme);
-        window.document.documentElement.setAttribute("data-theme", this._theme);
+        const next = this._theme === 'light' ? 'dark' : 'light';
+        const apply = () => {
+            this._theme = next;
+            localStorage.setItem('theme', next);
+            window.document.documentElement.setAttribute("data-theme", next);
+        };
+        if (document.startViewTransition) {
+            document.startViewTransition(apply);
+        } else {
+            apply();
+        }
     }
 
     render() {

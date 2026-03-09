@@ -1294,3 +1294,31 @@ dialog {
         opacity: 0.75;
     }
 }
+
+/* View Transitions API — progressive enhancement.
+   @view-transition opts the page into cross-document transitions so navigation
+   between fsdocs pages gets a smooth fade instead of a hard cut.
+   Browsers that do not support this rule simply ignore it. */
+@view-transition {
+    navigation: auto;
+}
+
+/* Assign stable transition names to the major layout regions so the browser
+   can animate each one independently during cross-document navigation. */
+header {
+    view-transition-name: site-header;
+}
+
+#fsdocs-main-menu {
+    view-transition-name: site-nav;
+}
+
+main {
+    view-transition-name: main-content;
+}
+
+/* Slow down the default cross-fade slightly for a more polished feel. */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.2s;
+}
