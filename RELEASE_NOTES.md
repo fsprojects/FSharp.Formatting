@@ -7,6 +7,7 @@
 * Split pipe-table and Emacs-table parsing out of `MarkdownBlockParser.fs` into a new `MarkdownTableParser.fs` (196 lines), reducing `MarkdownBlockParser.fs` from 958 to 760 lines. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
 
 ### Added
+* Search dialog now auto-focuses the search input when opened, clears on close, and can be triggered with `Ctrl+K` / `Cmd+K` in addition to `/`.
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
