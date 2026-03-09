@@ -18,7 +18,7 @@
 
 ### Changed
 * Changed `range` fields in `MarkdownSpan` and `MarkdownParagraph` DU cases from `MarkdownRange option` to `MarkdownRange`, using `MarkdownRange.zero` as the default/placeholder value instead of `None`.
-* Added `CheckDocScripts` stage to the `Verify` pipeline in `build.fsx` so that `dotnet fsi build.fsx -- -p Verify` also type-checks documentation scripts with `--strict`, catching errors locally before CI. [#1081](https://github.com/fsprojects/FSharp.Formatting/issues/1081)
+* Added `CheckDocScripts` stage to the `Verify` pipeline in `build.fsx` so that `dotnet fsi build.fsx -- -p Verify` also type-checks documentation scripts with `--strict`, catching errors locally before CI. Works on Windows, macOS, and Linux. [#1081](https://github.com/fsprojects/FSharp.Formatting/issues/1081)
 * When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 
 ## 22.0.0-alpha.1 - 2026-03-03

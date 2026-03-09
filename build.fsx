@@ -92,11 +92,12 @@ pipeline "CI" {
 // Assumes the solution has been built (e.g. after running the CI pipeline or
 // `dotnet build`). Catches type errors in .fsx documentation sources early,
 // matching the `--strict` check in the full GenerateDocs stage.
+let fsdocsLocalBin =
+    let ext = if System.OperatingSystem.IsWindows() then ".exe" else ""
+    $"src/fsdocs-tool/bin/Release/net10.0/fsdocs{ext}"
+
 let checkDocScriptsStage =
-    stage "CheckDocScripts" {
-        whenNot { envVar "RUNNER_OS" "Windows" }
-        run $"src/fsdocs-tool/bin/Release/net10.0/fsdocs build --strict --clean --properties Configuration=Release"
-    }
+    stage "CheckDocScripts" { run $"\"{fsdocsLocalBin}\" build --strict --clean --properties Configuration=Release" }
 
 pipeline "Verify" {
     lintStage
