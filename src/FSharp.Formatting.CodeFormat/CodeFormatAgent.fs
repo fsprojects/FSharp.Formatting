@@ -17,10 +17,8 @@ open FSharp.Compiler.EditorServices
 open FSharp.Compiler.CodeAnalysis
 open FSharp.Compiler.Diagnostics
 
-// --------------------------------------------------------------------------------------
-// ?
-// --------------------------------------------------------------------------------------
-
+/// Internal helpers for tokenising, type-checking and annotating F# source code
+/// using the F# Compiler Service, producing coloured and tooltip-annotated token spans.
 module private Helpers =
 
     /// Mapping table that translates F# compiler representation to our union
@@ -40,8 +38,7 @@ module private Helpers =
         | FSharpTokenColorKind.Default
         | _ -> TokenKind.Default
 
-    // Parse command line options - split string by space, but if there is something
-    // enclosed in double quotes "..." then ignore spaces in the quoted text
+    /// Parses compiler command-line options by splitting on spaces while respecting quoted strings.
     let parseOptions (str: string) =
         let rec loop i opts current =
             let opts =
@@ -107,8 +104,8 @@ module private Helpers =
 
         indexedSnippetLines
 
-    // Count the minimal number of spaces at the beginning of lines
-    // (so that we can remove spaces for indented text)
+    /// Returns the number of leading spaces on the least-indented non-empty line in the snippet,
+    /// used to strip common indentation when formatting indented code blocks.
     let countStartingSpaces (lines: Snippet) =
         [ for _, toks: _ list in lines do
               match toks with
@@ -118,6 +115,7 @@ module private Helpers =
               | _ -> yield 0 ]
         |> List.fold min 0
 
+/// A column range within a single source line, used to track string literal extents during tokenisation.
 [<Struct>]
 type internal Range =
     { LeftCol: int
@@ -127,15 +125,19 @@ type internal Range =
         { LeftCol = leftCol
           RightCol = rightCol }
 
-/// Uses agent to handle formatting requests
+/// Formats F# source code snippets into annotated token sequences by invoking the
+/// F# Compiler Service for tokenisation, type-checking, and semantic classification.
 module CodeFormatter =
-    // Create keys for query tooltips for double-backtick identifiers
+    /// Converts a double-backtick identifier like <c>``my ident``</c> into the form
+    /// <c>( my ident )</c> that the compiler uses for tooltip lookup.
     let processDoubleBackticks (body: string) =
         if body.StartsWith("``", StringComparison.Ordinal) then
             sprintf "( %s )" <| body.Trim '`'
         else
             body
 
+    /// Maps an FCS <see cref="T:FSharp.Compiler.EditorServices.SemanticClassificationType"/> to our
+    /// <see cref="T:FSharp.Formatting.CodeFormat.TokenKind"/>, or <c>None</c> for unrecognised categories.
     let categoryToTokenKind =
         function
         | SemanticClassificationType.Enumeration -> Some TokenKind.Enumeration
@@ -178,7 +180,8 @@ module CodeFormatter =
         | _ -> None
 
 
-    // Processes a single line of the snippet
+    /// Processes a single source line: walks the token stream and enriches each token with
+    /// semantic classification (colour kind and tooltip) from the FCS type-check results.
     let processSnippetLine
         (checkResults: FSharpCheckFileResults)
         (semanticRanges: SemanticClassificationItem array)
@@ -319,7 +322,8 @@ module CodeFormatter =
         // Process the current line & return info about it
         Line(lineStr, loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
 
-    /// Process snippet
+    /// Processes all lines of a snippet using the FCS check results and semantic classification ranges,
+    /// returning an annotated list of <see cref="T:FSharp.Formatting.CodeFormat.Line"/> values.
     let processSnippet checkResults categorizedRanges lines (snippet: Snippet) =
         snippet
         |> List.map (fun snippetLine ->
@@ -336,12 +340,11 @@ module CodeFormatter =
 
     // --------------------------------------------------------------------------------------
 
-    // Create an instance of an InteractiveChecker (which does background analysis
-    // in a typical IntelliSense editor integration for F#)
+    /// Shared <see cref="T:FSharp.Compiler.CodeAnalysis.FSharpChecker"/> instance used for all source-code processing.
     let fsChecker = FSharpAssemblyHelper.checker // FSharpChecker.Create()
 
-    // ------------------------------------------------------------------------------------
-
+    /// Asynchronously parses, type-checks, and annotates a single F# source file or script,
+    /// returning an array of named, token-annotated snippets and any compilation diagnostics.
     let processSourceCode (filePath, source, options, defines, onError) =
         async {
             Log.verbf "starting to process source code from '%s'" filePath

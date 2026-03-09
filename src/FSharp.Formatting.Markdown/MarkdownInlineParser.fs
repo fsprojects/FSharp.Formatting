@@ -17,6 +17,21 @@ open FSharp.Formatting.Common
 // Parsing of Markdown - inline formatting (spans, characters, emphasis, links)
 // --------------------------------------------------------------------------------------
 
+// Precompiled regex for the full set of CommonMark Unicode punctuation characters.
+// Compiled once at module initialisation to avoid per-call regex construction.
+// Surrogate-pair cases require at most 2 chars; all others require 1 char, so callers
+// need only supply a 2-char prefix of the remaining input.
+let private punctuationRegex =
+    Regex(
+        """^[!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E42\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC9\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDF3C-\uDF3E]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]""",
+        RegexOptions.Compiled
+    )
+
+// Precompiled regex for CommonMark HTML entity and numeric character references.
+// Max match length is 34 chars (&, up to 32 name chars, ;), so callers need only
+// supply a 34-char prefix of the remaining input.
+let private htmlEntityRegex = Regex("^&(?:#x[a-f0-9]{1,8}|#[0-9]{1,8}|[a-z][a-z0-9]{1,31});", RegexOptions.Compiled)
+
 /// Splits a link formatted as `http://link "title"` into a link part
 /// and an optional title part (may be wrapped using quote or double-quotes)
 let getLinkAndTitle (StringPosition.TrimBoth(input, _n)) =
@@ -54,11 +69,10 @@ let (|Punctuation|_|) input =
     match input with
     | EscapedChar _ -> None
     | _ ->
-        // from https://github.com/commonmark/commonmark.js/blob/master/lib/inlines.js#L38
-        let re =
-            """^[!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E42\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC9\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDF3C-\uDF3E]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]"""
-
-        let match' = Regex.Match(Array.ofList input |> String, re)
+        // Surrogate-pair punctuation cases need at most 2 chars; all other cases need 1.
+        // Passing only a short prefix avoids converting the entire remaining input list.
+        let prefix = input |> List.truncate 2 |> Array.ofList |> String
+        let match' = punctuationRegex.Match(prefix)
 
         if match'.Success then
             let entity = match'.Value
@@ -278,7 +292,7 @@ let (|Emphasised|_|) =
         match run @ post with
         | DelimitedMarkdown [ '_'; '_'; '_' ] (body, rest)
         | DelimitedMarkdown [ '*'; '*'; '*' ] (body, rest) ->
-            Some(pre, body, Emphasis >> List.singleton >> (fun s -> Strong(s, None)), rest)
+            Some(pre, body, Emphasis >> List.singleton >> (fun s -> Strong(s, MarkdownRange.zero)), rest)
         | DelimitedMarkdown [ '_'; '_' ] (body, rest)
         | DelimitedMarkdown [ '*'; '*' ] (body, rest) -> Some(pre, body, Strong, rest)
         | DelimitedMarkdown [ '_' ] (body, rest)
@@ -289,17 +303,10 @@ let (|Emphasised|_|) =
 let (|HtmlEntity|_|) input =
     match input with
     | '&' :: _ ->
-        // regex from reference implementation: https://github.com/commonmark/commonmark.js/blob/da1db1e/lib/common.js#L10
-        let re =
-            "^&" // beginning expect '&'
-            + "(?:" // start non-capturing group
-            + "#x[a-f0-9]{1,8}" // hex
-            + "|#[0-9]{1,8}" // or decimal
-            + "|[a-z][a-z0-9]{1,31}" // or name
-            + ")" // end non-capturing group
-            + ";" // expect ';'
-
-        let match' = Regex.Match(Array.ofList input |> String, re)
+        // Max entity length: & + 32 name chars + ; = 34. Passing only a short prefix
+        // avoids allocating a string for the entire remaining input.
+        let prefix = input |> List.truncate 34 |> Array.ofList |> String
+        let match' = htmlEntityRegex.Match(prefix)
 
         if match'.Success then
             let entity = match'.Value
@@ -315,7 +322,7 @@ type ParsingContext =
     { Links: Dictionary<string, string * string option>
       Newline: string
       IsFirst: bool
-      CurrentRange: MarkdownRange option
+      CurrentRange: MarkdownRange
       ParseOptions: MarkdownParseOptions }
 
     member x.ParseCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseCodeAsOther) <> enum 0
@@ -328,18 +335,13 @@ type ParsingContext =
 let private advanceCtxBy n ctx =
     { ctx with
         CurrentRange =
-            match ctx.CurrentRange with
-            | Some r ->
-                Some
-                    { r with
-                        StartColumn = r.StartColumn + n }
-            | None -> None }
+            { ctx.CurrentRange with
+                StartColumn = ctx.CurrentRange.StartColumn + n } }
 
 /// Computes a span range starting at ctx.StartColumn and spanning n characters.
 let private spanRange n ctx =
-    match ctx.CurrentRange with
-    | Some r -> Some { r with EndColumn = r.StartColumn + n }
-    | None -> None
+    { ctx.CurrentRange with
+        EndColumn = ctx.CurrentRange.StartColumn + n }
 
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx: ParsingContext) =
@@ -352,24 +354,14 @@ let rec parseChars acc input (ctx: ParsingContext) =
                     ([], ctx)
                 else
                     let range =
-                        match ctx.CurrentRange with
-                        | Some(n) ->
-                            Some(
-                                { n with
-                                    EndColumn = n.StartColumn + acc.Length }
-                            )
-                        | None -> None
+                        { ctx.CurrentRange with
+                            EndColumn = ctx.CurrentRange.StartColumn + acc.Length }
 
                     let ctx =
                         { ctx with
                             CurrentRange =
-                                match ctx.CurrentRange with
-                                | Some(n) ->
-                                    Some(
-                                        { n with
-                                            StartColumn = n.StartColumn + acc.Length }
-                                    )
-                                | None -> None }
+                                { ctx.CurrentRange with
+                                    StartColumn = ctx.CurrentRange.StartColumn + acc.Length } }
 
                     let text = String(List.rev acc |> Array.ofList)
                     ([ Literal(text, range) ], ctx))
@@ -402,13 +394,9 @@ let rec parseChars acc input (ctx: ParsingContext) =
             yield! value
 
             let rng =
-                match ctx.CurrentRange with
-                | Some(n) ->
-                    Some
-                        { n with
-                            StartColumn = n.StartColumn + s
-                            EndColumn = n.StartColumn + s + body.Length }
-                | None -> None
+                { ctx.CurrentRange with
+                    StartColumn = ctx.CurrentRange.StartColumn + s
+                    EndColumn = ctx.CurrentRange.StartColumn + s + body.Length }
 
             yield InlineCode(String(Array.ofList body).Trim(), rng)
             yield! parseChars [] rest (advanceCtxBy (s + body.Length + e) ctx)
@@ -427,13 +415,8 @@ let rec parseChars acc input (ctx: ParsingContext) =
             let ctx =
                 { ctx with
                     CurrentRange =
-                        match ctx.CurrentRange with
-                        | Some(n) ->
-                            Some(
-                                { n with
-                                    StartColumn = n.StartColumn + 1 }
-                            )
-                        | None -> None }
+                        { ctx.CurrentRange with
+                            StartColumn = ctx.CurrentRange.StartColumn + 1 } }
 
             yield! value
             let code = String(Array.ofList body).Trim()
@@ -441,13 +424,8 @@ let rec parseChars acc input (ctx: ParsingContext) =
             yield
                 LatexInlineMath(
                     code,
-                    match ctx.CurrentRange with
-                    | Some(n) ->
-                        Some(
-                            { n with
-                                EndColumn = n.StartColumn + code.Length }
-                        )
-                    | None -> None
+                    { ctx.CurrentRange with
+                        EndColumn = ctx.CurrentRange.StartColumn + code.Length }
                 )
 
             yield! parseChars [] rest ctx
@@ -545,7 +523,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
 
 /// Parse body of a paragraph into a list of Markdown inline spans
 let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
-    let ctx = { ctx with CurrentRange = Some(n) }
+    let ctx = { ctx with CurrentRange = n }
 
     parseChars [] (s.ToCharArray() |> List.ofArray) ctx |> List.ofSeq
 

@@ -23,8 +23,15 @@ open FSharp.Formatting.Templating
 open FSharp.Patterns
 open FSharp.Compiler.Syntax
 
+/// Internal module for reading FSharp.Compiler.Service symbols and converting them
+/// to the FSharp.Formatting API documentation model (<see cref="ApiDocMember"/>,
+/// <see cref="ApiDocEntity"/>, <see cref="ApiDocNamespace"/>, etc.).
 [<AutoOpen>]
 module internal SymbolReader =
+
+    /// Context object threaded through all symbol-reading operations. Captures
+    /// per-assembly settings and services such as XML doc maps, URL resolvers,
+    /// and source-folder configuration.
     type ReadingContext =
         { PublicOnly: bool
           Assembly: AssemblyName
@@ -40,11 +47,13 @@ module internal SymbolReader =
           ShowInheritedMembers: bool
           TypeConstraintDisplayMode: TypeConstraintDisplayMode }
 
+        /// Looks up an XML documentation element by its member-signature key.
         member x.XmlMemberLookup(key) =
             match x.XmlMemberMap.TryGetValue(key) with
             | true, v -> Some v
             | _ -> None
 
+        /// Creates a new <see cref="ReadingContext"/> with the supplied settings.
         static member internal Create
             (
                 publicOnly,
@@ -76,6 +85,8 @@ module internal SymbolReader =
               ShowInheritedMembers = showInheritedMembers
               TypeConstraintDisplayMode = typeConstraintDisplayMode }
 
+    /// Returns the compiled name of a symbol if it differs from the display name,
+    /// e.g. for operators or property getters that have mangled names.
     let inline private getCompiledName (s: ^a :> FSharpSymbol) =
         let compiledName = (^a: (member CompiledName: string) (s))
 
@@ -83,6 +94,7 @@ module internal SymbolReader =
         | true -> None
         | _ -> Some compiledName
 
+    /// Converts a single <see cref="FSharpAttribute"/> to an <see cref="ApiDocAttribute"/>.
     let readAttribute (attribute: FSharpAttribute) =
         let name = attribute.AttributeType.DisplayName
         let fullName = attribute.AttributeType.FullName
@@ -96,9 +108,12 @@ module internal SymbolReader =
 
         ApiDocAttribute(name, fullName, constructorArguments, namedArguments)
 
+    /// Converts a sequence of <see cref="FSharpAttribute"/> values to a list of <see cref="ApiDocAttribute"/>.
     let readAttributes (attributes: FSharpAttribute seq) =
         attributes |> Seq.map readAttribute |> Seq.toList
 
+    /// Reads a function, value, or member symbol and returns the <see cref="ApiDocMemberDetails"/>
+    /// describing its usage HTML, parameters, return type, modifiers, and source location.
     let readMemberOrVal (ctx: ReadingContext) (v: FSharpMemberOrFunctionOrValue) =
         let requireQualifiedAccess =
             v.ApparentEnclosingEntity
@@ -343,6 +358,8 @@ module internal SymbolReader =
             getCompiledName v
         )
 
+    /// Reads a discriminated-union case and returns the <see cref="ApiDocMemberDetails"/>
+    /// for it, including usage HTML and per-field parameter entries.
     let readUnionCase (ctx: ReadingContext) (_typ: FSharpEntity) (case: FSharpUnionCase) =
 
         let formatFieldUsage (field: FSharpField) =
@@ -409,6 +426,7 @@ module internal SymbolReader =
             getCompiledName case
         )
 
+    /// Reads a record or class field and returns the <see cref="ApiDocMemberDetails"/> for it.
     let readFSharpField (ctx: ReadingContext) (field: FSharpField) =
         let usageHtml = !!field.Name |> codeHtml
 
@@ -452,6 +470,8 @@ module internal SymbolReader =
                 None
         )
 
+    /// Builds the XML documentation signature key for a type-provider static parameter,
+    /// used to locate the corresponding <c>&lt;member&gt;</c> element in the XML doc file.
     let getFSharpStaticParamXmlSig (typeProvider: FSharpEntity) parameterName =
         "SP:"
         + typeProvider.AccessPath
@@ -460,6 +480,7 @@ module internal SymbolReader =
         + "."
         + parameterName
 
+    /// Reads a type-provider static parameter and returns the <see cref="ApiDocMemberDetails"/> for it.
     let readFSharpStaticParam (ctx: ReadingContext) (staticParam: FSharpStaticParameter) =
         let usageHtml =
             span
@@ -499,447 +520,8 @@ module internal SymbolReader =
                 None
         )
 
-    let removeSpaces (comment: string) =
-        use reader = new StringReader(comment)
-
-        let lines =
-            [ let mutable line = ""
-
-              while (line <- reader.ReadLine()
-                     not (isNull line)) do
-                  yield line ]
-
-        String.removeSpaces lines
-
-    let readMarkdownCommentAsHtml el (doc: LiterateDocument) =
-        let groups = System.Collections.Generic.List<(_ * _)>()
-
-        let mutable current = "<default>"
-        groups.Add(current, [])
-
-        let raw =
-            match doc.Source with
-            | LiterateSource.Markdown(string) -> [ KeyValuePair(current, string) ]
-            | LiterateSource.Script _ -> []
-
-        for par in doc.Paragraphs do
-            match par with
-            | Heading(2, [ Literal(text, _) ], _) ->
-                current <- text.Trim()
-                groups.Add(current, [ par ])
-            | par -> groups.[groups.Count - 1] <- (current, par :: snd (groups.[groups.Count - 1]))
-
-        // TODO: properly crack exceptions and parameters section of markdown docs, which have structure
-        let groups = groups |> Seq.toList
-
-        let summary, rest = groups |> List.partition (fun (section, _) -> section = "<default>")
-
-        let notes, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Notes")
-
-        let examples, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Examples")
-
-        let returns, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Returns")
-
-        let remarks, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Remarks")
-        //let exceptions, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Exceptions")
-        //let parameters, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Parameters")
-
-        // tailOrEmpty drops the section headings, though not for summary which is implicit
-        let summary = summary |> List.collect (snd >> List.rev)
-
-        let returns = returns |> List.collect (snd >> List.rev) |> List.tailOrEmpty
-
-        let examples = examples |> List.map (snd >> List.rev) |> List.tailOrEmpty
-
-        let notes = notes |> List.map (snd >> List.rev) |> List.tailOrEmpty
-        //let exceptions = exceptions |> List.collect (snd >> List.rev) |> List.tailOrEmpty
-        //let parameters = parameters |> List.collect (snd >> List.rev) |> List.tailOrEmpty
-
-        // All unclassified things go in 'remarks'
-        let remarks =
-            (remarks |> List.collect (snd >> List.rev) |> List.tailOrEmpty)
-            @ (rest |> List.collect (snd >> List.rev))
-
-        let summary = ApiDocHtml(Literate.ToHtml(doc.With(paragraphs = summary)), None)
-
-        let remarks =
-            if remarks.IsEmpty then
-                None
-            else
-                Some(ApiDocHtml(Literate.ToHtml(doc.With(paragraphs = remarks)), None))
-        //let exceptions = [ for e in exceptions -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=[e]))) ]
-        let notes = [ for e in notes -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs = e)), None) ]
-
-        let examples = [ for e in examples -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs = e)), None) ]
-
-        let returns =
-            if returns.IsEmpty then
-                None
-            else
-                Some(ApiDocHtml(Literate.ToHtml(doc.With(paragraphs = returns)), None))
-
-        ApiDocComment(
-            xmldoc = Some el,
-            summary = summary,
-            remarks = remarks,
-            parameters = [],
-            returns = returns,
-            examples = examples,
-            notes = notes,
-            exceptions = [],
-            rawData = raw
-        )
-
-    let findCommand cmd =
-        match cmd with
-        | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), _rest) -> Some(k, v)
-        | _ -> None
-
-    /// Wraps the summary content in a <pre> tag if it is multiline and has different column indentations.
-    let readXmlElementAsSingleSummary (e: XElement) =
-        let text = e.Value
-
-        let nonEmptyLines =
-            e.Value.Split([| '\n' |], StringSplitOptions.RemoveEmptyEntries)
-            |> Array.filter (String.IsNullOrWhiteSpace >> not)
-
-        if nonEmptyLines.Length = 1 then
-            nonEmptyLines.[0]
-        else
-            let allLinesHaveSameColumn =
-                nonEmptyLines
-                |> Array.map (fun line -> line |> Seq.takeWhile (fun c -> c = ' ') |> Seq.length)
-                |> Array.distinct
-                |> Array.length
-                |> (=) 1
-
-            let trimmed = text.TrimStart([| '\n'; '\r' |]).TrimEnd()
-
-            if allLinesHaveSameColumn then
-                trimmed
-            else
-                $"<pre>%s{trimmed}</pre>"
-
-    let rec readXmlElementAsHtml
-        anyTagsOK
-        (urlMap: CrossReferenceResolver)
-        (cmds: IDictionary<_, _>)
-        (html: StringBuilder)
-        (e: XElement)
-        =
-        for x in e.Nodes() do
-            if x.NodeType = XmlNodeType.Text then
-                let text = (x :?> XText).Value
-
-                match findCommand (text, MarkdownRange.zero) with
-                | Some(k, v) -> cmds.Add(k, v)
-                | None -> html.Append(HttpUtility.HtmlEncode text) |> ignore
-            elif x.NodeType = XmlNodeType.Element then
-                let elem = x :?> XElement
-
-                match elem.Name.LocalName with
-                | "list" ->
-                    html.Append("<ul>") |> ignore
-                    readXmlElementAsHtml anyTagsOK urlMap cmds html elem
-                    html.Append("</ul>") |> ignore
-                | "item" ->
-                    html.Append("<li>") |> ignore
-                    readXmlElementAsHtml anyTagsOK urlMap cmds html elem
-                    html.Append("</li>") |> ignore
-                | "para" ->
-                    html.Append("<p class='fsdocs-para'>") |> ignore
-                    readXmlElementAsHtml anyTagsOK urlMap cmds html elem
-                    html.Append("</p>") |> ignore
-                | "paramref" ->
-                    let name = elem.Attribute(XName.Get "name")
-                    let nameAsHtml = HttpUtility.HtmlEncode name.Value
-
-                    if not (isNull name) then
-                        html.AppendFormat("<span class=\"fsdocs-param-name\">{0}</span>", nameAsHtml)
-                        |> ignore
-                | "see"
-                | "seealso" ->
-                    let cref = elem.Attribute(XName.Get "cref")
-
-                    if not (isNull cref) then
-                        if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-                            printfn "ignoring invalid cref specified in: %A" e
-
-                        // Older FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
-                        let cname = cref.Value
-
-                        let cname = if cname.Contains(":") then cname else "T:" + cname
-
-                        match urlMap.ResolveCref cname with
-                        | Some reference ->
-                            html.AppendFormat("<a href=\"{0}\">{1}</a>", reference.ReferenceLink, reference.NiceName)
-                            |> ignore
-                        | _ ->
-                            urlMap.ResolveCref cname |> ignore
-                            let crefAsHtml = HttpUtility.HtmlEncode cref.Value
-                            html.Append(crefAsHtml) |> ignore
-                | "c" ->
-                    html.Append("<code>") |> ignore
-
-                    let code = elem.Value.TrimEnd('\r', '\n', ' ')
-                    let codeAsHtml = HttpUtility.HtmlEncode code
-                    html.Append(codeAsHtml) |> ignore
-
-                    html.Append("</code>") |> ignore
-                | "code" ->
-                    let code =
-                        let code = Literate.ParseMarkdownString("```\n" + elem.Value.TrimEnd('\r', '\n', ' ') + "\n```")
-                        Literate.ToHtml(code, lineNumbers = false)
-
-                    html.Append(code) |> ignore
-                // 'a' is not part of the XML doc standard but is widely used
-                | "a" -> html.Append(elem.ToString()) |> ignore
-                // This allows any HTML to be transferred through
-                | _ ->
-                    if anyTagsOK then
-                        let elemAsXml = elem.ToString()
-                        html.Append(elemAsXml) |> ignore
-
-    let (|SummaryWithoutChildren|_|) (e: XElement) =
-        if e.Name.LocalName = "summary" && not e.HasElements then
-            Some e
-        else
-            None
-
-    let readXmlCommentAsHtmlAux
-        summaryExpected
-        (urlMap: CrossReferenceResolver)
-        (doc: XElement)
-        (cmds: IDictionary<_, _>)
-        =
-        let rawData = new Dictionary<string, string>()
-        // not part of the XML doc standard
-        let nsels =
-            let ds = doc.Elements(XName.Get "namespacedoc")
-
-            if Seq.length ds > 0 then Some(Seq.toList ds) else None
-
-        let summary =
-            match Seq.tryExactlyOne (doc.Elements()) with
-            | Some(SummaryWithoutChildren e) -> ApiDocHtml(readXmlElementAsSingleSummary e, None)
-            | Some _
-            | None ->
-                if summaryExpected then
-                    let summaries = doc.Elements(XName.Get "summary") |> Seq.toList
-
-                    let html = new StringBuilder()
-
-                    for (id, e) in List.indexed summaries do
-                        let n = if id = 0 then "summary" else "summary-" + string<int> id
-
-                        rawData.[n] <- e.Value
-                        readXmlElementAsHtml true urlMap cmds html e
-
-                    ApiDocHtml(html.ToString(), None)
-                else
-                    let html = new StringBuilder()
-                    readXmlElementAsHtml false urlMap cmds html doc
-                    ApiDocHtml(html.ToString(), None)
-
-        let paramNodes = doc.Elements(XName.Get "param") |> Seq.toList
-
-        let parameters =
-            [ for e in paramNodes do
-                  let paramName = e.Attribute(XName.Get "name").Value
-                  let phtml = new StringBuilder()
-                  readXmlElementAsHtml true urlMap cmds phtml e
-                  let paramHtml = ApiDocHtml(phtml.ToString(), None)
-                  paramName, paramHtml ]
-
-        for e in doc.Elements(XName.Get "exclude") do
-            cmds.["exclude"] <- e.Value
-
-        for e in doc.Elements(XName.Get "omit") do
-            cmds.["omit"] <- e.Value
-
-        for e in doc.Elements(XName.Get "category") do
-            match e.Attribute(XName.Get "index") with
-            | null -> ()
-            | a -> cmds.["categoryindex"] <- a.Value
-
-            cmds.["category"] <- e.Value
-
-        let remarks =
-            let remarkNodes = doc.Elements(XName.Get "remarks") |> Seq.toList
-
-            if not (List.isEmpty remarkNodes) then
-                let html = new StringBuilder()
-
-                for (id, e) in List.indexed remarkNodes do
-                    let n = if id = 0 then "remarks" else "remarks-" + string<int> id
-
-                    rawData.[n] <- e.Value
-                    readXmlElementAsHtml true urlMap cmds html e
-
-                ApiDocHtml(html.ToString(), None) |> Some
-            else
-                None
-
-        let returns =
-            let html = new StringBuilder()
-
-            let returnNodes = doc.Elements(XName.Get "returns") |> Seq.toList
-
-            if returnNodes.Length > 0 then
-                for (id, e) in List.indexed returnNodes do
-                    let n = if id = 0 then "returns" else "returns-" + string<int> id
-
-                    rawData.[n] <- e.Value
-                    readXmlElementAsHtml true urlMap cmds html e
-
-                Some(ApiDocHtml(html.ToString(), None))
-            else
-                None
-
-        let exceptions =
-            let exceptionNodes = doc.Elements(XName.Get "exception") |> Seq.toList
-
-            [ for e in exceptionNodes do
-                  let cref = e.Attribute(XName.Get "cref")
-
-                  if not (isNull cref) then
-                      if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-                          printfn "Warning: Invalid cref specified in: %A" doc
-
-                      else
-                          // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
-                          let cname = cref.Value
-
-                          let cname =
-                              if cname.StartsWith("T:", StringComparison.Ordinal) then
-                                  cname
-                              else
-                                  "T:" + cname // FSharp.Core exception listings don't start with "T:"
-
-                          match urlMap.ResolveCref cname with
-                          | Some reference ->
-                              let html = new StringBuilder()
-                              let referenceLinkId = "exception-" + reference.NiceName
-                              rawData.[referenceLinkId] <- reference.ReferenceLink
-                              readXmlElementAsHtml true urlMap cmds html e
-                              reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString(), None)
-                          | _ ->
-                              let html = new StringBuilder()
-                              readXmlElementAsHtml true urlMap cmds html e
-                              cname, None, ApiDocHtml(html.ToString(), None) ]
-
-        let examples =
-            let exampleNodes = doc.Elements(XName.Get "example") |> Seq.toList
-
-            [ for (id, e) in List.indexed exampleNodes do
-                  let html = new StringBuilder()
-
-                  let exampleId =
-                      match e.TryAttr "id" with
-                      | None -> if id = 0 then "example" else "example-" + string<int> id
-                      | Some attrId -> attrId
-
-                  rawData.[exampleId] <- e.Value
-                  readXmlElementAsHtml true urlMap cmds html e
-                  ApiDocHtml(html.ToString(), Some exampleId) ]
-
-        let notes =
-            let noteNodes = doc.Elements(XName.Get "note") |> Seq.toList
-            // 'note' is not part of the XML doc standard but is supported by Sandcastle and other tools
-            [ for (id, e) in List.indexed noteNodes do
-                  let html = new StringBuilder()
-
-                  let n = if id = 0 then "note" else "note-" + string<int> id
-
-                  rawData.[n] <- e.Value
-                  readXmlElementAsHtml true urlMap cmds html e
-                  ApiDocHtml(html.ToString(), None) ]
-
-        // put the non-xmldoc sections into rawData
-        doc.Descendants()
-        |> Seq.filter (fun n ->
-            let ln = n.Name.LocalName
-
-            ln <> "summary"
-            && ln <> "param"
-            && ln <> "exceptions"
-            && ln <> "example"
-            && ln <> "note"
-            && ln <> "returns"
-            && ln <> "remarks")
-        |> Seq.groupBy (fun n -> n.Name.LocalName)
-        |> Seq.iter (fun (n, lst) ->
-            let lst = Seq.toList lst
-
-            match lst with
-            | [ x ] -> rawData.[n] <- x.Value
-            | lst -> lst |> List.iteri (fun id el -> rawData.[n + "-" + string<int> id] <- el.Value))
-
-        let rawData = rawData |> Seq.toList
-
-        let comment =
-            ApiDocComment(
-                xmldoc = Some doc,
-                summary = summary,
-                remarks = remarks,
-                parameters = parameters,
-                returns = returns,
-                examples = examples,
-                notes = notes,
-                exceptions = exceptions,
-                rawData = rawData
-            )
-
-        comment, nsels
-
-    let combineHtml (h1: ApiDocHtml) (h2: ApiDocHtml) =
-        ApiDocHtml(String.concat "\n" [ h1.HtmlText; h2.HtmlText ], None)
-
-    let combineHtmlOptions (h1: ApiDocHtml option) (h2: ApiDocHtml option) =
-        match h1, h2 with
-        | x, None -> x
-        | None, x -> x
-        | Some x, Some y -> Some(combineHtml x y)
-
-    let combineComments (c1: ApiDocComment) (c2: ApiDocComment) =
-        ApiDocComment(
-            xmldoc =
-                (match c1.Xml with
-                 | None -> c2.Xml
-                 | v -> v),
-            summary = combineHtml c1.Summary c2.Summary,
-            remarks = combineHtmlOptions c1.Remarks c2.Remarks,
-            parameters = c1.Parameters @ c2.Parameters,
-            examples = c1.Examples @ c2.Examples,
-            returns = combineHtmlOptions c1.Returns c2.Returns,
-            notes = c1.Notes @ c2.Notes,
-            exceptions = c1.Exceptions @ c2.Exceptions,
-            rawData = c1.RawData @ c2.RawData
-        )
-
-    let combineNamespaceDocs nspDocs =
-        nspDocs
-        |> List.choose id
-        |> function
-            | [] -> None
-            | xs -> Some(List.reduce combineComments xs)
-
-    let rec readXmlCommentAsHtml (urlMap: CrossReferenceResolver) (doc: XElement) (cmds: IDictionary<_, _>) =
-        let doc, nsels = readXmlCommentAsHtmlAux true urlMap doc cmds
-
-        let nsdocs = readNamespaceDocs urlMap nsels
-        doc, nsdocs
-
-    and readNamespaceDocs (urlMap: CrossReferenceResolver) (nsels: XElement list option) =
-        let nscmds = Dictionary() :> IDictionary<_, _>
-
-        nsels
-        |> Option.map (
-            List.map (fun n -> fst (readXmlCommentAsHtml urlMap n nscmds))
-            >> List.reduce combineComments
-        )
-
     /// Returns all indirect links in a specified span node
+    /// Collects all indirect (reference-style) link labels used within a Markdown span.
     let rec collectSpanIndirectLinks span =
         seq {
             match span with
@@ -951,6 +533,7 @@ module internal SymbolReader =
         }
 
     /// Returns all indirect links in the specified paragraph node
+    /// Collects all indirect link labels used within a Markdown paragraph (recursively).
     let rec collectParagraphIndirectLinks par =
         seq {
             match par with
@@ -965,11 +548,13 @@ module internal SymbolReader =
         }
 
     /// Returns whether the link is not included in the document defined links
+    /// Returns <c>true</c> when the given link label is already defined in the document.
     let linkDefined (doc: LiterateDocument) (link: string) =
         [ link; link.Replace("\r\n", ""); link.Replace("\r\n", " "); link.Replace("\n", ""); link.Replace("\n", " ") ]
         |> List.exists (fun key -> doc.DefinedLinks.ContainsKey(key))
 
     /// Returns a tuple of the undefined link and its Cref if it exists
+    /// Tries to resolve a bare identifier as a cross-reference link to an API type.
     let getTypeLink (ctx: ReadingContext) undefinedLink =
         // Append 'T:' to try to get the link from urlmap
         match ctx.UrlMap.ResolveCref("T:" + undefinedLink) with
@@ -977,12 +562,14 @@ module internal SymbolReader =
         | None -> None
 
     /// Adds a cross-type link to the document defined links
+    /// Appends a link definition to the document if the target is a valid URL.
     let addLinkToType (doc: LiterateDocument) link =
         match link with
         | Some(k, v) -> do doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName))
         | None -> ()
 
     /// Wraps the span inside an IndirectLink if it is an inline code that can be converted to a link
+    /// Replaces inline code spans whose text resolves to a known type with a hyperlink.
     let wrapInlineCodeLinksInSpans (ctx: ReadingContext) span =
         match span with
         | InlineCode(code, r) ->
@@ -992,6 +579,8 @@ module internal SymbolReader =
         | _ -> span
 
     /// Wraps inside an IndirectLink all inline code spans in the paragraph that can be converted to a link
+    /// Recursively walks markdown paragraphs, replacing inline code spans with hyperlinks
+    /// where the code text resolves to a known API type.
     let rec wrapInlineCodeLinksInParagraphs (ctx: ReadingContext) (para: MarkdownParagraph) =
         match para with
         | MarkdownPatterns.ParagraphLeaf _ -> para
@@ -1005,6 +594,8 @@ module internal SymbolReader =
             MarkdownPatterns.ParagraphSpans(info, List.map (wrapInlineCodeLinksInSpans ctx) spans)
 
     /// Adds the missing links to types to the document defined links
+    /// Post-processes a <see cref="LiterateDocument"/> to add hyperlink definitions for
+    /// inline code references that resolve to known API types.
     let addMissingLinkToTypes ctx (doc: LiterateDocument) =
         let replacedParagraphs = doc.Paragraphs |> List.map (wrapInlineCodeLinksInParagraphs ctx)
 
@@ -1020,6 +611,8 @@ module internal SymbolReader =
 
         doc.With(paragraphs = replacedParagraphs)
 
+    /// Parses a Markdown doc comment, executing any literate commands found in it
+    /// and returning an <see cref="ApiDocComment"/>.
     let readMarkdownCommentAndCommands (ctx: ReadingContext) text el (cmds: IDictionary<_, _>) =
         let lines = removeSpaces text |> List.map (fun s -> (s, MarkdownRange.zero))
 
@@ -1046,6 +639,8 @@ module internal SymbolReader =
         let nsdocs = None
         cmds, html, nsdocs
 
+    /// Parses an XML doc comment, executing any embedded literate commands and
+    /// returning an <see cref="ApiDocComment"/>.
     let readXmlCommentAndCommands (ctx: ReadingContext) text el (cmds: IDictionary<_, _>) =
         let lines = removeSpaces text |> List.map (fun s -> (s, MarkdownRange.zero))
 
@@ -1062,6 +657,9 @@ module internal SymbolReader =
 
         cmds, html, nsdocs
 
+    /// Reads the doc comment for a given XML signature from the XML map (or falls back
+    /// to Markdown comments), returning the parsed <see cref="ApiDocComment"/> together
+    /// with any literate commands found in it.
     let readCommentAndCommands (ctx: ReadingContext) xmlSig (m: range option) =
         let cmds = Dictionary<string, string>() :> IDictionary<_, _>
 
@@ -1112,6 +710,8 @@ module internal SymbolReader =
     /// Reads XML documentation comments and calls the specified function
     /// to parse the rest of the entity, unless [omit] command is set.
     /// The function is called with category name, commands & comment.
+    /// Reads the XML or Markdown doc comments for a symbol, passing the resulting
+    /// <see cref="ApiDocComment"/> and commands dictionary to the supplied continuation <c>f</c>.
     let readCommentsInto (sym: FSharpSymbol) ctx xmlDocSig f =
         let cmds, comment, nsdocs = readCommentAndCommands ctx xmlDocSig sym.DeclarationLocation
 
@@ -1173,14 +773,18 @@ module internal SymbolReader =
                 printfn "Could not read comments from entity '%s': %O" name e
                 None
 
+    /// Returns <c>true</c> when the symbol is accessible under the current context settings
+    /// (i.e. when <c>publicOnly</c> is <c>false</c> or when the symbol is public).
     let checkAccess ctx (access: FSharpAccessibility) = not ctx.PublicOnly || access.IsPublic
 
+    /// Merges namespace-level doc-comment fragments gathered from multiple child entities.
     let collectNamespaceDocs results =
         results
         |> List.unzip
         |> function
             | (results, nspDocs) -> (results, combineNamespaceDocs nspDocs)
 
+    /// Reads child entities matching a predicate, collecting their namespace docs.
     let readChildren ctx (entities: FSharpEntity seq) reader cond =
         entities
         |> Seq.filter (fun v -> checkAccess ctx v.Accessibility && cond v)
@@ -1189,6 +793,8 @@ module internal SymbolReader =
         |> List.ofSeq
         |> collectNamespaceDocs
 
+    /// Attempts to read a single member or value as an <see cref="ApiDocMember"/>,
+    /// returning <c>None</c> when the member is excluded (e.g. inaccessible, compiler-generated).
     let tryReadMember (ctx: ReadingContext) entityUrl kind (memb: FSharpMemberOrFunctionOrValue) =
         readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat catidx exclude _ comment ->
             let details = readMemberOrVal ctx memb
@@ -1207,6 +813,7 @@ module internal SymbolReader =
                 ctx.WarnOnMissingDocs
             ))
 
+    /// Reads all members in a sequence without filtering out any by kind.
     let readAllMembers ctx entityUrl kind (members: FSharpMemberOrFunctionOrValue seq) =
         members
         |> Seq.choose (fun v ->
@@ -1224,6 +831,7 @@ module internal SymbolReader =
         |> List.ofSeq
         |> collectNamespaceDocs
 
+    /// Reads the members of an entity, filtering by a predicate over instance membership.
     let readMembers ctx entityUrl kind (entity: FSharpEntity) cond =
         entity.MembersFunctionsAndValues
         |> Seq.choose (fun v ->
@@ -1234,6 +842,7 @@ module internal SymbolReader =
         |> List.ofSeq
         |> collectNamespaceDocs
 
+    /// Returns the display name of an entity with generic type parameters, e.g. <c>Map&lt;'Key,'Value&gt;</c>.
     let readTypeNameAsText (typ: FSharpEntity) =
         typ.GenericParameters
         |> List.ofSeq
@@ -1248,6 +857,7 @@ module internal SymbolReader =
                 else
                     sprintf "%s %s" gtext typ.DisplayName
 
+    /// Reads all union cases of a discriminated union entity as <see cref="ApiDocMember"/> values.
     let readUnionCases ctx entityUrl (typ: FSharpEntity) =
         typ.UnionCases
         |> List.ofSeq
@@ -1273,6 +883,7 @@ module internal SymbolReader =
                     )))
         |> collectNamespaceDocs
 
+    /// Reads all record fields of a record type as <see cref="ApiDocMember"/> values.
     let readRecordFields ctx entityUrl (typ: FSharpEntity) =
         typ.FSharpFields
         |> List.ofSeq
@@ -1298,6 +909,7 @@ module internal SymbolReader =
                     )))
         |> collectNamespaceDocs
 
+    /// Reads all static (type-provider) parameters of a type as <see cref="ApiDocMember"/> values.
     let readStaticParams ctx entityUrl (typ: FSharpEntity) =
         typ.StaticParameters
         |> List.ofSeq
@@ -1324,12 +936,15 @@ module internal SymbolReader =
                     )))
         |> collectNamespaceDocs
 
+    /// Extracts the raw XML text from a <see cref="FSharpXmlDoc"/> value, or returns an empty string.
     let xmlDocText (xmlDoc: FSharpXmlDoc) =
         match xmlDoc with
         | FSharpXmlDoc.FromXmlText(xmlDoc) -> String.concat "" xmlDoc.UnprocessedLines
         | _ -> ""
 
     // Create a xml documentation snippet and add it to the XmlMemberMap
+    /// Registers a raw XML doc string in the reading context's member map under the given signature key,
+    /// so it can be looked up when processing that member.
     let registerXmlDoc (ctx: ReadingContext) xmlDocSig (xmlDoc: string) =
         let xmlDoc =
             if xmlDoc.Contains "<summary>" then
@@ -1345,6 +960,8 @@ module internal SymbolReader =
 
     // Provided types don't have their docs dumped into the xml file,
     // so we need to add them to the XmlMemberMap separately
+    /// Pre-registers XML documentation for all members of a type-provider–provided type,
+    /// working around the fact that FCS does not surface XML docs for provided members directly.
     let registerProvidedTypeXmlDocs (ctx: ReadingContext) (typ: FSharpEntity) =
         let xmlDoc = registerXmlDoc ctx typ.XmlDocSig (xmlDocText typ.XmlDoc)
 
@@ -1362,6 +979,9 @@ module internal SymbolReader =
                 |> Some)
         |> ignore
 
+    /// Recursively reads an F# entity (class, record, union, interface, enum, module, …)
+    /// and returns the corresponding <see cref="ApiDocEntity"/> together with any
+    /// namespace-level doc fragments.
     let rec readType (ctx: ReadingContext) (typ: FSharpEntity) =
         if typ.IsProvided && typ.XmlDoc <> FSharpXmlDoc.None then
             registerProvidedTypeXmlDocs ctx typ
@@ -1535,6 +1155,7 @@ module internal SymbolReader =
                 inheritedMembers
             ))
 
+    /// Reads an F# module and returns the corresponding <see cref="ApiDocEntity"/>.
     and readModule (ctx: ReadingContext) (modul: FSharpEntity) =
         readCommentsInto modul ctx modul.XmlDocSig (fun cat catidx exclude _cmd comment ->
 
@@ -1607,6 +1228,7 @@ module internal SymbolReader =
                 []
             ))
 
+    /// Reads a mixed sequence of modules and types, combining their namespace docs.
     and readEntities ctx (entities: _ seq) =
         let modifiers, nsdocs1 = readChildren ctx entities readModule (fun x -> x.IsFSharpModule)
 
@@ -1618,6 +1240,8 @@ module internal SymbolReader =
     // Reading namespace and assembly details
     // ----------------------------------------------------------------------------------------------
 
+    /// Strips the "Microsoft." prefix from a namespace or "microsoft-" from a URL segment,
+    /// producing cleaner namespace names in the documentation output.
     let stripMicrosoft (str: string) =
         if str.StartsWith("Microsoft.", StringComparison.Ordinal) then
             str.["Microsoft.".Length ..]
@@ -1626,10 +1250,13 @@ module internal SymbolReader =
         else
             str
 
+    /// Reads all entities in a namespace and returns the <see cref="ApiDocNamespace"/> for it.
     let readNamespace ctx (ns, entities: FSharpEntity seq) =
         let entities, nsdocs = readEntities ctx entities
         ApiDocNamespace(stripMicrosoft ns, entities, ctx.Substitutions, nsdocs)
 
+    /// Reads an entire <see cref="FSharpAssembly"/>, loading its XML documentation file
+    /// and returning the assembly name together with the list of documented namespaces.
     let readAssembly
         (
             assembly: FSharpAssembly,

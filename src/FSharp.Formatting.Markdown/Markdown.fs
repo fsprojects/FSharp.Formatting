@@ -70,7 +70,7 @@ type Markdown internal () =
             { Newline = newline
               IsFirst = true
               Links = links
-              CurrentRange = Some(MarkdownRange.zero)
+              CurrentRange = MarkdownRange.zero
               ParseOptions = parseOptions }
 
         let paragraphs =

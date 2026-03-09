@@ -23,11 +23,15 @@ open FSharp.Formatting.Templating
 open FSharp.Patterns
 open FSharp.Compiler.Syntax
 
+/// Internal module for formatting F# types, type arguments, constraints, and member
+/// signatures as HTML elements suitable for use in API documentation pages.
 [<AutoOpen>]
 module internal TypeFormatter =
 
+    /// Cross-reference resolver used to generate hyperlinks when rendering type names.
     type TypeFormatterParams = CrossReferenceResolver
 
+    /// Wraps an <see cref="HtmlElement"/> as an <see cref="ApiDocHtml"/> with no source location.
     let convHtml (html: HtmlElement) = ApiDocHtml(html.ToString(), None)
 
     /// We squeeze the spaces out of anything where whitespace layout must be exact - any deliberate
@@ -43,6 +47,9 @@ module internal TypeFormatter =
             None
         )
 
+    /// Computes a URL to a source-repository hyperlink for the given file location,
+    /// by combining the source-folder root and the repository base URL.
+    /// Returns <c>None</c> when no source-folder/repository pair is configured.
     let formatSourceLocation
         (urlRangeHighlight: Uri -> int -> int -> string)
         (sourceFolderRepo: (string * string) option)
@@ -70,12 +77,17 @@ module internal TypeFormatter =
                     uriBuilder.Path <- uriBuilder.Path + relativePath
                     urlRangeHighlight uriBuilder.Uri location.StartLine location.EndLine))
 
+    /// Formats a single generic parameter as text, using <c>^</c> for SRTP parameters
+    /// and <c>'</c> for ordinary type parameters.
     let formatTypeArgumentAsText (typar: FSharpGenericParameter) =
         (if typar.IsSolveAtCompileTime then "^" else "'") + typar.Name
 
+    /// Formats a list of generic parameters as a list of text strings.
     let formatTypeArgumentsAsText (typars: FSharpGenericParameter list) =
         List.map formatTypeArgumentAsText typars
 
+    /// Formats a single type constraint as a text string in F# source syntax,
+    /// returning <c>None</c> for unrecognised or unsupported constraint kinds.
     let formatConstraintAsText (typar: FSharpGenericParameter) (cx: FSharpGenericParameterConstraint) =
         let typarName = formatTypeArgumentAsText typar
 
@@ -114,6 +126,8 @@ module internal TypeFormatter =
         else
             None
 
+    /// Collects all constraints from a list of type parameters as text strings,
+    /// skipping any constraints that cannot be represented in F# source syntax.
     let formatConstraintsAsText (typars: FSharpGenericParameter list) =
         [ for typar in typars do
               for cx in typar.Constraints do
@@ -121,16 +135,22 @@ module internal TypeFormatter =
                   | Some s -> yield s
                   | None -> () ]
 
+    /// Wraps an <see cref="HtmlElement"/> in parentheses.
     let bracketHtml (str: HtmlElement) = span [] [ !!"("; str; !!")" ]
 
+    /// Wraps an <see cref="HtmlElement"/> in parentheses only if its text representation
+    /// contains whitespace (i.e. is non-atomic).
     let bracketNonAtomicHtml (str: HtmlElement) =
         if str.ToString().Contains("&#32;") then
             bracketHtml str
         else
             str
 
+    /// Conditionally wraps an <see cref="HtmlElement"/> in parentheses.
     let bracketHtmlIf cond str = if cond then bracketHtml str else str
 
+    /// Renders a type constructor reference as an HTML element, hyperlinking to the API
+    /// documentation page when a cross-reference URL is available.
     let formatTyconRefAsHtml (ctx: TypeFormatterParams) (tcref: FSharpEntity) =
         let core = !!tcref.DisplayName.Replace(" ", "&#32;")
 
@@ -138,6 +158,8 @@ module internal TypeFormatter =
         | None -> core
         | Some url -> a [ Href url.ReferenceLink ] [ core ]
 
+    /// Formats a generic type application as HTML, handling both prefix (<c>Foo&lt;'T&gt;</c>)
+    /// and postfix (<c>'T list</c>) display styles. Uses precedence to decide when to parenthesize.
     let rec formatTypeApplicationAsHtml ctx (tcref: FSharpEntity) typeName prec prefix args : HtmlElement =
         if prefix then
             match args with
@@ -160,9 +182,12 @@ module internal TypeFormatter =
                     (prec <= 1)
                     (span [] [ bracketNonAtomicHtml (formatTypesWithPrecAsHtml ctx 2 ",&#32;" args); typeName ])
 
+    /// Formats a list of types as HTML with a given separator string, at a given precedence level.
     and formatTypesWithPrecAsHtml ctx prec sep typs =
         typs |> List.map (formatTypeWithPrecAsHtml ctx prec) |> Html.sepWith sep
 
+    /// Formats a single <see cref="FSharpType"/> as an HTML element at a given precedence level.
+    /// Handles measure types, named types, tuples, function types, and generic parameters.
     and formatTypeWithPrecAsHtml ctx prec (typ: FSharpType) =
         // Measure types are stored as named types with 'fake' constructors for products, "1" and inverses
         // of measures in a normalized form (see Andrew Kennedy technical reports). Here we detect this
@@ -199,8 +224,11 @@ module internal TypeFormatter =
         | _ when typ.IsGenericParameter -> !!(formatTypeArgumentAsText typ.GenericParameter)
         | _ -> !!"(type)"
 
+    /// Formats a <see cref="FSharpType"/> at the default (outermost) precedence level.
     let formatTypeAsHtml ctx (typ: FSharpType) = formatTypeWithPrecAsHtml ctx 5 typ
 
+    /// Resolves an argument name from its optional name and type, generating a placeholder
+    /// name (e.g. <c>arg1</c>) for unnamed arguments.
     let formatArgNameAndTypePair i (argName, argType) =
         let argName =
             match argName with
@@ -209,6 +237,8 @@ module internal TypeFormatter =
 
         argName, argType
 
+    /// Formats an argument name and type from a <see cref="FSharpParameter"/>, handling
+    /// optional arguments (prefixing the name with <c>?</c> and stripping the option wrapper).
     let formatArgNameAndType i (arg: FSharpParameter) =
         let argName, argType = formatArgNameAndTypePair i (arg.Name, arg.Type)
 
@@ -225,11 +255,12 @@ module internal TypeFormatter =
 
         argName, argType
 
-    // Format each argument, including its name and type
+    /// Formats the usage text for a single argument (just its name, not the type annotation).
     let formatArgUsageAsHtml i (arg: FSharpParameter) =
         let argName, _argType = formatArgNameAndType i arg
         !!argName
 
+    /// Formats a <c>(name: type)</c> pair as HTML for a single argument.
     let formatArgNameAndTypePairUsageAsHtml ctx (argName0, argType) =
         span
             []
@@ -238,6 +269,8 @@ module internal TypeFormatter =
                  | Some argName -> argName + ":&#32;")
               formatTypeWithPrecAsHtml ctx 2 argType ]
 
+    /// Formats the full curried argument list for a member or function as HTML,
+    /// parenthesising argument groups as appropriate.
     let formatCurriedArgsUsageAsHtml preferNoParens isItemIndexer curriedArgs =
         let counter =
             let mutable n = 0
@@ -260,6 +293,7 @@ module internal TypeFormatter =
                 if isItemIndexer then argText else bracketHtml argText)
         |> Html.sepWith "&#32;"
 
+    /// Formats a delegate signature <c>nm(args -> returnType)</c> as HTML.
     let formatDelegateSignatureAsHtml ctx nm (typ: FSharpDelegateSignature) =
         let args =
             typ.DelegateArguments

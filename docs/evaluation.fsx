@@ -200,9 +200,10 @@ fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
        && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
         let items =
             // Get items as objects and create a paragraph for each item
-            [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([ Literal(it.ToString(), None) ], None) ] ]
+            [ for it in Seq.cast<obj> (unbox o) ->
+                  [ Paragraph([ Literal(it.ToString(), MarkdownRange.zero) ], MarkdownRange.zero) ] ]
         // Return option value (success) with ordered list
-        Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
+        Some [ ListBlock(MarkdownListKind.Ordered, items, MarkdownRange.zero) ]
     else
         None)
 (**
