@@ -66,7 +66,9 @@ let ``ConvertCommand omits fsdocs-tip divs when no template given`` () =
 
     result |> shouldEqual 0
     let html = File.ReadAllText(outputFile)
-    html |> shouldNotContainText "fsdocs-tip"
+    // Tooltip trigger spans use data-fsdocs-tip attributes; the assertion checks that
+    // the tooltip *div* elements (class="fsdocs-tip") are NOT emitted without a template.
+    html |> shouldNotContainText "class=\"fsdocs-tip\""
 
 [<Test>]
 let ``ConvertCommand converts .ipynb file to HTML`` () =
