@@ -1306,3 +1306,72 @@ dialog {
         opacity: 0.75;
     }
 }
+
+/* =========================================================================
+   View Transition API — cross-document page transitions (experimental)
+   Supported in Chrome 126+, Safari 18.2+. Gracefully ignored elsewhere.
+   ========================================================================= */
+
+@view-transition {
+    navigation: auto;
+}
+
+/* Isolate the main content area so it can slide independently */
+#content {
+    view-transition-name: fsdocs-content;
+}
+
+/* Keep persistent navigation panels static (no animation) */
+header {
+    view-transition-name: fsdocs-header;
+}
+
+#fsdocs-main-menu {
+    view-transition-name: fsdocs-main-menu;
+}
+
+#fsdocs-page-menu {
+    view-transition-name: fsdocs-page-menu;
+}
+
+@keyframes fsdocs-slide-in {
+    from {
+        opacity: 0;
+        translate: 0 12px;
+    }
+}
+
+@keyframes fsdocs-slide-out {
+    to {
+        opacity: 0;
+        translate: 0 -8px;
+    }
+}
+
+::view-transition-new(fsdocs-content) {
+    animation: fsdocs-slide-in 200ms ease both;
+}
+
+::view-transition-old(fsdocs-content) {
+    animation: fsdocs-slide-out 150ms ease both;
+}
+
+/* Nav panels: instant update (old fades out instantly, new fades in instantly) */
+::view-transition-old(fsdocs-header),
+::view-transition-new(fsdocs-header),
+::view-transition-old(fsdocs-main-menu),
+::view-transition-new(fsdocs-main-menu),
+::view-transition-old(fsdocs-page-menu),
+::view-transition-new(fsdocs-page-menu) {
+    animation-duration: 0s;
+}
+
+/* Respect user's reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-image-pair(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation-duration: 0s !important;
+    }
+}

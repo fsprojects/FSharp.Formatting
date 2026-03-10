@@ -19,11 +19,17 @@ let urlEncode (x: string) = HttpUtility.UrlEncode x
 /// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value.
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
+/// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value,
+/// with newlines replaced by <c>&lt;br /&gt;</c> and pipe characters escaped for Markdown tables.
 let htmlStringSafe (x: ApiDocHtml) =
     (x.HtmlText.Trim()).Replace("\n", "<br />").Replace("|", "&#124;")
 
+/// Wraps an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value as a Markdown DSL node.
 let embed (x: ApiDocHtml) = !!(htmlString x)
+/// Wraps an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value as a Markdown DSL node,
+/// escaping characters that would break Markdown table cells.
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
+/// A Markdown DSL node representing an HTML line break.
 let br = !!"<br />"
 
 /// Renders Markdown API documentation for all namespaces and entities in an
@@ -34,11 +40,13 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
 
+    /// Renders a source-code link icon for a member or entity, returning an empty list when no URL is available.
     let sourceLink url =
         [ match url with
           | None -> ()
           | Some href -> link [ img "Link to source code" (sprintf "%scontent/img/github.png" root) ] (href) ]
 
+    /// Renders a Markdown section for a group of API members with the given section header.
     let renderMembers header (members: ApiDocMember list) =
         [ if members.Length > 0 then
               ``###`` [ !!header ]
@@ -123,6 +131,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                   if not sl.IsEmpty then
                       p sl ]
 
+    /// Renders a Markdown table listing the given entities (types and modules) with links and summaries.
     let renderEntities (entities: ApiDocEntity list) =
         [ if entities.Length > 0 then
               let hasTypes = entities |> List.exists (fun e -> e.IsTypeDefinition)
@@ -160,6 +169,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                           [ p [ embedSafe e.Comment.Summary ] ]
                           [ p [ yield! (sourceLink e.SourceLocation) ] ] ] ] ]
 
+    /// Generates the full Markdown content for a single entity (type or module) page,
+    /// including its summary, members grouped by category, and nested entities.
     let entityContent (info: ApiDocEntityInfo) =
         // Get all the members & comment for the type
         let entity = info.Entity
@@ -319,6 +330,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                   yield! renderMembers "Instance members" instMembers
                   yield! renderMembers "Static members" statMembers ]
 
+    /// Generates the full Markdown content for a namespace page, including a table of contents
+    /// and one section per category of entities.
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
 
@@ -347,6 +360,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                   yield! renderEntities category.CategoryEntites ]
 
+    /// Builds the list-of-namespaces Markdown fragment (for sidebar navigation or index page).
+    /// When <paramref name="nav"/> is <c>true</c> the active namespace is expanded to show its entities.
     let listOfNamespacesAux otherDocs nav (nsOpt: ApiDocNamespace option) =
         [
           // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
@@ -395,6 +410,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                                     (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] ] ]
                       | _ -> () ]
 
+    /// Returns the list-of-namespaces string, using a menu template when available.
     let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
         let noTemplatingFallback () =
             listOfNamespacesAux otherDocs nav nsOpt
@@ -442,6 +458,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let toc = listOfNamespaces true true None
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
 
+    /// Writes all API documentation Markdown files (index, one per namespace, one per entity)
+    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
     member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
         let getSubstitutons parameters toc (content: MarkdownDocument) pageTitle =
