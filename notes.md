@@ -1,2 +1,1 @@
-Run 22908188200. PRs: #1061 #1072 #1083 #1084 #1086. Cursor: #1087.
-Created PR for #1087: scrollbar-gutter:stable + overflow-y:auto on main.
+Run 22943805440 (2026-03-11). Fixed #1072 lint (Fantomas example.fsx). Created PR for #924 (--root watch). Labelled #1087. PR #1061 merged. Cursor: #1088.
