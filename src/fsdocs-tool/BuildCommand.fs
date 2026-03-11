@@ -1560,9 +1560,15 @@ type CoreBuildOptions(watch) =
         // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             if watch then
-                let userRoot = sprintf "http://localhost:%d/" this.port_option
+                let userRoot =
+                    match this.root_override_option with
+                    | Some r -> r
+                    | None -> sprintf "http://localhost:%d/" this.port_option
 
-                if userParametersDict.ContainsKey(ParamKeys.root) then
+                if
+                    userParametersDict.ContainsKey(ParamKeys.root)
+                    && this.root_override_option.IsNone
+                then
                     printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
 
                 let userParameters =
@@ -2325,6 +2331,9 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
+    abstract root_override_option: string option
+    default x.root_override_option = None
+
 [<Verb("convert",
        HelpText =
            "convert a single document (.md, .fsx, .ipynb) to HTML or another output format without building a full documentation site")>]
@@ -2504,3 +2513,12 @@ type WatchCommand() =
 
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
+
+    override x.root_override_option = if x.root = "" then None else Some x.root
+
+    [<Option("root",
+             Required = false,
+             Default = "",
+             HelpText =
+                 "Override the root URL for generated pages. Useful for reverse proxies or GitHub Codespaces. E.g. --root / or --root https://example.com/docs/. When not set, defaults to http://localhost:<port>/.")>]
+    member val root = "" with get, set
