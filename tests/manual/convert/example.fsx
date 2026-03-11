@@ -27,7 +27,7 @@ printfn "42 is %s" result
 ## A List
 *)
 
-let numbers = [ 1 .. 5 ]
+let numbers = [ 1..5 ]
 let doubled = numbers |> List.map ((*) 2)
 
 printfn "%A" doubled
