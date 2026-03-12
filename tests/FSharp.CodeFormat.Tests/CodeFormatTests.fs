@@ -479,3 +479,150 @@ c.Method()
     // Attribute annotations should not appear in rendered tooltips
     tooltip |> shouldNotContainText "[&lt;Optional"
     tooltip |> shouldNotContainText "[&lt;DefaultParameterValue"
+
+// --------------------------------------------------------------------------------------
+// Tests for cross-assembly type resolution in tooltips (issue #1085)
+// --------------------------------------------------------------------------------------
+
+/// Find the directory where the currently executing test assembly lives.
+/// Both CrossAssemblyA.dll and CrossAssemblyB.dll are copied there as project references.
+let private testBinDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+
+/// Return the tooltip text for the first token named `tokenText` that carries a tip.
+let private tipForToken (tokenText: string) (snips: Snippet[]) =
+    snips
+    |> Seq.tryPick (fun (Snippet(_, lines)) ->
+        lines
+        |> Seq.tryPick (fun (Line(_, spans)) ->
+            spans
+            |> Seq.tryPick (function
+                | TokenSpan.Token(_, t, Some tips) when t = tokenText -> Some tips
+                | _ -> None)))
+
+/// Render tooltip spans to a single concatenated string for easy assertion.
+let private renderTips (spans: ToolTipSpans) =
+    spans
+    |> List.map (function
+        | Literal s -> s
+        | Emphasis inner ->
+            inner
+            |> List.map (function
+                | Literal s -> s
+                | _ -> "")
+            |> String.concat ""
+        | HardLineBreak -> "\n")
+    |> String.concat ""
+
+[<Test>]
+let ``Cross-assembly DU field type is shown as actual type name not obj in tooltip`` () =
+    // Reproduce issue #1085: `Subject.Account of Did` should show `Did`, not `obj`
+    let assemblyAPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyA.dll")
+    let assemblyBPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyB.dll")
+
+    let source =
+        $"""#r "{assemblyAPath}"
+#r "{assemblyBPath}"
+open CrossAssemblyA
+open CrossAssemblyB
+
+let subject = Subject.Account (CrossAssemblyA.Did.create "test")
+"""
+
+    let snips, errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
+
+    errors |> shouldEqual [||]
+
+    // Find the tooltip for the `Subject` identifier and check its text
+    let subjectTip =
+        snips
+        |> tipForToken "Subject"
+        |> Option.map renderTips
+        |> Option.defaultValue ""
+
+    subjectTip |> shouldNotEqual ""
+
+    // The tooltip for Subject should show the actual DU case type, not `obj`
+    subjectTip |> shouldNotContainText "obj"
+    subjectTip |> shouldContainText "Did"
+
+[<Test>]
+let ``Cross-assembly record field types are shown as actual type names not obj in tooltip`` () =
+    // Reproduce issue #1085: `TeamMember` record fields referencing types from another
+    // assembly should show the correct type names (`Did`, `DateTimeOffset option`)
+    // rather than `obj`.
+    let assemblyAPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyA.dll")
+    let assemblyBPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyB.dll")
+
+    let source =
+        $"""#r "{assemblyAPath}"
+#r "{assemblyBPath}"
+open CrossAssemblyB
+
+let m : TeamMember = Unchecked.defaultof<TeamMember>
+"""
+
+    let snips, errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
+
+    errors |> shouldEqual [||]
+
+    let teamMemberTip =
+        snips
+        |> tipForToken "TeamMember"
+        |> Option.map renderTips
+        |> Option.defaultValue ""
+
+    teamMemberTip |> shouldNotEqual ""
+
+    // Record field types from a different assembly should not appear as `obj`
+    teamMemberTip |> shouldContainText "Did"
+    teamMemberTip |> shouldContainText "DateTimeOffset"
+
+[<Test>]
+let ``Cross-assembly DU field types are correct when using relative hash-r references`` () =
+    // Reproduce the user scenario from issue #1085: using relative #r paths where the
+    // script file is in the same directory as the referenced assemblies.
+    // Set up a temporary directory containing the DLLs and a script path pointing there.
+    let tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "fsharp-formatting-issue1085")
+    System.IO.Directory.CreateDirectory(tempDir) |> ignore
+
+    try
+        // Copy the test assemblies to the temp directory so relative #r can resolve them.
+        let srcA = System.IO.Path.Combine(testBinDir, "CrossAssemblyA.dll")
+        let srcB = System.IO.Path.Combine(testBinDir, "CrossAssemblyB.dll")
+        System.IO.File.Copy(srcA, System.IO.Path.Combine(tempDir, "CrossAssemblyA.dll"), overwrite = true)
+        System.IO.File.Copy(srcB, System.IO.Path.Combine(tempDir, "CrossAssemblyB.dll"), overwrite = true)
+
+        // Script path is inside the temp dir; FCS uses this to resolve relative #r paths.
+        let scriptPath = System.IO.Path.Combine(tempDir, "test.fsx")
+
+        let source =
+            """#r "CrossAssemblyA.dll"
+#r "CrossAssemblyB.dll"
+open CrossAssemblyA
+open CrossAssemblyB
+
+let subject = Subject.Account (CrossAssemblyA.Did.create "test")
+"""
+
+        let snips, errors = CodeFormatter.ParseAndCheckSource(scriptPath, source.Trim(), None, None, ignore)
+
+        errors |> shouldEqual [||]
+
+        let subjectTip =
+            snips
+            |> tipForToken "Subject"
+            |> Option.map renderTips
+            |> Option.defaultValue ""
+
+        subjectTip |> shouldNotEqual ""
+
+        // With correctly-resolved relative paths the tooltip should show Did, not obj.
+        subjectTip |> shouldNotContainText "of obj"
+        subjectTip |> shouldContainText "Did"
+
+    finally
+        // Clean up
+        try
+            System.IO.Directory.Delete(tempDir, recursive = true)
+        with _ ->
+            ()

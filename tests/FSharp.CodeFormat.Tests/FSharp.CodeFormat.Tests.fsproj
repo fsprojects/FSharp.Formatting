@@ -10,6 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
+    <ProjectReference Include="files\CrossAssemblyA\CrossAssemblyA.fsproj" />
+    <ProjectReference Include="files\CrossAssemblyB\CrossAssemblyB.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" />
