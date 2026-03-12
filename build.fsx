@@ -49,6 +49,17 @@ let testStage =
             $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --results-directory TestResults -tl"
     }
 
+// Standalone doc-script type-check using the locally built fsdocs tool.
+// Assumes the solution has been built (e.g. after running the CI pipeline or
+// `dotnet build`). Catches type errors in .fsx documentation sources early,
+// matching the `--strict` check in the full GenerateDocs stage.
+let fsdocsLocalBin =
+    let ext = if System.OperatingSystem.IsWindows() then ".exe" else ""
+    $"src/fsdocs-tool/bin/Release/net10.0/fsdocs{ext}"
+
+let checkDocScriptsStage =
+    stage "CheckDocScripts" { run $"\"{fsdocsLocalBin}\" build --strict --clean --properties Configuration=Release" }
+
 pipeline "CI" {
     lintStage
 
@@ -67,6 +78,8 @@ pipeline "CI" {
     stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
 
     testStage
+
+    checkDocScriptsStage
 
     stage "GenerateDocs" {
         // Skip on Windows CI runners: docs are only deployed from Linux
@@ -92,6 +105,7 @@ pipeline "Verify" {
     lintStage
     testStage
     stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
+    checkDocScriptsStage
     runIfOnlySpecified true
 }
 
