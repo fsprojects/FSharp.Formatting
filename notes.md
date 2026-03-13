@@ -1,1 +1,1 @@
-Run 22993302217 (2026-03-12). Commented on #705 (API examples results feature, implementation sketch). Created PR branch repo-assist/improve-literate-parse-docs: add XML docs to Literate.ParseAndCheckScriptFile/ParseScriptString, fix "C:\\script.fsx" fallback. PRs #1083 and #1084 are closed. Cursor reset to #705.
+2026-03-13: Fixed #1090 Windows CI. Commented #680. PR #1091=Literate XML docs.
