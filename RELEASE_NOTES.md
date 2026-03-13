@@ -10,6 +10,7 @@
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* Add regression tests for cross-assembly tooltip resolution (issue [#1085](https://github.com/fsprojects/FSharp.Formatting/issues/1085)): verify that hover tooltips for types whose fields reference types from other assemblies show the correct type names (not `obj`) when `#r` paths resolve correctly.
 
 ### Changed
 * Tooltip elements (`div.fsdocs-tip`) now use the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) (Baseline 2024: Chrome 114+, Firefox 125+, Safari 17+). Tooltips are placed in the browser's top layer — no `z-index` needed, always above all other content. Fixes a positioning bug where tooltips appeared offset when the page was scrolled. The previous `display`-toggle fallback has been removed. Tooltips also fade in with a subtle animation. [#422](https://github.com/fsprojects/FSharp.Formatting/issues/422), [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
