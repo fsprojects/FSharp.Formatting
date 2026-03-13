@@ -239,6 +239,7 @@ header {
                 list-style: none;
                 padding: var(--spacing-300);
                 overflow-y: auto;
+                scrollbar-gutter: stable;
             }
 
             & input:checked + .menu {
@@ -310,6 +311,8 @@ aside {
 
 main {
     height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 #content {
@@ -469,6 +472,7 @@ main {
         grid-row: var(--main-menu-grid-row);
         grid-column: var(--main-menu-grid-column);
         overflow-y: auto;
+        scrollbar-gutter: stable;
     }
 
     main {
@@ -1269,6 +1273,7 @@ dialog {
 
     & ul {
         overflow-y: auto;
+        scrollbar-gutter: stable;
         max-height: calc(50vh - var(--spacing-700) - var(--spacing-700));
         list-style: none;
         padding: 0;

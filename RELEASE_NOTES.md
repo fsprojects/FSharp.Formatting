@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## 22.0.0-alpha.2 - 2026-03-13
+
 ### Added
 * Search dialog now auto-focuses the search input when opened, clears on close, and can be triggered with `Ctrl+K` / `Cmd+K` in addition to `/`.
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
@@ -15,6 +17,7 @@
 * Generated code tokens no longer use inline `onmouseover`/`onmouseout` event handlers. Tooltips are now triggered via `data-fsdocs-tip` / `data-fsdocs-tip-unique` attributes and a delegated event listener in `fsdocs-tips.js`. The `popover` attribute is also added to API-doc tooltip divs so they use the same top-layer path. [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
 * Changed `range` fields in `MarkdownSpan` and `MarkdownParagraph` DU cases from `MarkdownRange option` to `MarkdownRange`, using `MarkdownRange.zero` as the default/placeholder value instead of `None`.
 * When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* Use [`scrollbar-gutter: stable`](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter) (Baseline 2024) on scroll containers (`main`, `#fsdocs-main-menu`, mobile menu, search dialog) to reserve scrollbar space and prevent layout shifts when content changes height. Also adds the missing `overflow-y: auto` to `main` so pages that exceed the viewport height are independently scrollable. [#1087](https://github.com/fsprojects/FSharp.Formatting/issues/1087), [#1088](https://github.com/fsprojects/FSharp.Formatting/pull/1088)
 
 ## 22.0.0-alpha.1 - 2026-03-03
 
