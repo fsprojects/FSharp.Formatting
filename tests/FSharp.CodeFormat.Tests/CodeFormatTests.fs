@@ -516,8 +516,9 @@ let private renderTips (spans: ToolTipSpans) =
 [<Test>]
 let ``Cross-assembly DU field type is shown as actual type name not obj in tooltip`` () =
     // Reproduce issue #1085: `Subject.Account of Did` should show `Did`, not `obj`
-    let assemblyAPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyA.dll")
-    let assemblyBPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyB.dll")
+    // Use forward slashes so the paths are valid F# string literal content on Windows too.
+    let assemblyAPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyA.dll").Replace('\\', '/')
+    let assemblyBPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyB.dll").Replace('\\', '/')
 
     let source =
         $"""#r "{assemblyAPath}"
@@ -550,8 +551,9 @@ let ``Cross-assembly record field types are shown as actual type names not obj i
     // Reproduce issue #1085: `TeamMember` record fields referencing types from another
     // assembly should show the correct type names (`Did`, `DateTimeOffset option`)
     // rather than `obj`.
-    let assemblyAPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyA.dll")
-    let assemblyBPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyB.dll")
+    // Use forward slashes so the paths are valid F# string literal content on Windows too.
+    let assemblyAPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyA.dll").Replace('\\', '/')
+    let assemblyBPath = System.IO.Path.Combine(testBinDir, "CrossAssemblyB.dll").Replace('\\', '/')
 
     let source =
         $"""#r "{assemblyAPath}"
