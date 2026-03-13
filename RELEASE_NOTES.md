@@ -10,6 +10,10 @@
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* Added full XML doc comments (`<summary>`, `<param>`) to `Literate.ParseAndCheckScriptFile` and `Literate.ParseScriptString` to match the documentation style of the other `Literate.Parse*` methods.
+
+### Fixed
+* `Literate.ParseScriptString` and `Literate.ParsePynbString` used a hardcoded Windows path (`C:\script.fsx`) as the fallback script filename when neither `path` nor `rootInputFolder` is supplied. The fallback is now a simple platform-neutral `script.fsx`.
 * Add regression tests for cross-assembly tooltip resolution (issue [#1085](https://github.com/fsprojects/FSharp.Formatting/issues/1085)): verify that hover tooltips for types whose fields reference types from other assemblies show the correct type names (not `obj`) when `#r` paths resolve correctly.
 
 ### Changed
