@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## 22.0.0-alpha.2 - 2026-03-13
+
 ### Added
 * Add `--root` option to `fsdocs watch` to override the root URL for generated pages. Useful for serving docs via GitHub Codespaces, reverse proxies, or other remote hosting where `localhost` URLs are inaccessible. E.g. `fsdocs watch --root /` or `fsdocs watch --root https://example.com/docs/`. When not set, defaults to `http://localhost:<port>/` as before. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
 * Fix `fsdocs watch` hot-reload WebSocket to connect using the page's actual host (`window.location.host`) instead of a hardcoded `localhost:<port>`, so hot-reload works correctly in GitHub Codespaces, behind reverse proxies, and over HTTPS. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
@@ -10,12 +12,18 @@
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* Added full XML doc comments (`<summary>`, `<param>`) to `Literate.ParseAndCheckScriptFile` and `Literate.ParseScriptString` to match the documentation style of the other `Literate.Parse*` methods.
+
+### Fixed
+* `Literate.ParseScriptString` and `Literate.ParsePynbString` used a hardcoded Windows path (`C:\script.fsx`) as the fallback script filename when neither `path` nor `rootInputFolder` is supplied. The fallback is now a simple platform-neutral `script.fsx`.
+* Add regression tests for cross-assembly tooltip resolution (issue [#1085](https://github.com/fsprojects/FSharp.Formatting/issues/1085)): verify that hover tooltips for types whose fields reference types from other assemblies show the correct type names (not `obj`) when `#r` paths resolve correctly.
 
 ### Changed
 * Tooltip elements (`div.fsdocs-tip`) now use the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) (Baseline 2024: Chrome 114+, Firefox 125+, Safari 17+). Tooltips are placed in the browser's top layer — no `z-index` needed, always above all other content. Fixes a positioning bug where tooltips appeared offset when the page was scrolled. The previous `display`-toggle fallback has been removed. Tooltips also fade in with a subtle animation. [#422](https://github.com/fsprojects/FSharp.Formatting/issues/422), [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
 * Generated code tokens no longer use inline `onmouseover`/`onmouseout` event handlers. Tooltips are now triggered via `data-fsdocs-tip` / `data-fsdocs-tip-unique` attributes and a delegated event listener in `fsdocs-tips.js`. The `popover` attribute is also added to API-doc tooltip divs so they use the same top-layer path. [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
 * Changed `range` fields in `MarkdownSpan` and `MarkdownParagraph` DU cases from `MarkdownRange option` to `MarkdownRange`, using `MarkdownRange.zero` as the default/placeholder value instead of `None`.
 * When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* Use [`scrollbar-gutter: stable`](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter) (Baseline 2024) on scroll containers (`main`, `#fsdocs-main-menu`, mobile menu, search dialog) to reserve scrollbar space and prevent layout shifts when content changes height. Also adds the missing `overflow-y: auto` to `main` so pages that exceed the viewport height are independently scrollable. [#1087](https://github.com/fsprojects/FSharp.Formatting/issues/1087), [#1088](https://github.com/fsprojects/FSharp.Formatting/pull/1088)
 
 ## 22.0.0-alpha.1 - 2026-03-03
 
