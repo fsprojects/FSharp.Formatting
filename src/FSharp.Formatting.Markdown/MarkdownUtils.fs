@@ -110,9 +110,9 @@ module internal MarkdownUtils =
         | DirectLink(body, link, _, _)
         | IndirectLink(body, link, _, _) -> "[" + formatSpans ctx body + "](" + link + ")"
 
-        | IndirectImage(_body, _, LookupKey ctx.Links (_link, _), _)
-        | IndirectImage(_body, _link, _, _) -> failwith "tbd - IndirectImage"
-        | DirectImage(_body, _link, _, _) -> sprintf "![%s](%s)" _body _link
+        | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) -> sprintf "![%s](%s)" body link
+        | IndirectImage(body, _, key, _) -> sprintf "![%s][%s]" body key
+        | DirectImage(body, link, _, _) -> sprintf "![%s](%s)" body link
         | Strong(body, _) -> "**" + formatSpans ctx body + "**"
         | InlineCode(body, _) -> "`" + body + "`"
         | Emphasis(body, _) -> "**" + formatSpans ctx body + "**"
