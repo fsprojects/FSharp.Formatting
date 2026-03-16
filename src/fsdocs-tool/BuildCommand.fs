@@ -1311,6 +1311,8 @@ module Serve =
 /// Helpers for generating llms.txt and llms-full.txt content.
 module internal LlmsTxt =
 
+    open System.Text.RegularExpressions
+
     /// Decode HTML entities (e.g. &quot; → ", &gt; → >) in a string.
     let private decodeHtml (s: string) = System.Net.WebUtility.HtmlDecode(s)
 
@@ -1329,12 +1331,14 @@ module internal LlmsTxt =
         |> String.concat "\n"
 
     /// Collapse three or more consecutive newlines into at most two.
-    let private collapseBlankLines (s: string) =
-        System.Text.RegularExpressions.Regex.Replace(s, @"\n{3,}", "\n\n")
+    let private blankLinesRegex = Regex(@"\n{3,}", RegexOptions.Compiled)
+
+    let private collapseBlankLines (s: string) = blankLinesRegex.Replace(s, "\n\n")
 
     /// Normalise a title: trim and collapse internal whitespace/newlines to a single space.
-    let private normaliseTitle (s: string) =
-        System.Text.RegularExpressions.Regex.Replace(s.Trim(), @"\s+", " ")
+    let private whitespaceRegex = Regex(@"\s+", RegexOptions.Compiled)
+
+    let private normaliseTitle (s: string) = whitespaceRegex.Replace(s.Trim(), " ")
 
     /// Decode HTML entities and remove --eval noise from content.
     let private cleanContent (s: string) =

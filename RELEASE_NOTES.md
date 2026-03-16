@@ -2,8 +2,10 @@
 
 ## [Unreleased]
 
-### Fixed
-* Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
+### Performance
+* Eliminate redundant `TrimStart` call in `isSetextUnderline` (markdown heading detection) — compute the trimmed inner string once instead of twice.
+* Pre-compile `Regex` instances used in `llms.txt` generation (`collapseBlankLines`, `normaliseTitle`) so they are not reconstructed on every call.
+* Replace `List.fold` over `string.Replace` with `StringBuilder.Replace` in `nameGen` (URL base-name generation for API docs entities) — avoids allocating one intermediate string per replacement per entity.
 
 ## 22.0.0-alpha.2 - 2026-03-13
 

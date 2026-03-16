@@ -157,10 +157,12 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
     /// Generates a unique, filesystem-safe URL base name for the given symbol name by
     /// replacing invalid characters and appending a numeric suffix when the name collides.
     let nameGen (name: string) =
-        let nice =
-            (toReplace
-             |> List.fold (fun (s: string) (inv, repl) -> s.Replace(inv, repl)) name)
-                .ToLower()
+        let sb = StringBuilder(name)
+
+        for (inv: string), (repl: string) in toReplace do
+            sb.Replace(inv, repl) |> ignore
+
+        let nice = sb.ToString().ToLower()
 
         let found =
             seq {

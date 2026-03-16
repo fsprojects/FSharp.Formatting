@@ -24,11 +24,10 @@ open FSharp.Formatting.Markdown.TableParser
 /// trailing whitespace only (4+ leading spaces would be an indented code block, not a heading).
 let isSetextUnderline (ch: char) (line: string) =
     let trimmedEnd = line.TrimEnd()
-    let leadingSpaces = trimmedEnd.Length - trimmedEnd.TrimStart(' ').Length
+    let inner = trimmedEnd.TrimStart(' ')
+    let leadingSpaces = trimmedEnd.Length - inner.Length
 
-    leadingSpaces <= 3
-    && (let inner = trimmedEnd.TrimStart(' ')
-        inner.Length >= 1 && inner |> Seq.forall ((=) ch))
+    leadingSpaces <= 3 && (inner.Length >= 1 && inner |> Seq.forall ((=) ch))
 
 /// Recognizes heading, either prefixed with #s or followed by === or --- line
 let (|Heading|_|) lines =
