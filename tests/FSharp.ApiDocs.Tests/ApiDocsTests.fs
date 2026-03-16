@@ -1823,6 +1823,35 @@ CONTENT: All Namespaces"""
         listOfNamespaces
     )
 
+[<Test>]
+let ``ApiDocs includes type whose name matches its namespace (issue 944)`` () =
+    // Regression test: a type named 'SameNameLib.SameNameLib' was previously missing
+    // from the generated API docs when the type name equalled the namespace name.
+    let library = testBin </> "SameNameLib.dll"
+    let inputs = [ ApiDocInput.FromFile(library) ]
+
+    let model =
+        ApiDocs.GenerateModel(
+            inputs,
+            collectionName = "SameNameLib",
+            substitutions = substitutions,
+            libDirs = [ testBin ]
+        )
+
+    let ns = model.Collection.Namespaces |> List.tryFind (fun n -> n.Name = "SameNameLib")
+    ns |> Option.isSome |> shouldEqual true
+
+    let entities = ns.Value.Entities
+
+    let typeEntity = entities |> List.tryFind (fun e -> e.IsTypeDefinition && e.Name = "SameNameLib")
+
+    typeEntity |> Option.isSome |> shouldEqual true
+
+    let typeUrl = typeEntity.Value.UrlBaseName
+
+    // URL base name must NOT be empty; it distinguishes the type page from the namespace page
+    typeUrl |> shouldNotEqual ""
+
 let runtest testfn =
     try
         testfn ()

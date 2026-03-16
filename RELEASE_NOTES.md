@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+* Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
+
 ## 22.0.0-alpha.2 - 2026-03-13
 
 ### Added
