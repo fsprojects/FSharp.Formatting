@@ -98,7 +98,18 @@ type Literate private () =
 
             doc.With(paragraphs = pars)
 
-    /// Parse F# Script file to LiterateDocument
+    /// <summary>
+    /// Parse an F# script file (<c>.fsx</c>) to a <see cref="T:FSharp.Formatting.Literate.LiterateDocument"/>,
+    /// type-checking it via the F# Compiler Service.
+    /// </summary>
+    /// <param name="path">The path to the <c>.fsx</c> script file to parse.</param>
+    /// <param name="fscOptions">Additional F# compiler options (e.g. extra <c>-r:</c> references).</param>
+    /// <param name="definedSymbols">Conditional-compilation symbols to define.</param>
+    /// <param name="references">A map of reference labels to URLs, used to resolve Markdown-style links.</param>
+    /// <param name="fsiEvaluator">An optional FSI evaluator; when supplied, code snippets are executed and their output included.</param>
+    /// <param name="parseOptions">Markdown parse options. Defaults to <see cref="F:FSharp.Formatting.Markdown.MarkdownParseOptions.AllowYamlFrontMatter"/>.</param>
+    /// <param name="rootInputFolder">The root folder used to resolve relative paths within the script. Defaults to the directory containing <paramref name="path"/>.</param>
+    /// <param name="onError">A callback invoked with each error/warning message encountered during parsing or type-checking. Defaults to <c>ignore</c>.</param>
     static member ParseAndCheckScriptFile
         (
             path: string,
@@ -120,7 +131,20 @@ type Literate private () =
         |> Transformations.formatCodeSnippets path ctx
         |> Transformations.evaluateCodeSnippets ctx
 
-    /// Parse string as F# Script to LiterateDocument
+    /// <summary>
+    /// Parse a string containing F# script source code (<c>.fsx</c> syntax) to a
+    /// <see cref="T:FSharp.Formatting.Literate.LiterateDocument"/>,
+    /// type-checking it via the F# Compiler Service.
+    /// </summary>
+    /// <param name="content">The F# script source code to parse.</param>
+    /// <param name="path">An optional file path used in diagnostics and to resolve relative references. When not supplied, defaults to <c>script.fsx</c> in <paramref name="rootInputFolder"/> (or just <c>script.fsx</c>).</param>
+    /// <param name="fscOptions">Additional F# compiler options (e.g. extra <c>-r:</c> references).</param>
+    /// <param name="definedSymbols">Conditional-compilation symbols to define.</param>
+    /// <param name="references">A map of reference labels to URLs, used to resolve Markdown-style links.</param>
+    /// <param name="fsiEvaluator">An optional FSI evaluator; when supplied, code snippets are executed and their output included.</param>
+    /// <param name="parseOptions">Markdown parse options. Defaults to <see cref="F:FSharp.Formatting.Markdown.MarkdownParseOptions.AllowYamlFrontMatter"/>.</param>
+    /// <param name="rootInputFolder">The root folder used to resolve relative paths within the script.</param>
+    /// <param name="onError">A callback invoked with each error/warning message encountered during parsing or type-checking. Defaults to <c>ignore</c>.</param>
     static member ParseScriptString
         (
             content,
@@ -141,7 +165,7 @@ type Literate private () =
             | Some s -> s
             | None ->
                 match rootInputFolder with
-                | None -> "C:\\script.fsx"
+                | None -> "script.fsx"
                 | Some r -> Path.Combine(r, "script.fsx")
 
         ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
@@ -242,7 +266,7 @@ type Literate private () =
             | Some s -> s
             | None ->
                 match rootInputFolder with
-                | None -> "C:\\script.fsx"
+                | None -> "script.fsx"
                 | Some r -> Path.Combine(r, "script.fsx")
 
         let content = ParsePynb.pynbStringToFsx content

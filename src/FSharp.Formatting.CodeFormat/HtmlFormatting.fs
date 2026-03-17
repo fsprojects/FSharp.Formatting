@@ -23,8 +23,8 @@ type ToolTipFormatter(prefix) =
     let mutable count = 0
     let mutable uniqueId = 0
 
-    /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
-    member x.FormatTip (tip: ToolTipSpans) overlapping formatFunction =
+    /// Formats tip and returns data attributes for tooltip triggering
+    member x.FormatTip (tip: ToolTipSpans) formatFunction =
         uniqueId <- uniqueId + 1
 
         let stringIndex =
@@ -34,32 +34,15 @@ type ToolTipFormatter(prefix) =
                 count <- count + 1
                 tips.Add(tip, (count, formatFunction tip))
                 count
-        // stringIndex is the index of the tool tip
-        // uniqueId is globally unique id of the occurrence
-        if overlapping then
-            // The <span> may contain other <span>, so we need to
-            // get the element and check where the mouse goes...
-            String.Format(
-                "id=\"{0}t{1}\" onmouseout=\"hideTip(event, '{0}{1}', {2})\" "
-                + "onmouseover=\"showTip(event, '{0}{1}', {2}, document.getElementById('{0}t{1}'))\" ",
-                prefix,
-                stringIndex,
-                uniqueId
-            )
-        else
-            String.Format(
-                "onmouseout=\"hideTip(event, '{0}{1}', {2})\" "
-                + "onmouseover=\"showTip(event, '{0}{1}', {2})\" ",
-                prefix,
-                stringIndex,
-                uniqueId
-            )
+        // stringIndex is the index of the tool tip div
+        // uniqueId is the globally unique id of this hover occurrence
+        String.Format("data-fsdocs-tip=\"{0}{1}\" data-fsdocs-tip-unique=\"{2}\" ", prefix, stringIndex, uniqueId)
 
 
     /// Returns all generated tool tip elements
     member x.WriteTipElements(writer: TextWriter) =
         for (KeyValue(_, (index, html))) in tips do
-            writer.WriteLine(sprintf "<div class=\"fsdocs-tip\" id=\"%s%d\">%s</div>" prefix index html)
+            writer.WriteLine(sprintf "<div popover class=\"fsdocs-tip\" id=\"%s%d\">%s</div>" prefix index html)
 
 
 /// Represents context used by the formatter
@@ -71,7 +54,7 @@ type FormattingContext =
       CloseTag: string
       OpenLinesTag: string
       CloseLinesTag: string
-      FormatTip: ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string
+      FormatTip: ToolTipSpans -> (ToolTipSpans -> string) -> string
       TokenKindToCss: (TokenKind -> string) }
 
 // --------------------------------------------------------------------------------------
@@ -106,12 +89,12 @@ let rec formatTokenSpans (ctx: FormattingContext) =
         | TokenSpan.Error(_kind, message, body) when ctx.GenerateErrors ->
             let tip = ToolTipReader.formatMultilineString (message.Trim().Split('\n'))
 
-            let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
+            let tipAttributes = ctx.FormatTip tip formatToolTipSpans
 
             ctx.Writer.Write("<span ")
             ctx.Writer.Write(tipAttributes)
             ctx.Writer.Write("class=\"cerr\">")
-            formatTokenSpans { ctx with FormatTip = fun _ _ _ -> "" } body
+            formatTokenSpans { ctx with FormatTip = fun _ _ -> "" } body
             ctx.Writer.Write("</span>")
 
         | TokenSpan.Error(_, _, body) -> formatTokenSpans ctx body
@@ -124,7 +107,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
         | TokenSpan.Omitted(body, hidden) ->
             let tip = ToolTipReader.formatMultilineString (hidden.Trim().Split('\n'))
 
-            let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
+            let tipAttributes = ctx.FormatTip tip formatToolTipSpans
 
             ctx.Writer.Write("<span ")
             ctx.Writer.Write(tipAttributes)
@@ -136,7 +119,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
             // Generate additional attributes for ToolTip
             let tipAttributes =
                 match tip with
-                | Some(tip) -> ctx.FormatTip tip false formatToolTipSpans
+                | Some(tip) -> ctx.FormatTip tip formatToolTipSpans
                 | _ -> ""
 
             // Get CSS class name of the token

@@ -48,14 +48,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         div [] [
             let id = UniqueID().ToString()
 
-            code
-                [
-                    OnMouseOut(sprintf "hideTip(event, '%s', %s)" id id)
-                    OnMouseOver(sprintf "showTip(event, '%s', %s)" id id)
-                ]
-                content
+            code [ Custom("data-fsdocs-tip", id); Custom("data-fsdocs-tip-unique", id) ] content
 
-            div [ Class "fsdocs-tip"; Id id ] tip
+            div [ Custom("popover", ""); Class "fsdocs-tip"; Id id ] tip
         ]
 
     let sourceLink url =

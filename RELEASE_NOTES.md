@@ -2,21 +2,32 @@
 
 ## [Unreleased]
 
-### Refactored
-* Split `MarkdownParser.fs` (1500 lines) into `MarkdownInlineParser.fs` (inline formatting) and `MarkdownParser.fs` (block-level parsing) for better maintainability. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
-* Split pipe-table and Emacs-table parsing out of `MarkdownBlockParser.fs` into a new `MarkdownTableParser.fs` (196 lines), reducing `MarkdownBlockParser.fs` from 958 to 760 lines. [#1022](https://github.com/fsprojects/FSharp.Formatting/issues/1022)
+### Fixed
+* Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
+* Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images (`![alt][ref]`). The indirect image is now serialised as `![alt](url)` when the reference is resolved, or `![alt][ref]` when it is not.
+
+## 22.0.0-alpha.2 - 2026-03-13
 
 ### Added
+* Search dialog now auto-focuses the search input when opened, clears on close, and can be triggered with `Ctrl+K` / `Cmd+K` in addition to `/`.
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now embeds CSS, JS, and local images directly into the HTML output by default, producing a single self-contained file. Use `--no-embed-resources` to disable. Pass `--template fsdocs` to use the built-in default template without needing a local `_template.html`. [#1068](https://github.com/fsprojects/FSharp.Formatting/issues/1068)
 * `fsdocs convert` now supplies sensible defaults for all standard `{{fsdocs-*}}` template substitution parameters (e.g. `{{fsdocs-page-title}}` defaults to the input filename) so templates work cleanly without requiring `--parameters`. [#1072](https://github.com/fsprojects/FSharp.Formatting/pull/1072)
+* Added full XML doc comments (`<summary>`, `<param>`) to `Literate.ParseAndCheckScriptFile` and `Literate.ParseScriptString` to match the documentation style of the other `Literate.Parse*` methods.
+
+### Fixed
+* `Literate.ParseScriptString` and `Literate.ParsePynbString` used a hardcoded Windows path (`C:\script.fsx`) as the fallback script filename when neither `path` nor `rootInputFolder` is supplied. The fallback is now a simple platform-neutral `script.fsx`.
+* Add regression tests for cross-assembly tooltip resolution (issue [#1085](https://github.com/fsprojects/FSharp.Formatting/issues/1085)): verify that hover tooltips for types whose fields reference types from other assemblies show the correct type names (not `obj`) when `#r` paths resolve correctly.
 
 ### Changed
+* Tooltip elements (`div.fsdocs-tip`) now use the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) (Baseline 2024: Chrome 114+, Firefox 125+, Safari 17+). Tooltips are placed in the browser's top layer — no `z-index` needed, always above all other content. Fixes a positioning bug where tooltips appeared offset when the page was scrolled. The previous `display`-toggle fallback has been removed. Tooltips also fade in with a subtle animation. [#422](https://github.com/fsprojects/FSharp.Formatting/issues/422), [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
+* Generated code tokens no longer use inline `onmouseover`/`onmouseout` event handlers. Tooltips are now triggered via `data-fsdocs-tip` / `data-fsdocs-tip-unique` attributes and a delegated event listener in `fsdocs-tips.js`. The `popover` attribute is also added to API-doc tooltip divs so they use the same top-layer path. [#1061](https://github.com/fsprojects/FSharp.Formatting/pull/1061)
 * Changed `range` fields in `MarkdownSpan` and `MarkdownParagraph` DU cases from `MarkdownRange option` to `MarkdownRange`, using `MarkdownRange.zero` as the default/placeholder value instead of `None`.
 * When no template is provided (e.g. `fsdocs convert` without `--template`), `fsdocs-tip` tooltip divs are no longer included in the output. Tooltips require JavaScript/CSS from a template to function, so omitting them produces cleaner raw output. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* Use [`scrollbar-gutter: stable`](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter) (Baseline 2024) on scroll containers (`main`, `#fsdocs-main-menu`, mobile menu, search dialog) to reserve scrollbar space and prevent layout shifts when content changes height. Also adds the missing `overflow-y: auto` to `main` so pages that exceed the viewport height are independently scrollable. [#1087](https://github.com/fsprojects/FSharp.Formatting/issues/1087), [#1088](https://github.com/fsprojects/FSharp.Formatting/pull/1088)
 
 ## 22.0.0-alpha.1 - 2026-03-03
 

@@ -239,6 +239,7 @@ header {
                 list-style: none;
                 padding: var(--spacing-300);
                 overflow-y: auto;
+                scrollbar-gutter: stable;
             }
 
             & input:checked + .menu {
@@ -310,6 +311,8 @@ aside {
 
 main {
     height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 #content {
@@ -469,6 +472,7 @@ main {
         grid-row: var(--main-menu-grid-row);
         grid-column: var(--main-menu-grid-column);
         overflow-y: auto;
+        scrollbar-gutter: stable;
     }
 
     main {
@@ -983,8 +987,6 @@ table.pre, code, pre.fssnip {
 
 /* tooltips */
 div.fsdocs-tip {
-    z-index: 1000;
-    display: none;
     background-color: var(--doc-tip-background);
     border-radius: var(--radius);
     border: 1px solid var(--header-border);
@@ -993,15 +995,29 @@ div.fsdocs-tip {
     font-variant-ligatures: none;
     color: var(--code-color);
     box-shadow: 0 1px 1px var(--shadow-color);
+    margin: 0;
 
     & code {
         color: var(--code-color);
     }
 }
 
-span[onmouseout] {
+@keyframes fsdocs-tip-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Reset UA inset so JS-supplied left/top control position. */
+div.fsdocs-tip:popover-open {
+    position: fixed;
+    inset: unset;
+    animation: fsdocs-tip-fade-in 120ms ease-out;
+}
+
+[data-fsdocs-tip] {
     cursor: pointer;
 }
+
 
 /* API docs */
 #content > div > h2:first-child {
@@ -1212,7 +1228,7 @@ span[onmouseout] {
 }
 
 /* Search */
-::backdrop {
+dialog::backdrop {
     background-color: #020202;
     opacity: 0.5;
 }
@@ -1257,6 +1273,7 @@ dialog {
 
     & ul {
         overflow-y: auto;
+        scrollbar-gutter: stable;
         max-height: calc(50vh - var(--spacing-700) - var(--spacing-700));
         list-style: none;
         padding: 0;
