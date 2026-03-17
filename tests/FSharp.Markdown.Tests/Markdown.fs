@@ -1319,3 +1319,28 @@ let ``ToMd preserves an indirect link when key is not resolved`` () =
     // ToMd resolves the indirect link to a direct link form
     result |> should contain "[link text]"
     result |> should contain "https://example.com"
+
+// --------------------------------------------------------------------------------------
+// ToMd round-trip: indirect images (issue - failwith "tbd - IndirectImage")
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd round-trip: indirect image with resolved reference`` () =
+    // Markdown with a reference-style image and a reference definition
+    let input = "![alt text][img-id]\n\n[img-id]: http://example.com/image.png \"Title\""
+    let doc = Markdown.Parse(input)
+    // Should NOT throw (was failing with failwith "tbd - IndirectImage")
+    let result = Markdown.ToMd(doc)
+    // When key is resolved, should render as a direct image
+    result |> should contain "![alt text]("
+    result |> should contain "http://example.com/image.png"
+
+[<Test>]
+let ``ToMd round-trip: indirect image with unresolved reference`` () =
+    // Parse just the image token without a reference definition
+    let input = "![alt text][unknown-ref]"
+    let doc = Markdown.Parse(input)
+    // Should NOT throw (was failing with failwith "tbd - IndirectImage")
+    let result = Markdown.ToMd(doc)
+    // When key is not resolved, should preserve the indirect form
+    result |> should contain "![alt text][unknown-ref]"
