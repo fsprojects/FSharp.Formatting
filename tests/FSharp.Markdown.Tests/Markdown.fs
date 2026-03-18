@@ -1258,6 +1258,33 @@ let ``ToMd preserves an unordered list`` () =
     result |> should contain "cherry"
 
 [<Test>]
+let ``ToMd preserves emphasis (italic) text`` () =
+    // Emphasis must serialise as *...* not **...** (bold)
+    "*italic*" |> toMd |> should contain "*italic*"
+
+[<Test>]
+let ``ToMd preserves emphasis distinct from strong`` () =
+    let result = "**bold** and *italic*" |> toMd
+    result |> should contain "**bold**"
+    // Emphasis must not be rendered with double asterisks
+    result |> should not' (contain "**italic**")
+    result |> should contain "*italic*"
+
+[<Test>]
+let ``ToMd preserves an ordered list with correct numbering`` () =
+    let result = "1. first\n2. second\n3. third" |> toMd
+    result |> should contain "1. first"
+    result |> should contain "2. second"
+    result |> should contain "3. third"
+
+[<Test>]
+let ``ToMd ordered list does not use zero-based numbering`` () =
+    // Before fix: ordered list items were prefixed "0 ", "1 ", "2 " (0-indexed, no period)
+    let result = "1. only item" |> toMd
+    result |> should not' (contain "0 only item")
+    result |> should contain "1. only item"
+
+[<Test>]
 let ``ToMd preserves a fenced code block`` () =
     let md = "```fsharp\nlet x = 1\n```"
     let result = toMd md
