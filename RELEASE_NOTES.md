@@ -2,11 +2,6 @@
 
 ## [Unreleased]
 
-### Changed
-* Update `System.Text.Json` from 8.0.5 to 10.0.5 (aligned with net10.0 target framework).
-* Update `G-Research.FSharp.Analyzers` from 0.21.0 to 0.22.0.
-* Update `Ionide.Analyzers` from 0.14.11 to 0.15.0.
-
 ### Fixed
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images (`![alt][ref]`). The indirect image is now serialised as `![alt](url)` when the reference is resolved, or `![alt][ref]` when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
