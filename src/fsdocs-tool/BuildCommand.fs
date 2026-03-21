@@ -733,6 +733,21 @@ type internal DocContent
             else
                 id
 
+        /// Parses a category string into (parentCategory, subCategory option).
+        /// "Collections/Lists" → (Some "Collections", Some "Lists")
+        /// "Collections" → (Some "Collections", None)
+        /// None → (None, None)
+        let parseNestedCategory (cat: string option) =
+            match cat with
+            | None -> (None, None)
+            | Some s ->
+                let idx = s.IndexOf('/')
+
+                if idx > 0 && idx < s.Length - 1 then
+                    (Some(s.[.. idx - 1].Trim()), Some(s.[idx + 1 ..].Trim()))
+                else
+                    (Some s, None)
+
         let modelsByCategory =
             modelsForList
             |> excludeUncategorized
@@ -750,6 +765,13 @@ type internal DocContent
             list
             |> List.sortBy (fun model -> Option.defaultValue Int32.MaxValue model.Index)
 
+        let hasNestedCategories =
+            modelsForList
+            |> List.exists (fun m ->
+                match m.Category with
+                | Some s -> s.Contains('/')
+                | None -> false)
+
         if Menu.isTemplatingAvailable input then
             let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
@@ -764,12 +786,21 @@ type internal DocContent
                           Menu.MenuItem.IsActive = model.IsActive })
 
                 Menu.createMenu input isCategoryActive header menuItems
+
             // No categories specified
             if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                 let _, items = modelsByCategory.[0]
                 createGroup false "Documentation" items
             else
-                modelsByCategory
+                // For templating path, group by parent category (flatten nested structure)
+                let groupsByParent =
+                    modelsByCategory
+                    |> List.groupBy (fun (cat, _) -> fst (parseNestedCategory cat))
+                    |> List.map (fun (parentCat, groups) ->
+                        let allItems = groups |> List.collect snd
+                        (parentCat, allItems))
+
+                groupsByParent
                 |> List.map (fun (header, items) ->
                     let header = Option.defaultValue "Other" header
                     let isActive = items |> List.exists (fun m -> m.IsActive)
@@ -788,6 +819,59 @@ type internal DocContent
                       li
                           [ Class $"nav-item %s{activeClass}" ]
                           [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+              elif hasNestedCategories then
+                  // Nested category rendering: group by parent, then sub-category
+                  // Parent ordering uses the minimum CategoryIndex of any child
+                  let modelsByParent =
+                      modelsForList
+                      |> excludeUncategorized
+                      |> List.groupBy (fun model -> fst (parseNestedCategory model.Category))
+                      |> List.sortBy (fun (parentCat, ms) ->
+                          match parentCat with
+                          | None -> Int32.MaxValue
+                          | Some _ ->
+                              ms
+                              |> List.choose (fun m -> m.CategoryIndex)
+                              |> function
+                                  | [] -> Int32.MaxValue
+                                  | idxs -> List.min idxs)
+
+                  for (parentCat, parentItems) in modelsByParent do
+                      let parentActive = parentItems |> List.exists (fun m -> m.IsActive)
+                      let parentActiveClass = if parentActive then "active" else ""
+                      let parentHeader = Option.defaultValue "Other" parentCat
+
+                      li [ Class $"nav-header %s{parentActiveClass}" ] [ !!parentHeader ]
+
+                      // Group by sub-category; items with no sub-cat come first (before sub-headers)
+                      let subGroups =
+                          parentItems
+                          |> List.groupBy (fun model -> snd (parseNestedCategory model.Category))
+                          |> List.sortBy (fun (subCat, ms) ->
+                              match subCat with
+                              | None -> Int32.MinValue
+                              | Some _ ->
+                                  ms
+                                  |> List.choose (fun m -> m.CategoryIndex)
+                                  |> function
+                                      | [] -> Int32.MaxValue
+                                      | idxs -> List.min idxs)
+
+                      for (subCat, subItems) in subGroups do
+                          match subCat with
+                          | Some sub ->
+                              let subActive = subItems |> List.exists (fun m -> m.IsActive)
+                              let subActiveClass = if subActive then "active" else ""
+                              li [ Class $"nav-sub-header %s{subActiveClass}" ] [ !!sub ]
+                          | None -> ()
+
+                          for model in orderList subItems do
+                              let link = model.Uri(root)
+                              let activeClass = if model.IsActive then "active" else ""
+
+                              li
+                                  [ Class $"nav-item %s{activeClass}" ]
+                                  [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
               else
                   // At least one category has been specified. Sort each category by index and emit
                   // Use 'Other' as a header for uncategorised things

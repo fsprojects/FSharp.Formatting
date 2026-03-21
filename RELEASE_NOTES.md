@@ -2,7 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+* Support nested navigation categories using `/` as a separator in the `category` front-matter field (e.g. `category: Reference/API`). Parent categories are rendered as top-level nav headers; sub-categories appear as indented sub-headers beneath them. Documents without a sub-category are listed directly under their parent header. Existing flat categories continue to work unchanged. [#927](https://github.com/fsprojects/FSharp.Formatting/issues/927)
+
 ### Fixed
+* Fix front-matter parsing to correctly handle values that contain `:` (e.g. `title: F#: An Introduction`). Previously, only the text before the second `:` was captured; now the full value is preserved.
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images (`![alt][ref]`). The indirect image is now serialised as `![alt](url)` when the reference is resolved, or `![alt][ref]` when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising `*emphasis*` (italic) spans as `**...**` (bold) instead of `*...*`. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)

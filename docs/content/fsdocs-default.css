@@ -390,6 +390,15 @@ main {
         font-weight: 500;
         color: var(--menu-color);
     }
+
+    .nav-sub-header {
+        margin-top: var(--spacing-200);
+        padding-left: var(--spacing-200);
+        font-size: var(--font-200);
+        font-weight: 500;
+        color: var(--menu-color);
+        opacity: 0.8;
+    }
 }
 
 .nav-header:first-child {

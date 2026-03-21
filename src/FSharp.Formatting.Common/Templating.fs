@@ -53,7 +53,7 @@ type FrontMatterFile =
                     let parts = line.Split(":") |> Array.toList
 
                     match parts with
-                    | first :: second :: _ -> Some(first.ToLowerInvariant(), second)
+                    | first :: rest when rest <> [] -> Some(first.ToLowerInvariant(), String.concat ":" rest)
                     | _ -> None
                 else
                     None)
