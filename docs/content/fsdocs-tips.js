@@ -64,8 +64,26 @@ document.addEventListener('mouseout', function (evt) {
     // Only hide when the mouse has left the trigger element entirely
     if (target.contains(evt.relatedTarget)) return;
     const name = target.dataset.fsdocsTip;
+    // Keep the tooltip visible when the mouse moves into it — this allows the user
+    // to hover over, select, and copy text from the tooltip.
+    const tipEl = document.getElementById(name);
+    if (tipEl && (evt.relatedTarget === tipEl || tipEl.contains(evt.relatedTarget))) return;
     const unique = parseInt(target.dataset.fsdocsTipUnique, 10);
     hideTip(name);
+});
+
+// Hide the tooltip when the mouse leaves it, unless it returns to the trigger element.
+document.addEventListener('mouseout', function (evt) {
+    const tip = evt.target.closest('div.fsdocs-tip');
+    if (!tip) return;
+    // Still moving within the tooltip (between child elements) — keep it open.
+    if (tip.contains(evt.relatedTarget)) return;
+    // Mouse returned to the trigger that opened this tooltip — keep it open.
+    if (evt.relatedTarget) {
+        const trigger = evt.relatedTarget.closest('[data-fsdocs-tip]');
+        if (trigger && trigger.dataset.fsdocsTip === tip.id) return;
+    }
+    hideTip(tip.id);
 });
 
 function Clipboard_CopyTo(value) {

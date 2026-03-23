@@ -7,6 +7,10 @@
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images (`![alt][ref]`). The indirect image is now serialised as `![alt](url)` when the reference is resolved, or `![alt][ref]` when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising `*emphasis*` (italic) spans as `**...**` (bold) instead of `*...*`. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 * Fix `Markdown.ToMd` serialising ordered list items with 0-based numbering and no period (e.g. `0 first`) instead of 1-based with a period (e.g. `1. first`). [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `Markdown.ToMd` serialising a multi-paragraph blockquote as multiple separate blockquotes. The blank separator between paragraphs inside a `QuotedBlock` is now emitted as `>` (an empty blockquote line) instead of a plain blank line, so re-parsing the output yields a single `QuotedBlock` with all paragraphs intact. Also eliminates `> ` lines with trailing whitespace that the previous code produced.
+
+### Changed
+* Tooltips in generated documentation are now interactive: moving the mouse from a code token into the tooltip keeps it visible, so users can hover over, select, and copy text from the tooltip. The tooltip is dismissed when the mouse leaves it without returning to the originating token. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
 
 ## 22.0.0-alpha.2 - 2026-03-13
 
