@@ -12,7 +12,7 @@ let shouldMatchPar f pars =
             | MarkdownPatterns.ParagraphNested(_, pars) -> List.exists (List.exists loop) pars
             | _ -> false
 
-    Assert.IsTrue(Seq.exists loop pars, "Should match the specified paragraph")
+    Assert.That(Seq.exists loop pars, Is.True, "Should match the specified paragraph")
 
 let shouldMatchSpan f pars =
     let rec loopSpan sp =
@@ -29,4 +29,4 @@ let shouldMatchSpan f pars =
         | MarkdownPatterns.ParagraphLeaf _ -> false
         | MarkdownPatterns.ParagraphNested(_, pars) -> List.exists (List.exists loopPar) pars
 
-    Assert.IsTrue(Seq.exists loopPar pars, "Should match the specified span")
+    Assert.That(Seq.exists loopPar pars, Is.True, "Should match the specified span")
