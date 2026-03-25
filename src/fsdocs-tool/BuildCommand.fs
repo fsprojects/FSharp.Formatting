@@ -2659,7 +2659,7 @@ type ConvertCommand() =
 
                     let fsiEvaluator =
                         if this.eval then
-                            Some(FsiEvaluator(options = [| "--multiemit-" |]) :> IFsiEvaluator)
+                            Some(new FsiEvaluator(options = [| "--multiemit-" |]) :> IFsiEvaluator)
                         else
                             None
 
