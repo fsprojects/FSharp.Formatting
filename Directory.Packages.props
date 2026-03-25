@@ -17,15 +17,15 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Suave" Version="2.6.2" />
     <PackageVersion Include="System.Memory" Version="4.5.5" />
-    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.5" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
     <PackageVersion Include="NUnit" Version="3.14.0" />
     <PackageVersion Include="FsUnit" Version="5.6.0" />
-    <PackageVersion Include="FSharp.Data" Version="6.3.0" />
+    <PackageVersion Include="FSharp.Data" Version="8.1.3" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageVersion Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" />
     <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.22.0" />
-    <PackageVersion Include="Ionide.Analyzers" Version="0.14.11" />
+    <PackageVersion Include="Ionide.Analyzers" Version="0.15.0" />
   </ItemGroup>
 </Project>
