@@ -25,7 +25,7 @@
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageVersion Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" />
-    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.21.0" />
+    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.22.0" />
     <PackageVersion Include="Ionide.Analyzers" Version="0.14.11" />
   </ItemGroup>
 </Project>
