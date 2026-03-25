@@ -115,7 +115,7 @@ module internal MarkdownUtils =
         | DirectImage(body, link, _, _) -> sprintf "![%s](%s)" body link
         | Strong(body, _) -> "**" + formatSpans ctx body + "**"
         | InlineCode(body, _) -> "`" + body + "`"
-        | Emphasis(body, _) -> "**" + formatSpans ctx body + "**"
+        | Emphasis(body, _) -> "*" + formatSpans ctx body + "*"
 
     /// Format a list of MarkdownSpan
     and formatSpans ctx spans =
@@ -177,7 +177,7 @@ module internal MarkdownUtils =
 
                       for (j, line) in List.indexed lines do
                           if i = 0 && j = 0 then
-                              yield $"%i{n} " + line
+                              yield $"%i{n + 1}. " + line
                           else
                               yield "  " + line
 

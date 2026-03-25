@@ -1,6 +1,6 @@
 ---
 description: |
-  A friendly repository assistant that runs 4 times a day to support contributors and maintainers.
+  A friendly repository assistant that runs 2 times a day to support contributors and maintainers.
   Can also be triggered on-demand via '/repo-assist <instructions>' to perform specific tasks.
   - Labels and triages open issues
   - Comments helpfully on open issues to unblock contributors and onboard newcomers
@@ -33,6 +33,19 @@ network:
   - rust
   - java
 
+checkout:
+  fetch: ["*"]     # fetch all remote branches to allow working on PR branches
+  fetch-depth: 0   # fetch full history
+
+tools:
+  web-fetch:
+  github:
+    toolsets: [all]
+    min-integrity: none # This workflow is allowed to examine and comment on any issues or PRs
+    repos: all
+  bash: true
+  repo-memory: true
+
 safe-outputs:
   add-comment:
     max: 10
@@ -64,13 +77,6 @@ safe-outputs:
     allowed: [bug, enhancement, "help wanted", "good first issue", "spam", "off topic", documentation, question, duplicate, wontfix, "needs triage", "needs investigation", "breaking change", performance, security, refactor]
     max: 5
     target: "*"
-
-tools:
-  web-fetch:
-  github:
-    toolsets: [all]
-  bash: true
-  repo-memory: true
 
 steps:
   - name: Fetch repo data for task weighting
@@ -165,7 +171,7 @@ steps:
           json.dump(result, f, indent=2)
       EOF
 
-source: githubnext/agentics/workflows/repo-assist.md@346204513ecfa08b81566450d7d599556807389f
+source: githubnext/agentics/workflows/repo-assist.md@4957663821dbb3260348084fa2f1659701950fef
 ---
 
 # Repo Assist
