@@ -6,6 +6,7 @@ open FSharp.Formatting.Templating
 open fsdocs
 open NUnit.Framework
 open FsUnitTyped
+open FSharp.Formatting.Literate
 
 do FSharp.Formatting.TestHelpers.enableLogging ()
 
@@ -507,3 +508,292 @@ let ``LlmsTxt collapses excessive blank lines in content`` () =
     llmsFullTxt.Contains("\n\n\n") |> shouldEqual false
     llmsFullTxt |> shouldContainText "First paragraph"
     llmsFullTxt |> shouldContainText "Second paragraph"
+
+// --------------------------------------------------------------------------------------
+// Tests for FrontMatterFile.ParseFromLines
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines parses standard YAML front-matter`` () =
+    let lines =
+        seq {
+            "---"
+            "category: Basics"
+            "categoryindex: 1"
+            "index: 2"
+            "---"
+            "# Title"
+        }
+
+    let result = FrontMatterFile.ParseFromLines "test.md" lines
+    result |> shouldNotEqual None
+    let fm = result.Value
+    fm.FileName |> shouldEqual "test.md"
+    fm.Category |> shouldEqual "Basics"
+    fm.CategoryIndex |> shouldEqual 1
+    fm.Index |> shouldEqual 2
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines preserves colons in category values`` () =
+    // Regression test for the fix in PR #1105 — previously only the part before the
+    // second colon was kept, so "F#: Intro" would be captured as "F#".
+    let lines =
+        seq {
+            "---"
+            "category: F#: An Introduction"
+            "categoryindex: 1"
+            "index: 1"
+            "---"
+        }
+
+    let result = FrontMatterFile.ParseFromLines "test.md" lines
+    result |> shouldNotEqual None
+    result.Value.Category |> shouldEqual "F#: An Introduction"
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines returns None when category is missing`` () =
+    let lines =
+        seq {
+            "---"
+            "categoryindex: 1"
+            "index: 2"
+            "---"
+        }
+
+    FrontMatterFile.ParseFromLines "test.md" lines |> shouldEqual None
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines returns None when categoryindex is missing`` () =
+    let lines =
+        seq {
+            "---"
+            "category: Basics"
+            "index: 1"
+            "---"
+        }
+
+    FrontMatterFile.ParseFromLines "test.md" lines |> shouldEqual None
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines returns None when index is missing`` () =
+    let lines =
+        seq {
+            "---"
+            "category: Basics"
+            "categoryindex: 1"
+            "---"
+        }
+
+    FrontMatterFile.ParseFromLines "test.md" lines |> shouldEqual None
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines returns None when categoryindex is non-numeric`` () =
+    let lines =
+        seq {
+            "---"
+            "category: Basics"
+            "categoryindex: abc"
+            "index: 1"
+            "---"
+        }
+
+    FrontMatterFile.ParseFromLines "test.md" lines |> shouldEqual None
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines parses fsx-style front-matter`` () =
+    let lines =
+        seq {
+            "(**"
+            "category: Scripting"
+            "categoryindex: 2"
+            "index: 3"
+            "*)"
+        }
+
+    let result = FrontMatterFile.ParseFromLines "test.fsx" lines
+    result |> shouldNotEqual None
+    let fm = result.Value
+    fm.FileName |> shouldEqual "test.fsx"
+    fm.Category |> shouldEqual "Scripting"
+    fm.CategoryIndex |> shouldEqual 2
+    fm.Index |> shouldEqual 3
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines trims whitespace from category`` () =
+    let lines =
+        seq {
+            "---"
+            "category:  Basics with spaces  "
+            "categoryindex: 1"
+            "index: 1"
+            "---"
+        }
+
+    let result = FrontMatterFile.ParseFromLines "test.md" lines
+    result |> shouldNotEqual None
+    result.Value.Category |> shouldEqual "Basics with spaces"
+
+[<Test>]
+let ``FrontMatterFile.ParseFromLines returns None for empty input`` () =
+    FrontMatterFile.ParseFromLines "test.md" Seq.empty |> shouldEqual None
+
+// --------------------------------------------------------------------------------------
+// Tests for GetNavigationEntries — flat and nested categories
+// --------------------------------------------------------------------------------------
+
+/// Builds a minimal LiterateDocModel for use in navigation tests.
+let private makeNavModel path (category: string option) (categoryIndex: int option) (index: int option) title =
+    { Title = title
+      Substitutions = []
+      IndexText = None
+      Category = category
+      CategoryIndex = categoryIndex
+      Index = index
+      OutputPath = path
+      OutputKind = OutputKind.Html
+      IsActive = false }
+
+/// Constructs a DocContent instance suitable for navigation-only tests
+/// (no actual I/O or evaluation required).
+let private makeDocContentForNav () =
+    DocContent(
+        Path.GetTempPath(),
+        Map.empty,
+        lineNumbers = None,
+        evaluate = false,
+        substitutions = [],
+        saveImages = None,
+        watch = false,
+        root = "/",
+        crefResolver = (fun _ -> None),
+        onError = failwith
+    )
+
+/// Returns a temp directory path that contains no template files.
+let private noTemplateDir () = Path.GetTempPath()
+
+[<Test>]
+let ``GetNavigationEntries with no category emits Documentation header`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/doc1.md", false, makeNavModel "doc1.html" None None (Some 1) "Doc One"
+          "/input/doc2.md", false, makeNavModel "doc2.html" None None (Some 2) "Doc Two" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, false)
+    result |> shouldContainText "Documentation"
+    result |> shouldContainText "doc1.html"
+    result |> shouldContainText "doc2.html"
+
+[<Test>]
+let ``GetNavigationEntries with flat categories emits nav-header for each category`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/doc1.md", false, makeNavModel "doc1.html" (Some "API") (Some 1) (Some 1) "Doc One"
+          "/input/doc2.md", false, makeNavModel "doc2.html" (Some "Guides") (Some 2) (Some 1) "Doc Two" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, false)
+    result |> shouldContainText "nav-header"
+    result |> shouldContainText "API"
+    result |> shouldContainText "Guides"
+    result |> shouldNotContainText "nav-sub-header"
+
+[<Test>]
+let ``GetNavigationEntries with nested categories emits nav-sub-header`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/arrays.md", false, makeNavModel "arrays.html" (Some "Collections/Arrays") (Some 1) (Some 1) "Arrays"
+          "/input/lists.md", false, makeNavModel "lists.html" (Some "Collections/Lists") (Some 2) (Some 1) "Lists" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, false)
+    result |> shouldContainText "nav-header"
+    result |> shouldContainText "Collections"
+    result |> shouldContainText "nav-sub-header"
+    result |> shouldContainText "Arrays"
+    result |> shouldContainText "Lists"
+
+[<Test>]
+let ``GetNavigationEntries with nested categories does not emit parent name as nav-sub-header`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/arrays.md", false, makeNavModel "arrays.html" (Some "Collections/Arrays") (Some 1) (Some 1) "Arrays" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, false)
+    // "Collections" is the parent → nav-header, not nav-sub-header
+    result |> shouldContainText """class="nav-header"""
+    // Verify that Collections appears somewhere in the output
+    result |> shouldContainText "Collections"
+
+[<Test>]
+let ``GetNavigationEntries with nested categories orders parents by minimum CategoryIndex`` () =
+    let content = makeDocContentForNav ()
+
+    // Reference group has categoryindex: 1; Collections has categoryindex: 2
+    // So Reference should appear first in the navigation
+    let models =
+        [ "/input/arrays.md", false, makeNavModel "arrays.html" (Some "Collections/Arrays") (Some 2) (Some 1) "Arrays"
+          "/input/intro.md", false, makeNavModel "intro.html" (Some "Reference/Intro") (Some 1) (Some 1) "Intro" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, false)
+    let refPos = result.IndexOf("Reference")
+    let colPos = result.IndexOf("Collections")
+    refPos |> shouldBeGreaterThan -1
+    colPos |> shouldBeGreaterThan -1
+    // Reference (min catIdx 1) should come before Collections (min catIdx 2)
+    refPos |> shouldBeSmallerThan colPos
+
+[<Test>]
+let ``GetNavigationEntries with mixed nested and flat categories renders both`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/arrays.md", false, makeNavModel "arrays.html" (Some "Collections/Arrays") (Some 1) (Some 1) "Arrays"
+          "/input/getting-started.md",
+          false,
+          makeNavModel "getting-started.html" (Some "Collections") (Some 1) (Some 2) "Getting Started" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, false)
+    result |> shouldContainText "nav-header"
+    result |> shouldContainText "Collections"
+    result |> shouldContainText "Arrays"
+    result |> shouldContainText "Getting Started"
+
+[<Test>]
+let ``GetNavigationEntries marks current page as active`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/doc1.md", false, makeNavModel "doc1.html" (Some "API") (Some 1) (Some 1) "Doc One"
+          "/input/doc2.md", false, makeNavModel "doc2.html" (Some "API") (Some 1) (Some 2) "Doc Two" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, Some "/input/doc1.md", false)
+    // doc1's nav-item should have the "active" class
+    result |> shouldContainText "active"
+
+[<Test>]
+let ``GetNavigationEntries with ignoreUncategorized excludes uncategorized docs`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/doc1.md", false, makeNavModel "doc1.html" (Some "API") (Some 1) (Some 1) "Doc One"
+          "/input/doc2.md", false, makeNavModel "doc2.html" None None None "Uncategorized Doc" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, true)
+    result |> shouldContainText "Doc One"
+    result |> shouldNotContainText "Uncategorized Doc"
+
+[<Test>]
+let ``GetNavigationEntries index files are excluded from navigation`` () =
+    let content = makeDocContentForNav ()
+
+    let models =
+        [ "/input/index.md", false, makeNavModel "index.html" (Some "API") (Some 1) (Some 1) "Index Page"
+          "/input/doc1.md", false, makeNavModel "doc1.html" (Some "API") (Some 1) (Some 2) "Doc One" ]
+
+    let result = content.GetNavigationEntries(noTemplateDir (), models, None, false)
+    // index.md should be excluded from navigation
+    result |> shouldNotContainText "Index Page"
+    result |> shouldContainText "Doc One"
