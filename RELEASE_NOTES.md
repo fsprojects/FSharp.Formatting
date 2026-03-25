@@ -109,7 +109,8 @@
 
 ## [20.0.0] - 2024-02-14
 
-Stable release
+### Changed
+* Stable release.
 
 ## [20.0.0-beta-002] - 2024-02-08
 
@@ -163,11 +164,11 @@ Stable release
 * Add more options to customize colors.
 
 ### Removed
-- `--fsdocs-theme-toggle-light-color` and `--fsdocs-theme-toggle-dark-color` are now deprecated. Use `--header-link-color` instead.
-- `<FsDocsCollectionNameLink>`
+* `--fsdocs-theme-toggle-light-color` and `--fsdocs-theme-toggle-dark-color` are now deprecated. Use `--header-link-color` instead.
+* `<FsDocsCollectionNameLink>`
 
 ### Changed
-- Update FCS to 43.8.100
+* Update FCS to 43.8.100
 
 ## [20.0.0-alpha-012] - 2023-11-17
 
@@ -258,7 +259,7 @@ Stable release
 * `{{fsdocs-body-extra}}` can included additional html before the closing `</body>` when `_body.html` exists.
 * MSBuild property `<FsDocsFaviconSource>` can be used to configure the favicon.
 * `active` class is added to the active menu item in `{{fsdocs-list-of-documents}}`.
-If menu templating is used, `{{fsdocs-menu-header-active-class}}` and `{{fsdocs-menu-item-active-class}}` are avaiable.
+* If menu templating is used, `{{fsdocs-menu-header-active-class}}` and `{{fsdocs-menu-item-active-class}}` are avaiable.
 * `{{fsdocs-page-content-list}}` contains an unordered list of the header (`h1` till `h4`) of the current page. (if available)
 
 ## [19.1.1] - 2023-10-10
@@ -710,18 +711,18 @@ If menu templating is used, `{{fsdocs-menu-header-active-class}}` and `{{fsdocs-
 * FSharp.ApiDocs uses HTML substitution for templating, no Razor
 * Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
 * For command line tool
-Rename fsformatting to fsdocs
-Update command line parser
-"fsformatting literate process-directory" --> "fsdocs convert"
-"fsformatting metadata-format generate" --> "fsdocs api"
-"--dllFiles" --> "--dlls"
-"--outDir" --> "--output"
-"--outputDirectory" --> "--output"
-"--output" is optional (defaults to 'output')
-"--inputDirectory" --> "--input"
-Add --nonpublic
-Add --xmlComments
-Automatically populate metadata from project settings.
+* Rename fsformatting to fsdocs
+* Update command line parser
+* "fsformatting literate process-directory" --> "fsdocs convert"
+* "fsformatting metadata-format generate" --> "fsdocs api"
+* "--dllFiles" --> "--dlls"
+* "--outDir" --> "--output"
+* "--outputDirectory" --> "--output"
+* "--output" is optional (defaults to 'output')
+* "--inputDirectory" --> "--input"
+* Add --nonpublic
+* Add --xmlComments
+* Automatically populate metadata from project settings.
 * Add `fsdocs build` command to the documentation generator that has lots of sensible defaults.
 
 ## [4.1.0] - 2020-06-01
@@ -836,10 +837,10 @@ Automatically populate metadata from project settings.
 
 ## [2.13.0] - 2015-12-29
 * Be compatible with the common-mark spec for 'Fenced code blocks' and 'Indented code blocks'.
-See https://github.com/fsprojects/FSharp.Formatting/pull/343.
-Please follow-up by adding support for more sections of the spec!
-Just add the section to https://github.com/fsprojects/FSharp.Formatting/blob/master/tests/FSharp.Markdown.Tests/CommonMarkSpecTest.fs#L20
-and fix the newly enabled tests.
+* See https://github.com/fsprojects/FSharp.Formatting/pull/343.
+* Please follow-up by adding support for more sections of the spec.
+* Add the section to https://github.com/fsprojects/FSharp.Formatting/blob/master/tests/FSharp.Markdown.Tests/CommonMarkSpecTest.fs#L20.
+* Fix the newly enabled tests.
 * Add CompiledName to members with F# specific naming (https://github.com/fsprojects/FSharp.Formatting/pull/372)
 
 ## [2.12.1] - 2015-12-24
