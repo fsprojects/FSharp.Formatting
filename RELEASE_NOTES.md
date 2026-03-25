@@ -10,7 +10,7 @@
 * Fix `Markdown.ToMd` serialising a multi-paragraph blockquote as multiple separate blockquotes. The blank separator between paragraphs inside a `QuotedBlock` is now emitted as `>` (an empty blockquote line) instead of a plain blank line, so re-parsing the output yields a single `QuotedBlock` with all paragraphs intact. Also eliminates `> ` lines with trailing whitespace that the previous code produced.
 
 ### Changed
-* Tooltips in generated documentation are now interactive: moving the mouse from a code token into the tooltip keeps it visible, so users can hover over, select, and copy text from the tooltip. The tooltip is dismissed when the mouse leaves it without returning to the originating token. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
+* Tooltips in generated documentation are now interactive: moving the mouse from a code token into the tooltip keeps it visible, so users can hover over, select, and copy text from the tooltip. The tooltip is dismissed when the mouse leaves it without returning to the originating token. A short hide-delay ensures that moving the mouse from the symbol to a tooltip that is not immediately adjacent (e.g. repositioned to stay inside the viewport) does not dismiss it prematurely. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949) [#1106](https://github.com/fsprojects/FSharp.Formatting/pull/1106)
 
 ## 22.0.0-alpha.2 - 2026-03-13
 
