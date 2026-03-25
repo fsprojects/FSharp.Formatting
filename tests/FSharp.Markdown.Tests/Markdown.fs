@@ -1201,3 +1201,173 @@ let ``Paragraph between sublists should not be absorbed into first sublist item 
     paragraphPos |> should be (greaterThan firstSublistEnd)
     // Second sublist starts after paragraph.
     secondSublistStart |> should be (greaterThan paragraphPos)
+
+// -----------------------------------------------------------------------
+// ToMd serialisation tests
+// These verify the round-trip Markdown-to-Markdown serialiser.  Prior to
+// this test file there was zero coverage of Markdown.ToMd.
+// -----------------------------------------------------------------------
+
+/// Round-trip helper: parse markdown, serialise back with ToMd (Unix newlines
+/// so comparisons are platform-independent), then strip trailing whitespace.
+let toMd (input: string) =
+    Markdown.Parse(input)
+    |> (fun doc -> Markdown.ToMd(doc, newline = "\n"))
+    |> (fun s -> s.TrimEnd())
+
+[<Test>]
+let ``ToMd preserves a plain paragraph`` () =
+    "Hello, world." |> toMd |> should contain "Hello, world."
+
+[<Test>]
+let ``ToMd preserves a level-1 heading`` () =
+    "# Heading One" |> toMd |> shouldEqual "# Heading One"
+
+[<Test>]
+let ``ToMd preserves a level-2 heading`` () =
+    "## Heading Two" |> toMd |> shouldEqual "## Heading Two"
+
+[<Test>]
+let ``ToMd preserves a level-3 heading`` () =
+    "### Heading Three" |> toMd |> shouldEqual "### Heading Three"
+
+[<Test>]
+let ``ToMd preserves strong (bold) text`` () =
+    "**bold**" |> toMd |> should contain "**bold**"
+
+[<Test>]
+let ``ToMd preserves inline code`` () =
+    "Use `printf` here." |> toMd |> should contain "`printf`"
+
+[<Test>]
+let ``ToMd preserves a direct link`` () =
+    "[FSharp](https://fsharp.org)"
+    |> toMd
+    |> should contain "[FSharp](https://fsharp.org)"
+
+[<Test>]
+let ``ToMd preserves a direct image`` () =
+    "![alt text](image.png)" |> toMd |> should contain "![alt text](image.png)"
+
+[<Test>]
+let ``ToMd preserves an unordered list`` () =
+    let md = "* apple\n* banana\n* cherry"
+    let result = toMd md
+    result |> should contain "apple"
+    result |> should contain "banana"
+    result |> should contain "cherry"
+
+[<Test>]
+let ``ToMd preserves emphasis (italic) text`` () =
+    // Emphasis must serialise as *...* not **...** (bold)
+    "*italic*" |> toMd |> should contain "*italic*"
+
+[<Test>]
+let ``ToMd preserves emphasis distinct from strong`` () =
+    let result = "**bold** and *italic*" |> toMd
+    result |> should contain "**bold**"
+    // Emphasis must not be rendered with double asterisks
+    result |> should not' (contain "**italic**")
+    result |> should contain "*italic*"
+
+[<Test>]
+let ``ToMd preserves an ordered list with correct numbering`` () =
+    let result = "1. first\n2. second\n3. third" |> toMd
+    result |> should contain "1. first"
+    result |> should contain "2. second"
+    result |> should contain "3. third"
+
+[<Test>]
+let ``ToMd ordered list does not use zero-based numbering`` () =
+    // Before fix: ordered list items were prefixed "0 ", "1 ", "2 " (0-indexed, no period)
+    let result = "1. only item" |> toMd
+    result |> should not' (contain "0 only item")
+    result |> should contain "1. only item"
+
+[<Test>]
+let ``ToMd preserves a fenced code block`` () =
+    let md = "```fsharp\nlet x = 1\n```"
+    let result = toMd md
+    result |> should contain "let x = 1"
+    result |> should contain "```"
+
+[<Test>]
+let ``ToMd preserves a blockquote`` () =
+    let md = "> This is a quote."
+    let result = toMd md
+    result |> should contain "> "
+    result |> should contain "This is a quote."
+
+[<Test>]
+let ``ToMd preserves a horizontal rule`` () =
+    let md = "Before\n\n---\n\nAfter"
+    let result = toMd md
+    result |> should contain "Before"
+    result |> should contain "---"
+    result |> should contain "After"
+
+[<Test>]
+let ``ToMd preserves LaTeX inline math`` () =
+    let md = "Einstein's $E = mc^2$ equation."
+    let result = toMd md
+    result |> should contain "$E = mc^2$"
+
+[<Test>]
+let ``ToMd preserves inline HTML block`` () =
+    let md = "<div class=\"note\">Note content</div>"
+    let result = toMd md
+    result |> should contain "<div"
+    result |> should contain "Note content"
+
+[<Test>]
+let ``ToMd handles a document with heading and paragraph`` () =
+    let md = "# Title\n\nBody text here."
+    let result = toMd md
+    result |> should contain "# Title"
+    result |> should contain "Body text here."
+
+[<Test>]
+let ``ToMd handles a table`` () =
+    let md = "Col1 | Col2\n:--- | :---\nA | B"
+    let result = toMd md
+    result |> should contain "Col1"
+    result |> should contain "Col2"
+    result |> should contain "A"
+    result |> should contain "B"
+
+[<Test>]
+let ``ToMd handles empty document`` () = "" |> toMd |> shouldEqual ""
+
+[<Test>]
+let ``ToMd preserves an indirect link when key is not resolved`` () =
+    // Indirect link whose reference definition is present — should round-trip
+    let md = "[link text][ref]\n\n[ref]: https://example.com"
+    let result = toMd md
+    // ToMd resolves the indirect link to a direct link form
+    result |> should contain "[link text]"
+    result |> should contain "https://example.com"
+
+// --------------------------------------------------------------------------------------
+// ToMd round-trip: indirect images (issue - failwith "tbd - IndirectImage")
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd round-trip: indirect image with resolved reference`` () =
+    // Markdown with a reference-style image and a reference definition
+    let input = "![alt text][img-id]\n\n[img-id]: http://example.com/image.png \"Title\""
+    let doc = Markdown.Parse(input)
+    // Should NOT throw (was failing with failwith "tbd - IndirectImage")
+    let result = Markdown.ToMd(doc)
+    // When key is resolved, should render as a direct image
+    result |> should contain "![alt text]("
+    result |> should contain "http://example.com/image.png"
+
+[<Test>]
+let ``ToMd round-trip: indirect image with unresolved reference`` () =
+    // Parse just the image token without a reference definition
+    let input = "![alt text][unknown-ref]"
+    let doc = Markdown.Parse(input)
+    // Should NOT throw (was failing with failwith "tbd - IndirectImage")
+    let result = Markdown.ToMd(doc)
+    // When key is not resolved, should preserve the indirect form
+    result |> should contain "![alt text][unknown-ref]"
