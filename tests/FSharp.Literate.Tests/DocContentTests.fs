@@ -300,9 +300,9 @@ let ``Parses description and keywords from frontmatter `` () =
         |> List.find (fst >> ((=) ParamKeys.``fsdocs-meta-tags``))
         |> snd
 
-    StringAssert.Contains("<meta name=\"description\"", meta)
-    StringAssert.Contains("Great description about StringAnalyzer!", meta)
-    StringAssert.Contains("fsharp, analyzers, tooling", meta)
+    Assert.That(meta, Does.Contain("<meta name=\"description\""))
+    Assert.That(meta, Does.Contain("Great description about StringAnalyzer!"))
+    Assert.That(meta, Does.Contain("fsharp, analyzers, tooling"))
 
 (* Cannot get this test to evaluate the notebook
 [<Test>]
