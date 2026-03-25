@@ -7,6 +7,7 @@
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images (`![alt][ref]`). The indirect image is now serialised as `![alt](url)` when the reference is resolved, or `![alt][ref]` when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising `*emphasis*` (italic) spans as `**...**` (bold) instead of `*...*`. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 * Fix `Markdown.ToMd` serialising ordered list items with 0-based numbering and no period (e.g. `0 first`) instead of 1-based with a period (e.g. `1. first`). [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `HtmlElement` SVG serialisation: `LinearGradient` now renders as `<linearGradient>` and `RadialGradient` now renders as `<radialGradient>` — both previously emitted the invalid tag `<radient>`.
 
 ## 22.0.0-alpha.2 - 2026-03-13
 
