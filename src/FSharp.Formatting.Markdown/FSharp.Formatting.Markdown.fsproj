@@ -26,6 +26,7 @@
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FSharp.Compiler.Service" VersionOverride="43.12.201" />
     <PackageReference Include="FSharp.Core" />
   </ItemGroup>
 </Project>

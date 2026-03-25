@@ -8,7 +8,7 @@
 ### Fixed
 * Fix front-matter parsing to correctly handle values that contain `:` (e.g. `title: F#: An Introduction`). Previously, only the text before the second `:` was captured; now the full value is preserved.
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
-* Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images (e.g. `![alt]\[ref]`). The indirect image is now serialised as `![alt](url)` when the reference is resolved, or `![alt]\[ref]` when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
+* Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images with bracket syntax. The indirect image is now serialised as `![alt](url)` when the reference is resolved, or in bracket notation when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising `*emphasis*` (italic) spans as `**...**` (bold) instead of `*...*`. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 * Fix `Markdown.ToMd` serialising ordered list items with 0-based numbering and no period (e.g. `0 first`) instead of 1-based with a period (e.g. `1. first`). [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 
