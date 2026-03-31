@@ -125,12 +125,19 @@ module internal MarkdownUtils =
     let rec formatParagraph (ctx: FormattingContext) paragraph =
         [ match paragraph with
           | LatexBlock(env, lines, _) ->
-              yield sprintf "\\begin{%s}" env
+              // Single-line equation blocks are rendered with the compact $$...$$ notation
+              // (which is also valid markdown and what most authors write). Multi-line or
+              // non-standard environments keep the \begin{env}...\end{env} form.
+              if env = "equation" && lines.Length = 1 then
+                  yield sprintf "$$%s$$" lines.[0]
+              else
+                  yield sprintf "\\begin{%s}" env
 
-              for line in lines do
-                  yield line
+                  for line in lines do
+                      yield line
 
-              yield sprintf "\\end{%s}" env
+                  yield sprintf "\\end{%s}" env
+
               yield ""
 
           | Heading(n, spans, _) ->
