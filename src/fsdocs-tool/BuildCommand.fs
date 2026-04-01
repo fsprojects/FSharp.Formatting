@@ -822,8 +822,7 @@ module Serve =
     let generateWatchScript () =
         """
 <script type="text/javascript">
-    var wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    var wsUri = wsProtocol + "//" + window.location.host + "/websocket";
+    var wsUri = "ws://" + window.location.host + "/websocket";
     function init()
     {
         websocket = new WebSocket(wsUri);
