@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+* Fix tooltip not being interactive: moving the mouse from a code token into its tooltip now keeps the tooltip open, allowing users to select and copy the tooltip text. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images with bracket syntax. The indirect image is now serialised as `![alt](url)` when the reference is resolved, or in bracket notation when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising italic spans with asterisks incorrectly as bold spans. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
