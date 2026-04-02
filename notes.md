@@ -1,3 +1,6 @@
+2026-04-02: Created PR (branch repo-assist/fix-tomd-indented-codeblock-2026-04-02):
+  Fix Markdown.ToMd for indented code blocks (fence=None): serialise as fenced blocks
+  to preserve the round-trip. Added test. All 282 markdown tests + full suite pass.
 2026-04-01: Created PR (branch repo-assist/fix-tooltip-interactive-2026-04-01):
   Fix tooltip interactivity - allow mouse to enter tooltip popover to select/copy text.
   Root cause: mouseout handler on trigger didn't check if relatedTarget was inside tooltip.
