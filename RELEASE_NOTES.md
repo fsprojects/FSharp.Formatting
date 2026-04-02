@@ -16,6 +16,8 @@
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* `fsdocs convert` now embeds CSS, JS, and local images directly into the HTML output by default, producing a single self-contained file. Use `--no-embed-resources` to disable. Pass `--template fsdocs` to use the built-in default template without needing a local `_template.html`. [#1068](https://github.com/fsprojects/FSharp.Formatting/issues/1068)
+* `fsdocs convert` now supplies sensible defaults for all standard `{{fsdocs-*}}` template substitution parameters (e.g. `{{fsdocs-page-title}}` defaults to the input filename) so templates work cleanly without requiring `--parameters`. [#1072](https://github.com/fsprojects/FSharp.Formatting/pull/1072)
 * Added full XML doc comments (`<summary>`, `<param>`) to `Literate.ParseAndCheckScriptFile` and `Literate.ParseScriptString` to match the documentation style of the other `Literate.Parse*` methods.
 
 ### Fixed
