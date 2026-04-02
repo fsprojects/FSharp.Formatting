@@ -68,10 +68,7 @@ module internal CodeBlockUtils =
             elif comment.[i] = '(' && comment.[i + 1] = '*' then
                 scan (depth + 1) (i + 2)
             elif comment.[i] = '*' && comment.[i + 1] = ')' then
-                if depth > 0 then
-                    scan (depth - 1) (i + 2)
-                else
-                    i
+                if depth > 0 then scan (depth - 1) (i + 2) else i
             else
                 scan depth (i + 1)
 
