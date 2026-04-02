@@ -712,3 +712,22 @@ Wrapped "TRANSFORMED"
 
     let html1 = Literate.ToHtml(doc1)
     html1 |> shouldContainText "<em>TRANSFORMED</em>"
+
+[<Test>]
+let ``fsi.AddPrinter does not produce spurious 'fsi is not defined' diagnostic`` () =
+    let content =
+        """
+type Foo = { X: int }
+fsi.AddPrinter(fun (f: Foo) -> sprintf "FOO(%d)" f.X)
+let v = { X = 42 }
+v
+(*** include-it ***)
+"""
+
+    let fsie = getFsiEvaluator ()
+
+    let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", fsiEvaluator = fsie)
+
+    doc1.Diagnostics.Length |> shouldEqual 0
+    let html1 = Literate.ToHtml(doc1)
+    html1 |> shouldContainText "FOO(42)"
