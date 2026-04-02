@@ -59,11 +59,29 @@ module internal CodeBlockUtils =
     //  * collectSnippet - we're in a normal F# code and we're waiting for a comment
     //    (in both states, we also need to recognize (*** commands ***)
 
+    /// Find the position of the first `*)` at comment-nesting depth 0,
+    /// properly skipping nested `(* ... *)` pairs. Returns -1 if not found.
+    let private findOuterCommentEnd (comment: string) =
+        let rec scan depth i =
+            if i + 1 >= comment.Length then
+                -1
+            elif comment.[i] = '(' && comment.[i + 1] = '*' then
+                scan (depth + 1) (i + 2)
+            elif comment.[i] = '*' && comment.[i + 1] = ')' then
+                if depth > 0 then
+                    scan (depth - 1) (i + 2)
+                else
+                    i
+            else
+                scan depth (i + 1)
+
+        scan 0 0
+
     /// Waiting for the end of a comment
     let rec private collectComment (comment: string) lines =
         seq {
             let findCommentEnd (comment: string) =
-                let cend = comment.LastIndexOf("*)", StringComparison.OrdinalIgnoreCase)
+                let cend = findOuterCommentEnd comment
 
                 if cend = -1 then
                     failwith "A (* comment was not closed"
@@ -79,7 +97,7 @@ module internal CodeBlockUtils =
                 yield! collectSnippet [] lines
 
             | (ConcatenatedComments text) :: _ when
-                comment.LastIndexOf("*)", StringComparison.Ordinal) <> -1
+                findOuterCommentEnd comment >= 0
                 && text.Trim().StartsWith("//", StringComparison.Ordinal)
                 ->
                 // Comment ended, but we found a code snippet starting with // comment
