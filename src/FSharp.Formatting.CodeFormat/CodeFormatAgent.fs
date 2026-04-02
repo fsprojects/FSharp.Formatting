@@ -421,6 +421,12 @@ module CodeFormatter =
                            if Env.isNetCoreApp then
                                yield "--targetprofile:netcore"
 
+                           // Add FSharp.Compiler.Interactive.Settings.dll so that the
+                           // type-checker can resolve the 'fsi' object in .fsx scripts.
+                           match FSharpAssemblyHelper.fsiSettingsDll.Value with
+                           | Some path -> yield sprintf "-r:%s" path
+                           | None -> ()
+
                            yield! opts.OtherOptions |]
                         |> Array.filter (fun item ->
                             if item.StartsWith("-r:", StringComparison.Ordinal) then

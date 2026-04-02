@@ -2,7 +2,10 @@
 
 ## [Unreleased]
 
+## [22.0.0-alpha.3] - 2026-04-02
+
 ### Fixed
+* Fix spurious `'fsi' is not defined` error during literate script type-checking when scripts use `fsi.AddPrinter` or related APIs. The `FSharp.Compiler.Interactive.Settings.dll` reference is now explicitly added to the type-checker options. [#1139](https://github.com/fsprojects/FSharp.Formatting/issues/1139)
 * Fix literate script comment parser prematurely closing `(**` blocks when the markdown text contained nested `(*** ... ***)` references (e.g. in backtick-quoted command examples), causing subsequent content to be silently dropped from HTML output.
 * Add missing `[<Test>]` attribute on `Can include-output-and-it` test so it is executed by the test runner.
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
