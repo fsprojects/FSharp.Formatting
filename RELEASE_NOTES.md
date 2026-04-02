@@ -5,6 +5,8 @@
 ## [22.0.0] - 2026-04-02
 
 ### Fixed
+* Fix literate script comment parser prematurely closing `(**` blocks when the markdown text contained nested `(*** ... ***)` references (e.g. in backtick-quoted command examples), causing subsequent content to be silently dropped from HTML output.
+* Add missing `[<Test>]` attribute on `Can include-output-and-it` test so it is executed by the test runner.
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images with bracket syntax. The indirect image is now serialised as `![alt](url)` when the reference is resolved, or in bracket notation when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising italic spans with asterisks incorrectly as bold spans. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
