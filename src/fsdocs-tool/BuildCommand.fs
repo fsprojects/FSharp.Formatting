@@ -705,114 +705,122 @@ type internal DocContent
                          ``type`` = "content" }
                    | _ -> () |]
 
-    member _.GetNavigationEntries
-        (
-            input,
-            docModels: (string * bool * LiterateDocModel) list,
-            currentPagePath: string option,
-            ignoreUncategorized: bool
-        ) =
-        let modelsForList =
-            [ for thing in docModels do
-                  match thing with
-                  | (inputFileFullPath, isOtherLang, model) when
+    /// Pre-computes the expensive navigation structure (filter/group/sort) once, returning a
+    /// cheap render function that generates nav HTML for any given current page path.
+    /// This avoids O(n²) work when building a site with n pages, since the structure
+    /// (grouping, sorting, templating check) is the same for every page.
+    member _.GetNavigationEntriesFactory
+        (input, docModels: (string * bool * LiterateDocModel) list, ignoreUncategorized: bool)
+        : string option -> string =
+
+        // Pre-compute: filter eligible models, keeping paths for active-page detection
+        let baseModels =
+            [ for (inputFileFullPath, isOtherLang, model) in docModels do
+                  if
                       not isOtherLang
                       && model.OutputKind = OutputKind.Html
-                      && (Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index")
-                      ->
-                      { model with
-                          IsActive =
-                              match currentPagePath with
-                              | None -> false
-                              | Some currentPagePath -> currentPagePath = inputFileFullPath }
-                  | _ -> () ]
+                      && Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index"
+                  then
+                      yield (inputFileFullPath, model) ]
 
-        let excludeUncategorized =
+        let filteredBase =
             if ignoreUncategorized then
-                List.filter (fun (model: LiterateDocModel) -> model.Category.IsSome)
+                baseModels |> List.filter (fun (_, model) -> model.Category.IsSome)
             else
-                id
+                baseModels
 
-        let modelsByCategory =
-            modelsForList
-            |> excludeUncategorized
-            |> List.groupBy (fun (model) -> model.Category)
-            |> List.sortBy (fun (_, ms) ->
-                match ms.[0].CategoryIndex with
+        // Pre-sort items within each category (independent of active page)
+        let orderGroup items =
+            items
+            |> List.sortBy (fun (_, model: LiterateDocModel) -> Option.defaultValue Int32.MaxValue model.Index)
+
+        // Pre-compute: group by category, sort categories, sort items within each group
+        let sortedGroups =
+            filteredBase
+            |> List.groupBy (fun (_, model) -> model.Category)
+            |> List.sortBy (fun (_, items) ->
+                match (snd items.[0]).CategoryIndex with
                 | Some s ->
                     (try
                         int32 s
                      with _ ->
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
+            |> List.map (fun (cat, items) -> cat, orderGroup items)
 
-        let orderList (list: (LiterateDocModel) list) =
-            list
-            |> List.sortBy (fun model -> Option.defaultValue Int32.MaxValue model.Index)
+        // Cache filesystem check — same result for all pages in a build
+        let useTemplating = Menu.isTemplatingAvailable input
 
-        if Menu.isTemplatingAvailable input then
-            let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
-                //convert items into menuitem list
-                let menuItems =
-                    orderList items
-                    |> List.map (fun (model: LiterateDocModel) ->
-                        let link = model.Uri(root)
-                        let title = System.Web.HttpUtility.HtmlEncode model.Title
+        // Cheap render function: only sets IsActive and generates HTML (no sorting/grouping)
+        fun (currentPagePath: string option) ->
+            let modelsByCategory =
+                sortedGroups
+                |> List.map (fun (cat, items) ->
+                    cat,
+                    items
+                    |> List.map (fun (path, model) ->
+                        { model with
+                            IsActive =
+                                match currentPagePath with
+                                | None -> false
+                                | Some cp -> cp = path }))
 
-                        { Menu.MenuItem.Link = link
-                          Menu.MenuItem.Content = title
-                          Menu.MenuItem.IsActive = model.IsActive })
+            if useTemplating then
+                let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
+                    let menuItems =
+                        items
+                        |> List.map (fun (model: LiterateDocModel) ->
+                            let link = model.Uri(root)
+                            let title = System.Web.HttpUtility.HtmlEncode model.Title
 
-                Menu.createMenu input isCategoryActive header menuItems
-            // No categories specified
-            if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                let _, items = modelsByCategory.[0]
-                createGroup false "Documentation" items
+                            { Menu.MenuItem.Link = link
+                              Menu.MenuItem.Content = title
+                              Menu.MenuItem.IsActive = model.IsActive })
+
+                    Menu.createMenu input isCategoryActive header menuItems
+
+                if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                    let _, items = modelsByCategory.[0]
+                    createGroup false "Documentation" items
+                else
+                    modelsByCategory
+                    |> List.map (fun (header, items) ->
+                        let header = Option.defaultValue "Other" header
+                        let isActive = items |> List.exists (fun m -> m.IsActive)
+                        createGroup isActive header items)
+                    |> String.concat "\n"
             else
-                modelsByCategory
-                |> List.map (fun (header, items) ->
-                    let header = Option.defaultValue "Other" header
-                    let isActive = items |> List.exists (fun m -> m.IsActive)
-                    createGroup isActive header items)
-                |> String.concat "\n"
-        else
-            [
-              // No categories specified
-              if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                  li [ Class "nav-header" ] [ !!"Documentation" ]
+                [ if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                      li [ Class "nav-header" ] [ !!"Documentation" ]
 
-                  for model in snd modelsByCategory.[0] do
-                      let link = model.Uri(root)
-                      let activeClass = if model.IsActive then "active" else ""
-
-                      li
-                          [ Class $"nav-item %s{activeClass}" ]
-                          [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-              else
-                  // At least one category has been specified. Sort each category by index and emit
-                  // Use 'Other' as a header for uncategorised things
-                  for (cat, modelsInCategory) in modelsByCategory do
-                      let modelsInCategory = orderList modelsInCategory
-
-                      let categoryActiveClass =
-                          if modelsInCategory |> List.exists (fun m -> m.IsActive) then
-                              "active"
-                          else
-                              ""
-
-                      match cat with
-                      | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
-                      | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
-
-                      for model in modelsInCategory do
+                      for model in snd modelsByCategory.[0] do
                           let link = model.Uri(root)
                           let activeClass = if model.IsActive then "active" else ""
 
                           li
                               [ Class $"nav-item %s{activeClass}" ]
-                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
-            |> List.map (fun html -> html.ToString())
-            |> String.concat "             \n"
+                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                  else
+                      for (cat, modelsInCategory) in modelsByCategory do
+                          let categoryActiveClass =
+                              if modelsInCategory |> List.exists (fun m -> m.IsActive) then
+                                  "active"
+                              else
+                                  ""
+
+                          match cat with
+                          | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
+                          | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
+
+                          for model in modelsInCategory do
+                              let link = model.Uri(root)
+                              let activeClass = if model.IsActive then "active" else ""
+
+                              li
+                                  [ Class $"nav-item %s{activeClass}" ]
+                                  [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                |> List.map (fun html -> html.ToString())
+                |> String.concat "             \n"
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
@@ -2027,13 +2035,16 @@ type CoreBuildOptions(watch) =
                 let actualDocModels = docModels |> List.map fst |> List.choose id
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
-                let navEntriesWithoutActivePage =
-                    docContent.GetNavigationEntries(
+                // Pre-compute the navigation structure once; returned closure cheaply
+                // generates per-page nav HTML by only re-applying active-page flags.
+                let getNavEntries =
+                    docContent.GetNavigationEntriesFactory(
                         this.input,
                         actualDocModels,
-                        None,
                         ignoreUncategorized = this.ignoreuncategorized
                     )
+
+                let navEntriesWithoutActivePage = getNavEntries None
 
                 let headTemplateContent =
                     let headTemplatePath = Path.Combine(this.input, "_head.html")
@@ -2078,14 +2089,8 @@ type CoreBuildOptions(watch) =
                                 match optDocModel with
                                 | None -> globals
                                 | Some(currentPagePath, _, _) ->
-                                    // Update the nav entries with the current page doc model
-                                    let navEntries =
-                                        docContent.GetNavigationEntries(
-                                            this.input,
-                                            actualDocModels,
-                                            Some currentPagePath,
-                                            ignoreUncategorized = this.ignoreuncategorized
-                                        )
+                                    // Use the pre-computed factory closure (only sets IsActive, no re-sorting)
+                                    let navEntries = getNavEntries (Some currentPagePath)
 
                                     globals
                                     |> List.map (fun (pk, v) ->
