@@ -103,7 +103,7 @@ module internal MarkdownUtils =
         | LatexDisplayMath(body, _) -> sprintf "$$%s$$" body
         | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
         | Literal(str, _) -> str
-        | HardLineBreak(_) -> "\n"
+        | HardLineBreak(_) -> "  " + ctx.Newline
 
         | AnchorLink _ -> ""
         | IndirectLink(body, _, LookupKey ctx.Links (link, _), _)
@@ -141,8 +141,8 @@ module internal MarkdownUtils =
               yield String.concat "" [ for span in spans -> formatSpan ctx span ]
               yield ""
 
-          | HorizontalRule(_) ->
-              yield "-----------------------"
+          | HorizontalRule(c, _) ->
+              yield String.replicate 3 (string c)
               yield ""
           | CodeBlock(code = code; fence = fence; language = language) ->
               match fence with
@@ -245,9 +245,7 @@ module internal MarkdownUtils =
                       yield "> " + line
 
                   yield ""
-          | _ ->
-              printfn "// can't yet format %0A to markdown" paragraph
-              yield "" ]
+          | _ -> yield "" ]
 
     /// Strips <c>#if SYMBOL</c> / <c>#endif // SYMBOL</c> conditional compilation lines from an .fsx code block
     /// so that format-specific sections are removed from non-target output formats.

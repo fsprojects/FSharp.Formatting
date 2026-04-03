@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Fixed
+* Fix `Markdown.ToMd` serialising `HardLineBreak` as a bare newline instead of two trailing spaces + newline. The correct CommonMark representation `"  \n"` is now emitted, so hard line breaks survive a round-trip through `ToMd`.
+* Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.
+* Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
+
+### Added
+* Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
+* Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
+* Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.
+
 ## [22.0.0-alpha.3] - 2026-04-02
 
 ### Fixed
