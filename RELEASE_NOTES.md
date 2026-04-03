@@ -13,6 +13,9 @@
 * Fix `Markdown.ToMd` serialising italic spans with asterisks incorrectly as bold spans. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 * Fix `Markdown.ToMd` serialising ordered list items with incorrect numbering and formatting. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 
+### Changed
+* `fsdocs build` now pre-computes the navigation menu structure (filter/group/sort) once per build rather than once per output page, reducing work from O(n²) to O(n) for sites with n pages. The filesystem check for custom menu templates is also cached per build. [#1129](https://github.com/fsprojects/FSharp.Formatting/pull/1129)
+
 ## [22.0.0-alpha.2] - 2026-03-13
 
 ### Added
