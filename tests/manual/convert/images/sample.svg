@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60" viewBox="0 0 120 60">
+  <rect width="120" height="60" rx="8" fill="#378ad3"/>
+  <text x="60" y="38" font-family="sans-serif" font-size="20" font-weight="bold"
+        fill="white" text-anchor="middle">F#</text>
+</svg>

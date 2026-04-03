@@ -507,6 +507,7 @@ let xxxx = 1+1
 
     html1 |> shouldNotContainText "2000"
 
+[<Test>]
 let ``Can include-output-and-it`` () =
     let content =
         """
@@ -593,3 +594,140 @@ $$$
     pynb |> shouldContainText """\begin{equation}"""
     pynb |> shouldContainText """\end{equation}"""
     pynb |> shouldContainText """30001"""
+
+[<Test>]
+let ``Comment with nested (*** ***) and following // line is not truncated`` () =
+    let content =
+        """
+(**
+Some text mentioning `(*** include-it ***)` or `(*** include-it-raw ***)`.
+
+A paragraph after nested comment markers.
+
+    [lang=fsharp]
+    // a comment inside an indented code block
+    let x = 1
+*)
+let a = 1
+"""
+
+    let doc = Literate.ParseScriptString(content, "." </> "A.fsx")
+
+    let html = Literate.ToHtml(doc)
+    // The paragraph after the nested markers must not be truncated
+    html |> shouldContainText "A paragraph after nested comment markers"
+    html |> shouldContainText "include-it-raw"
+
+[<Test>]
+let ``Can include-it-raw with AddHtmlPrinter`` () =
+    let content =
+        """
+type Html = Html of string
+fsi.AddHtmlPrinter(fun (Html h) -> seq [], h)
+Html "<div>RAW_HTML_OUTPUT</div>"
+(*** include-it-raw ***)
+"""
+
+    let fsie = getFsiEvaluator ()
+
+    let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", fsiEvaluator = fsie)
+
+    let html1 = Literate.ToHtml(doc1)
+    html1 |> shouldContainText "<div>RAW_HTML_OUTPUT</div>"
+
+[<Test>]
+let ``AddHtmlPrinter with CSS and JS resources`` () =
+    let content =
+        """
+type Widget = Widget of string
+fsi.AddHtmlPrinter(fun (Widget w) ->
+    seq [
+        "style", ".widget { color: red; }"
+        "script", "console.log('widget loaded')"
+    ], sprintf "<span class='widget'>%s</span>" w)
+Widget "test-widget"
+(*** include-it ***)
+"""
+
+    let fsie = getFsiEvaluator ()
+
+    let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", fsiEvaluator = fsie)
+
+    let html1 = Literate.ToHtml(doc1)
+    html1 |> shouldContainText "test-widget"
+    html1 |> shouldContainText ".widget { color: red; }"
+
+[<Test>]
+let ``AddHtmlPrinter with base64 image pattern`` () =
+    let content =
+        """
+type MyChart = { Data: int list }
+fsi.AddHtmlPrinter(fun (chart: MyChart) ->
+    let b64 = System.Convert.ToBase64String([| 0uy; 1uy; 2uy |])
+    seq [], sprintf "<img src=\"data:image/png;base64,%s\" />" b64)
+{ Data = [1;2;3] }
+(*** include-it ***)
+"""
+
+    let fsie = getFsiEvaluator ()
+
+    let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", fsiEvaluator = fsie)
+
+    let html1 = Literate.ToHtml(doc1)
+    html1 |> shouldContainText "data:image/png;base64,"
+    html1 |> shouldContainText "<img"
+
+[<Test>]
+let ``AddHtmlPrinter with include-it-raw emits unescaped HTML`` () =
+    let content =
+        """
+type Tag = Tag of string
+fsi.AddHtmlPrinter(fun (Tag t) -> seq [], sprintf "<b>%s</b>" t)
+Tag "BOLDTEXT"
+(*** include-it-raw ***)
+"""
+
+    let fsie = getFsiEvaluator ()
+
+    let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", fsiEvaluator = fsie)
+
+    let html1 = Literate.ToHtml(doc1)
+    html1 |> shouldContainText "<b>BOLDTEXT</b>"
+
+[<Test>]
+let ``AddPrintTransformer chained with AddHtmlPrinter and include-it-raw`` () =
+    let content =
+        """
+type Html = Html of string
+type Wrapped = Wrapped of string
+fsi.AddPrintTransformer(fun (Wrapped s) -> box (Html s))
+fsi.AddHtmlPrinter(fun (Html h) -> seq [], sprintf "<em>%s</em>" h)
+Wrapped "TRANSFORMED"
+(*** include-it-raw ***)
+"""
+
+    let fsie = getFsiEvaluator ()
+
+    let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", fsiEvaluator = fsie)
+
+    let html1 = Literate.ToHtml(doc1)
+    html1 |> shouldContainText "<em>TRANSFORMED</em>"
+
+[<Test>]
+let ``fsi.AddPrinter does not produce spurious 'fsi is not defined' diagnostic`` () =
+    let content =
+        """
+type Foo = { X: int }
+fsi.AddPrinter(fun (f: Foo) -> sprintf "FOO(%d)" f.X)
+let v = { X = 42 }
+v
+(*** include-it ***)
+"""
+
+    let fsie = getFsiEvaluator ()
+
+    let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", fsiEvaluator = fsie)
+
+    doc1.Diagnostics.Length |> shouldEqual 0
+    let html1 = Literate.ToHtml(doc1)
+    html1 |> shouldContainText "FOO(42)"
