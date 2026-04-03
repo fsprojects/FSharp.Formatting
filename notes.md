@@ -1,3 +1,13 @@
+2026-04-03: Created PR (branch repo-assist/improve-tomd-roundtrip-and-tests-2026-04-03):
+  Task 5 (coding): Fix HardLineBreak ToMd serialisation ("  \n" not "\n"),
+  fix HorizontalRule ToMd to use stored char (--- not 23 dashes),
+  remove debug printfn from catch-all.
+  Task 9 (testing): Added 9 new tests — HardLineBreak/HorizontalRule round-trips,
+  Markdown.ToFsx (3 tests), Markdown.ToPynb (3 tests).
+  All 291 Markdown + full suite pass.
+2026-04-03: PR #1129 (perf nav) merged by dsyme.
+2026-04-03: PR #1072 (embed-resources convert) merged by dsyme on 2026-04-02.
+2026-04-03: Issue #1132 closed by dsyme.
 2026-04-02: Created PR (branch repo-assist/fix-tomd-indented-codeblock-2026-04-02):
   Fix Markdown.ToMd for indented code blocks (fence=None): serialise as fenced blocks
   to preserve the round-trip. Added test. All 282 markdown tests + full suite pass.
