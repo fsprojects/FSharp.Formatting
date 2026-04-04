@@ -137,3 +137,124 @@ let ``ConvertCommand returns error code for unsupported file extension`` () =
     cmd.output <- outputFile
     let result = cmd.Execute()
     result |> shouldEqual 1
+
+// --------------------------------------------------------------------------------------
+// Unit tests for resource embedding (ConvertHelpers.embedResourcesInHtml)
+// --------------------------------------------------------------------------------------
+
+/// Helper: create a unique temp directory for each test.
+let private mkTempDir (name: string) =
+    let dir = Path.Combine(Path.GetTempPath(), "fsdocs-embed-tests", name)
+    Directory.CreateDirectory(dir) |> ignore
+    dir
+
+[<Test>]
+let ``embedResourcesInHtml inlines local CSS stylesheet`` () =
+    let dir = mkTempDir "css"
+    let cssFile = dir </> "style.css"
+    File.WriteAllText(cssFile, "body { color: red; }")
+
+    let template = dir </> "_template.html"
+
+    File.WriteAllText(
+        template,
+        """<!DOCTYPE html><html><head><link rel="stylesheet" href="style.css"></head><body>{{fsdocs-content}}</body></html>"""
+    )
+
+    let input = dir </> "test.md"
+    File.WriteAllText(input, "# Hello")
+    let output = dir </> "out.html"
+
+    let cmd = ConvertCommand()
+    cmd.input <- input
+    cmd.output <- output
+    cmd.template <- template
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    let html = File.ReadAllText(output)
+    html |> shouldContainText "<style>body { color: red; }</style>"
+    html |> shouldNotContainText "href=\"style.css\""
+
+[<Test>]
+let ``embedResourcesInHtml inlines local JavaScript`` () =
+    let dir = mkTempDir "js"
+    let jsFile = dir </> "app.js"
+    File.WriteAllText(jsFile, "console.log('hi');")
+
+    let template = dir </> "_template.html"
+
+    File.WriteAllText(
+        template,
+        """<!DOCTYPE html><html><head><script src="app.js"></script></head><body>{{fsdocs-content}}</body></html>"""
+    )
+
+    let input = dir </> "test.md"
+    File.WriteAllText(input, "# Hello")
+    let output = dir </> "out.html"
+
+    let cmd = ConvertCommand()
+    cmd.input <- input
+    cmd.output <- output
+    cmd.template <- template
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    let html = File.ReadAllText(output)
+    html |> shouldContainText "<script>console.log('hi');</script>"
+    html |> shouldNotContainText "src=\"app.js\""
+
+[<Test>]
+let ``embedResourcesInHtml leaves remote URLs unchanged`` () =
+    let dir = mkTempDir "remote"
+
+    let template = dir </> "_template.html"
+
+    File.WriteAllText(
+        template,
+        """<!DOCTYPE html><html><head><link rel="stylesheet" href="https://cdn.example.com/styles.css"><script src="https://cdn.example.com/app.js"></script></head><body>{{fsdocs-content}}</body></html>"""
+    )
+
+    let input = dir </> "test.md"
+    File.WriteAllText(input, "# Hello")
+    let output = dir </> "out.html"
+
+    let cmd = ConvertCommand()
+    cmd.input <- input
+    cmd.output <- output
+    cmd.template <- template
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    let html = File.ReadAllText(output)
+    html |> shouldContainText "https://cdn.example.com/styles.css"
+    html |> shouldContainText "https://cdn.example.com/app.js"
+
+[<Test>]
+let ``embedResourcesInHtml skips embedding when --no-embed-resources is set`` () =
+    let dir = mkTempDir "noembed"
+    let cssFile = dir </> "style.css"
+    File.WriteAllText(cssFile, "body { color: blue; }")
+
+    let template = dir </> "_template.html"
+
+    File.WriteAllText(
+        template,
+        """<!DOCTYPE html><html><head><link rel="stylesheet" href="style.css"></head><body>{{fsdocs-content}}</body></html>"""
+    )
+
+    let input = dir </> "test.md"
+    File.WriteAllText(input, "# Hello")
+    let output = dir </> "out.html"
+
+    let cmd = ConvertCommand()
+    cmd.input <- input
+    cmd.output <- output
+    cmd.template <- template
+    cmd.noEmbedResources <- true
+    let result = cmd.Execute()
+
+    result |> shouldEqual 0
+    let html = File.ReadAllText(output)
+    html |> shouldContainText "href=\"style.css\""
+    html |> shouldNotContainText "<style>body { color: blue; }</style>"

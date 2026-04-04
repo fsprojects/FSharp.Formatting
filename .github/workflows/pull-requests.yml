@@ -43,7 +43,15 @@ jobs:
       uses: actions/setup-dotnet@v5
     - name: Run CI
       run: dotnet fsi build.fsx
-  
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: test-results-${{ matrix.os }}
+        path: TestResults/
+        retention-days: 7
+
     - name: Analyze Solution
       if: matrix.os == 'ubuntu-latest'
       run: dotnet msbuild /t:AnalyzeSolution

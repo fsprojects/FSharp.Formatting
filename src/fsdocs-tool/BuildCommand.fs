@@ -705,114 +705,122 @@ type internal DocContent
                          ``type`` = "content" }
                    | _ -> () |]
 
-    member _.GetNavigationEntries
-        (
-            input,
-            docModels: (string * bool * LiterateDocModel) list,
-            currentPagePath: string option,
-            ignoreUncategorized: bool
-        ) =
-        let modelsForList =
-            [ for thing in docModels do
-                  match thing with
-                  | (inputFileFullPath, isOtherLang, model) when
+    /// Pre-computes the expensive navigation structure (filter/group/sort) once, returning a
+    /// cheap render function that generates nav HTML for any given current page path.
+    /// This avoids O(n²) work when building a site with n pages, since the structure
+    /// (grouping, sorting, templating check) is the same for every page.
+    member _.GetNavigationEntriesFactory
+        (input, docModels: (string * bool * LiterateDocModel) list, ignoreUncategorized: bool)
+        : string option -> string =
+
+        // Pre-compute: filter eligible models, keeping paths for active-page detection
+        let baseModels =
+            [ for (inputFileFullPath, isOtherLang, model) in docModels do
+                  if
                       not isOtherLang
                       && model.OutputKind = OutputKind.Html
-                      && (Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index")
-                      ->
-                      { model with
-                          IsActive =
-                              match currentPagePath with
-                              | None -> false
-                              | Some currentPagePath -> currentPagePath = inputFileFullPath }
-                  | _ -> () ]
+                      && Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index"
+                  then
+                      yield (inputFileFullPath, model) ]
 
-        let excludeUncategorized =
+        let filteredBase =
             if ignoreUncategorized then
-                List.filter (fun (model: LiterateDocModel) -> model.Category.IsSome)
+                baseModels |> List.filter (fun (_, model) -> model.Category.IsSome)
             else
-                id
+                baseModels
 
-        let modelsByCategory =
-            modelsForList
-            |> excludeUncategorized
-            |> List.groupBy (fun (model) -> model.Category)
-            |> List.sortBy (fun (_, ms) ->
-                match ms.[0].CategoryIndex with
+        // Pre-sort items within each category (independent of active page)
+        let orderGroup items =
+            items
+            |> List.sortBy (fun (_, model: LiterateDocModel) -> Option.defaultValue Int32.MaxValue model.Index)
+
+        // Pre-compute: group by category, sort categories, sort items within each group
+        let sortedGroups =
+            filteredBase
+            |> List.groupBy (fun (_, model) -> model.Category)
+            |> List.sortBy (fun (_, items) ->
+                match (snd items.[0]).CategoryIndex with
                 | Some s ->
                     (try
                         int32 s
                      with _ ->
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
+            |> List.map (fun (cat, items) -> cat, orderGroup items)
 
-        let orderList (list: (LiterateDocModel) list) =
-            list
-            |> List.sortBy (fun model -> Option.defaultValue Int32.MaxValue model.Index)
+        // Cache filesystem check — same result for all pages in a build
+        let useTemplating = Menu.isTemplatingAvailable input
 
-        if Menu.isTemplatingAvailable input then
-            let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
-                //convert items into menuitem list
-                let menuItems =
-                    orderList items
-                    |> List.map (fun (model: LiterateDocModel) ->
-                        let link = model.Uri(root)
-                        let title = System.Web.HttpUtility.HtmlEncode model.Title
+        // Cheap render function: only sets IsActive and generates HTML (no sorting/grouping)
+        fun (currentPagePath: string option) ->
+            let modelsByCategory =
+                sortedGroups
+                |> List.map (fun (cat, items) ->
+                    cat,
+                    items
+                    |> List.map (fun (path, model) ->
+                        { model with
+                            IsActive =
+                                match currentPagePath with
+                                | None -> false
+                                | Some cp -> cp = path }))
 
-                        { Menu.MenuItem.Link = link
-                          Menu.MenuItem.Content = title
-                          Menu.MenuItem.IsActive = model.IsActive })
+            if useTemplating then
+                let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
+                    let menuItems =
+                        items
+                        |> List.map (fun (model: LiterateDocModel) ->
+                            let link = model.Uri(root)
+                            let title = System.Web.HttpUtility.HtmlEncode model.Title
 
-                Menu.createMenu input isCategoryActive header menuItems
-            // No categories specified
-            if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                let _, items = modelsByCategory.[0]
-                createGroup false "Documentation" items
+                            { Menu.MenuItem.Link = link
+                              Menu.MenuItem.Content = title
+                              Menu.MenuItem.IsActive = model.IsActive })
+
+                    Menu.createMenu input isCategoryActive header menuItems
+
+                if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                    let _, items = modelsByCategory.[0]
+                    createGroup false "Documentation" items
+                else
+                    modelsByCategory
+                    |> List.map (fun (header, items) ->
+                        let header = Option.defaultValue "Other" header
+                        let isActive = items |> List.exists (fun m -> m.IsActive)
+                        createGroup isActive header items)
+                    |> String.concat "\n"
             else
-                modelsByCategory
-                |> List.map (fun (header, items) ->
-                    let header = Option.defaultValue "Other" header
-                    let isActive = items |> List.exists (fun m -> m.IsActive)
-                    createGroup isActive header items)
-                |> String.concat "\n"
-        else
-            [
-              // No categories specified
-              if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                  li [ Class "nav-header" ] [ !!"Documentation" ]
+                [ if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                      li [ Class "nav-header" ] [ !!"Documentation" ]
 
-                  for model in snd modelsByCategory.[0] do
-                      let link = model.Uri(root)
-                      let activeClass = if model.IsActive then "active" else ""
-
-                      li
-                          [ Class $"nav-item %s{activeClass}" ]
-                          [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-              else
-                  // At least one category has been specified. Sort each category by index and emit
-                  // Use 'Other' as a header for uncategorised things
-                  for (cat, modelsInCategory) in modelsByCategory do
-                      let modelsInCategory = orderList modelsInCategory
-
-                      let categoryActiveClass =
-                          if modelsInCategory |> List.exists (fun m -> m.IsActive) then
-                              "active"
-                          else
-                              ""
-
-                      match cat with
-                      | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
-                      | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
-
-                      for model in modelsInCategory do
+                      for model in snd modelsByCategory.[0] do
                           let link = model.Uri(root)
                           let activeClass = if model.IsActive then "active" else ""
 
                           li
                               [ Class $"nav-item %s{activeClass}" ]
-                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
-            |> List.map (fun html -> html.ToString())
-            |> String.concat "             \n"
+                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                  else
+                      for (cat, modelsInCategory) in modelsByCategory do
+                          let categoryActiveClass =
+                              if modelsInCategory |> List.exists (fun m -> m.IsActive) then
+                                  "active"
+                              else
+                                  ""
+
+                          match cat with
+                          | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
+                          | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
+
+                          for model in modelsInCategory do
+                              let link = model.Uri(root)
+                              let activeClass = if model.IsActive then "active" else ""
+
+                              li
+                                  [ Class $"nav-item %s{activeClass}" ]
+                                  [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                |> List.map (fun html -> html.ToString())
+                |> String.concat "             \n"
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
@@ -2027,13 +2035,16 @@ type CoreBuildOptions(watch) =
                 let actualDocModels = docModels |> List.map fst |> List.choose id
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
-                let navEntriesWithoutActivePage =
-                    docContent.GetNavigationEntries(
+                // Pre-compute the navigation structure once; returned closure cheaply
+                // generates per-page nav HTML by only re-applying active-page flags.
+                let getNavEntries =
+                    docContent.GetNavigationEntriesFactory(
                         this.input,
                         actualDocModels,
-                        None,
                         ignoreUncategorized = this.ignoreuncategorized
                     )
+
+                let navEntriesWithoutActivePage = getNavEntries None
 
                 let headTemplateContent =
                     let headTemplatePath = Path.Combine(this.input, "_head.html")
@@ -2078,14 +2089,8 @@ type CoreBuildOptions(watch) =
                                 match optDocModel with
                                 | None -> globals
                                 | Some(currentPagePath, _, _) ->
-                                    // Update the nav entries with the current page doc model
-                                    let navEntries =
-                                        docContent.GetNavigationEntries(
-                                            this.input,
-                                            actualDocModels,
-                                            Some currentPagePath,
-                                            ignoreUncategorized = this.ignoreuncategorized
-                                        )
+                                    // Use the pre-computed factory closure (only sets IsActive, no re-sorting)
+                                    let navEntries = getNavEntries (Some currentPagePath)
 
                                     globals
                                     |> List.map (fun (pk, v) ->
@@ -2325,6 +2330,141 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
+/// Helpers for the <c>fsdocs convert</c> command.
+module private ConvertHelpers =
+
+    open System.Text.RegularExpressions
+
+    // Compiled at module load; shared across all calls to embedResourcesInHtml.
+    let private cssPattern =
+        Regex(
+            """<link\b(?=[^>]*\brel=["']stylesheet["'])[^>]*\bhref=["']([^"']+)["'][^>]*/?>""",
+            RegexOptions.IgnoreCase ||| RegexOptions.Compiled
+        )
+
+    let private jsPattern =
+        Regex(
+            """<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*</script>""",
+            RegexOptions.IgnoreCase ||| RegexOptions.Compiled
+        )
+
+    let private imgPattern =
+        Regex("""(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)""", RegexOptions.IgnoreCase ||| RegexOptions.Compiled)
+
+    /// Return candidate directories in which to search for locally-referenced assets (CSS, JS, images).
+    /// The search order is: output directory → template directory → default content directories.
+    let findContentSearchDirs (outputFile: string) (templateFile: string option) =
+        let dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+
+        [ yield Path.GetDirectoryName(Path.GetFullPath(outputFile))
+
+          match templateFile with
+          | Some t when not (String.IsNullOrWhiteSpace t) -> yield Path.GetDirectoryName(Path.GetFullPath(t))
+          | _ -> ()
+
+          // NuGet package layout: <package-root>/extras contains a "content" sub-directory.
+          let nugetExtras = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+
+          if
+              (try
+                  Directory.Exists(nugetExtras)
+               with _ ->
+                   false)
+          then
+              yield nugetExtras
+
+          // In-repo development layout: src/fsdocs-tool/bin/…/fsdocs.exe → docs/
+          let repoDocs = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs"))
+
+          if
+              (try
+                  Directory.Exists(repoDocs)
+               with _ ->
+                   false)
+          then
+              yield repoDocs ]
+
+    /// Inline local CSS, JS, and image resources that are referenced in the generated HTML file.
+    /// Remote URLs (http/https) and data-URIs are left untouched.
+    let embedResourcesInHtml (htmlPath: string) (searchDirs: string list) =
+        let isRemote (href: string) =
+            href.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("//", StringComparison.OrdinalIgnoreCase)
+
+        let tryFindFile (href: string) =
+            if isRemote href then
+                None
+            else
+                let normalized =
+                    if href.StartsWith("./", StringComparison.Ordinal) then
+                        href[2..]
+                    else
+                        href
+
+                searchDirs
+                |> List.tryPick (fun dir ->
+                    let fullPath = Path.GetFullPath(Path.Combine(dir, normalized))
+                    if File.Exists(fullPath) then Some fullPath else None)
+
+        let html = File.ReadAllText(htmlPath)
+
+        // Inline CSS: handles both <link rel="stylesheet" href="..."> and <link href="..." rel="stylesheet">
+        let html =
+            cssPattern.Replace(
+                html,
+                fun m ->
+                    let href = m.Groups[1].Value
+
+                    match tryFindFile href with
+                    | Some fullPath -> sprintf "<style>%s</style>" (File.ReadAllText(fullPath))
+                    | None -> m.Value
+            )
+
+        // Inline JS: <script src="..."></script>  (self-closing or with optional whitespace body)
+        let html =
+            jsPattern.Replace(
+                html,
+                fun m ->
+                    let src = m.Groups[1].Value
+
+                    match tryFindFile src with
+                    | Some fullPath -> sprintf "<script>%s</script>" (File.ReadAllText(fullPath))
+                    | None -> m.Value
+            )
+
+        // Inline local images as base64 data-URIs.
+        // Capture groups: 1 = everything up to and including src=", 2 = path, 3 = " and rest of tag.
+        let html =
+            imgPattern.Replace(
+                html,
+                fun m ->
+                    let src = m.Groups[2].Value
+
+                    match tryFindFile src with
+                    | Some fullPath ->
+                        let bytes = File.ReadAllBytes(fullPath)
+                        let ext = Path.GetExtension(fullPath).TrimStart('.').ToLowerInvariant()
+
+                        let mimeType =
+                            match ext with
+                            | "png" -> "image/png"
+                            | "jpg"
+                            | "jpeg" -> "image/jpeg"
+                            | "gif" -> "image/gif"
+                            | "svg" -> "image/svg+xml"
+                            | "ico" -> "image/x-icon"
+                            | "webp" -> "image/webp"
+                            | _ -> "image/png"
+
+                        let b64 = Convert.ToBase64String(bytes)
+                        sprintf "%sdata:%s;base64,%s%s" m.Groups[1].Value mimeType b64 m.Groups[3].Value
+                    | None -> m.Value
+            )
+
+        File.WriteAllText(htmlPath, html)
+
 [<Verb("convert",
        HelpText =
            "convert a single document (.md, .fsx, .ipynb) to HTML or another output format without building a full documentation site")>]
@@ -2342,7 +2482,8 @@ type ConvertCommand() =
 
     [<Option("template",
              Required = false,
-             HelpText = "Path to an HTML (or other format) template file. When omitted, raw content is written.")>]
+             HelpText =
+                 "Path to an HTML template file, or 'fsdocs' to use the built-in default template. When omitted, raw content is written.")>]
     member val template = "" with get, set
 
     [<Option("outputformat",
@@ -2362,6 +2503,13 @@ type ConvertCommand() =
              Required = false,
              HelpText = "Additional substitution parameters, e.g. --parameters key1 value1 key2 value2")>]
     member val parameters = Seq.empty<string> with get, set
+
+    [<Option("no-embed-resources",
+             Default = false,
+             Required = false,
+             HelpText =
+                 "Disable automatic inlining of local CSS, JS, and images into the output HTML. By default, when a template is used for HTML output, all locally-referenced assets are embedded so the output is a self-contained single file.")>]
+    member val noEmbedResources = false with get, set
 
     member this.Execute() =
         let inputFile = Path.GetFullPath(this.input)
@@ -2402,11 +2550,28 @@ type ConvertCommand() =
                 else
                     this.output
 
-            let templateOpt =
+            // Handle --template fsdocs: extract the embedded default template to a temp file.
+            // Handle --template <path>: use as-is.
+            // Handle no template: raw content only (no resource embedding needed).
+            let templateOpt, tempFileToCleanUp =
                 if String.IsNullOrWhiteSpace this.template then
-                    None
+                    None, None
+                elif this.template.Equals("fsdocs", StringComparison.OrdinalIgnoreCase) then
+                    let asm = Assembly.GetExecutingAssembly()
+                    use stream = asm.GetManifestResourceStream("fsdocs._template.html")
+                    use reader = new StreamReader(stream)
+                    let content = reader.ReadToEnd()
+
+                    let tmp =
+                        Path.Combine(
+                            Path.GetTempPath(),
+                            sprintf "fsdocs-template-%s.html" (Guid.NewGuid().ToString("N"))
+                        )
+
+                    File.WriteAllText(tmp, content)
+                    Some tmp, Some tmp
                 else
-                    Some this.template
+                    Some this.template, None
 
             let userSubstitutions =
                 let parameters = Array.ofSeq this.parameters
@@ -2417,6 +2582,64 @@ type ConvertCommand() =
 
                 evalPairwiseStringsNoOption parameters
                 |> List.map (fun (a, b) -> (ParamKey a, b))
+
+            // When embedding resources we need {{root}} to resolve to "" so that paths like
+            // "{{root}}content/fsdocs-default.css" become "content/fsdocs-default.css".
+            // Only add this default if the user has not already supplied a root substitution.
+            let embedResources = not this.noEmbedResources && outputKind = OutputKind.Html && templateOpt.IsSome
+
+            // When a template is used, supply sensible defaults for every standard fsdocs template
+            // parameter so that {{fsdocs-*}} placeholders in the template are replaced with empty
+            // strings (or a meaningful value) rather than being left as raw text in the output.
+            // User-supplied --parameters values always take priority.
+            let substitutions =
+                match templateOpt with
+                | None -> userSubstitutions
+                | Some _ ->
+                    let pageTitle = Path.GetFileNameWithoutExtension(inputFile)
+
+                    let defaults =
+                        [ ParamKeys.root, (if embedResources then "" else "")
+                          ParamKeys.``fsdocs-page-title``, pageTitle
+                          ParamKeys.``fsdocs-source-basename``, pageTitle
+                          ParamKeys.``fsdocs-source-filename``, Path.GetFileName(inputFile)
+                          ParamKeys.``fsdocs-collection-name``, pageTitle
+                          ParamKeys.``fsdocs-authors``, ""
+                          ParamKeys.``fsdocs-body-class``, "content"
+                          ParamKeys.``fsdocs-body-extra``, ""
+                          ParamKeys.``fsdocs-copyright``, ""
+                          ParamKeys.``fsdocs-favicon-src``, ""
+                          ParamKeys.``fsdocs-head-extra``, ""
+                          ParamKeys.``fsdocs-license-link``, "#"
+                          ParamKeys.``fsdocs-list-of-documents``, ""
+                          ParamKeys.``fsdocs-list-of-namespaces``, ""
+                          ParamKeys.``fsdocs-logo-alt``, pageTitle
+                          ParamKeys.``fsdocs-logo-link``, "#"
+                          ParamKeys.``fsdocs-logo-src``, ""
+                          ParamKeys.``fsdocs-meta-tags``, ""
+                          ParamKeys.``fsdocs-page-content-list``, ""
+                          ParamKeys.``fsdocs-package-license-expression``, ""
+                          ParamKeys.``fsdocs-package-project-url``, ""
+                          ParamKeys.``fsdocs-package-tags``, ""
+                          ParamKeys.``fsdocs-package-version``, ""
+                          ParamKeys.``fsdocs-package-icon-url``, ""
+                          ParamKeys.``fsdocs-release-notes-link``, "#"
+                          ParamKeys.``fsdocs-repository-link``, "#"
+                          ParamKeys.``fsdocs-repository-branch``, ""
+                          ParamKeys.``fsdocs-repository-commit``, ""
+                          ParamKeys.``fsdocs-source``, ""
+                          ParamKeys.``fsdocs-theme``, ""
+                          ParamKeys.``fsdocs-tooltips``, ""
+                          ParamKeys.``fsdocs-watch-script``, ""
+                          ParamKeys.``fsdocs-collection-name-link``, "#"
+                          ParamKeys.``fsdocs-page-source``, "" ]
+
+                    // User-supplied values override defaults.
+                    let userKeys = userSubstitutions |> List.map fst |> set
+
+                    let filteredDefaults = defaults |> List.filter (fun (k, _) -> not (userKeys.Contains k))
+
+                    userSubstitutions @ filteredDefaults
 
             let isFsx = inputFile.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
             let isMd = inputFile.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
@@ -2432,7 +2655,7 @@ type ConvertCommand() =
                         output = outputFile,
                         outputKind = outputKind,
                         lineNumbers = this.linenumbers,
-                        substitutions = userSubstitutions
+                        substitutions = substitutions
                     )
 
                     0
@@ -2452,7 +2675,7 @@ type ConvertCommand() =
                         outputKind = outputKind,
                         lineNumbers = this.linenumbers,
                         ?fsiEvaluator = fsiEvaluator,
-                        substitutions = userSubstitutions
+                        substitutions = substitutions
                     )
 
                     0
@@ -2465,7 +2688,7 @@ type ConvertCommand() =
                         output = outputFile,
                         outputKind = outputKind,
                         lineNumbers = this.linenumbers,
-                        substitutions = userSubstitutions
+                        substitutions = substitutions
                     )
 
                     0
@@ -2476,6 +2699,25 @@ type ConvertCommand() =
             with ex ->
                 printfn "Error during conversion: %O" ex
                 1
+            |> fun exitCode ->
+                // Clean up any temporary template file we created.
+                match tempFileToCleanUp with
+                | Some tmp ->
+                    try
+                        File.Delete(tmp)
+                    with _ ->
+                        ()
+                | None -> ()
+
+                // Post-process the HTML to inline all local asset references.
+                if exitCode = 0 && embedResources then
+                    let searchDirs =
+                        ConvertHelpers.findContentSearchDirs outputFile (Option.map Path.GetFullPath templateOpt)
+
+                    printfn "embedding resources into %s (search dirs: %s)" outputFile (String.concat ", " searchDirs)
+                    ConvertHelpers.embedResourcesInHtml outputFile searchDirs
+
+                exitCode
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
