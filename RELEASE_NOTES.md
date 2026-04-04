@@ -12,7 +12,7 @@
 * Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
 * Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.
 
-## [22.0.0-alpha.3] - 2026-04-02
+## [22.0.0] - 2026-04-03
 
 ### Fixed
 * Fix spurious `'fsi' is not defined` error during literate script type-checking when scripts use `fsi.AddPrinter` or related APIs. The `FSharp.Compiler.Interactive.Settings.dll` reference is now explicitly added to the type-checker options. [#1139](https://github.com/fsprojects/FSharp.Formatting/issues/1139)
