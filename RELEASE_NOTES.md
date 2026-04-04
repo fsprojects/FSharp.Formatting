@@ -7,7 +7,7 @@
 * Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
 * Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.
 
-## [22.0.0-alpha.3] - 2026-04-02
+## [22.0.0] - 2026-04-03
 
 ### Fixed
 * Fix spurious `'fsi' is not defined` error during literate script type-checking when scripts use `fsi.AddPrinter` or related APIs. The `FSharp.Compiler.Interactive.Settings.dll` reference is now explicitly added to the type-checker options. [#1139](https://github.com/fsprojects/FSharp.Formatting/issues/1139)
