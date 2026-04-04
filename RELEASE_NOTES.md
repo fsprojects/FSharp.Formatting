@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+* Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
+* Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
+* Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.
+
 ## [22.0.0-alpha.3] - 2026-04-02
 
 ### Fixed
