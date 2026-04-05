@@ -1,4 +1,10 @@
-2026-04-04: Created PR (branch repo-assist/eng-modernize-2026-04-04, expected #1143):
+2026-04-05: Created PR (branch repo-assist/fix-embed-paragraphs-tomd-2026-04-05, expected #1145):
+  Task 5 (coding): Handle EmbedParagraphs in Markdown.ToMd serialiser
+  (MarkdownUtils.fs). EmbedParagraphs was previously falling through to
+  catch-all '| _' branch, emitting debug printfn to stdout and dropping content.
+  Now delegates to cmd.Render() and recurses, consistent with HTML and LaTeX formatters.
+  Removed dead catch-all. Added test. All tests pass.
+2026-04-04: Created PR (branch repo-assist/eng-modernize-2026-04-04, expected #1144):
   Task 4 (engineering): Replace deprecated WebClient with HttpClient in createImageSaver
   (BuildCommand.fs). Bump Newtonsoft.Json 13.0.3→13.0.4 and System.Memory 4.5.5→4.6.3.
   Removed #nowarn "44" suppression. Build: 0 warnings, 0 errors. All tests pass.
