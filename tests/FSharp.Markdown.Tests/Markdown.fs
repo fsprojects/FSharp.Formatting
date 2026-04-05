@@ -1371,3 +1371,17 @@ let ``ToMd round-trip: indirect image with unresolved reference`` () =
     let result = Markdown.ToMd(doc)
     // When key is not resolved, should preserve the indirect form
     result |> should contain "![alt text][unknown-ref]"
+
+[<Test>]
+let ``ToMd serialises EmbedParagraphs by delegating to Render()`` () =
+    // EmbedParagraphs was previously falling through to the catch-all '| _' branch,
+    // emitting a debug printfn and yielding an empty string.  It should instead
+    // delegate to the Render() method and format the resulting paragraphs.
+    let inner =
+        { new MarkdownEmbedParagraphs with
+            member _.Render() =
+                [ Paragraph([ Literal("embedded text", MarkdownRange.zero) ], MarkdownRange.zero) ] }
+
+    let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
+    let result = Markdown.ToMd(doc)
+    result |> should contain "embedded text"

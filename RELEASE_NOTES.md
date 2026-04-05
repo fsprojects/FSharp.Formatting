@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+* Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed

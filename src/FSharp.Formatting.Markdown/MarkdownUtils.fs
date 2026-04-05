@@ -245,9 +245,7 @@ module internal MarkdownUtils =
                       yield "> " + line
 
                   yield ""
-          | _ ->
-              printfn "// can't yet format %0A to markdown" paragraph
-              yield "" ]
+          | EmbedParagraphs(cmd, _) -> yield! cmd.Render() |> Seq.collect (formatParagraph ctx) ]
 
     /// Strips <c>#if SYMBOL</c> / <c>#endif // SYMBOL</c> conditional compilation lines from an .fsx code block
     /// so that format-specific sections are removed from non-target output formats.
