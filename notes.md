@@ -1,3 +1,11 @@
+2026-04-06: Created PR (branch repo-assist/fix-tomd-inlinecode-backtick-2026-04-06, expected #1147):
+  Task 3 (fix): Fix Markdown.ToMd InlineCode backtick fence selection.
+  When InlineCode body contains backtick chars, the serialiser was always using
+  single-backtick fence causing invalid Markdown. Now picks minimal fence
+  (maxRun+1 backticks) and adds spaces when body starts/ends with backtick.
+  Added 2 round-trip tests. All 283 Markdown tests pass.
+2026-04-06: PR #1105 (nested nav categories) was CLOSED by maintainer on 2026-04-04.
+  Was closed without merging, likely due to merge conflict (mergeable_state: dirty).
 2026-04-05: Created PR (branch repo-assist/fix-embed-paragraphs-tomd-2026-04-05, expected #1145):
   Task 5 (coding): Handle EmbedParagraphs in Markdown.ToMd serialiser
   (MarkdownUtils.fs). EmbedParagraphs was previously falling through to
