@@ -339,6 +339,244 @@ let ``ipynb notebook evaluates`` () =
 *)
 
 // --------------------------------------------------------------------------------------
+// Tests for GetNavigationEntriesFactory (pre-computed navigation structure, PR #1129)
+// --------------------------------------------------------------------------------------
+
+/// Build a minimal LiterateDocModel entry for navigation tests.
+let private makeNavDocModel
+    (title: string)
+    (inputPath: string)
+    (category: string option)
+    (categoryIndex: int option)
+    (index: int option)
+    =
+    (inputPath,
+     false,
+     { Title = title
+       Substitutions = []
+       IndexText = None
+       Category = category
+       CategoryIndex = categoryIndex
+       Index = index
+       OutputPath = Path.GetFileNameWithoutExtension(inputPath) + ".html"
+       OutputKind = OutputKind.Html
+       IsActive = false })
+
+/// DocContent instance whose root URL is empty string (URIs = bare output paths).
+let private makeDocContentForNav () =
+    DocContent(
+        Path.GetTempPath(),
+        Map.empty,
+        lineNumbers = None,
+        evaluate = false,
+        substitutions = [],
+        saveImages = None,
+        watch = false,
+        root = "",
+        crefResolver = (fun _ -> None),
+        onError = failwith
+    )
+
+// Use the test source directory as the `input` folder; it contains no
+// _menu_template.html / _menu-item_template.html files, so Menu.isTemplatingAvailable
+// returns false and we exercise the built-in HTML generation path.
+let private navInput = __SOURCE_DIRECTORY__
+
+[<Test>]
+let ``GetNavigationEntriesFactory - empty docModels produces empty string`` () =
+    let dc = makeDocContentForNav ()
+    let factory = dc.GetNavigationEntriesFactory(navInput, [], ignoreUncategorized = false)
+    factory None |> shouldEqual ""
+
+[<Test>]
+let ``GetNavigationEntriesFactory - single uncategorized model renders Documentation header`` () =
+    let dc = makeDocContentForNav ()
+    let models = [ makeNavDocModel "Getting Started" "/docs/getting-started.md" None None None ]
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    let html = factory None
+    html |> shouldContainText "Documentation"
+    html |> shouldContainText "getting-started.html"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - None currentPagePath marks no item as active`` () =
+    let dc = makeDocContentForNav ()
+    let models = [ makeNavDocModel "Page 1" "/docs/page1.md" None None None ]
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    factory None |> shouldNotContainText "active"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - matching currentPagePath marks item as active`` () =
+    let dc = makeDocContentForNav ()
+    let models = [ makeNavDocModel "Page 1" "/docs/page1.md" None None None ]
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    factory (Some "/docs/page1.md") |> shouldContainText "active"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - non-matching currentPagePath does not mark item as active`` () =
+    let dc = makeDocContentForNav ()
+    let models = [ makeNavDocModel "Page 1" "/docs/page1.md" None None None ]
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    factory (Some "/docs/other.md") |> shouldNotContainText "active"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - exactly one item is active among multiple pages`` () =
+    let dc = makeDocContentForNav ()
+
+    let models =
+        [ makeNavDocModel "Page 1" "/docs/page1.md" None None None
+          makeNavDocModel "Page 2" "/docs/page2.md" None None None
+          makeNavDocModel "Page 3" "/docs/page3.md" None None None ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    let html = factory (Some "/docs/page2.md")
+    // "nav-item active" should appear exactly once
+    let activeCount = html.Split([| "nav-item active" |], System.StringSplitOptions.None).Length - 1
+
+    activeCount |> shouldEqual 1
+
+[<Test>]
+let ``GetNavigationEntriesFactory - excludes isOtherLang models`` () =
+    let dc = makeDocContentForNav ()
+
+    let otherLangModel =
+        ("/docs/other-lang.md",
+         true, // isOtherLang = true
+         { Title = "Other Language Page"
+           Substitutions = []
+           IndexText = None
+           Category = None
+           CategoryIndex = None
+           Index = None
+           OutputPath = "other-lang.html"
+           OutputKind = OutputKind.Html
+           IsActive = false })
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, [ otherLangModel ], ignoreUncategorized = false)
+    factory None |> shouldNotContainText "Other Language Page"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - excludes non-HTML output models`` () =
+    let dc = makeDocContentForNav ()
+
+    let latexModel =
+        ("/docs/report.md",
+         false,
+         { Title = "LaTeX Report"
+           Substitutions = []
+           IndexText = None
+           Category = None
+           CategoryIndex = None
+           Index = None
+           OutputPath = "report.tex"
+           OutputKind = OutputKind.Latex
+           IsActive = false })
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, [ latexModel ], ignoreUncategorized = false)
+    factory None |> shouldNotContainText "LaTeX Report"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - excludes files named index`` () =
+    let dc = makeDocContentForNav ()
+
+    let models =
+        [ makeNavDocModel "Home" "/docs/index.md" None None None
+          makeNavDocModel "Guide" "/docs/guide.md" None None None ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    let html = factory None
+    html |> shouldNotContainText "Home"
+    html |> shouldContainText "Guide"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - ignoreUncategorized true excludes uncategorized models`` () =
+    let dc = makeDocContentForNav ()
+
+    let models =
+        [ makeNavDocModel "Categorized Doc" "/docs/cat.md" (Some "Tutorials") None None
+          makeNavDocModel "Uncategorized Doc" "/docs/uncat.md" None None None ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = true)
+    let html = factory None
+    html |> shouldContainText "Categorized Doc"
+    html |> shouldNotContainText "Uncategorized Doc"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - ignoreUncategorized false includes all models`` () =
+    let dc = makeDocContentForNav ()
+
+    let models =
+        [ makeNavDocModel "Categorized Doc" "/docs/cat.md" (Some "Tutorials") None None
+          makeNavDocModel "Uncategorized Doc" "/docs/uncat.md" None None None ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    let html = factory None
+    html |> shouldContainText "Categorized Doc"
+    html |> shouldContainText "Uncategorized Doc"
+
+[<Test>]
+let ``GetNavigationEntriesFactory - categories are ordered by CategoryIndex`` () =
+    let dc = makeDocContentForNav ()
+
+    // Beta has CategoryIndex 2, Alpha has CategoryIndex 1 → Alpha should appear first
+    let models =
+        [ makeNavDocModel "Beta Doc" "/docs/b.md" (Some "Beta") (Some 2) None
+          makeNavDocModel "Alpha Doc" "/docs/a.md" (Some "Alpha") (Some 1) None ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    let html = factory None
+    let alphaIdx = html.IndexOf("Alpha", System.StringComparison.Ordinal)
+    let betaIdx = html.IndexOf("Beta", System.StringComparison.Ordinal)
+    Assert.That(alphaIdx, Is.LessThan(betaIdx))
+
+[<Test>]
+let ``GetNavigationEntriesFactory - items within a category are ordered by Index`` () =
+    let dc = makeDocContentForNav ()
+
+    // "Second" has Index 2, "First" has Index 1 → "First" should appear first
+    let models =
+        [ makeNavDocModel "Second Item" "/docs/second.md" (Some "Guides") None (Some 2)
+          makeNavDocModel "First Item" "/docs/first.md" (Some "Guides") None (Some 1) ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    let html = factory None
+    let firstIdx = html.IndexOf("First Item", System.StringComparison.Ordinal)
+    let secondIdx = html.IndexOf("Second Item", System.StringComparison.Ordinal)
+    Assert.That(firstIdx, Is.LessThan(secondIdx))
+
+[<Test>]
+let ``GetNavigationEntriesFactory - calling factory multiple times returns identical results`` () =
+    let dc = makeDocContentForNav ()
+
+    let models =
+        [ makeNavDocModel "Page 1" "/docs/page1.md" None None None
+          makeNavDocModel "Page 2" "/docs/page2.md" None None None ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    factory None |> shouldEqual (factory None)
+
+[<Test>]
+let ``GetNavigationEntriesFactory - successive calls with different page paths set correct active state`` () =
+    let dc = makeDocContentForNav ()
+
+    let models =
+        [ makeNavDocModel "Page 1" "/docs/page1.md" None None None
+          makeNavDocModel "Page 2" "/docs/page2.md" None None None ]
+
+    let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
+    let htmlPage1 = factory (Some "/docs/page1.md")
+    let htmlPage2 = factory (Some "/docs/page2.md")
+
+    // The two views differ
+    htmlPage1 |> shouldNotEqual htmlPage2
+
+    // Each view has exactly one active item
+    let countActive (html: string) =
+        html.Split([| "nav-item active" |], System.StringSplitOptions.None).Length - 1
+
+    countActive htmlPage1 |> shouldEqual 1
+    countActive htmlPage2 |> shouldEqual 1
+
+// --------------------------------------------------------------------------------------
 // Tests for LlmsTxt module (FsDocsGenerateLlmsTxt MSBuild property, on by default)
 // --------------------------------------------------------------------------------------
 

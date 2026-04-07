@@ -119,6 +119,42 @@ module internal CompilerServiceExtensions =
               yield! libDirs
               yield System.IO.Directory.GetCurrentDirectory() ]
 
+        /// Lazily locates an <c>FSharp.Compiler.Interactive.Settings.dll</c> so the type-checker
+        /// can resolve the <c>fsi</c> object in <c>.fsx</c> scripts.
+        let fsiSettingsDll =
+            lazy
+                (let settingsName = "FSharp.Compiler.Interactive.Settings.dll"
+
+                 // Strategy 1: next to the running process
+                 let candidate1 = AppContext.BaseDirectory ++ settingsName
+
+                 if File.Exists candidate1 then
+                     Some candidate1
+                 else
+                     // Strategy 2: search the SDK FSharp directory,
+                     // derived from the shared-framework location of System.Private.CoreLib.
+                     try
+                         let coreLib = typeof<obj>.Assembly.Location
+
+                         if not (System.String.IsNullOrEmpty coreLib) then
+                             // coreLib is e.g. /usr/lib/dotnet/shared/Microsoft.NETCore.App/<ver>/System.Private.CoreLib.dll
+                             let sharedVerDir = Path.GetDirectoryName coreLib
+                             let dotnetBase = Path.GetFullPath(sharedVerDir ++ ".." ++ ".." ++ "..")
+                             let sdkDir = dotnetBase ++ "sdk"
+
+                             if Directory.Exists sdkDir then
+                                 Directory.GetDirectories sdkDir
+                                 |> Array.sortDescending
+                                 |> Array.tryPick (fun dir ->
+                                     let c = dir ++ "FSharp" ++ settingsName
+                                     if File.Exists c then Some c else None)
+                             else
+                                 None
+                         else
+                             None
+                     with _ ->
+                         None)
+
         /// Returns <c>Some path</c> if a file exists at <paramref name="fscorePath"/>, otherwise <c>None</c>.
         let tryCheckFsCore fscorePath =
             if File.Exists fscorePath then Some fscorePath else None
