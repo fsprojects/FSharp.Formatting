@@ -106,13 +106,27 @@ module internal MarkdownUtils =
         | HardLineBreak(_) -> "\n"
 
         | AnchorLink _ -> ""
+        | DirectLink(body, link, title, _) ->
+            let t =
+                title
+                |> Option.map (fun t -> sprintf " \"%s\"" (t.Replace("\"", "\\\"")))
+                |> Option.defaultValue ""
+
+            "[" + formatSpans ctx body + "](" + link + t + ")"
+
         | IndirectLink(body, _, LookupKey ctx.Links (link, _), _)
-        | DirectLink(body, link, _, _)
         | IndirectLink(body, link, _, _) -> "[" + formatSpans ctx body + "](" + link + ")"
 
         | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) -> sprintf "![%s](%s)" body link
         | IndirectImage(body, _, key, _) -> sprintf "![%s][%s]" body key
-        | DirectImage(body, link, _, _) -> sprintf "![%s](%s)" body link
+
+        | DirectImage(body, link, title, _) ->
+            let t =
+                title
+                |> Option.map (fun t -> sprintf " \"%s\"" (t.Replace("\"", "\\\"")))
+                |> Option.defaultValue ""
+
+            sprintf "![%s](%s)" body (link + t)
         | Strong(body, _) -> "**" + formatSpans ctx body + "**"
         | InlineCode(body, _) -> "`" + body + "`"
         | Emphasis(body, _) -> "*" + formatSpans ctx body + "*"

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+* Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed
