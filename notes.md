@@ -1,3 +1,11 @@
+2026-04-07: Created PR (branch repo-assist/fix-tomd-link-title-2026-04-07, expected #1150):
+  Task 3 (fix): Fix Markdown.ToMd DirectLink/DirectImage title serialisation.
+  DirectLink and DirectImage title attributes were silently dropped during ToMd
+  serialisation. Now emits CommonMark title syntax " \"title\"". Added 3 round-trip
+  tests. All 284 Markdown tests pass.
+2026-04-07: Updated PR #1106 (branch repo-assist/fix-quotedblock-tooltip-2026-03-23-5db2e36142c59982):
+  Task 6: Stripped tooltip changes (covered by #1130), resolved RELEASE_NOTES.md
+  merge conflict. PR now focused on QuotedBlock multi-paragraph round-trip fix only.
 2026-04-06: Created PR (branch repo-assist/fix-tomd-inlinecode-backtick-2026-04-06, expected #1147):
   Task 3 (fix): Fix Markdown.ToMd InlineCode backtick fence selection.
   When InlineCode body contains backtick chars, the serialiser was always using
