@@ -1371,3 +1371,27 @@ let ``ToMd round-trip: indirect image with unresolved reference`` () =
     let result = Markdown.ToMd(doc)
     // When key is not resolved, should preserve the indirect form
     result |> should contain "![alt text][unknown-ref]"
+
+// --------------------------------------------------------------------------------------
+// ToMd round-trip: unresolved indirect links
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves unresolved indirect link in reference notation`` () =
+    // Indirect link with NO matching reference definition in the document.
+    // Before fix: emitted [link text]([unknown-key]) — invalid Markdown.
+    // After fix:  emits   [link text][unknown-key]   — valid reference link.
+    let input = "[link text][unknown-key]"
+    let doc = Markdown.Parse(input)
+    let result = Markdown.ToMd(doc)
+    // Must use reference notation, not inline notation with [key] as the URL
+    result |> should contain "[link text][unknown-key]"
+    result |> should not' (contain "[link text]([")
+
+[<Test>]
+let ``ToMd resolves indirect link when reference is present`` () =
+    // Indirect link whose reference definition IS present — key resolves to a URL.
+    let input = "[FSharp][fs-link]\n\n[fs-link]: https://fsharp.org"
+    let result = toMd input
+    result |> should contain "[FSharp]("
+    result |> should contain "https://fsharp.org"

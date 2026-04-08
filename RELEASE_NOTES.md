@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+* Fix `Markdown.ToMd` emitting invalid `[text]([key])` for unresolved reference-style links. Unresolved `IndirectLink` spans now serialise as `[text][key]` (preserving the reference notation) instead of incorrectly inserting the key string with its brackets as a URL.
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed

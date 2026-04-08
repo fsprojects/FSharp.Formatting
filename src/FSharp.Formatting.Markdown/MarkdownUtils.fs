@@ -107,8 +107,9 @@ module internal MarkdownUtils =
 
         | AnchorLink _ -> ""
         | IndirectLink(body, _, LookupKey ctx.Links (link, _), _)
-        | DirectLink(body, link, _, _)
-        | IndirectLink(body, link, _, _) -> "[" + formatSpans ctx body + "](" + link + ")"
+        | DirectLink(body, link, _, _) -> "[" + formatSpans ctx body + "](" + link + ")"
+        // Unresolved reference link: emit [text][key] to preserve the reference notation
+        | IndirectLink(body, _, key, _) -> "[" + formatSpans ctx body + "][" + key + "]"
 
         | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) -> sprintf "![%s](%s)" body link
         | IndirectImage(body, _, key, _) -> sprintf "![%s][%s]" body key
