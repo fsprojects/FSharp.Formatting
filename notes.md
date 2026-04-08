@@ -1,3 +1,9 @@
+2026-04-08: Created PR (branch repo-assist/fix-indirect-link-tomd-2026-04-08, expected ~#1153):
+  Task 5 (coding): Fix Markdown.ToMd unresolved IndirectLink serialisation bug.
+  In MarkdownUtils.formatSpan, the fallthrough IndirectLink arm bound 'link' to 
+  the 'original' field (position 2 = raw "[key]" string with brackets), producing
+  broken [text]([key]) output. Fixed to use 'key' field (position 3) and emit
+  [text][key] reference notation. Added 2 tests. All 283 Markdown tests pass.
 2026-04-07: Created PR (branch repo-assist/fix-tomd-link-title-2026-04-07, expected #1150):
   Task 3 (fix): Fix Markdown.ToMd DirectLink/DirectImage title serialisation.
   DirectLink and DirectImage title attributes were silently dropped during ToMd
