@@ -1,3 +1,15 @@
+2026-04-09: Created branch repo-assist/fix-tomd-tight-list-2026-04-09 (Task 3):
+  Fix: Markdown.ToMd tight list round-trip bug.
+  ListBlock formatting was emitting yield "" (blank line) after every list item,
+  converting tight lists to loose lists. Fix detects tight lists (all items are
+  Span/ListBlock nodes) and suppresses inter-item blank lines. Added 3 tests.
+  All 143 tests pass. Branch committed but NOT YET PUSHED (safeoutputs session failure).
+  Need to create PR once safeoutputs session is restored.
+
+2026-04-09: ISSUE - safeoutputs MCP server returning "session not found" for all calls.
+  Could not push branch, create PR, or update monthly issue #1131.
+  Branch: repo-assist/fix-tomd-tight-list-2026-04-09 (commit b142ae2a)
+
 2026-04-08: Created PR (branch repo-assist/fix-indirect-link-tomd-2026-04-08, expected ~#1153):
   Task 5 (coding): Fix Markdown.ToMd unresolved IndirectLink serialisation bug.
   In MarkdownUtils.formatSpan, the fallthrough IndirectLink arm bound 'link' to 
