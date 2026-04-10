@@ -1,7 +1,8 @@
 {
-  "run": "24185946416",
+  "run": "24236258663",
   "prs": [
-    "fix-tomd-tight-list-2026-04-09",
+    "fix-tomd-tight-list-2026-04-10",
+    "eng-bundle-deps-2026-04-10",
     "fix-indirect-link-tomd-2026-04-08",
     "fix-tomd-link-title-2026-04-07",
     "fix-tomd-inlinecode-backtick-2026-04-06",
@@ -37,7 +38,7 @@
     "929": "prior",
     "949": "prior",
     "1064": "prior",
-    "585": "prior"
-  },
-  "session_issue": "safeoutputs MCP session failed on 2026-04-09 run. Branch fix-tomd-tight-list-2026-04-09 committed locally but NOT pushed. Monthly issue #1131 not updated. Retry on next run."
+    "585": "prior",
+    "1154": "2026-04-10"
+  }
 }
