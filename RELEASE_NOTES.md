@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+* Introduce `--surface-background` and `--surface-border` CSS custom properties in `fsdocs-default.css`. These decouple component surface colours (copy-code button, blockquotes, sidebar, page menu, dialogs, tooltips, API tables) from `--header-background`/`--header-border`. Both variables default to the header values, so existing themes are unaffected; themes that need a different colour for content surfaces can now override `--surface-background` and `--surface-border` independently. [#1156](https://github.com/fsprojects/FSharp.Formatting/issues/1156)
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed
