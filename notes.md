@@ -1,3 +1,17 @@
+2026-04-10 (run 24238894950): Task 2 (issue investigation): nojaf said "go for it" on #1156.
+  Implemented CSS --surface-background and --surface-border variables.
+  Branch: repo-assist/fix-issue-1156-surface-colors.
+  PR pending creation. Commented on #1156.
+2026-04-10 (run 24238894950): Task 8 (performance): Fixed 5 uncompiled Regex instances in hot paths:
+  - PageContentList.mkPageContentMenu: regex per page → module-level compiled
+  - Formatting.fs: Regex.Replace per HTML page → compiled
+  - HtmlFormatting.formatAnchor: Regex.Matches per heading → compiled
+  - Menu.snakeCase: Regex.Replace per menu item → compiled
+  - LlmsTxt: 2 × Regex.Replace per page → compiled
+  Branch: repo-assist/perf-compile-regex-2026-04-10. PR pending creation.
+  Build: 0 warnings, 0 errors. All 281 Markdown tests pass.
+2026-04-10 (run 24238894950): Updated monthly issue #1131.
+2026-04-10 (run 24238894950): Commented on #1156 linking to CSS PR.
 2026-04-10: Task 1 (labelling): Labelled #1156 with 'enhancement'.
   Issue: "Decouple surface/component colors from --header-background" by nojaf.
 2026-04-10: Task 4 (engineering): Created PR (branch repo-assist/eng-bundle-deps-2026-04-10):
@@ -13,72 +27,21 @@
   /home/runner/.copilot/mcp-config.json. Must init session first (get Mcp-Session-Id),
   then use that header for tool calls. Use python3 scripts for multi-step calls.
   The tools DO NOT appear in the model's function-calling interface but ARE available via HTTP.
-2026-04-10: Updated monthly issue #1131 with this run's activity.
-2026-04-10: Commented on #1154 (aw failed) explaining 04-09 failure and 04-10 success.
-2026-04-09: Created branch repo-assist/fix-tomd-tight-list-2026-04-09 (Task 3):
-  Fix: Markdown.ToMd tight list round-trip bug.
-  ListBlock formatting was emitting yield "" (blank line) after every list item,
-  converting tight lists to loose lists. Fix detects tight lists (all items are
-  Span/ListBlock nodes) and suppresses inter-item blank lines. Added 3 tests.
-  All 143 tests pass. Branch committed but NOT YET PUSHED (safeoutputs session failure).
-  RESOLVED in 2026-04-10 run.
-2026-04-09: ISSUE - safeoutputs MCP server returning "session not found" for all calls.
-  Resolved in 2026-04-10 run by calling HTTP directly.
-
 2026-04-08: Created PR (branch repo-assist/fix-indirect-link-tomd-2026-04-08, expected ~#1153):
   Task 5 (coding): Fix Markdown.ToMd unresolved IndirectLink serialisation bug.
-  In MarkdownUtils.formatSpan, the fallthrough IndirectLink arm bound 'link' to 
-  the 'original' field (position 2 = raw "[key]" string with brackets), producing
-  broken [text]([key]) output. Fixed to use 'key' field (position 3) and emit
-  [text][key] reference notation. Added 2 tests. All 283 Markdown tests pass.
 2026-04-07: Created PR (branch repo-assist/fix-tomd-link-title-2026-04-07, expected #1150):
   Task 3 (fix): Fix Markdown.ToMd DirectLink/DirectImage title serialisation.
-  DirectLink and DirectImage title attributes were silently dropped during ToMd
-  serialisation. Now emits CommonMark title syntax " \"title\"". Added 3 round-trip
-  tests. All 284 Markdown tests pass.
-2026-04-07: Updated PR #1106 (branch repo-assist/fix-quotedblock-tooltip-2026-03-23-5db2e36142c59982):
-  Task 6: Stripped tooltip changes (covered by #1130), resolved RELEASE_NOTES.md
-  merge conflict. PR now focused on QuotedBlock multi-paragraph round-trip fix only.
 2026-04-06: Created PR (branch repo-assist/fix-tomd-inlinecode-backtick-2026-04-06, expected #1147):
   Task 3 (fix): Fix Markdown.ToMd InlineCode backtick fence selection.
-  When InlineCode body contains backtick chars, the serialiser was always using
-  single-backtick fence causing invalid Markdown. Now picks minimal fence
-  (maxRun+1 backticks) and adds spaces when body starts/ends with backtick.
-  Added 2 round-trip tests. All 283 Markdown tests pass.
-2026-04-06: PR #1105 (nested nav categories) was CLOSED by maintainer on 2026-04-04.
-  Was closed without merging, likely due to merge conflict (mergeable_state: dirty).
 2026-04-05: Created PR (branch repo-assist/fix-embed-paragraphs-tomd-2026-04-05, expected #1145):
-  Task 5 (coding): Handle EmbedParagraphs in Markdown.ToMd serialiser
-  (MarkdownUtils.fs). EmbedParagraphs was previously falling through to
-  catch-all '| _' branch, emitting debug printfn to stdout and dropping content.
-  Now delegates to cmd.Render() and recurses, consistent with HTML and LaTeX formatters.
-  Removed dead catch-all. Added test. All tests pass.
+  Task 5 (coding): Handle EmbedParagraphs in Markdown.ToMd serialiser.
 2026-04-04: Created PR (branch repo-assist/eng-modernize-2026-04-04, expected #1144):
-  Task 4 (engineering): Replace deprecated WebClient with HttpClient in createImageSaver
-  (BuildCommand.fs). Bump Newtonsoft.Json 13.0.3→13.0.4 and System.Memory 4.5.5→4.6.3.
-  Removed #nowarn "44" suppression. Build: 0 warnings, 0 errors. All tests pass.
-2026-04-03: Created PR (branch repo-assist/improve-tomd-roundtrip-and-tests-2026-04-03, #1142):
-  Task 5 (coding): Fix HardLineBreak ToMd serialisation ("  \n" not "\n"),
-  fix HorizontalRule ToMd to use stored char (--- not 23 dashes),
-  remove debug printfn from catch-all.
-  Task 9 (testing): Added 9 new tests — HardLineBreak/HorizontalRule round-trips,
-  Markdown.ToFsx (3 tests), Markdown.ToPynb (3 tests).
-  All 291 Markdown + full suite pass.
-2026-04-03: PR #1129 (perf nav) merged by dsyme.
-2026-04-03: PR #1072 (embed-resources convert) merged by dsyme on 2026-04-02.
-2026-04-03: Issue #1132 closed by dsyme.
-2026-04-02: Created PR (branch repo-assist/fix-tomd-indented-codeblock-2026-04-02, #1134):
-  Fix Markdown.ToMd for indented code blocks (fence=None): serialise as fenced blocks
-  to preserve the round-trip. Added test. All 282 markdown tests + full suite pass.
-2026-04-01: Created PR (branch repo-assist/fix-tooltip-interactive-2026-04-01, #1130):
-  Fix tooltip interactivity - allow mouse to enter tooltip popover to select/copy text.
-  Root cause: mouseout handler on trigger didn't check if relatedTarget was inside tooltip.
-  Also added mouseout handler on tooltip itself + CSS cursor:text / user-select:text.
-  Commented on #949, closes #949.
+  Task 4 (engineering): Replace deprecated WebClient with HttpClient; bump deps.
+2026-04-03: Created PR (branch repo-assist/improve-tomd-roundtrip-and-tests-2026-04-03, #1142).
+2026-04-02: Created PR (branch repo-assist/fix-tomd-indented-codeblock-2026-04-02, #1134).
+2026-04-01: Created PR (branch repo-assist/fix-tooltip-interactive-2026-04-01, #1130).
   Closed March monthly issue #1060. Created April monthly issue #1131.
-2026-03-31: Fixed CI failures on two Repo Assist PRs:
-- PR #1129 (perf nav): Fixed RELEASE_NOTES.md '### Performance' → '### Changed' (invalid Keep a Changelog subsection with IKC0002 error in Ionide.KeepAChangelog.Tasks 0.3.3).
-- PR #1127 (ToMd tests): Fixed ToMd LatexBlock serialisation — single-line equation blocks now emit '$$body$$' instead of '\begin{equation}...'. All 295 markdown tests pass.
+2026-03-31: Fixed CI failures on two Repo Assist PRs.
 2026-03-30: Created PR #1129: Performance - pre-compute GetNavigationEntriesFactory once per build.
 2026-03-29: Created PRs #1127 (ToMd tests) and #1128 (CI artifacts, merged).
 PR #1103 (deps bump) was merged by dsyme on 2026-03-25.
