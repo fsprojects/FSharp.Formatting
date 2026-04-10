@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+* Fix `Markdown.ToMd` converting tight lists (no blank lines between items) into loose lists by emitting a blank line after every item. Tight lists now round-trip correctly without inter-item blank lines.
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed

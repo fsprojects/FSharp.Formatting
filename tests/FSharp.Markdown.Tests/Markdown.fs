@@ -1258,6 +1258,31 @@ let ``ToMd preserves an unordered list`` () =
     result |> should contain "cherry"
 
 [<Test>]
+let ``ToMd preserves tight unordered list without blank lines between items`` () =
+    // A tight list should not gain blank lines between items on round-trip.
+    let md = "* apple\n* banana\n* cherry"
+    let result = toMd md
+    // Tight list: no blank line between consecutive items
+    result |> should not' (contain "* apple\n\n* banana")
+
+[<Test>]
+let ``ToMd preserves tight ordered list without blank lines between items`` () =
+    // A tight ordered list should not gain blank lines between items on round-trip.
+    let md = "1. first\n2. second\n3. third"
+    let result = toMd md
+    // Tight list: no blank line between consecutive items
+    result |> should not' (contain "1. first\n\n2. second")
+
+[<Test>]
+let ``ToMd preserves loose list with blank lines between items`` () =
+    // A loose list (items separated by blank lines) should keep blank lines.
+    let md = "* alpha\n\n* beta\n\n* gamma"
+    let result = toMd md
+    result |> should contain "alpha"
+    result |> should contain "beta"
+    result |> should contain "gamma"
+
+[<Test>]
 let ``ToMd preserves emphasis (italic) text`` () =
     // Emphasis must serialise as *...* not **...** (bold)
     "*italic*" |> toMd |> should contain "*italic*"
