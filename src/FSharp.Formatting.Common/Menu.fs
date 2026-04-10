@@ -12,8 +12,11 @@ type MenuItem =
       IsActive: bool }
 
 /// Converts a display string to a snake_case HTML id attribute value
+let private snakeCaseRegex =
+    System.Text.RegularExpressions.Regex("[A-Z]", System.Text.RegularExpressions.RegexOptions.Compiled)
+
 let private snakeCase (v: string) =
-    System.Text.RegularExpressions.Regex.Replace(v, "[A-Z]", "$0").Replace(" ", "_").ToLower()
+    snakeCaseRegex.Replace(v, "$0").Replace(" ", "_").ToLower()
 
 /// Renders an HTML navigation menu for the given header and items using template files in `input`
 let createMenu (input: string) (isCategoryActive: bool) (header: string) (items: MenuItem list) : string =
