@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+* Fix `fsdocs watch` WebSocket hot-reload URL to use `window.location.host` instead of hardcoded `localhost`, enabling hot reload when served via GitHub Codespaces, reverse proxies, or other non-localhost environments.
+
+### Added
+* Add `--root` option to `fsdocs watch` for overriding the root URL, enabling use with GitHub Codespaces port-forwarding, reverse proxies, and other non-localhost environments. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed
