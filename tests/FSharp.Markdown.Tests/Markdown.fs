@@ -1419,6 +1419,104 @@ let ``ToMd round-trip: indirect image with unresolved reference`` () =
     result |> should contain "![alt text][unknown-ref]"
 
 // --------------------------------------------------------------------------------------
+// ToMd: HardLineBreak and HorizontalRule round-trip
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd serialises HardLineBreak as two trailing spaces`` () =
+    // Two trailing spaces before a newline create a hard line break in CommonMark
+    let md = "Hello  \nWorld"
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToMd(doc, newline = "\n")
+    // The hard line break must round-trip as "  \n" so a re-parse would produce HardLineBreak
+    result |> should contain "  \n"
+
+[<Test>]
+let ``ToMd preserves HorizontalRule hyphen character`` () =
+    let md = "---"
+    let result = toMd md
+    // Should be exactly three hyphens, not a longer sequence
+    result |> should contain "---"
+    result |> should not' (contain "----")
+
+[<Test>]
+let ``ToMd preserves HorizontalRule asterisk character`` () =
+    let md = "***"
+    let result = toMd md
+    result |> should contain "***"
+    result |> should not' (contain "****")
+
+[<Test>]
+let ``ToMd preserves HorizontalRule underscore character`` () =
+    let md = "___"
+    let result = toMd md
+    result |> should contain "___"
+    result |> should not' (contain "____")
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToFsx: direct tests (no Literate wrapper)
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Markdown.ToFsx wraps prose in script comment block`` () =
+    let md = "# My Title\n\nSome prose paragraph."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    // All non-code content should be wrapped in (** ... *)
+    result |> should contain "(**"
+    result |> should contain "*)"
+    result |> should contain "# My Title"
+    result |> should contain "Some prose paragraph."
+
+[<Test>]
+let ``Markdown.ToFsx emits code block as plain F# without wrapping`` () =
+    let md = "Before code.\n\n```fsharp\nlet x = 42\n```\n\nAfter code."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    // Code content should appear as raw F#, not wrapped in comment blocks
+    result |> should contain "let x = 42"
+    result |> should contain "(**"
+    result |> should contain "Before code."
+    result |> should contain "After code."
+    // The code itself must not be wrapped in a comment block
+    result |> should not' (contain "(** let x = 42")
+
+[<Test>]
+let ``Markdown.ToFsx round-trips empty document`` () =
+    let doc = Markdown.Parse("", newline = "\n")
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    // Empty document → empty script
+    result.Trim() |> shouldEqual ""
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToPynb: direct tests (no Literate wrapper)
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Markdown.ToPynb produces valid JSON notebook`` () =
+    let md = "# Title\n\nSome text."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    // Jupyter notebooks are JSON; basic structural checks
+    result |> should contain "\"nbformat\""
+    result |> should contain "\"cells\""
+
+[<Test>]
+let ``Markdown.ToPynb prose becomes a markdown cell`` () =
+    let md = "# Title\n\nSome prose."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "\"cell_type\": \"markdown\""
+    result |> should contain "# Title"
+
+[<Test>]
+let ``Markdown.ToPynb code block becomes a code cell`` () =
+    let md = "Some prose.\n\n```fsharp\nlet y = 99\n```\n\nMore prose."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "\"cell_type\": \"code\""
+    result |> should contain "let y = 99"
+
 // ToMd additional coverage: headings, nested structures, LaTeX display math, inline code
 // --------------------------------------------------------------------------------------
 

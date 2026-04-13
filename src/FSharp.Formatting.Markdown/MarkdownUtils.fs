@@ -103,7 +103,7 @@ module internal MarkdownUtils =
         | LatexDisplayMath(body, _) -> sprintf "$$%s$$" body
         | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
         | Literal(str, _) -> str
-        | HardLineBreak(_) -> "\n"
+        | HardLineBreak(_) -> "  " + ctx.Newline
 
         | AnchorLink _ -> ""
         | DirectLink(body, link, title, _) ->
@@ -183,8 +183,8 @@ module internal MarkdownUtils =
               yield String.concat "" [ for span in spans -> formatSpan ctx span ]
               yield ""
 
-          | HorizontalRule(_) ->
-              yield "-----------------------"
+          | HorizontalRule(c, _) ->
+              yield String.replicate 3 (string c)
               yield ""
           | CodeBlock(code = code; fence = fence; language = language) ->
               match fence with
@@ -276,7 +276,6 @@ module internal MarkdownUtils =
           | InlineHtmlBlock(code, _, _) ->
               let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
               yield! lines
-          //yield ""
           | YamlFrontmatter _ -> ()
           | Span(body = body) -> yield formatSpans ctx body
           | QuotedBlock(paragraphs = paragraphs) ->
