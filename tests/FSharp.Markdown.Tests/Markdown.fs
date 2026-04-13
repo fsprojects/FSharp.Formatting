@@ -1516,3 +1516,17 @@ let ``Markdown.ToPynb code block becomes a code cell`` () =
     let result = Markdown.ToPynb(doc, newline = "\n")
     result |> should contain "\"cell_type\": \"code\""
     result |> should contain "let y = 99"
+
+[<Test>]
+let ``ToMd serialises EmbedParagraphs by delegating to Render()`` () =
+    // EmbedParagraphs was previously falling through to the catch-all '| _' branch,
+    // emitting a debug printfn and yielding an empty string.  It should instead
+    // delegate to the Render() method and format the resulting paragraphs.
+    let inner =
+        { new MarkdownEmbedParagraphs with
+            member _.Render() =
+                [ Paragraph([ Literal("embedded text", MarkdownRange.zero) ], MarkdownRange.zero) ] }
+
+    let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
+    let result = Markdown.ToMd(doc)
+    result |> should contain "embedded text"

@@ -269,7 +269,6 @@ module internal MarkdownUtils =
           | InlineHtmlBlock(code, _, _) ->
               let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
               yield! lines
-          //yield ""
           | YamlFrontmatter _ -> ()
           | Span(body = body) -> yield formatSpans ctx body
           | QuotedBlock(paragraphs = paragraphs) ->
@@ -280,7 +279,7 @@ module internal MarkdownUtils =
                       yield "> " + line
 
                   yield ""
-          | _ -> yield "" ]
+          | EmbedParagraphs(cmd, _) -> yield! cmd.Render() |> Seq.collect (formatParagraph ctx) ]
 
     /// Strips <c>#if SYMBOL</c> / <c>#endif // SYMBOL</c> conditional compilation lines from an .fsx code block
     /// so that format-specific sections are removed from non-target output formats.
