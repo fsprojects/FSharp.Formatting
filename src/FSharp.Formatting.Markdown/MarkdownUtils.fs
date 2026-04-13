@@ -199,6 +199,13 @@ module internal MarkdownUtils =
 
               yield ""
           | ListBlock(Unordered, paragraphsl, _) ->
+              // A tight list has exactly one Span per item (no blank lines between items).
+              let isTight =
+                  paragraphsl
+                  |> List.forall (function
+                      | [ Span _ ] -> true
+                      | _ -> false)
+
               for paragraphs in paragraphsl do
                   for (i, paragraph) in List.indexed paragraphs do
                       let lines = formatParagraph ctx paragraph
@@ -210,8 +217,19 @@ module internal MarkdownUtils =
                           else
                               yield "  " + line
 
+                  if not isTight then
                       yield ""
+
+              if isTight then
+                  yield ""
           | ListBlock(Ordered, paragraphsl, _) ->
+              // A tight list has exactly one Span per item (no blank lines between items).
+              let isTight =
+                  paragraphsl
+                  |> List.forall (function
+                      | [ Span _ ] -> true
+                      | _ -> false)
+
               for (n, paragraphs) in List.indexed paragraphsl do
                   for (i, paragraph) in List.indexed paragraphs do
                       let lines = formatParagraph ctx paragraph
@@ -223,7 +241,11 @@ module internal MarkdownUtils =
                           else
                               yield "  " + line
 
+                  if not isTight then
                       yield ""
+
+              if isTight then
+                  yield ""
           | TableBlock(headers, alignments, rows, _) ->
 
               match headers with
