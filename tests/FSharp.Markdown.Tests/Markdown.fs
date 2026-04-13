@@ -1240,14 +1240,60 @@ let ``ToMd preserves inline code`` () =
     "Use `printf` here." |> toMd |> should contain "`printf`"
 
 [<Test>]
+let ``ToMd round-trips inline code containing a single backtick`` () =
+    // "a`b" must be serialised with a double-backtick fence so it re-parses correctly.
+    let original = "`` a`b ``"
+    let md = Markdown.Parse original
+    let result = Markdown.ToMd md
+    // The serialised form must round-trip: re-parsing must yield the same InlineCode body.
+    let reparsed = Markdown.Parse result
+
+    match reparsed.Paragraphs with
+    | [ Paragraph([ InlineCode("a`b", _) ], _) ] -> ()
+    | _ -> Assert.Fail(sprintf "Expected InlineCode(\"a`b\") after round-trip, got: %A" reparsed.Paragraphs)
+
+[<Test>]
+let ``ToMd round-trips inline code containing multiple backticks`` () =
+    // Body "``h``" contains double backticks — needs a triple-backtick fence.
+    let original = "` ``h`` `"
+    let md = Markdown.Parse original
+    let result = Markdown.ToMd md
+
+    match (Markdown.Parse result).Paragraphs with
+    | [ Paragraph([ InlineCode("``h``", _) ], _) ] -> ()
+    | _ -> Assert.Fail(sprintf "Expected InlineCode(\"``h``\") after round-trip, got: %A" result)
+
+[<Test>]
 let ``ToMd preserves a direct link`` () =
     "[FSharp](https://fsharp.org)"
     |> toMd
     |> should contain "[FSharp](https://fsharp.org)"
 
 [<Test>]
+let ``ToMd preserves a direct link with title`` () =
+    let md = "[FSharp](https://fsharp.org \"F# language\")"
+    let result = toMd md
+    result |> should contain "[FSharp]("
+    result |> should contain "https://fsharp.org"
+    result |> should contain "\"F# language\""
+
+[<Test>]
+let ``ToMd preserves a direct link without title unchanged`` () =
+    let result = "[link](http://example.com)" |> toMd
+    result |> should contain "[link](http://example.com)"
+    result |> should not' (contain "\"")
+
+[<Test>]
 let ``ToMd preserves a direct image`` () =
     "![alt text](image.png)" |> toMd |> should contain "![alt text](image.png)"
+
+[<Test>]
+let ``ToMd preserves a direct image with title`` () =
+    let md = "![photo](image.png \"My Photo\")"
+    let result = toMd md
+    result |> should contain "![photo]("
+    result |> should contain "image.png"
+    result |> should contain "\"My Photo\""
 
 [<Test>]
 let ``ToMd preserves an unordered list`` () =
@@ -1371,3 +1417,17 @@ let ``ToMd round-trip: indirect image with unresolved reference`` () =
     let result = Markdown.ToMd(doc)
     // When key is not resolved, should preserve the indirect form
     result |> should contain "![alt text][unknown-ref]"
+
+[<Test>]
+let ``ToMd serialises EmbedParagraphs by delegating to Render()`` () =
+    // EmbedParagraphs was previously falling through to the catch-all '| _' branch,
+    // emitting a debug printfn and yielding an empty string.  It should instead
+    // delegate to the Render() method and format the resulting paragraphs.
+    let inner =
+        { new MarkdownEmbedParagraphs with
+            member _.Render() =
+                [ Paragraph([ Literal("embedded text", MarkdownRange.zero) ], MarkdownRange.zero) ] }
+
+    let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
+    let result = Markdown.ToMd(doc)
+    result |> should contain "embedded text"
