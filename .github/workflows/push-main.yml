@@ -41,6 +41,15 @@ jobs:
       uses: actions/setup-dotnet@v5
     - name: Run CI
       run: dotnet fsi build.fsx
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v7
+      if: failure()
+      with:
+        name: test-results-ubuntu
+        path: TestResults/
+        retention-days: 7
+
     - name: Deploy docs
       uses: peaceiris/actions-gh-pages@v4
       with:
