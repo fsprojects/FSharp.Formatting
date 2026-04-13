@@ -1444,6 +1444,38 @@ let ``ToMd round-trip: indirect image with unresolved reference`` () =
     result |> should contain "![alt text][unknown-ref]"
 
 // --------------------------------------------------------------------------------------
+// ToMd round-trip: indented code block (fence = None) — issue #fix-tomd-indented-codeblock
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd round-trip: indented code block is preserved as a code block`` () =
+    // An indented code block (4-space indent) is serialised as a fenced block to
+    // guarantee the round-trip: outputting bare code without any fence would cause
+    // re-parsing to produce a paragraph instead of a code block.
+    let input = "    let x = 1\n    let y = 2"
+    let doc = Markdown.Parse(input)
+    // The parser should have produced a CodeBlock, not a Paragraph
+    let cbs =
+        doc.Paragraphs
+        |> List.choose (function
+            | CodeBlock _ as cb -> Some cb
+            | _ -> None)
+
+    cbs |> should haveLength 1
+    // ToMd should produce a fenced form so the round-trip is valid
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "```"
+    result |> should contain "let x = 1"
+    result |> should contain "let y = 2"
+    // The serialised form re-parses to a CodeBlock, not a Paragraph
+    let doc2 = Markdown.Parse(result)
+
+    doc2.Paragraphs
+    |> List.choose (function
+        | CodeBlock _ as cb -> Some cb
+        | _ -> None)
+    |> should haveLength 1
+
 // ToMd: HardLineBreak and HorizontalRule round-trip
 // --------------------------------------------------------------------------------------
 

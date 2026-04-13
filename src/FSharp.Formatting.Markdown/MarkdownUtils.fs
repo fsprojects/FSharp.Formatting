@@ -187,15 +187,15 @@ module internal MarkdownUtils =
               yield String.replicate 3 (string c)
               yield ""
           | CodeBlock(code = code; fence = fence; language = language) ->
-              match fence with
-              | None -> ()
-              | Some f -> yield f + language
+              // Indented code blocks (fence = None) are serialised as fenced blocks so
+              // that the round-trip is valid — raw indented code without a '> ' prefix
+              // or 4-space indent would be parsed as a paragraph, not a code block.
+              let f = defaultArg fence "```"
+              yield f + language
 
               yield code
 
-              match fence with
-              | None -> ()
-              | Some f -> yield f
+              yield f
 
               yield ""
           | ListBlock(Unordered, paragraphsl, _) ->
