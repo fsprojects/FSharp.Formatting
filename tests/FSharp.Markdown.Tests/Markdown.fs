@@ -1371,3 +1371,19 @@ let ``ToMd round-trip: indirect image with unresolved reference`` () =
     let result = Markdown.ToMd(doc)
     // When key is not resolved, should preserve the indirect form
     result |> should contain "![alt text][unknown-ref]"
+
+[<Test>]
+let ``ToMd preserves YAML frontmatter`` () =
+    let input = "---\ntitle: My Page\ndate: 2024-01-01\n---\n\nHello world.\n"
+    let result = input |> toMd
+    result |> should contain "---"
+    result |> should contain "title: My Page"
+    result |> should contain "date: 2024-01-01"
+    result |> should contain "Hello world."
+
+[<Test>]
+let ``ToMd preserves empty YAML frontmatter`` () =
+    let input = "---\n---\n\nHello.\n"
+    let result = input |> toMd
+    result |> should contain "---"
+    result |> should contain "Hello."

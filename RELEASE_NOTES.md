@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+* Fix `Markdown.ToMd` silently dropping YAML frontmatter when serialising a parsed `MarkdownDocument` back to Markdown text. Frontmatter is now preserved with its `---` delimiters.
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed
