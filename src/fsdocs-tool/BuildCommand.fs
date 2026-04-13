@@ -8,6 +8,7 @@ open System.Diagnostics
 open System.IO
 open System.Globalization
 open System.Net
+open System.Net.Http
 open System.Reflection
 open System.Text
 
@@ -29,7 +30,6 @@ open Suave.Filters
 open Suave.Logging
 open FSharp.Formatting.Markdown
 
-#nowarn "44" // Obsolete WebClient
 
 /// Convert markdown, script and other content into a static site
 type internal DocContent
@@ -48,7 +48,7 @@ type internal DocContent
 
     let createImageSaver (rootOutputFolderAsGiven) =
         // Download images so that they can be embedded
-        let wc = new WebClient()
+        let http = new HttpClient()
         let mutable counter = 0
 
         fun (url: string) ->
@@ -65,7 +65,8 @@ type internal DocContent
 
                 ensureDirectory (sprintf "%s/savedimages" rootOutputFolderAsGiven)
                 printfn "downloading %s --> %s" url fn
-                wc.DownloadFile(url, fn)
+                let bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult()
+                File.WriteAllBytes(fn, bytes)
                 url2
             else
                 url
@@ -827,11 +828,10 @@ module Serve =
     let refreshEvent = FSharp.Control.Event<string>()
 
     /// generate the script to inject into html to enable hot reload during development
-    let generateWatchScript (port: int) =
-        let tag =
-            """
+    let generateWatchScript () =
+        """
 <script type="text/javascript">
-    var wsUri = "ws://localhost:{{PORT}}/websocket";
+    var wsUri = "ws://" + window.location.host + "/websocket";
     function init()
     {
         websocket = new WebSocket(wsUri);
@@ -857,8 +857,6 @@ module Serve =
     window.addEventListener("load", init, false);
 </script>
 """
-
-        tag.Replace("{{PORT}}", string<int> port)
 
     let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 
@@ -1568,9 +1566,15 @@ type CoreBuildOptions(watch) =
         // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             if watch then
-                let userRoot = sprintf "http://localhost:%d/" this.port_option
+                let userRoot =
+                    match this.root_override_option with
+                    | Some r -> r
+                    | None -> sprintf "http://localhost:%d/" this.port_option
 
-                if userParametersDict.ContainsKey(ParamKeys.root) then
+                if
+                    userParametersDict.ContainsKey(ParamKeys.root)
+                    && this.root_override_option.IsNone
+                then
                     printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
 
                 let userParameters =
@@ -1881,7 +1885,7 @@ type CoreBuildOptions(watch) =
         let getLatestWatchScript () =
             if watch then
                 // if running in watch mode, inject hot reload script
-                [ ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript this.port_option ]
+                [ ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript () ]
             else
                 // otherwise, inject empty replacement string
                 [ ParamKeys.``fsdocs-watch-script``, "" ]
@@ -2330,6 +2334,9 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
+    abstract root_override_option: string option
+    default x.root_override_option = None
+
 /// Helpers for the <c>fsdocs convert</c> command.
 module private ConvertHelpers =
 
@@ -2746,3 +2753,12 @@ type WatchCommand() =
 
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
+
+    override x.root_override_option = if x.root = "" then None else Some x.root
+
+    [<Option("root",
+             Required = false,
+             Default = "",
+             HelpText =
+                 "Override the root URL for generated pages. Useful for reverse proxies or GitHub Codespaces. E.g. --root / or --root https://example.com/docs/. When not set, defaults to http://localhost:<port>/.")>]
+    member val root = "" with get, set

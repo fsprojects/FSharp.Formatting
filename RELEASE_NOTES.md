@@ -2,8 +2,16 @@
 
 ## [Unreleased]
 
+### Changed
+* Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
+* Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
+* Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.0
+
 ### Fixed
 * Fix `Markdown.ToMd` converting tight lists (no blank lines between items) into loose lists by emitting a blank line after every item. Tight lists now round-trip correctly without inter-item blank lines.
+* Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
+* Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
+* Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
 
 ## [22.0.0] - 2026-04-03
 
@@ -22,6 +30,8 @@
 ## [22.0.0-alpha.2] - 2026-03-13
 
 ### Added
+* Add `--root` option to `fsdocs watch` to override the root URL for generated pages. Useful for serving docs via GitHub Codespaces, reverse proxies, or other remote hosting where `localhost` URLs are inaccessible. E.g. `fsdocs watch --root /` or `fsdocs watch --root https://example.com/docs/`. When not set, defaults to `http://localhost:<port>/` as before. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
+* Fix `fsdocs watch` hot-reload WebSocket to connect using the page's actual host (`window.location.host`) instead of a hardcoded `localhost:<port>`, so hot-reload works correctly in GitHub Codespaces, behind reverse proxies, and over HTTPS. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
 * Search dialog now auto-focuses the search input when opened, clears on close, and can be triggered with `Ctrl+K` / `Cmd+K` in addition to `/`.
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
