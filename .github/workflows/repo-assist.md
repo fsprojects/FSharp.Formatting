@@ -65,6 +65,7 @@ safe-outputs:
     target: "*"
     title-prefix: "[Repo Assist] "
     max: 4
+    protected-files: fallback-to-issue
   create-issue:
     title-prefix: "[Repo Assist] "
     labels: [automation, repo-assist]
@@ -175,7 +176,7 @@ steps:
           json.dump(result, f, indent=2)
       EOF
 
-source: githubnext/agentics/workflows/repo-assist.md@e1ecf341a90b7bc2021e77c58685d7e269e20b99
+source: githubnext/agentics/workflows/repo-assist.md@97143ac59cb3a13ef2a77581f929f06719c7402a
 ---
 
 # Repo Assist
