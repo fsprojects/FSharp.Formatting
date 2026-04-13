@@ -1240,6 +1240,30 @@ let ``ToMd preserves inline code`` () =
     "Use `printf` here." |> toMd |> should contain "`printf`"
 
 [<Test>]
+let ``ToMd round-trips inline code containing a single backtick`` () =
+    // "a`b" must be serialised with a double-backtick fence so it re-parses correctly.
+    let original = "`` a`b ``"
+    let md = Markdown.Parse original
+    let result = Markdown.ToMd md
+    // The serialised form must round-trip: re-parsing must yield the same InlineCode body.
+    let reparsed = Markdown.Parse result
+
+    match reparsed.Paragraphs with
+    | [ Paragraph([ InlineCode("a`b", _) ], _) ] -> ()
+    | _ -> Assert.Fail(sprintf "Expected InlineCode(\"a`b\") after round-trip, got: %A" reparsed.Paragraphs)
+
+[<Test>]
+let ``ToMd round-trips inline code containing multiple backticks`` () =
+    // Body "``h``" contains double backticks — needs a triple-backtick fence.
+    let original = "` ``h`` `"
+    let md = Markdown.Parse original
+    let result = Markdown.ToMd md
+
+    match (Markdown.Parse result).Paragraphs with
+    | [ Paragraph([ InlineCode("``h``", _) ], _) ] -> ()
+    | _ -> Assert.Fail(sprintf "Expected InlineCode(\"``h``\") after round-trip, got: %A" result)
+
+[<Test>]
 let ``ToMd preserves a direct link`` () =
     "[FSharp](https://fsharp.org)"
     |> toMd
