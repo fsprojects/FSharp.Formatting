@@ -106,15 +106,50 @@ module internal MarkdownUtils =
         | HardLineBreak(_) -> "  " + ctx.Newline
 
         | AnchorLink _ -> ""
+        | DirectLink(body, link, title, _) ->
+            let t =
+                title
+                |> Option.map (fun t -> sprintf " \"%s\"" (t.Replace("\"", "\\\"")))
+                |> Option.defaultValue ""
+
+            "[" + formatSpans ctx body + "](" + link + t + ")"
+
         | IndirectLink(body, _, LookupKey ctx.Links (link, _), _)
-        | DirectLink(body, link, _, _)
         | IndirectLink(body, link, _, _) -> "[" + formatSpans ctx body + "](" + link + ")"
 
         | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) -> sprintf "![%s](%s)" body link
         | IndirectImage(body, _, key, _) -> sprintf "![%s][%s]" body key
-        | DirectImage(body, link, _, _) -> sprintf "![%s](%s)" body link
+
+        | DirectImage(body, link, title, _) ->
+            let t =
+                title
+                |> Option.map (fun t -> sprintf " \"%s\"" (t.Replace("\"", "\\\"")))
+                |> Option.defaultValue ""
+
+            sprintf "![%s](%s)" body (link + t)
         | Strong(body, _) -> "**" + formatSpans ctx body + "**"
-        | InlineCode(body, _) -> "`" + body + "`"
+        | InlineCode(body, _) ->
+            // Pick the shortest backtick fence that does not appear in the body.
+            // E.g. body "``h``" needs a triple-backtick fence; body "a`b" needs double.
+            let maxConsecutiveBackticks =
+                body
+                |> Seq.fold
+                    (fun (maxR, run) c ->
+                        if c = '`' then
+                            let run' = run + 1
+                            (max maxR run'), run'
+                        else
+                            maxR, 0)
+                    (0, 0)
+                |> fst
+
+            let fence = String.replicate (maxConsecutiveBackticks + 1) "`"
+            // Surround with spaces when the body starts or ends with a backtick so the
+            // fence and content do not merge (e.g. `` ``h`` `` would look like 4-backtick).
+            if body.Length > 0 && (body.[0] = '`' || body.[body.Length - 1] = '`') then
+                fence + " " + body + " " + fence
+            else
+                fence + body + fence
         | Emphasis(body, _) -> "*" + formatSpans ctx body + "*"
 
     /// Format a list of MarkdownSpan
