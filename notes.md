@@ -1,4 +1,12 @@
-2026-04-11 (run 24280584335): Task 6 (maintain PRs):
+2026-04-13 (run 24339583031): Task 3 (fix): Created PR fix-tomd-yaml-frontmatter-2026-04-13:
+  - Fix: Markdown.ToMd was silently dropping YamlFrontmatter paragraphs
+  - Added 2 tests: one with populated frontmatter, one with empty block
+  - Build: 0 warnings, 0 errors. 283 markdown tests pass, 143 literate tests pass
+  - FSharp.ApiDocs.Tests: 80 pre-existing failures on main (unrelated)
+  Task 2 (comment): All open non-Repo-Assist issues already have comments.
+  No new issues to comment on (cursor at 1064, no newer human issues).
+
+2026-04-12 (run 24304604567): Task 6 (maintain PRs):
   Closed duplicate PRs:
   - #1159 (wrong title: CSS title but perf branch) 
   - #1160 (duplicate perf PR; keeping #1162)
