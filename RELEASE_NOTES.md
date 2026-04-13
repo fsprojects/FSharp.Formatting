@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+* Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
+* Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
+* Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.0
+
 ### Fixed
 * Fix `Markdown.ToMd` serialising `HardLineBreak` as a bare newline instead of two trailing spaces + newline. The correct CommonMark representation `"  \n"` is now emitted, so hard line breaks survive a round-trip through `ToMd`.
 * Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.

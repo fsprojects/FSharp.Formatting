@@ -1517,6 +1517,96 @@ let ``Markdown.ToPynb code block becomes a code cell`` () =
     result |> should contain "\"cell_type\": \"code\""
     result |> should contain "let y = 99"
 
+// ToMd additional coverage: headings, nested structures, LaTeX display math, inline code
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves heading level 4`` () =
+    "#### Heading Four" |> toMd |> shouldEqual "#### Heading Four"
+
+[<Test>]
+let ``ToMd preserves heading level 5`` () =
+    "##### Heading Five" |> toMd |> shouldEqual "##### Heading Five"
+
+[<Test>]
+let ``ToMd preserves heading level 6`` () =
+    "###### Heading Six" |> toMd |> shouldEqual "###### Heading Six"
+
+[<Test>]
+let ``ToMd preserves emphasis inside a heading`` () =
+    let result = "## Hello *world*" |> toMd
+    result |> should contain "## Hello *world*"
+
+[<Test>]
+let ``ToMd preserves strong text inside a heading`` () =
+    let result = "## Hello **world**" |> toMd
+    result |> should contain "## Hello **world**"
+
+[<Test>]
+let ``ToMd preserves LaTeX display math`` () =
+    let md = "$$E = mc^2$$"
+    let result = toMd md
+    result |> should contain "$$E = mc^2$$"
+
+[<Test>]
+let ``ToMd preserves inline code containing special chars`` () =
+    let md = "Use `a + b = c` inline."
+    let result = toMd md
+    result |> should contain "`a + b = c`"
+
+[<Test>]
+let ``ToMd preserves nested unordered list`` () =
+    // Outer list item containing an inner list
+    let md = "* outer\n\n  * inner"
+    let result = toMd md
+    result |> should contain "outer"
+    result |> should contain "inner"
+
+[<Test>]
+let ``ToMd preserves a nested blockquote`` () =
+    // A blockquote that itself contains a blockquote
+    let md = "> > inner quote"
+    let result = toMd md
+    result |> should contain "> "
+    result |> should contain "inner quote"
+    // The inner quote marker should appear in the output (two levels of '>')
+    result |> should contain "> >"
+
+[<Test>]
+let ``ToMd preserves emphasis inside a blockquote`` () =
+    let md = "> *italic text*"
+    let result = toMd md
+    result |> should contain "> "
+    result |> should contain "*italic text*"
+
+[<Test>]
+let ``ToMd preserves inline code inside a blockquote`` () =
+    let md = "> use `printf` here"
+    let result = toMd md
+    result |> should contain "> "
+    result |> should contain "`printf`"
+
+[<Test>]
+let ``ToMd preserves a code block without language`` () =
+    let md = "```\nsome code\n```"
+    let result = toMd md
+    result |> should contain "some code"
+    result |> should contain "```"
+
+[<Test>]
+let ``ToMd preserves horizontal rule (dash variant)`` () =
+    let md = "---"
+    let result = toMd md
+    result |> should contain "---"
+
+[<Test>]
+let ``ToMd preserves a link with a title`` () =
+    // Title attribute is allowed in Markdown links
+    let md = "[FSharp](https://fsharp.org \"F# home\")"
+    let result = toMd md
+    result |> should contain "[FSharp]("
+    result |> should contain "https://fsharp.org"
+
 [<Test>]
 let ``ToMd serialises EmbedParagraphs by delegating to Render()`` () =
     // EmbedParagraphs was previously falling through to the catch-all '| _' branch,
