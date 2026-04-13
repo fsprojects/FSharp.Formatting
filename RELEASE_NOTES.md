@@ -3,19 +3,36 @@
 ## [Unreleased]
 
 ### Fixed
+* Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
+* Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
+* Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
+
+## [22.0.0] - 2026-04-03
+
+### Fixed
+* Fix spurious `'fsi' is not defined` error during literate script type-checking when scripts use `fsi.AddPrinter` or related APIs. The `FSharp.Compiler.Interactive.Settings.dll` reference is now explicitly added to the type-checker options. [#1139](https://github.com/fsprojects/FSharp.Formatting/issues/1139)
+* Fix literate script comment parser prematurely closing `(**` blocks when the markdown text contained nested `(*** ... ***)` references (e.g. in backtick-quoted command examples), causing subsequent content to be silently dropped from HTML output.
+* Add missing `[<Test>]` attribute on `Can include-output-and-it` test so it is executed by the test runner.
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images with bracket syntax. The indirect image is now serialised as `![alt](url)` when the reference is resolved, or in bracket notation when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising italic spans with asterisks incorrectly as bold spans. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 * Fix `Markdown.ToMd` serialising ordered list items with incorrect numbering and formatting. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 
+### Changed
+* `fsdocs build` now pre-computes the navigation menu structure (filter/group/sort) once per build rather than once per output page, reducing work from O(n²) to O(n) for sites with n pages. The filesystem check for custom menu templates is also cached per build. [#1129](https://github.com/fsprojects/FSharp.Formatting/pull/1129)
+
 ## [22.0.0-alpha.2] - 2026-03-13
 
 ### Added
+* Add `--root` option to `fsdocs watch` to override the root URL for generated pages. Useful for serving docs via GitHub Codespaces, reverse proxies, or other remote hosting where `localhost` URLs are inaccessible. E.g. `fsdocs watch --root /` or `fsdocs watch --root https://example.com/docs/`. When not set, defaults to `http://localhost:<port>/` as before. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
+* Fix `fsdocs watch` hot-reload WebSocket to connect using the page's actual host (`window.location.host`) instead of a hardcoded `localhost:<port>`, so hot-reload works correctly in GitHub Codespaces, behind reverse proxies, and over HTTPS. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
 * Search dialog now auto-focuses the search input when opened, clears on close, and can be triggered with `Ctrl+K` / `Cmd+K` in addition to `/`.
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` infers the output format from the output file extension when `--outputformat` is not specified (e.g. `-o out.md` implies `--outputformat markdown`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
 * `fsdocs convert` now accepts `-o` as a shorthand for `--output`. [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)
+* `fsdocs convert` now embeds CSS, JS, and local images directly into the HTML output by default, producing a single self-contained file. Use `--no-embed-resources` to disable. Pass `--template fsdocs` to use the built-in default template without needing a local `_template.html`. [#1068](https://github.com/fsprojects/FSharp.Formatting/issues/1068)
+* `fsdocs convert` now supplies sensible defaults for all standard `{{fsdocs-*}}` template substitution parameters (e.g. `{{fsdocs-page-title}}` defaults to the input filename) so templates work cleanly without requiring `--parameters`. [#1072](https://github.com/fsprojects/FSharp.Formatting/pull/1072)
 * Added full XML doc comments (`<summary>`, `<param>`) to `Literate.ParseAndCheckScriptFile` and `Literate.ParseScriptString` to match the documentation style of the other `Literate.Parse*` methods.
 
 ### Fixed
