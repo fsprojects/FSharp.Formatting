@@ -8,6 +8,7 @@ open System.Diagnostics
 open System.IO
 open System.Globalization
 open System.Net
+open System.Net.Http
 open System.Reflection
 open System.Text
 
@@ -29,7 +30,6 @@ open Suave.Filters
 open Suave.Logging
 open FSharp.Formatting.Markdown
 
-#nowarn "44" // Obsolete WebClient
 
 /// Convert markdown, script and other content into a static site
 type internal DocContent
@@ -48,7 +48,7 @@ type internal DocContent
 
     let createImageSaver (rootOutputFolderAsGiven) =
         // Download images so that they can be embedded
-        let wc = new WebClient()
+        let http = new HttpClient()
         let mutable counter = 0
 
         fun (url: string) ->
@@ -65,7 +65,8 @@ type internal DocContent
 
                 ensureDirectory (sprintf "%s/savedimages" rootOutputFolderAsGiven)
                 printfn "downloading %s --> %s" url fn
-                wc.DownloadFile(url, fn)
+                let bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult()
+                File.WriteAllBytes(fn, bytes)
                 url2
             else
                 url

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+* Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
+* Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
+* Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.0
+
 ### Fixed
 * Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
 * Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
