@@ -8,6 +8,7 @@ open System.Diagnostics
 open System.IO
 open System.Globalization
 open System.Net
+open System.Net.Http
 open System.Reflection
 open System.Text
 
@@ -29,7 +30,6 @@ open Suave.Filters
 open Suave.Logging
 open FSharp.Formatting.Markdown
 
-#nowarn "44" // Obsolete WebClient
 
 /// Convert markdown, script and other content into a static site
 type internal DocContent
@@ -48,7 +48,7 @@ type internal DocContent
 
     let createImageSaver (rootOutputFolderAsGiven) =
         // Download images so that they can be embedded
-        let wc = new WebClient()
+        let http = new HttpClient()
         let mutable counter = 0
 
         fun (url: string) ->
@@ -65,7 +65,8 @@ type internal DocContent
 
                 ensureDirectory (sprintf "%s/savedimages" rootOutputFolderAsGiven)
                 printfn "downloading %s --> %s" url fn
-                wc.DownloadFile(url, fn)
+                let bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult()
+                File.WriteAllBytes(fn, bytes)
                 url2
             else
                 url
@@ -1316,6 +1317,13 @@ module Serve =
 /// Helpers for generating llms.txt and llms-full.txt content.
 module internal LlmsTxt =
 
+    // Compiled once at module load; reused across all llms.txt page entries.
+    let private multipleNewlinesRegex =
+        System.Text.RegularExpressions.Regex(@"\n{3,}", System.Text.RegularExpressions.RegexOptions.Compiled)
+
+    let private whitespaceRunRegex =
+        System.Text.RegularExpressions.Regex(@"\s+", System.Text.RegularExpressions.RegexOptions.Compiled)
+
     /// Decode HTML entities (e.g. &quot; → ", &gt; → >) in a string.
     let private decodeHtml (s: string) = System.Net.WebUtility.HtmlDecode(s)
 
@@ -1335,11 +1343,11 @@ module internal LlmsTxt =
 
     /// Collapse three or more consecutive newlines into at most two.
     let private collapseBlankLines (s: string) =
-        System.Text.RegularExpressions.Regex.Replace(s, @"\n{3,}", "\n\n")
+        multipleNewlinesRegex.Replace(s, "\n\n")
 
     /// Normalise a title: trim and collapse internal whitespace/newlines to a single space.
     let private normaliseTitle (s: string) =
-        System.Text.RegularExpressions.Regex.Replace(s.Trim(), @"\s+", " ")
+        whitespaceRunRegex.Replace(s.Trim(), " ")
 
     /// Decode HTML entities and remove --eval noise from content.
     let private cleanContent (s: string) =

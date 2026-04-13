@@ -103,7 +103,7 @@ module internal MarkdownUtils =
         | LatexDisplayMath(body, _) -> sprintf "$$%s$$" body
         | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
         | Literal(str, _) -> str
-        | HardLineBreak(_) -> "\n"
+        | HardLineBreak(_) -> "  " + ctx.Newline
 
         | AnchorLink _ -> ""
         | DirectLink(body, link, title, _) ->
@@ -160,12 +160,19 @@ module internal MarkdownUtils =
     let rec formatParagraph (ctx: FormattingContext) paragraph =
         [ match paragraph with
           | LatexBlock(env, lines, _) ->
-              yield sprintf "\\begin{%s}" env
+              // Single-line equation blocks are rendered with the compact $$...$$ notation
+              // (which is also valid markdown and what most authors write). Multi-line or
+              // non-standard environments keep the \begin{env}...\end{env} form.
+              if env = "equation" && lines.Length = 1 then
+                  yield sprintf "$$%s$$" lines.[0]
+              else
+                  yield sprintf "\\begin{%s}" env
 
-              for line in lines do
-                  yield line
+                  for line in lines do
+                      yield line
 
-              yield sprintf "\\end{%s}" env
+                  yield sprintf "\\end{%s}" env
+
               yield ""
 
           | Heading(n, spans, _) ->
@@ -176,22 +183,29 @@ module internal MarkdownUtils =
               yield String.concat "" [ for span in spans -> formatSpan ctx span ]
               yield ""
 
-          | HorizontalRule(_) ->
-              yield "-----------------------"
+          | HorizontalRule(c, _) ->
+              yield String.replicate 3 (string c)
               yield ""
           | CodeBlock(code = code; fence = fence; language = language) ->
-              match fence with
-              | None -> ()
-              | Some f -> yield f + language
+              // Indented code blocks (fence = None) are serialised as fenced blocks so
+              // that the round-trip is valid — raw indented code without a '> ' prefix
+              // or 4-space indent would be parsed as a paragraph, not a code block.
+              let f = defaultArg fence "```"
+              yield f + language
 
               yield code
 
-              match fence with
-              | None -> ()
-              | Some f -> yield f
+              yield f
 
               yield ""
           | ListBlock(Unordered, paragraphsl, _) ->
+              // A tight list has exactly one Span per item (no blank lines between items).
+              let isTight =
+                  paragraphsl
+                  |> List.forall (function
+                      | [ Span _ ] -> true
+                      | _ -> false)
+
               for paragraphs in paragraphsl do
                   for (i, paragraph) in List.indexed paragraphs do
                       let lines = formatParagraph ctx paragraph
@@ -203,8 +217,19 @@ module internal MarkdownUtils =
                           else
                               yield "  " + line
 
+                  if not isTight then
                       yield ""
+
+              if isTight then
+                  yield ""
           | ListBlock(Ordered, paragraphsl, _) ->
+              // A tight list has exactly one Span per item (no blank lines between items).
+              let isTight =
+                  paragraphsl
+                  |> List.forall (function
+                      | [ Span _ ] -> true
+                      | _ -> false)
+
               for (n, paragraphs) in List.indexed paragraphsl do
                   for (i, paragraph) in List.indexed paragraphs do
                       let lines = formatParagraph ctx paragraph
@@ -216,7 +241,11 @@ module internal MarkdownUtils =
                           else
                               yield "  " + line
 
+                  if not isTight then
                       yield ""
+
+              if isTight then
+                  yield ""
           | TableBlock(headers, alignments, rows, _) ->
 
               match headers with
@@ -269,8 +298,14 @@ module internal MarkdownUtils =
           | InlineHtmlBlock(code, _, _) ->
               let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
               yield! lines
-          //yield ""
-          | YamlFrontmatter _ -> ()
+          | YamlFrontmatter(lines, _) ->
+              yield "---"
+
+              for line in lines do
+                  yield line
+
+              yield "---"
+              yield ""
           | Span(body = body) -> yield formatSpans ctx body
           | QuotedBlock(paragraphs = paragraphs) ->
               for (i, paragraph) in List.indexed paragraphs do
