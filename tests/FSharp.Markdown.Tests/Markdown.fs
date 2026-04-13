@@ -1270,8 +1270,30 @@ let ``ToMd preserves a direct link`` () =
     |> should contain "[FSharp](https://fsharp.org)"
 
 [<Test>]
+let ``ToMd preserves a direct link with title`` () =
+    let md = "[FSharp](https://fsharp.org \"F# language\")"
+    let result = toMd md
+    result |> should contain "[FSharp]("
+    result |> should contain "https://fsharp.org"
+    result |> should contain "\"F# language\""
+
+[<Test>]
+let ``ToMd preserves a direct link without title unchanged`` () =
+    let result = "[link](http://example.com)" |> toMd
+    result |> should contain "[link](http://example.com)"
+    result |> should not' (contain "\"")
+
+[<Test>]
 let ``ToMd preserves a direct image`` () =
     "![alt text](image.png)" |> toMd |> should contain "![alt text](image.png)"
+
+[<Test>]
+let ``ToMd preserves a direct image with title`` () =
+    let md = "![photo](image.png \"My Photo\")"
+    let result = toMd md
+    result |> should contain "![photo]("
+    result |> should contain "image.png"
+    result |> should contain "\"My Photo\""
 
 [<Test>]
 let ``ToMd preserves an unordered list`` () =
