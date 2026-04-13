@@ -1633,6 +1633,22 @@ let ``ToMd preserves a link with a title`` () =
     result |> should contain "https://fsharp.org"
 
 [<Test>]
+let ``ToMd preserves YAML frontmatter`` () =
+    let input = "---\ntitle: My Page\ndate: 2024-01-01\n---\n\nHello world.\n"
+    let result = input |> toMd
+    result |> should contain "---"
+    result |> should contain "title: My Page"
+    result |> should contain "date: 2024-01-01"
+    result |> should contain "Hello world."
+
+[<Test>]
+let ``ToMd preserves empty YAML frontmatter`` () =
+    let input = "---\n---\n\nHello.\n"
+    let result = input |> toMd
+    result |> should contain "---"
+    result |> should contain "Hello."
+
+[<Test>]
 let ``ToMd serialises EmbedParagraphs by delegating to Render()`` () =
     // EmbedParagraphs was previously falling through to the catch-all '| _' branch,
     // emitting a debug printfn and yielding an empty string.  It should instead

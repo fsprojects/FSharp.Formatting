@@ -298,7 +298,14 @@ module internal MarkdownUtils =
           | InlineHtmlBlock(code, _, _) ->
               let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
               yield! lines
-          | YamlFrontmatter _ -> ()
+          | YamlFrontmatter(lines, _) ->
+              yield "---"
+
+              for line in lines do
+                  yield line
+
+              yield "---"
+              yield ""
           | Span(body = body) -> yield formatSpans ctx body
           | QuotedBlock(paragraphs = paragraphs) ->
               for paragraph in paragraphs do
