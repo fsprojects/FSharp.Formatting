@@ -9,6 +9,14 @@
 
 ### Fixed
 * Fix `Markdown.ToMd` converting tight lists (no blank lines between items) into loose lists by emitting a blank line after every item. Tight lists now round-trip correctly without inter-item blank lines.
+* Fix `Markdown.ToMd` serialising `HardLineBreak` as a bare newline instead of two trailing spaces + newline. The correct CommonMark representation `"  \n"` is now emitted, so hard line breaks survive a round-trip through `ToMd`.
+* Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.
+* Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
+
+### Added
+* Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
+* Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
+* Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.
 * Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
 * Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
 * Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
@@ -21,8 +29,9 @@
 * Add missing `[<Test>]` attribute on `Can include-output-and-it` test so it is executed by the test runner.
 * Add regression test confirming that types whose name matches their enclosing namespace are correctly included in generated API docs. [#944](https://github.com/fsprojects/FSharp.Formatting/issues/944)
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images with bracket syntax. The indirect image is now serialised as `![alt](url)` when the reference is resolved, or in bracket notation when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
-* Fix `Markdown.ToMd` serialising italic spans with asterisks incorrectly as bold spans. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
-* Fix `Markdown.ToMd` serialising ordered list items with incorrect numbering and formatting. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `Markdown.ToMd` serialising `*emphasis*` (italic) spans as `**...**` (bold) instead of `*...*`. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `Markdown.ToMd` serialising ordered list items with 0-based numbering and no period (e.g. `0 first`) instead of 1-based with a period (e.g. `1. first`). [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `HtmlElement` SVG serialisation: `LinearGradient` now renders as `<linearGradient>` and `RadialGradient` now renders as `<radialGradient>` — both previously emitted the invalid tag `<radient>`.
 
 ### Changed
 * `fsdocs build` now pre-computes the navigation menu structure (filter/group/sort) once per build rather than once per output page, reducing work from O(n²) to O(n) for sites with n pages. The filesystem check for custom menu templates is also cached per build. [#1129](https://github.com/fsprojects/FSharp.Formatting/pull/1129)
