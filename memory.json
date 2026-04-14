@@ -1,20 +1,17 @@
 {
-  "run": "24339583031",
+  "run": "24394692121",
   "cursor": 1064,
   "monthly": "1131",
   "prs": [
-    "fix-tomd-yaml-frontmatter-2026-04-13",
-    "fix-issue-924-watch-root-2",
-    1164, 1162, 1161, 1157, 1153, 1150, 1147, 1145, 1144, 1142, 1134, 1130, 1127, 1108, 1106, 1089
+    1161, 1130, 1106
   ],
-  "duplicate_prs_to_close": [1159, 1160],
-  "superseded_prs_to_close": [1089],
+  "dependabot_prs": [1166],
   "comments_made": {
     "685": "prior",
     "705": "prior",
     "828": "prior",
     "898": "prior",
-    "924": "2026-04-12",
+    "924": "prior",
     "926": "prior",
     "927": "prior",
     "928": "prior",
@@ -22,7 +19,6 @@
     "949": "prior",
     "1064": "prior",
     "585": "prior",
-    "1156": "prior",
-    "1154": "prior"
+    "1156": "prior"
   }
 }
