@@ -1,3 +1,16 @@
+2026-04-15 (run 24450121955): Task 9 (testing improvements): Added 29 Markdown.ToLatex unit tests.
+  Previously ToLatex had zero direct unit tests.
+  Tests cover: headings (all 6 levels), bold, italic, inline code, links, images,
+  unordered/ordered lists, code blocks, blockquotes, tables, horizontal rules,
+  special char escaping (#%&_), inline math, display math, EmbedParagraphs, empty doc.
+  Task 3 (bug fix): Fixed level-6 heading bug in LatexFormatting.fs.
+  Bug: '| _ -> ""' in heading match produced invalid LaTeX '{content}' for h6+.
+  Fix: '| _ -> @"\subparagraph"' — deepest available LaTeX sectioning command.
+  PR created: branch repo-assist/improve-tolatex-tests-2026-04-15
+  All 346 markdown tests pass, 143 literate tests pass.
+  New Dependabot PRs: #1167 (FCS+FSharp.Core), #1168 (FSharp.Core), #1169 (System.Text.Json).
+  These need bundling with #1166 (FSharp.Data).
+
 2026-04-14 (run 24394692121): Task 6 (maintain PRs):
   PR #1106 was failing CI with IKC0002: duplicate ### Changed subsection in [22.0.0].
   Fixed by merging the duplicate into a single ### Fixed section matching main branch.
