@@ -14,6 +14,7 @@
 * Fix `Markdown.ToMd` serialising `HardLineBreak` as a bare newline instead of two trailing spaces + newline. The correct CommonMark representation `"  \n"` is now emitted, so hard line breaks survive a round-trip through `ToMd`.
 * Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.
 * Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
+* Fix `Markdown.ToLatex` producing invalid LaTeX output for level-6 (and deeper) headings. Previously the LaTeX command was an empty string, resulting in bare `{content}` without a command prefix. Headings at level 6+ are now serialised as `\subparagraph{...}`, which is the deepest sectioning command available in LaTeX.
 
 ### Added
 * Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
@@ -22,6 +23,7 @@
 * Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
 * Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
 * Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
+* Add direct unit tests for `Markdown.ToLatex`, which previously had no unit test coverage. Tests cover headings (all six levels), inline formatting (bold, italic, inline code), links, images with captions, lists (ordered and unordered), code blocks, blockquotes, tables with bold headers, horizontal rules, LaTeX special character escaping, inline math, and display math.
 
 ## [22.0.0] - 2026-04-03
 
