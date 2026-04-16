@@ -1,3 +1,15 @@
+2026-04-16 (run 24505962897): Task 8 (performance): Eliminated Seq allocations in hot parsing paths.
+  - removeSpaces: Seq.takeWhile+Seq.length → String.TrimStart().Length (no boxing per char)
+  - StartsWithNTimesTrimIgnoreStartWhitespace: Seq.windowed+Seq.map+Seq.length → index loop
+    (was allocating ~N strings for an N-char line just to count fence chars)
+  - XmlDocReader.readXmlElementAsSingleSummary: same Seq.takeWhile fix
+  PR branch: repo-assist/perf-avoid-seq-alloc-2026-04-16. 520 tests pass.
+  Task 6 (maintain PRs): reviewed all open Repo Assist PRs.
+  #1161, #1130: all CI passing. No changes needed.
+  #1106: up-to-date with main (merge-base = HEAD of main), blocked pending maintainer review.
+  #1170: newly created last run, pending first CI run.
+  Dependabot: #1168 was closed/merged (gone from open list). Remaining: #1166, #1167, #1169.
+
 2026-04-15 (run 24450121955): Task 9 (testing improvements): Added 29 Markdown.ToLatex unit tests.
   Previously ToLatex had zero direct unit tests.
   Tests cover: headings (all 6 levels), bold, italic, inline code, links, images,
@@ -6,7 +18,7 @@
   Task 3 (bug fix): Fixed level-6 heading bug in LatexFormatting.fs.
   Bug: '| _ -> ""' in heading match produced invalid LaTeX '{content}' for h6+.
   Fix: '| _ -> @"\subparagraph"' — deepest available LaTeX sectioning command.
-  PR created: branch repo-assist/improve-tolatex-tests-2026-04-15
+  PR created: #1170 (branch repo-assist/improve-tolatex-tests-2026-04-15)
   All 346 markdown tests pass, 143 literate tests pass.
   New Dependabot PRs: #1167 (FCS+FSharp.Core), #1168 (FSharp.Core), #1169 (System.Text.Json).
   These need bundling with #1166 (FSharp.Data).
