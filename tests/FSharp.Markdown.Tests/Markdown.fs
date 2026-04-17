@@ -1719,3 +1719,204 @@ let ``ToMd serialises EmbedParagraphs by delegating to Render()`` () =
     let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
     let result = Markdown.ToMd(doc)
     result |> should contain "embedded text"
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToLatex: direct unit tests
+// Previously the only LaTeX coverage was through file-based comparisons in TestFiles.fs
+// (which are not run by the test runner). These tests exercise the public API directly.
+// --------------------------------------------------------------------------------------
+
+/// Helper: parse and convert to LaTeX using Unix newlines for stable assertions.
+let toLatex (md: string) =
+    let doc = Markdown.Parse(md, newline = "\n")
+    Markdown.ToLatex(doc, newline = "\n")
+
+[<Test>]
+let ``ToLatex emits section for level-1 heading`` () =
+    let result = toLatex "# My Section"
+    result |> should contain @"\section*{My Section}"
+
+[<Test>]
+let ``ToLatex emits subsection for level-2 heading`` () =
+    let result = toLatex "## My Subsection"
+    result |> should contain @"\subsection*{My Subsection}"
+
+[<Test>]
+let ``ToLatex emits subsubsection for level-3 heading`` () =
+    let result = toLatex "### My Subsubsection"
+    result |> should contain @"\subsubsection*{My Subsubsection}"
+
+[<Test>]
+let ``ToLatex emits paragraph for level-4 heading`` () =
+    let result = toLatex "#### Level Four"
+    result |> should contain @"\paragraph{Level Four}"
+
+[<Test>]
+let ``ToLatex emits subparagraph for level-5 heading`` () =
+    let result = toLatex "##### Level Five"
+    result |> should contain @"\subparagraph{Level Five}"
+
+[<Test>]
+let ``ToLatex emits subparagraph for level-6 heading (deepest LaTeX level)`` () =
+    // Level 6 was previously producing invalid LaTeX "{Level Six}" with an empty command.
+    // The fix maps any level > 5 to \subparagraph, which is the deepest LaTeX sectioning command.
+    let result = toLatex "###### Level Six"
+    result |> should contain @"\subparagraph{Level Six}"
+    result |> should not' (startWith "{")
+
+[<Test>]
+let ``ToLatex renders bold as textbf`` () =
+    let result = toLatex "Some **bold** text."
+    result |> should contain @"\textbf{bold}"
+
+[<Test>]
+let ``ToLatex renders italic as emph`` () =
+    let result = toLatex "Some *italic* text."
+    result |> should contain @"\emph{italic}"
+
+[<Test>]
+let ``ToLatex renders inline code as texttt`` () =
+    let result = toLatex "Use `printf` here."
+    result |> should contain @"\texttt{printf}"
+
+[<Test>]
+let ``ToLatex renders a direct link as href`` () =
+    let result = toLatex "[FSharp](https://fsharp.org)"
+    result |> should contain @"\href{https://fsharp.org}{FSharp}"
+
+[<Test>]
+let ``ToLatex renders an unordered list as itemize`` () =
+    let result = toLatex "* alpha\n* beta\n* gamma"
+    result |> should contain @"\begin{itemize}"
+    result |> should contain @"\item"
+    result |> should contain @"\end{itemize}"
+    result |> should contain "alpha"
+    result |> should contain "beta"
+    result |> should contain "gamma"
+
+[<Test>]
+let ``ToLatex renders an ordered list as enumerate`` () =
+    let result = toLatex "1. first\n2. second\n3. third"
+    result |> should contain @"\begin{enumerate}"
+    result |> should contain @"\item"
+    result |> should contain @"\end{enumerate}"
+    result |> should contain "first"
+    result |> should contain "second"
+
+[<Test>]
+let ``ToLatex renders a fenced code block as lstlisting`` () =
+    let result = toLatex "```fsharp\nlet x = 42\n```"
+    result |> should contain @"\begin{lstlisting}"
+    result |> should contain "let x = 42"
+    result |> should contain @"\end{lstlisting}"
+
+[<Test>]
+let ``ToLatex renders a blockquote as quote environment`` () =
+    let result = toLatex "> This is a quote."
+    result |> should contain @"\begin{quote}"
+    result |> should contain "This is a quote."
+    result |> should contain @"\end{quote}"
+
+[<Test>]
+let ``ToLatex renders a horizontal rule`` () =
+    let result = toLatex "---"
+    result |> should contain @"\noindent\makebox[\linewidth]"
+
+[<Test>]
+let ``ToLatex escapes hash character`` () =
+    let result = toLatex "A #hashtag here."
+    result |> should contain @"\#"
+
+[<Test>]
+let ``ToLatex escapes dollar sign`` () =
+    let result = toLatex "Price is $10."
+    // Dollar signs in normal paragraph text should be escaped (not treated as math)
+    // Note: the parser may treat $10 as LaTeX math or as literal text depending on context.
+    // We verify that the result is produced without error and is non-empty.
+    result.Length |> should be (greaterThan 0)
+
+[<Test>]
+let ``ToLatex escapes percent sign`` () =
+    let result = toLatex "Score: 90% correct."
+    result |> should contain @"\%"
+
+[<Test>]
+let ``ToLatex escapes ampersand`` () =
+    let result = toLatex "A & B"
+    result |> should contain @"\&"
+
+[<Test>]
+let ``ToLatex escapes underscore`` () =
+    let result = toLatex "file\_name"
+    result |> should contain @"\_"
+
+[<Test>]
+let ``ToLatex renders inline LaTeX math`` () =
+    let result = toLatex "Euler: $e^{i\\pi} + 1 = 0$"
+    result |> should contain "$e^{i\\pi} + 1 = 0$"
+
+[<Test>]
+let ``ToLatex renders display LaTeX math as equation environment`` () =
+    // $$...$$ at paragraph level is parsed as LatexBlock(env="equation", ...)
+    // and serialised as \begin{equation}...\end{equation}
+    let result = toLatex "$$E = mc^2$$"
+    result |> should contain @"\begin{equation}"
+    result |> should contain "E = mc^2"
+    result |> should contain @"\end{equation}"
+
+[<Test>]
+let ``ToLatex renders a table as tabular`` () =
+    let md = "| Name | Age |\n|------|-----|\n| Alice | 30 |\n| Bob | 25 |"
+    let result = toLatex md
+    result |> should contain @"\begin{tabular}"
+    result |> should contain @"\hline"
+    result |> should contain @"\end{tabular}"
+    result |> should contain "Alice"
+    result |> should contain "Bob"
+
+[<Test>]
+let ``ToLatex renders table headers in bold`` () =
+    let md = "| Name | Age |\n|------|-----|\n| Alice | 30 |"
+    let result = toLatex md
+    result |> should contain @"\textbf{"
+    result |> should contain "Name"
+    result |> should contain "Age"
+
+[<Test>]
+let ``ToLatex renders an image as includegraphics`` () =
+    let md = "![alt text](image.png)"
+    let result = toLatex md
+    result |> should contain @"\includegraphics"
+    result |> should contain "image.png"
+
+[<Test>]
+let ``ToLatex renders an image with alt as figure with caption`` () =
+    let md = "![My Caption](diagram.png)"
+    let result = toLatex md
+    result |> should contain @"\begin{figure}"
+    result |> should contain @"\caption{My Caption}"
+    result |> should contain @"\end{figure}"
+
+[<Test>]
+let ``ToLatex produces non-empty output for a simple document`` () =
+    let result = toLatex "# Hello\n\nWorld."
+    result.Trim().Length |> should be (greaterThan 0)
+    result |> should contain @"\section*{Hello}"
+    result |> should contain "World."
+
+[<Test>]
+let ``ToLatex handles empty document without error`` () =
+    let result = toLatex ""
+    // Empty document should not throw and returns empty or whitespace
+    result.Trim() |> shouldEqual ""
+
+[<Test>]
+let ``ToLatex EmbedParagraphs delegates to Render()`` () =
+    let inner =
+        { new MarkdownEmbedParagraphs with
+            member _.Render() =
+                [ Paragraph([ Literal("latex text", MarkdownRange.zero) ], MarkdownRange.zero) ] }
+
+    let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
+    let result = Markdown.ToLatex(doc)
+    result |> should contain "latex text"

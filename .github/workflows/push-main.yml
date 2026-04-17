@@ -43,7 +43,7 @@ jobs:
       run: dotnet fsi build.fsx
 
     - name: Upload test results
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v7.0.1
       if: failure()
       with:
         name: test-results-ubuntu

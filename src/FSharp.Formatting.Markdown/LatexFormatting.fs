@@ -129,8 +129,7 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
             | 2 -> @"\subsection*"
             | 3 -> @"\subsubsection*"
             | 4 -> @"\paragraph"
-            | 5 -> @"\subparagraph"
-            | _ -> ""
+            | _ -> @"\subparagraph" // level 5 and above (LaTeX has no deeper command)
 
         ctx.Writer.Write(level + "{")
         formatSpansAsLatex ctx spans

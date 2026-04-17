@@ -15,6 +15,7 @@
 * Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.
 * Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
 * Fix `Markdown.ToMd` serialising a multi-paragraph blockquote as multiple separate blockquotes. The blank separator between paragraphs inside a `QuotedBlock` is now emitted as `>` (an empty blockquote line) instead of a plain blank line, so re-parsing the output yields a single `QuotedBlock` with all paragraphs intact. Also eliminates `> ` lines with trailing whitespace that the previous code produced.
+* Fix `Markdown.ToLatex` producing invalid LaTeX output for level-6 (and deeper) headings. Previously the LaTeX command was an empty string, resulting in bare `{content}` without a command prefix. Headings at level 6+ are now serialised as `\subparagraph{...}`, which is the deepest sectioning command available in LaTeX.
 
 ### Added
 * Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
@@ -24,6 +25,7 @@
 * Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
 * Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
 * Tooltips in generated documentation are now interactive: moving the mouse from a code token into the tooltip keeps it visible, so users can hover over, select, and copy text from the tooltip. The tooltip is dismissed when the mouse leaves it without returning to the originating token. A short hide-delay ensures that moving the mouse from the symbol to a tooltip that is not immediately adjacent (e.g. repositioned to stay inside the viewport) does not dismiss it prematurely. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949) [#1106](https://github.com/fsprojects/FSharp.Formatting/pull/1106)
+* Add direct unit tests for `Markdown.ToLatex`, which previously had no unit test coverage. Tests cover headings (all six levels), inline formatting (bold, italic, inline code), links, images with captions, lists (ordered and unordered), code blocks, blockquotes, tables with bold headers, horizontal rules, LaTeX special character escaping, inline math, and display math.
 
 ## [22.0.0] - 2026-04-03
 
