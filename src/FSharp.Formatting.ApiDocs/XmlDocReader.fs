@@ -133,7 +133,7 @@ module internal XmlDocReader =
         else
             let allLinesHaveSameColumn =
                 nonEmptyLines
-                |> Array.map (fun line -> line |> Seq.takeWhile (fun c -> c = ' ') |> Seq.length)
+                |> Array.map (fun line -> line.Length - line.TrimStart([| ' ' |]).Length)
                 |> Array.distinct
                 |> Array.length
                 |> (=) 1

@@ -110,7 +110,7 @@ module String =
             lines
             |> Seq.choose (fun line ->
                 if String.IsNullOrWhiteSpace line |> not then
-                    line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length |> Some
+                    line.Length - line.TrimStart().Length |> Some
                 else
                     None)
             |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
@@ -226,10 +226,16 @@ module StringPosition =
                 let startAndRest = text.Substring(beforeStart.Length)
 
                 let startNum =
-                    Seq.windowed start.Length startAndRest
-                    |> Seq.map (fun chars -> System.String(chars))
-                    |> Seq.takeWhile ((=) start)
-                    |> Seq.length
+                    let mutable count = 0
+                    let mutable pos = 0
+                    let startLen = start.Length
+
+                    while pos + startLen <= startAndRest.Length
+                          && startAndRest.Substring(pos, startLen) = start do
+                        count <- count + 1
+                        pos <- pos + startLen
+
+                    count
 
                 Some(
                     startNum,

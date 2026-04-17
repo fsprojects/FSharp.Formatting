@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Changed
+* Avoid `Seq` allocations in hot markdown-parsing paths. `removeSpaces` (called on every XML doc comment and literate code block) previously iterated each line character-by-character via `Seq.takeWhile + Seq.length`; it now uses `String.TrimStart().Length`. The `StartsWithNTimesTrimIgnoreStartWhitespace` active pattern (called for every line to detect fenced code blocks) previously built a sliding-window `Seq`, allocated a `System.String` per window, and counted matches via `Seq.length`; it now uses a simple index loop.
 * Compile `Regex` instances to module-level singletons (with `RegexOptions.Compiled`) in `PageContentList`, `HtmlFormatting`, `Formatting`, `Menu`, and `LlmsTxt`. Previously a new, uncompiled `Regex` was constructed on every call (once per page heading, once per HTML page, once per menu item, once per llms.txt entry), incurring repeated JIT overhead. The patterns are now compiled once at module load and reused across all calls.
 * Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
 * Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
