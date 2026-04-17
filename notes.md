@@ -1,64 +1,36 @@
+2026-04-17 (run 24560940897): Task 3 (fix): Rebased perf-avoid-seq-alloc branch onto current main.
+  Previous PR #1171 was closed by dsyme at 10:38 UTC (likely merge conflict with dependabot merges).
+  Merged today by dsyme: #1170 (ToLatex tests+h6 fix), #1166, #1167, #1169, #1172 (dependabot).
+  PR #1171 closed (perf), #1168 closed (superseded by #1167).
+  New branch: repo-assist/perf-avoid-seq-alloc-2026-04-17, rebased cleanly onto current main.
+  Task 2 (comment): All open issues already have Repo Assist comments. Cursor at 1064 (no new issues).
+  Open Repo Assist PRs: 1161 (CSS surface colors), 1130 (tooltip), 1106 (blockquote), + new perf PR.
+
 2026-04-16 (run 24505962897): Task 8 (performance): Eliminated Seq allocations in hot parsing paths.
   - removeSpaces: Seq.takeWhile+Seq.length → String.TrimStart().Length (no boxing per char)
   - StartsWithNTimesTrimIgnoreStartWhitespace: Seq.windowed+Seq.map+Seq.length → index loop
     (was allocating ~N strings for an N-char line just to count fence chars)
   - XmlDocReader.readXmlElementAsSingleSummary: same Seq.takeWhile fix
-  PR branch: repo-assist/perf-avoid-seq-alloc-2026-04-16. 520 tests pass.
+  PR #1171 created (now closed by maintainer, rebased as new PR this run). 520 tests pass.
   Task 6 (maintain PRs): reviewed all open Repo Assist PRs.
   #1161, #1130: all CI passing. No changes needed.
-  #1106: up-to-date with main (merge-base = HEAD of main), blocked pending maintainer review.
+  #1106: up-to-date with main, blocked pending maintainer review.
   #1170: newly created last run, pending first CI run.
-  Dependabot: #1168 was closed/merged (gone from open list). Remaining: #1166, #1167, #1169.
 
 2026-04-15 (run 24450121955): Task 9 (testing improvements): Added 29 Markdown.ToLatex unit tests.
-  Previously ToLatex had zero direct unit tests.
-  Tests cover: headings (all 6 levels), bold, italic, inline code, links, images,
-  unordered/ordered lists, code blocks, blockquotes, tables, horizontal rules,
-  special char escaping (#%&_), inline math, display math, EmbedParagraphs, empty doc.
   Task 3 (bug fix): Fixed level-6 heading bug in LatexFormatting.fs.
-  Bug: '| _ -> ""' in heading match produced invalid LaTeX '{content}' for h6+.
-  Fix: '| _ -> @"\subparagraph"' — deepest available LaTeX sectioning command.
-  PR created: #1170 (branch repo-assist/improve-tolatex-tests-2026-04-15)
-  All 346 markdown tests pass, 143 literate tests pass.
-  New Dependabot PRs: #1167 (FCS+FSharp.Core), #1168 (FSharp.Core), #1169 (System.Text.Json).
-  These need bundling with #1166 (FSharp.Data).
+  PR #1170 created and MERGED by dsyme 2026-04-17. ✅
 
 2026-04-14 (run 24394692121): Task 6 (maintain PRs):
   PR #1106 was failing CI with IKC0002: duplicate ### Changed subsection in [22.0.0].
   Fixed by merging the duplicate into a single ### Fixed section matching main branch.
-  Pushed fix to PR #1106 branch.
-  Task 2 (issue investigation): All open issues already have Repo Assist comments. No new human activity requiring re-engagement.
-  PRs merged since last run: most (#1164, #1162, #1157, #1153, #1150, #1147, #1145, #1144, #1142, #1134, #1127, #1108 etc).
-  New Dependabot PR #1166: FSharp.Data 8.1.8.
-  Open Repo Assist PRs remaining: #1161 (CSS surface colors), #1130 (tooltip), #1106 (blockquote).
+  Task 2: All open issues already have Repo Assist comments.
 
-2026-04-13 (run 24339583031): Task 3 (fix): Created PR fix-tomd-yaml-frontmatter-2026-04-13:
-  - Fix: Markdown.ToMd was silently dropping YamlFrontmatter paragraphs
-  - Added 2 tests: one with populated frontmatter, one with empty block
-  - Build: 0 warnings, 0 errors. 283 markdown tests pass, 143 literate tests pass
-  - FSharp.ApiDocs.Tests: 80 pre-existing failures on main (unrelated)
-  Task 2 (comment): All open non-Repo-Assist issues already have comments.
-  No new issues to comment on (cursor at 1064, no newer human issues).
+2026-04-13: Created PR #1165 (fix-tomd-yaml-frontmatter). MERGED. ✅
+2026-04-12: Created PR #1164 (fix-watch-root). MERGED. ✅
+2026-04-10: Created PR #1161 (CSS surface colors, open), #1162 (regex compile, MERGED). ✅
+2026-04-10: Created PR #1157 (tight list fix). MERGED. ✅
 
-2026-04-12 (run 24304604567): Task 6 (maintain PRs):
-  Closed duplicate PRs:
-  - #1159 (wrong title: CSS title but perf branch) 
-  - #1160 (duplicate perf PR; keeping #1162)
-  - #1089 (old --root PR with accumulated merge commits; replaced by fresh rebase)
-  Created bundle-deps PR (branch repo-assist/eng-bundle-deps-2026-04-10):
-  FSharp.Data 8.1.7 + upload-artifact v7 (closes #1152, #1155). 284 tests pass.
-  Task 3 (fix): Created fresh rebase of PR #1089 as new PR (branch repo-assist/fix-issue-924-watch-root-2):
-  - Add --root option to fsdocs watch (closes #924)
-  - Fix WebSocket hot-reload URL to use window.location.host
-  Build: 0 warnings, 0 errors. 319 tests pass.
-2026-04-10 (run 24238894950): Task 2 (issue investigation): nojaf said "go for it" on #1156.
-  Implemented CSS --surface-background and --surface-border variables.
-  PR #1161 (branch repo-assist/fix-issue-1156-surface-colors). Commented on #1156.
-2026-04-10 (run 24238894950): Task 8 (performance): Fixed 5 uncompiled Regex instances in hot paths.
-  PR #1162 (branch repo-assist/perf-compile-regex-2026-04-10-f88f43f8). 281 tests pass.
-2026-04-10: Created bundle-deps branch (later PR created 2026-04-11):
-  FSharp.Data 8.1.7 + upload-artifact v7.
-2026-04-10: Task 3 carry-over: Created PR #1157 (tight list round-trip fix). 284 tests pass.
 IMPORTANT: Ionide.KeepAChangelog.Tasks 0.3.3 only allows standard Keep a Changelog subsection names
   (Added, Changed, Deprecated, Fixed, Removed, Security). Do NOT use Performance, Testing, etc.
   Also: each version block can only have ONE of each subsection type. Duplicates cause IKC0002 build error.
