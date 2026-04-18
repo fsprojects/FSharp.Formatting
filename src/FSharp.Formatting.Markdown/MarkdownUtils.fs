@@ -6,7 +6,6 @@ namespace rec FSharp.Formatting.Markdown
 
 open System
 open System.Collections.Generic
-open System.Linq
 open System.Xml.Linq
 open FSharp.Formatting.Templating
 
@@ -423,7 +422,7 @@ module internal MarkdownUtils =
                         let attributes =
                             match System.Xml.XPath.Extensions.XPathEvaluate(element, "//*/@*[contains(., '.md')]") with
                             | :? System.Collections.IEnumerable as enumerable ->
-                                enumerable |> Enumerable.Cast<XAttribute> |> Seq.toArray
+                                enumerable |> Seq.cast<XAttribute> |> Seq.toArray
                             | _ -> Array.empty
 
                         if Array.isEmpty attributes then
