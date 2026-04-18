@@ -1,3 +1,12 @@
+2026-04-18 (run 24602767430): Task 4+5: Fix stale FCS VersionOverride + Seq.cast cleanup.
+  - Removed VersionOverride="43.12.201" from FSharp.Formatting.Markdown.fsproj.
+    Dependabot added it when bumping FCS to 43.12.201, but a subsequent bump to 43.12.202
+    in Directory.Packages.props left the override stale, causing NU1605 warning.
+  - Replaced Enumerable.Cast<XAttribute> with Seq.cast<XAttribute> in MarkdownUtils.fs,
+    allowing removal of open System.Linq.
+  Created branch repo-assist/improve-fcs-pin-seq-cast-2026-04-18 (PR TBD).
+  All 4 existing Repo Assist PRs still open: 1173 (perf), 1161 (CSS), 1130 (tooltip), 1106 (blockquote).
+
 2026-04-17 (run 24560940897): Task 3 (fix): Rebased perf-avoid-seq-alloc branch onto current main.
   Previous PR #1171 was closed by dsyme at 10:38 UTC (likely merge conflict with dependabot merges).
   Merged today by dsyme: #1170 (ToLatex tests+h6 fix), #1166, #1167, #1169, #1172 (dependabot).
