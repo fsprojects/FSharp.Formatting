@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [22.0.1] - 2026-04-19
+
 ### Changed
 * Compile `Regex` instances to module-level singletons (with `RegexOptions.Compiled`) in `PageContentList`, `HtmlFormatting`, `Formatting`, `Menu`, and `LlmsTxt`. Previously a new, uncompiled `Regex` was constructed on every call (once per page heading, once per HTML page, once per menu item, once per llms.txt entry), incurring repeated JIT overhead. The patterns are now compiled once at module load and reused across all calls.
 * Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
@@ -15,14 +17,14 @@
 * Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.
 * Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
 * Fix `Markdown.ToLatex` producing invalid LaTeX output for level-6 (and deeper) headings. Previously the LaTeX command was an empty string, resulting in bare `{content}` without a command prefix. Headings at level 6+ are now serialised as `\subparagraph{...}`, which is the deepest sectioning command available in LaTeX.
+* Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
+* Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
+* Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
 
 ### Added
 * Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
 * Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
 * Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.
-* Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
-* Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
-* Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
 * Add direct unit tests for `Markdown.ToLatex`, which previously had no unit test coverage. Tests cover headings (all six levels), inline formatting (bold, italic, inline code), links, images with captions, lists (ordered and unordered), code blocks, blockquotes, tables with bold headers, horizontal rules, LaTeX special character escaping, inline math, and display math.
 
 ## [22.0.0] - 2026-04-03
