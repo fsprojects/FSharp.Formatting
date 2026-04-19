@@ -1,30 +1,24 @@
+2026-04-19 (run 24627004104): Task 10: Created release prep PR for v22.0.1.
+  - Moved all [Unreleased] entries to [22.0.1] - 2026-04-19 in RELEASE_NOTES.md.
+  - Moved 3 "Fix" items misplaced in ### Added into ### Fixed.
+  - Left empty [Unreleased] section.
+  - Build succeeded (0 errors, pre-existing NU1605/NU1608 warnings only).
+  - Branch: repo-assist/release-22.0.1-2026-04-19
+  Note: PR #1106 also modifies RELEASE_NOTES.md (adds QuotedBlock fix + tooltip);
+    if merged before release PR, minor conflict on [Unreleased] section needs resolving.
+  Task 3 (bug fix): No new fixable bugs found without duplicating existing open PRs.
+    - QuotedBlock bug: already covered by open PR #1106
+    - publicOnly=false C# test: complex, requires FCS investigation, not safely fixable
+
 2026-04-18 (run 24602767430): Task 4+5: Fix stale FCS VersionOverride + Seq.cast cleanup.
-  - Removed VersionOverride="43.12.201" from FSharp.Formatting.Markdown.fsproj.
-    Dependabot added it when bumping FCS to 43.12.201, but a subsequent bump to 43.12.202
-    in Directory.Packages.props left the override stale, causing NU1605 warning.
-  - Replaced Enumerable.Cast<XAttribute> with Seq.cast<XAttribute> in MarkdownUtils.fs,
-    allowing removal of open System.Linq.
-  Created branch repo-assist/improve-fcs-pin-seq-cast-2026-04-18 (PR TBD).
-  All 4 existing Repo Assist PRs still open: 1173 (perf), 1161 (CSS), 1130 (tooltip), 1106 (blockquote).
+  PR #1174 created. All 5 open Repo Assist PRs: 1174 (fcs/seq), 1173 (perf), 1161 (CSS), 1130 (tooltip), 1106 (blockquote).
 
 2026-04-17 (run 24560940897): Task 3 (fix): Rebased perf-avoid-seq-alloc branch onto current main.
-  Previous PR #1171 was closed by dsyme at 10:38 UTC (likely merge conflict with dependabot merges).
-  Merged today by dsyme: #1170 (ToLatex tests+h6 fix), #1166, #1167, #1169, #1172 (dependabot).
-  PR #1171 closed (perf), #1168 closed (superseded by #1167).
+  PR #1173 created. Previous PR #1171 was closed by dsyme (merge conflict with dependabot).
   New branch: repo-assist/perf-avoid-seq-alloc-2026-04-17, rebased cleanly onto current main.
-  Task 2 (comment): All open issues already have Repo Assist comments. Cursor at 1064 (no new issues).
-  Open Repo Assist PRs: 1161 (CSS surface colors), 1130 (tooltip), 1106 (blockquote), + new perf PR.
 
 2026-04-16 (run 24505962897): Task 8 (performance): Eliminated Seq allocations in hot parsing paths.
-  - removeSpaces: Seq.takeWhile+Seq.length → String.TrimStart().Length (no boxing per char)
-  - StartsWithNTimesTrimIgnoreStartWhitespace: Seq.windowed+Seq.map+Seq.length → index loop
-    (was allocating ~N strings for an N-char line just to count fence chars)
-  - XmlDocReader.readXmlElementAsSingleSummary: same Seq.takeWhile fix
   PR #1171 created (now closed by maintainer, rebased as new PR this run). 520 tests pass.
-  Task 6 (maintain PRs): reviewed all open Repo Assist PRs.
-  #1161, #1130: all CI passing. No changes needed.
-  #1106: up-to-date with main, blocked pending maintainer review.
-  #1170: newly created last run, pending first CI run.
 
 2026-04-15 (run 24450121955): Task 9 (testing improvements): Added 29 Markdown.ToLatex unit tests.
   Task 3 (bug fix): Fixed level-6 heading bug in LatexFormatting.fs.
@@ -33,7 +27,6 @@
 2026-04-14 (run 24394692121): Task 6 (maintain PRs):
   PR #1106 was failing CI with IKC0002: duplicate ### Changed subsection in [22.0.0].
   Fixed by merging the duplicate into a single ### Fixed section matching main branch.
-  Task 2: All open issues already have Repo Assist comments.
 
 2026-04-13: Created PR #1165 (fix-tomd-yaml-frontmatter). MERGED. ✅
 2026-04-12: Created PR #1164 (fix-watch-root). MERGED. ✅
