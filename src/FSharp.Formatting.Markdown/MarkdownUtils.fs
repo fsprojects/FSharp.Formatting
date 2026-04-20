@@ -157,6 +157,32 @@ module internal MarkdownUtils =
 
     /// Format a MarkdownParagraph
     let rec formatParagraph (ctx: FormattingContext) paragraph =
+        // Shared helper for both ordered and unordered list blocks.
+        // getPrefix receives the 0-based item index and returns the leading string (e.g. "* " or "1. ").
+        let formatListBlock paragraphsl (getPrefix: int -> string) =
+            let isTight =
+                paragraphsl
+                |> List.forall (function
+                    | [ Span _ ] -> true
+                    | _ -> false)
+
+            [ for (n, paragraphs) in List.indexed paragraphsl do
+                  for (i, paragraph) in List.indexed paragraphs do
+                      let lines: string list = formatParagraph ctx paragraph
+                      let lines = if lines.IsEmpty then [ "" ] else lines
+
+                      for (j, line) in List.indexed lines do
+                          if i = 0 && j = 0 then
+                              yield getPrefix n + line
+                          else
+                              yield "  " + line
+
+                  if not isTight then
+                      yield ""
+
+              if isTight then
+                  yield "" ]
+
         [ match paragraph with
           | LatexBlock(env, lines, _) ->
               // Single-line equation blocks are rendered with the compact $$...$$ notation
@@ -197,54 +223,8 @@ module internal MarkdownUtils =
               yield f
 
               yield ""
-          | ListBlock(Unordered, paragraphsl, _) ->
-              // A tight list has exactly one Span per item (no blank lines between items).
-              let isTight =
-                  paragraphsl
-                  |> List.forall (function
-                      | [ Span _ ] -> true
-                      | _ -> false)
-
-              for paragraphs in paragraphsl do
-                  for (i, paragraph) in List.indexed paragraphs do
-                      let lines = formatParagraph ctx paragraph
-                      let lines = if lines.IsEmpty then [ "" ] else lines
-
-                      for (j, line) in List.indexed lines do
-                          if i = 0 && j = 0 then
-                              yield "* " + line
-                          else
-                              yield "  " + line
-
-                  if not isTight then
-                      yield ""
-
-              if isTight then
-                  yield ""
-          | ListBlock(Ordered, paragraphsl, _) ->
-              // A tight list has exactly one Span per item (no blank lines between items).
-              let isTight =
-                  paragraphsl
-                  |> List.forall (function
-                      | [ Span _ ] -> true
-                      | _ -> false)
-
-              for (n, paragraphs) in List.indexed paragraphsl do
-                  for (i, paragraph) in List.indexed paragraphs do
-                      let lines = formatParagraph ctx paragraph
-                      let lines = if lines.IsEmpty then [ "" ] else lines
-
-                      for (j, line) in List.indexed lines do
-                          if i = 0 && j = 0 then
-                              yield $"%i{n + 1}. " + line
-                          else
-                              yield "  " + line
-
-                  if not isTight then
-                      yield ""
-
-              if isTight then
-                  yield ""
+          | ListBlock(Unordered, paragraphsl, _) -> yield! formatListBlock paragraphsl (fun _ -> "* ")
+          | ListBlock(Ordered, paragraphsl, _) -> yield! formatListBlock paragraphsl (fun n -> $"{n + 1}. ")
           | TableBlock(headers, alignments, rows, _) ->
 
               match headers with

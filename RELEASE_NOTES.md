@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ### Changed
+* Refactor `Markdown.ToMd` list-block formatting: extract a shared `formatListBlock` helper to eliminate the near-identical code paths for ordered and unordered lists in `MarkdownUtils.fs`.
+
+### Changed
 * Compile `Regex` instances to module-level singletons (with `RegexOptions.Compiled`) in `PageContentList`, `HtmlFormatting`, `Formatting`, `Menu`, and `LlmsTxt`. Previously a new, uncompiled `Regex` was constructed on every call (once per page heading, once per HTML page, once per menu item, once per llms.txt entry), incurring repeated JIT overhead. The patterns are now compiled once at module load and reused across all calls.
 * Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
 * Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
