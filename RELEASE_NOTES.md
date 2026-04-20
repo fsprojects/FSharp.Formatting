@@ -9,6 +9,8 @@
 * Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
 * Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
 * Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.0
+* Remove stale `VersionOverride="43.12.201"` on the `FSharp.Compiler.Service` reference in `FSharp.Formatting.Markdown.fsproj`; the package now uses the central pin (`43.12.202`) from `Directory.Packages.props`, eliminating the NU1605 build warning.
+* Replace `Enumerable.Cast<XAttribute>` (LINQ) with `Seq.cast<XAttribute>` (idiomatic F#) in `MarkdownUtils.fs`, removing the `open System.Linq` import.
 
 ### Fixed
 * Fix `Markdown.ToMd` silently dropping YAML frontmatter when serialising a parsed `MarkdownDocument` back to Markdown text. Frontmatter is now preserved with its `---` delimiters.
