@@ -30,6 +30,7 @@
 ## [22.0.0] - 2026-04-03
 
 ### Fixed
+* Fix tooltip not being interactive: moving the mouse from a code token into its tooltip now keeps the tooltip open, allowing users to select and copy the tooltip text. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
 * Fix spurious `'fsi' is not defined` error during literate script type-checking when scripts use `fsi.AddPrinter` or related APIs. The `FSharp.Compiler.Interactive.Settings.dll` reference is now explicitly added to the type-checker options. [#1139](https://github.com/fsprojects/FSharp.Formatting/issues/1139)
 * Fix literate script comment parser prematurely closing `(**` blocks when the markdown text contained nested `(*** ... ***)` references (e.g. in backtick-quoted command examples), causing subsequent content to be silently dropped from HTML output.
 * Add missing `[<Test>]` attribute on `Can include-output-and-it` test so it is executed by the test runner.

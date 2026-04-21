@@ -1012,6 +1012,8 @@ div.fsdocs-tip:popover-open {
     position: fixed;
     inset: unset;
     animation: fsdocs-tip-fade-in 120ms ease-out;
+    cursor: text;
+    user-select: text;
 }
 
 [data-fsdocs-tip] {
