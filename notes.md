@@ -1,7 +1,12 @@
+2026-04-21 (run 24718213220): Task 6: Updated PR #1161 — renamed --surface-* to --panel-* per nojaf+dsyme feedback. CI passes.
+  - PR #1176 (list-block-refactor) was CLOSED by dsyme on 2026-04-21. Do not re-propose.
+  - Task 2: All open issues commented on, no new human activity requiring new comments.
+
 2026-04-20 (run 24662685228): Task 5+6: Refactor formatListBlock helper + update release PR #1175.
   - Created new PR (branch repo-assist/improve-list-block-refactor-2026-04-20):
     Extracted shared formatListBlock helper in MarkdownUtils.fs - eliminates ~21 duplicate lines
     between ordered/unordered list formatting. 346 tests pass.
+    PR #1176 was CLOSED by dsyme on 2026-04-21. Do not re-propose list-block refactor.
   - Updated PR #1175 (release 22.0.1) to include #1174 entries:
     * Remove stale VersionOverride="43.12.201"
     * Replace Enumerable.Cast with Seq.cast
