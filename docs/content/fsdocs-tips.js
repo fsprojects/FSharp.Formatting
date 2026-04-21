@@ -1,7 +1,16 @@
 let currentTip = null;
 let currentTipElement = null;
+let hideTimer = null;
+
+function cancelHide() {
+    if (hideTimer !== null) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+    }
+}
 
 function hideTip(name) {
+    cancelHide();
     const el = document.getElementById(name);
     if (el) {
         try { el.hidePopover(); } catch (_) { }
@@ -10,7 +19,19 @@ function hideTip(name) {
     currentTipElement = null;
 }
 
+// Schedule a hide after a short delay so the mouse can travel from the trigger
+// to the tooltip (which may have a positional gap) without the tooltip disappearing.
+function scheduleHide(name) {
+    cancelHide();
+    hideTimer = setTimeout(function () {
+        hideTimer = null;
+        hideTip(name);
+    }, 300);
+}
+
 function showTip(evt, name, unique) {
+    // Cancel any pending hide so hovering back over the trigger keeps the tooltip open.
+    cancelHide();
     if (currentTip === unique) return;
 
     // Hide the previously shown tooltip before showing the new one
@@ -51,6 +72,11 @@ function showTip(evt, name, unique) {
 
 // Event delegation: trigger tooltips from data-fsdocs-tip attributes
 document.addEventListener('mouseover', function (evt) {
+    // Cancel any pending hide when the mouse enters the tooltip itself.
+    if (evt.target.closest('div.fsdocs-tip')) {
+        cancelHide();
+        return;
+    }
     const target = evt.target.closest('[data-fsdocs-tip]');
     if (!target) return;
     const name = target.dataset.fsdocsTip;
@@ -64,8 +90,18 @@ document.addEventListener('mouseout', function (evt) {
     // Only hide when the mouse has left the trigger element entirely
     if (target.contains(evt.relatedTarget)) return;
     const name = target.dataset.fsdocsTip;
-    const unique = parseInt(target.dataset.fsdocsTipUnique, 10);
-    hideTip(name);
+    // Use a short delay so the mouse can travel across the gap between the trigger
+    // and the tooltip without the tooltip disappearing.
+    scheduleHide(name);
+});
+
+// Hide the tooltip when the mouse leaves it, unless it returns to the trigger element.
+document.addEventListener('mouseout', function (evt) {
+    const tip = evt.target.closest('div.fsdocs-tip');
+    if (!tip) return;
+    // Still moving within the tooltip (between child elements) — keep it open.
+    if (tip.contains(evt.relatedTarget)) return;
+    scheduleHide(tip.id);
 });
 
 function Clipboard_CopyTo(value) {

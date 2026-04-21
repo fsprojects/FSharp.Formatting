@@ -1370,6 +1370,32 @@ let ``ToMd preserves a blockquote`` () =
     result |> should contain "This is a quote."
 
 [<Test>]
+let ``ToMd preserves a multi-paragraph blockquote as a single blockquote`` () =
+    // A blockquote with two paragraphs must round-trip as one blockquote, not two.
+    // The separator between the two paragraphs must keep the ">" prefix so that
+    // re-parsing does not split it into separate QuotedBlock nodes.
+    let md = "> First paragraph.\n>\n> Second paragraph."
+    let result = toMd md
+    result |> should contain "> First paragraph."
+    result |> should contain "> Second paragraph."
+    // Re-parse and confirm we get exactly one QuotedBlock
+    let reparsed = Markdown.Parse(result)
+
+    match reparsed.Paragraphs with
+    | [ QuotedBlock _ ] -> () // single blockquote — correct
+    | other -> failwith $"Expected a single QuotedBlock but got: %A{other}"
+
+[<Test>]
+let ``ToMd blockquote does not produce trailing-whitespace lines`` () =
+    // "> " (greater-than + space) on its own is an empty blockquote line and has trailing whitespace.
+    // The serialiser should not emit such lines.
+    let md = "> A short quote."
+    let result = toMd md
+    let lines = result.Split('\n')
+
+    lines |> Array.filter (fun l -> l = "> ") |> Array.length |> should equal 0
+
+[<Test>]
 let ``ToMd preserves a horizontal rule`` () =
     let md = "Before\n\n---\n\nAfter"
     let result = toMd md

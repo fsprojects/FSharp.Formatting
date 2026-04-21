@@ -307,8 +307,17 @@ module internal MarkdownUtils =
               yield ""
           | Span(body = body) -> yield formatSpans ctx body
           | QuotedBlock(paragraphs = paragraphs) ->
-              for paragraph in paragraphs do
+              for (i, paragraph) in List.indexed paragraphs do
+                  // Separate paragraphs within the same blockquote using an empty blockquote line.
+                  // A plain blank line would close the blockquote, causing a round-trip failure.
+                  if i > 0 then
+                      yield ">"
+
                   let lines = formatParagraph ctx paragraph
+
+                  // Drop the trailing blank line that formatParagraph normally appends;
+                  // prefixing it with "> " would produce lines with trailing whitespace.
+                  let lines = lines |> List.rev |> List.skipWhile System.String.IsNullOrEmpty |> List.rev
 
                   for line in lines do
                       yield "> " + line
