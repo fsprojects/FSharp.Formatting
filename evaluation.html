@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsprojects.github.io/FSharp.Formatting/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="Embedding script output
+" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="Embedding script output
+">
+    
+    <title>Embedding script output
+ | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<p><a href="https://mybinder.org/v2/gh/fsprojects/fsharp.formatting/gh-pages?filepath=evaluation.ipynb"><img src="img/badge-binder.svg" alt="Binder" /></a>&emsp;
+<a href="https://fsprojects.github.io/FSharp.Formatting//evaluation.fsx"><img src="img/badge-script.svg" alt="Script" /></a>&emsp;
+<a href="https://fsprojects.github.io/FSharp.Formatting//evaluation.ipynb"><img src="img/badge-notebook.svg" alt="Notebook" /></a></p>
+<h1><a name="Embedding-script-output" class="anchor" href="#Embedding-script-output">Embedding script output</a></h1>
+<p>For literate F# scripts, you may embed the result of running the script as part of the literate output.
+This is a feature of the functions discussed in <a href="literate.html">literate programming</a> and
+it is implemented using the <a href="http://fsharp.github.io/FSharp.Compiler.Service/">F# Compiler service</a>.</p>
+<h2><a name="Including-Console-Output" class="anchor" href="#Including-Console-Output">Including Console Output</a></h2>
+<p>To include the Console output use <code>include-output</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">test</span> <span class="o">=</span> <span class="n">40</span> <span class="o">+</span> <span class="n">2</span>
+
+<span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="fn">printf</span> <span class="s">&quot;A result is: </span><span class="pf">%d</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="3" class="id">test</span>
+<span class="c">(*** include-output ***)</span>
+</code></pre>
+<p>The script defines a variable <code>test</code> and then prints it. The console output is included
+in the output.</p>
+<p>To include the a formatted value use <code>include-it</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span> <span class="n">0</span> <span class="o">..</span> <span class="n">99</span> <span class="pn">]</span>
+
+<span class="c">(*** include-it ***)</span>
+</code></pre>
+<p>To include the meta output of F# Interactive processing such as type signatures use <code>(*** include-fsi-output ***)</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="4" class="id">test</span> <span class="o">=</span> <span class="n">40</span> <span class="o">+</span> <span class="n">3</span>
+
+<span class="c">(*** include-fsi-output ***)</span>
+</code></pre>
+<p>To include both console output and F# Interactive output blended use <code>(*** include-fsi-merged-output ***)</code>.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="5" class="id">test</span> <span class="o">=</span> <span class="n">40</span> <span class="o">+</span> <span class="n">4</span>
+<span class="c">(*** include-fsi-merged-output ***)</span>
+</code></pre>
+<p>You can use the same commands with a named snippet:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">(*** include-it: test ***)</span>
+<span class="c">(*** include-fsi-output: test ***)</span>
+<span class="c">(*** include-output: test ***)</span>
+</code></pre>
+<p>You can use the <code>include-value</code> command to format a specific value:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="6" class="id">value1</span> <span class="o">=</span> <span class="pn">[</span> <span class="n">0</span> <span class="o">..</span> <span class="n">50</span> <span class="pn">]</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="7" class="id">value2</span> <span class="o">=</span> <span class="pn">[</span> <span class="n">51</span> <span class="o">..</span> <span class="n">100</span> <span class="pn">]</span>
+<span class="c">(*** include-value: value1 ***)</span>
+</code></pre>
+<h2><a name="Using-AddPrinter-and-AddHtmlPrinter" class="anchor" href="#Using-AddPrinter-and-AddHtmlPrinter">Using AddPrinter and AddHtmlPrinter</a></h2>
+<p>You can use <code>fsi.AddPrinter</code>, <code>fsi.AddPrintTransformer</code> and <code>fsi.AddHtmlPrinter</code> to extend the formatting of objects.</p>
+<p><code>fsi.AddHtmlPrinter</code> lets you register a function that renders values of a particular type as raw HTML.
+The function receives the value and returns a sequence of CSS/JS resource pairs and an HTML string.
+Registered printers are invoked automatically when a value of the matching type is included via
+<code>(*** include-it ***)</code> or <code>(*** include-it-raw ***)</code>.</p>
+<p>A common use-case is embedding chart or plot images. For example, if your charting library produces
+values of type <code>MyChart</code>, you can register a printer that converts them to an <code>&lt;img&gt;</code> tag:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="8" class="id">fsi</span><span class="pn">.</span><span class="id">AddHtmlPrinter</span><span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="id">chart</span><span class="pn">:</span> <span class="id">MyChart</span><span class="pn">)</span> <span class="k">-&gt;</span>
+    <span class="c">// Convert the chart to a PNG byte array</span>
+    <span class="k">let</span> <span class="id">bytes</span> <span class="o">=</span> <span class="id">chart</span><span class="pn">.</span><span class="id">ToPngBytes</span><span class="pn">(</span><span class="pn">)</span>
+    <span class="k">let</span> <span class="id">b64</span> <span class="o">=</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="9" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="10" class="id">Convert</span><span class="pn">.</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="11" class="id">ToBase64String</span><span class="pn">(</span><span class="id">bytes</span><span class="pn">)</span>
+    <span class="c">// Return (no extra resources, HTML string)</span>
+    <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="12" class="id">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="13" class="id">empty</span><span class="pn">,</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="14" class="id">sprintf</span> <span class="s">&quot;&quot;&quot;&lt;img src=&quot;data:image/png;base64,%s&quot; /&gt;&quot;&quot;&quot;</span> <span class="id">b64</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="15" class="id">myChart</span> <span class="o">=</span> <span class="id">MyChart</span><span class="pn">.</span><span class="id">Create</span><span class="pn">(</span><span class="id">data</span><span class="pn">)</span>
+<span class="c">(*** include-it ***)</span>
+</code></pre>
+<p>With this printer registered, <code>(*** include-it ***)</code> will emit the chart as an inline Base64 image
+in the HTML output.</p>
+<p>If you don't have a custom type but still want to embed an image produced by your script, you can
+use a plain helper function together with <code>(*** include-it-raw ***)</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="16" class="fn">inlinePng</span> <span class="pn">(</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="17" class="fn">fileName</span><span class="pn">:</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="18" class="rt">string</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="19" class="fn">bytes</span> <span class="o">=</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="20" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="21" class="id">IO</span><span class="pn">.</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="22" class="rt">File</span><span class="pn">.</span><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="23" class="id">ReadAllBytes</span><span class="pn">(</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="24" class="fn">fileName</span><span class="pn">)</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="25" class="fn">b64</span> <span class="o">=</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="26" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="27" class="rt">Convert</span><span class="pn">.</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="28" class="id">ToBase64String</span><span class="pn">(</span><span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="29" class="fn">bytes</span><span class="pn">)</span>
+    <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="30" class="fn">sprintf</span> <span class="s">&quot;&quot;&quot;&lt;img src=&quot;data:image/png;base64,</span><span class="pf">%s</span><span class="s">&quot; /&gt;&quot;&quot;&quot;</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="31" class="fn">b64</span>
+
+<span class="c">// Generate the image, then embed it:</span>
+<span class="c">// myChart.SavePng(&quot;chart.png&quot;)</span>
+<span class="c">(*** hide ***)</span>
+<span class="c">// inlinePng &quot;chart.png&quot;</span>
+<span class="c">(*** include-it-raw ***)</span>
+</code></pre>
+<p>The <code>(*** hide ***)</code> command suppresses the source code of the expression so that only the rendered
+image appears in the output. See <a href="commandline.html#embedding-images">Embedding Images</a> in the command-line
+reference for more details, including the <code>--saveimages</code> flag for downloading remote images.</p>
+<h2><a name="Emitting-Raw-Text" class="anchor" href="#Emitting-Raw-Text">Emitting Raw Text</a></h2>
+<p>To emit raw text in F# literate scripts use the following:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">(**</span>
+<span class="c">	(*** raw ***)</span>
+<span class="c">	Some raw text.</span>
+<span class="c">*)</span>
+</code></pre>
+<p>which would emit</p>
+<pre>
+Some raw text.
+</pre>
+<p>directly into the document.</p>
+<h2><a name="F-Formatting-as-a-Library-Specifying-the-Evaluator-and-Formatting" class="anchor" href="#F-Formatting-as-a-Library-Specifying-the-Evaluator-and-Formatting">F# Formatting as a Library:  Specifying the Evaluator and Formatting</a></h2>
+<p>If using F# Formatting as a library the embedding of F# output requires specifying an additional parameter to the
+parsing functions discussed in <a href="literate.html">literate programming documentation</a>.
+Assuming you have all the references in place, you can now create an instance of
+<a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-evaluation-fsievaluator.html">FsiEvaluator</a> that represents a wrapper for F# interactive and pass it to all the
+functions that parse script files or process script files:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="32" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="33" class="id">Formatting</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="34" class="id">Literate</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="35" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="36" class="id">Formatting</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="37" class="id">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="38" class="id">Evaluation</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="39" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="40" class="id">Formatting</span><span class="pn">.</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="41" class="id">Markdown</span>
+
+<span class="c">// Sample literate content</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="42" class="id">content</span> <span class="o">=</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">let a = 10</span>
+<span class="s">(*** include-value:a ***)&quot;&quot;&quot;</span>
+
+<span class="c">// Create evaluator and parse script</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="43" class="d">fsi</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="44" class="d">FsiEvaluator</span><span class="pn">(</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="45" class="id">doc</span> <span class="o">=</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="46" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="47" class="id">ParseScriptString</span><span class="pn">(</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="48" class="id">content</span><span class="pn">,</span> <span class="fn">fsiEvaluator</span> <span class="o">=</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="49" class="d">fsi</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="50" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="51" class="id">ToHtml</span><span class="pn">(</span><span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="52" class="id">doc</span><span class="pn">)</span>
+</code></pre>
+<p>When the <code>fsiEvaluator</code> parameter is specified, the script is evaluated and so you
+can use additional commands such as <code>include-value</code>. When the evaluator is <em>not</em> specified,
+it is not created automatically, so the functionality is not available (this way,
+you won't accidentally run unexpected code!)</p>
+<p>If you specify the <code>fsiEvaluator</code> parameter, but don't want a specific snippet to be evaluated
+(because it might throw an exception, for example), you can use the <code>(*** do-not-eval ***)</code>
+command.</p>
+<p>The constructor of <a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-evaluation-fsievaluator.html">FsiEvaluator</a> takes command line parameters for <code>fsi.exe</code> that can
+be used to specify, for example, defined symbols and other attributes for F# Interactive.</p>
+<p>You can also subscribe to the <code>EvaluationFailed</code> event which is fired whenever the evaluation
+of an expression fails. You can use that to do tests that verify that all of the code in your
+documentation executes without errors.</p>
+<h2><a name="F-Formatting-as-a-Library-Custom-formatting-functions" class="anchor" href="#F-Formatting-as-a-Library-Custom-formatting-functions">F# Formatting as a Library: Custom formatting functions</a></h2>
+<p>As mentioned earlier, values are formatted using a simple <code>"%A"</code> formatter by default.
+However, you can specify a formatting function that provides nicer formatting for values
+of certain types. For example, let's say that we would want to format F# lists such as
+<code>[1; 2; 3]</code> as HTML ordered lists <code>&lt;ol&gt;</code>.</p>
+<p>This can be done by calling <a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-evaluation-fsievaluator.html#RegisterTransformation">FsiEvaluator.RegisterTransformation</a> on the <code>FsiEvaluator</code> instance:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Create evaluator &amp; register simple formatter for lists</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="53" class="d">fsiEvaluator</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="54" class="d">FsiEvaluator</span><span class="pn">(</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="55" class="d">fsiEvaluator</span><span class="pn">.</span><span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="56" class="id">RegisterTransformation</span><span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="57" class="fn">o</span><span class="pn">,</span> <span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="58" class="fn">ty</span><span class="pn">,</span> <span data-fsdocs-tip="fs37" data-fsdocs-tip-unique="59" class="id">_executionCount</span><span class="pn">)</span> <span class="k">-&gt;</span>
+    <span class="c">// If the type of value is an F# list, format it nicely</span>
+    <span class="k">if</span> <span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="60" class="fn">ty</span><span class="pn">.</span><span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="61" class="id">IsGenericType</span>
+       <span class="o">&amp;&amp;</span> <span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="62" class="fn">ty</span><span class="pn">.</span><span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="63" class="id">GetGenericTypeDefinition</span><span class="pn">(</span><span class="pn">)</span> <span class="o">=</span> <span data-fsdocs-tip="fs40" data-fsdocs-tip-unique="64" class="k">typedefof</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs41" data-fsdocs-tip-unique="65" class="rt">list</span><span class="pn">&lt;</span><span class="id">_</span><span class="pn">&gt;</span><span class="pn">&gt;</span> <span class="k">then</span>
+        <span class="k">let</span> <span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="66" class="fn">items</span> <span class="o">=</span>
+            <span class="c">// Get items as objects and create a paragraph for each item</span>
+            <span class="pn">[</span> <span class="k">for</span> <span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="67" class="fn">it</span> <span class="k">in</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="68" class="m">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs44" data-fsdocs-tip-unique="69" class="id">cast</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs45" data-fsdocs-tip-unique="70" class="rt">obj</span><span class="pn">&gt;</span> <span class="pn">(</span><span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="71" class="fn">unbox</span> <span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="72" class="fn">o</span><span class="pn">)</span> <span class="k">-&gt;</span>
+                  <span class="pn">[</span> <span data-fsdocs-tip="fs47" data-fsdocs-tip-unique="73" class="uc">Paragraph</span><span class="pn">(</span><span class="pn">[</span> <span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="74" class="uc">Literal</span><span class="pn">(</span><span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="75" class="fn">it</span><span class="pn">.</span><span data-fsdocs-tip="fs49" data-fsdocs-tip-unique="76" class="id">ToString</span><span class="pn">(</span><span class="pn">)</span><span class="pn">,</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="77" class="m">MarkdownRange</span><span class="pn">.</span><span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="78" class="id">zero</span><span class="pn">)</span> <span class="pn">]</span><span class="pn">,</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="79" class="m">MarkdownRange</span><span class="pn">.</span><span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="80" class="id">zero</span><span class="pn">)</span> <span class="pn">]</span> <span class="pn">]</span>
+        <span class="c">// Return option value (success) with ordered list</span>
+        <span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="81" class="uc">Some</span> <span class="pn">[</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="82" class="uc">ListBlock</span><span class="pn">(</span><span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="83" class="vt">MarkdownListKind</span><span class="pn">.</span><span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="84" class="id">Ordered</span><span class="pn">,</span> <span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="85" class="fn">items</span><span class="pn">,</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="86" class="m">MarkdownRange</span><span class="pn">.</span><span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="87" class="id">zero</span><span class="pn">)</span> <span class="pn">]</span>
+    <span class="k">else</span>
+        <span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="88" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<p>The function is called with two arguments - <code>o</code> is the value to be formatted, and <code>ty</code>
+is the static type of the value (as inferred by the F# compiler). The sample checks
+that the type of the value is a list (containing values of any type), and then it
+casts all values in the list to <code>obj</code> (for simplicity). Then, we generate Markdown
+blocks representing an ordered list. This means that the code will work for both
+LaTeX and HTML formatting - but if you only need one, you can simply produce HTML and
+embed it in <code>InlineHtmlBlock</code>.</p>
+<p>To use the new <code>FsiEvaluator</code>, we can use the same style as earlier. This time, we format
+a simple list containing strings:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="89" class="id">listy</span> <span class="o">=</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">### Formatting demo</span>
+<span class="s">let test = [&quot;one&quot;;&quot;two&quot;;&quot;three&quot;]</span>
+<span class="s">(*** include-value:test ***)&quot;&quot;&quot;</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="90" class="id">docOl</span> <span class="o">=</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="91" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="92" class="id">ParseScriptString</span><span class="pn">(</span><span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="93" class="id">listy</span><span class="pn">,</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="94" class="fn">fsiEvaluator</span> <span class="o">=</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="95" class="d">fsiEvaluator</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="96" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="97" class="id">ToHtml</span><span class="pn">(</span><span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="98" class="id">docOl</span><span class="pn">)</span>
+</code></pre>
+<p>The resulting HTML formatting of the document contains the snippet that defines <code>test</code>,
+followed by a nicely formatted ordered list:</p>
+<blockquote>
+<h3>Formatting demo</h3>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <spanclass="i">test</span> <span class="o">=</span> [<span class="s">&quot;</span><span class="s">one</span><span class="s">&quot;</span>;<span class="s">&quot;</span><span class="s">two</span><span class="s">&quot;</span>;<span class="s">&quot;</span><span class="s">three</span><span class="s">&quot;</span>]</pre>
+</td>
+</tr>
+</table>
+<ol>
+<li><p>one</p></li>
+<li><p>two</p></li>
+<li><p>three</p></li>
+</ol>
+</blockquote>
+
+        <div popover class="fsdocs-tip" id="fs1">val test: int</div>
+<div popover class="fsdocs-tip" id="fs2">val printf: format: Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs3">val value1: int list</div>
+<div popover class="fsdocs-tip" id="fs4">val value2: int list</div>
+<div popover class="fsdocs-tip" id="fs5">val fsi: FSharp.Compiler.Interactive.InteractiveSession</div>
+<div popover class="fsdocs-tip" id="fs6">namespace System</div>
+<div popover class="fsdocs-tip" id="fs7">type Convert =
+  static member ChangeType: value: obj * conversionType: Type -&gt; obj + 3 overloads
+  static member FromBase64CharArray: inArray: char array * offset: int * length: int -&gt; byte array
+  static member FromBase64String: s: string -&gt; byte array
+  static member FromHexString: utf8Source: ReadOnlySpan&lt;byte&gt; -&gt; byte array + 5 overloads
+  static member GetTypeCode: value: obj -&gt; TypeCode
+  static member IsDBNull: value: obj -&gt; bool
+  static member ToBase64CharArray: inArray: byte array * offsetIn: int * length: int * outArray: char array * offsetOut: int -&gt; int + 1 overload
+  static member ToBase64String: inArray: byte array -&gt; string + 4 overloads
+  static member ToBoolean: value: bool -&gt; bool + 17 overloads
+  static member ToByte: value: bool -&gt; byte + 18 overloads
+  ...<br /><em>&lt;summary&gt;Converts a base data type to another base data type.&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs8">System.Convert.ToBase64String(inArray: byte array) : string<br />System.Convert.ToBase64String(bytes: System.ReadOnlySpan&lt;byte&gt;, ?options: System.Base64FormattingOptions) : string<br />System.Convert.ToBase64String(inArray: byte array, options: System.Base64FormattingOptions) : string<br />System.Convert.ToBase64String(inArray: byte array, offset: int, length: int) : string<br />System.Convert.ToBase64String(inArray: byte array, offset: int, length: int, options: System.Base64FormattingOptions) : string</div>
+<div popover class="fsdocs-tip" id="fs9">module Seq
+
+from Microsoft.FSharp.Collections</div>
+<div popover class="fsdocs-tip" id="fs10">val empty&lt;&#39;T&gt; : &#39;T seq</div>
+<div popover class="fsdocs-tip" id="fs11">val sprintf: format: Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs12">val myChart: obj</div>
+<div popover class="fsdocs-tip" id="fs13">val inlinePng: fileName: string -&gt; string</div>
+<div popover class="fsdocs-tip" id="fs14">val fileName: string</div>
+<div popover class="fsdocs-tip" id="fs15">Multiple items<br />val string: value: &#39;T -&gt; string<br /><br />--------------------<br />type string = System.String</div>
+<div popover class="fsdocs-tip" id="fs16">val bytes: byte array</div>
+<div popover class="fsdocs-tip" id="fs17">namespace System.IO</div>
+<div popover class="fsdocs-tip" id="fs18">type File =
+  static member AppendAllBytes: path: string * bytes: byte array -&gt; unit + 1 overload
+  static member AppendAllBytesAsync: path: string * bytes: byte array * ?cancellationToken: CancellationToken -&gt; Task + 1 overload
+  static member AppendAllLines: path: string * contents: string seq -&gt; unit + 1 overload
+  static member AppendAllLinesAsync: path: string * contents: string seq * encoding: Encoding * ?cancellationToken: CancellationToken -&gt; Task + 1 overload
+  static member AppendAllText: path: string * contents: ReadOnlySpan&lt;char&gt; -&gt; unit + 3 overloads
+  static member AppendAllTextAsync: path: string * contents: ReadOnlyMemory&lt;char&gt; * encoding: Encoding * ?cancellationToken: CancellationToken -&gt; Task + 3 overloads
+  static member AppendText: path: string -&gt; StreamWriter
+  static member Copy: sourceFileName: string * destFileName: string -&gt; unit + 1 overload
+  static member Create: path: string -&gt; FileStream + 2 overloads
+  static member CreateSymbolicLink: path: string * pathToTarget: string -&gt; FileSystemInfo
+  ...<br /><em>&lt;summary&gt;Provides static methods for the creation, copying, deletion, moving, and opening of a single file, and aids in the creation of &lt;see cref=&quot;T:System.IO.FileStream&quot; /&gt; objects.&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs19">System.IO.File.ReadAllBytes(path: string) : byte array</div>
+<div popover class="fsdocs-tip" id="fs20">val b64: string</div>
+<div popover class="fsdocs-tip" id="fs21">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
+<div popover class="fsdocs-tip" id="fs22">namespace FSharp.Formatting</div>
+<div popover class="fsdocs-tip" id="fs23">namespace FSharp.Formatting.Literate</div>
+<div popover class="fsdocs-tip" id="fs24">namespace FSharp.Formatting.Literate.Evaluation</div>
+<div popover class="fsdocs-tip" id="fs25">namespace FSharp.Formatting.Markdown</div>
+<div popover class="fsdocs-tip" id="fs26">val content: string</div>
+<div popover class="fsdocs-tip" id="fs27">val fsi: FsiEvaluator</div>
+<div popover class="fsdocs-tip" id="fs28">Multiple items<br />type FsiEvaluator =
+  interface IDisposable
+  interface IFsiEvaluator
+  new: ?options: string array * ?fsiObj: obj * ?addHtmlPrinter: bool * ?discardStdOut: bool * ?disableFsiObj: bool * ?onError: (string -&gt; unit) -&gt; FsiEvaluator
+  member RegisterTransformation: f: (obj * Type * int -&gt; MarkdownParagraph list option) -&gt; unit
+  member EvaluationFailed: IEvent&lt;FsiEvaluationFailedInfo&gt;<br /><em>&lt;summary&gt;
+ A wrapper for F# interactive service that is used to evaluate inline snippets
+&lt;/summary&gt;</em><br /><br />--------------------<br />new: ?options: string array * ?fsiObj: obj * ?addHtmlPrinter: bool * ?discardStdOut: bool * ?disableFsiObj: bool * ?onError: (string -&gt; unit) -&gt; FsiEvaluator</div>
+<div popover class="fsdocs-tip" id="fs29">val doc: LiterateDocument</div>
+<div popover class="fsdocs-tip" id="fs30">type Literate =
+  static member ConvertMarkdownFile: input: string * ?template: string * ?output: string * ?outputKind: OutputKind * ?prefix: string * ?fscOptions: string * ?lineNumbers: bool * ?references: bool * ?substitutions: (ParamKey * string) list * ?generateAnchors: bool * ?imageSaver: (string -&gt; string) * ?rootInputFolder: string * ?crefResolver: (string -&gt; (string * string) option) * ?mdlinkResolver: (string -&gt; string option) * ?onError: (string -&gt; unit) * ?filesWithFrontMatter: FrontMatterFile array -&gt; unit
+  static member ConvertPynbFile: input: string * ?template: string * ?output: string * ?outputKind: OutputKind * ?prefix: string * ?fscOptions: string * ?lineNumbers: bool * ?references: bool * ?substitutions: (ParamKey * string) list * ?generateAnchors: bool * ?imageSaver: (string -&gt; string) * ?rootInputFolder: string * ?crefResolver: (string -&gt; (string * string) option) * ?mdlinkResolver: (string -&gt; string option) * ?onError: (string -&gt; unit) * ?filesWithFrontMatter: FrontMatterFile array -&gt; unit
+  static member ConvertScriptFile: input: string * ?template: string * ?output: string * ?outputKind: OutputKind * ?prefix: string * ?fscOptions: string * ?lineNumbers: bool * ?references: bool * ?fsiEvaluator: IFsiEvaluator * ?substitutions: (ParamKey * string) list * ?generateAnchors: bool * ?imageSaver: (string -&gt; string) * ?rootInputFolder: string * ?crefResolver: (string -&gt; (string * string) option) * ?mdlinkResolver: (string -&gt; string option) * ?onError: (string -&gt; unit) * ?filesWithFrontMatter: FrontMatterFile array -&gt; unit
+  static member ParseAndCheckScriptFile: path: string * ?fscOptions: string * ?definedSymbols: string list * ?references: bool * ?fsiEvaluator: IFsiEvaluator * ?parseOptions: MarkdownParseOptions * ?rootInputFolder: string * ?onError: (string -&gt; unit) -&gt; LiterateDocument
+  static member ParseMarkdownFile: path: string * ?fscOptions: string * ?definedSymbols: string list * ?references: bool * ?fsiEvaluator: IFsiEvaluator * ?parseOptions: MarkdownParseOptions * ?rootInputFolder: string * ?onError: (string -&gt; unit) -&gt; LiterateDocument
+  static member ParseMarkdownString: content: string * ?path: string * ?fscOptions: string * ?definedSymbols: string list * ?references: bool * ?fsiEvaluator: IFsiEvaluator * ?parseOptions: MarkdownParseOptions * ?rootInputFolder: string * ?onError: (string -&gt; unit) -&gt; LiterateDocument
+  static member ParsePynbString: content: string * ?path: string * ?definedSymbols: string list * ?references: bool * ?parseOptions: MarkdownParseOptions * ?rootInputFolder: string * ?onError: (string -&gt; unit) -&gt; LiterateDocument
+  static member ParseScriptString: content: string * ?path: string * ?fscOptions: string * ?definedSymbols: string list * ?references: bool * ?fsiEvaluator: IFsiEvaluator * ?parseOptions: MarkdownParseOptions * ?rootInputFolder: string * ?onError: (string -&gt; unit) -&gt; LiterateDocument
+  static member ToFsx: doc: LiterateDocument * ?substitutions: (ParamKey * string) list * ?crefResolver: (string -&gt; (string * string) option) * ?mdlinkResolver: (string -&gt; string option) -&gt; string
+  static member ToHtml: doc: LiterateDocument * ?prefix: string * ?lineNumbers: bool * ?generateAnchors: bool * ?substitutions: (ParamKey * string) list * ?crefResolver: (string -&gt; (string * string) option) * ?mdlinkResolver: (string -&gt; string option) * ?tokenKindToCss: (TokenKind -&gt; string) -&gt; string
+  ...<br /><em>&lt;summary&gt;
+ This type provides three simple methods for calling the literate programming tool.
+ The &lt;c&gt;ConvertMarkdownFile&lt;/c&gt; and &lt;c&gt;ConvertScriptFile&lt;/c&gt; methods process a single Markdown document
+ and F# script, respectively. The &lt;c&gt;ConvertDirectory&lt;/c&gt; method handles an entire directory tree
+ (looking for &lt;c&gt;*.fsx&lt;/c&gt; and &lt;c&gt;*.md&lt;/c&gt; files).
+ &lt;/summary&gt;<br />&lt;namespacedoc&gt;&lt;summary&gt;Functionality to support literate programming for F# scripts&lt;/summary&gt;&lt;/namespacedoc&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs31">static member Literate.ParseScriptString: content: string * ?path: string * ?fscOptions: string * ?definedSymbols: string list * ?references: bool * ?fsiEvaluator: IFsiEvaluator * ?parseOptions: MarkdownParseOptions * ?rootInputFolder: string * ?onError: (string -&gt; unit) -&gt; LiterateDocument</div>
+<div popover class="fsdocs-tip" id="fs32">static member Literate.ToHtml: doc: LiterateDocument * ?prefix: string * ?lineNumbers: bool * ?generateAnchors: bool * ?substitutions: (FSharp.Formatting.Templating.ParamKey * string) list * ?crefResolver: (string -&gt; (string * string) option) * ?mdlinkResolver: (string -&gt; string option) * ?tokenKindToCss: (FSharp.Formatting.CodeFormat.TokenKind -&gt; string) -&gt; string</div>
+<div popover class="fsdocs-tip" id="fs33">val fsiEvaluator: FsiEvaluator</div>
+<div popover class="fsdocs-tip" id="fs34">member FsiEvaluator.RegisterTransformation: f: (obj * System.Type * int -&gt; MarkdownParagraph list option) -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs35">val o: obj</div>
+<div popover class="fsdocs-tip" id="fs36">val ty: System.Type</div>
+<div popover class="fsdocs-tip" id="fs37">val _executionCount: int</div>
+<div popover class="fsdocs-tip" id="fs38">property System.Type.IsGenericType: bool with get</div>
+<div popover class="fsdocs-tip" id="fs39">System.Type.GetGenericTypeDefinition() : System.Type</div>
+<div popover class="fsdocs-tip" id="fs40">val typedefof&lt;&#39;T&gt; : System.Type</div>
+<div popover class="fsdocs-tip" id="fs41">type &#39;T list = List&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs42">val items: MarkdownParagraph list list</div>
+<div popover class="fsdocs-tip" id="fs43">val it: obj</div>
+<div popover class="fsdocs-tip" id="fs44">val cast: source: System.Collections.IEnumerable -&gt; &#39;T seq</div>
+<div popover class="fsdocs-tip" id="fs45">type obj = System.Object</div>
+<div popover class="fsdocs-tip" id="fs46">val unbox: value: objnull -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs47">union case MarkdownParagraph.Paragraph: body: MarkdownSpans * range: MarkdownRange -&gt; MarkdownParagraph</div>
+<div popover class="fsdocs-tip" id="fs48">Multiple items<br />union case MarkdownSpan.Literal: text: string * range: MarkdownRange -&gt; MarkdownSpan<br /><br />--------------------<br />type LiteralAttribute =
+  inherit Attribute
+  new: unit -&gt; LiteralAttribute<br /><br />--------------------<br />new: unit -&gt; LiteralAttribute</div>
+<div popover class="fsdocs-tip" id="fs49">System.Object.ToString() : string</div>
+<div popover class="fsdocs-tip" id="fs50">Multiple items<br />module MarkdownRange
+
+from FSharp.Formatting.Markdown<br /><em>&lt;summary&gt;
+ Helper functions for working with &amp;lt;see cref=&quot;MarkdownRange&quot;/&amp;gt; values
+&lt;/summary&gt;</em><br /><br />--------------------<br />
+type MarkdownRange =
+  {
+    StartLine: int
+    StartColumn: int
+    EndLine: int
+    EndColumn: int
+  }<br /><em>&lt;summary&gt;
+ Represents a source range in a Markdown document, identified by start and end line/column positions.
+ Used to track where each parsed element originated in the source text.
+ &lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs51">val zero: MarkdownRange<br /><em>&lt;summary&gt;
+ A zero range used as a default/placeholder when no real range is available
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs52">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs53">union case MarkdownParagraph.ListBlock: kind: MarkdownListKind * items: MarkdownParagraphs list * range: MarkdownRange -&gt; MarkdownParagraph<br /><em>&lt;summary&gt;
+ A Markdown List block
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs54">
+type MarkdownListKind =
+  | Ordered
+  | Unordered<br /><em>&lt;summary&gt;
+   A list kind can be Ordered or Unordered corresponding to &lt;c&gt;&amp;lt;ol&amp;gt;&lt;/c&gt; and &lt;c&gt;&amp;lt;ul&amp;gt;&lt;/c&gt; elements
+ &lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs55">union case MarkdownListKind.Ordered: MarkdownListKind</div>
+<div popover class="fsdocs-tip" id="fs56">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs57">val listy: string</div>
+<div popover class="fsdocs-tip" id="fs58">val docOl: LiterateDocument</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Embedding-script-output">
+      Embedding script output
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Including-Console-Output">
+      Including Console Output
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Using-AddPrinter-and-AddHtmlPrinter">
+      Using AddPrinter and AddHtmlPrinter
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Emitting-Raw-Text">
+      Emitting Raw Text
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#F-Formatting-as-a-Library-Specifying-the-Evaluator-and-Formatting">
+      F# Formatting as a Library:  Specifying the Evaluator and Formatting
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#F-Formatting-as-a-Library-Custom-formatting-functions">
+      F# Formatting as a Library: Custom formatting functions
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>
