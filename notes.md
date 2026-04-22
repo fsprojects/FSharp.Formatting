@@ -1,3 +1,11 @@
+2026-04-22 (run 24774101402): Task 1+3:
+  - Labelled #1178 (dotnet-interactive deprecation) with `enhancement`, `help wanted`
+  - Commented on #1178: NuGet deprecation won't break Dockerfile immediately (pinned version still installable);
+    real concern is .NET 7 SDK EOL; mybinder.org only use case
+  - Updated PR #1161: pushed CSS comment improvement to trigger CI on --panel-background/--panel-border rename commit
+    (CI hadn't run on latest commit e5ed887d from previous run)
+  - Note: Dependabot has 4 open PRs (#1179-#1182) - could bundle in a future Task 4 run
+
 2026-04-21 (run 24718213220): Task 6: Updated PR #1161 — renamed --surface-* to --panel-* per nojaf+dsyme feedback. CI passes.
   - PR #1176 (list-block-refactor) was CLOSED by dsyme on 2026-04-21. Do not re-propose.
   - Task 2: All open issues commented on, no new human activity requiring new comments.
@@ -15,11 +23,6 @@
   - Task 2: All open issues commented on, no new human activity since last run.
 
 2026-04-19 (run 24627004104): Task 10: Created release prep PR for v22.0.1.
-  - Moved all [Unreleased] entries to [22.0.1] - 2026-04-19 in RELEASE_NOTES.md.
-  - Moved 3 "Fix" items misplaced in ### Added into ### Fixed.
-  - Left empty [Unreleased] section.
-  - Build succeeded (0 errors, pre-existing NU1605/NU1608 warnings only).
-  - Branch: repo-assist/release-22.0.1-2026-04-19
   Note: PR #1106 also modifies RELEASE_NOTES.md (adds QuotedBlock fix + tooltip);
     if merged before release PR, minor conflict on [Unreleased] section needs resolving.
   Task 3 (bug fix): No new fixable bugs found without duplicating existing open PRs.
