@@ -63,7 +63,8 @@
     --header-background: light-dark(#f9fbfc, #0c1318);
     --header-border: light-dark(#e8ecf1, #3a3a42);
     --header-link-color: var(--text-color);
-    /* Panel variables — override these independently from the header to customise menus, dialogs, and blockquote backgrounds */
+    /* Panel variables (--panel-background, --panel-border): override to customise menus, dialogs,
+       blockquotes, copy buttons, and other UI panels independently from the page header. */
     --panel-background: var(--header-background);
     --panel-border: var(--header-border);
     --mobile-menu-background: var(--panel-background);
