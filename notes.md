@@ -1,10 +1,19 @@
+2026-04-23 (run 24831099209): Task 10+5:
+  - Created PR #1184: deps bundle — FSharp.Core/FCS 202→203, System.Text.Json 10.0.6→10.0.7,
+    Microsoft.NET.Test.Sdk 18.4→18.5, FSharp.Data 8.1.10→8.1.11 (619/619 tests pass)
+    Supersedes Dependabot PRs #1179-#1183. When merged, those 5 can be closed.
+  - Created PR #1185: fix Markdown.ToMd unresolved indirect links: preserves [body][key] form
+    instead of broken [body](original). 347/347 Markdown tests pass.
+    (IndirectLink fallback was inconsistent with IndirectImage)
+
 2026-04-22 (run 24774101402): Task 1+3:
   - Labelled #1178 (dotnet-interactive deprecation) with `enhancement`, `help wanted`
   - Commented on #1178: NuGet deprecation won't break Dockerfile immediately (pinned version still installable);
     real concern is .NET 7 SDK EOL; mybinder.org only use case
+    NOTE: nhirschey commented 2026-04-22: "leave it for now, until it actually breaks" - do NOT update Dockerfile
   - Updated PR #1161: pushed CSS comment improvement to trigger CI on --panel-background/--panel-border rename commit
     (CI hadn't run on latest commit e5ed887d from previous run)
-  - Note: Dependabot has 4 open PRs (#1179-#1182) - could bundle in a future Task 4 run
+  - Note: Dependabot had 4 open PRs (#1179-#1182) - bundled in run 24831099209
 
 2026-04-21 (run 24718213220): Task 6: Updated PR #1161 — renamed --surface-* to --panel-* per nojaf+dsyme feedback. CI passes.
   - PR #1176 (list-block-refactor) was CLOSED by dsyme on 2026-04-21. Do not re-propose.
