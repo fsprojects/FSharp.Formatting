@@ -1406,6 +1406,56 @@ let ``ToMd handles a table`` () =
     result |> should contain "A"
     result |> should contain "B"
 
+// --------------------------------------------------------------------------------------
+// ToMd table column alignment — left, center, right, default
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves left-aligned table columns`` () =
+    let md = "A | B\n:--- | :---\nX | Y"
+    let result = toMd md
+    result |> should contain ":---"
+
+[<Test>]
+let ``ToMd preserves center-aligned table columns`` () =
+    let md = "A | B\n:---: | :---:\nX | Y"
+    let result = toMd md
+    result |> should contain ":---:"
+
+[<Test>]
+let ``ToMd preserves right-aligned table columns`` () =
+    let md = "A | B\n---: | ---:\nX | Y"
+    let result = toMd md
+    result |> should contain "---:"
+
+[<Test>]
+let ``ToMd preserves default-aligned table columns`` () =
+    let md = "A | B\n--- | ---\nX | Y"
+    let result = toMd md
+    // default alignment renders as "---"
+    result |> should contain "---"
+
+[<Test>]
+let ``ToMd preserves table with mixed column alignments`` () =
+    let md = "Left | Center | Right | Default\n:--- | :---: | ---: | ---\na | b | c | d"
+    let result = toMd md
+    result |> should contain ":---:"
+    result |> should contain "---:"
+    result |> should contain "Left"
+    result |> should contain "Right"
+
+// --------------------------------------------------------------------------------------
+// ToMd InlineHtmlBlock round-trip
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves an inline HTML block`` () =
+    let md = "<div class=\"note\">\nThis is a note.\n</div>"
+    let result = toMd md
+    result |> should contain "<div"
+    result |> should contain "This is a note."
+    result |> should contain "</div>"
+
 [<Test>]
 let ``ToMd handles empty document`` () = "" |> toMd |> shouldEqual ""
 
