@@ -1,13 +1,11 @@
 {
-  "run": "24885587464",
+  "run": "24928898904",
   "cursor": 1178,
   "monthly": "1131",
   "prs": [
-    "repo-assist/test-tomd-table-html-2026-04-24",
-    "release-22.0.1-2026-04-19",
-    1185, 1161, 1130, 1106
+    1187, 1185, 1161, 1175, 1130, 1106
   ],
-  "dependabot_prs": [],
+  "dependabot_prs": [1179, 1180, 1181, 1182, 1183, 1186],
   "deps_bundle_issue": 1184,
   "comments_made": {
     "685": "prior",

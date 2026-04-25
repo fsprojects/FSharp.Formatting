@@ -1,19 +1,24 @@
+2026-04-25 (run 24928898904): Task 4+2:
+  - Updated PR #1161: pushed empty commit to trigger CI (was showing 0 check runs since April 22 push).
+    PR is up to date with main (0 commits behind). CI should now run.
+  - Attempted deps bundle PR from branch repo-assist/deps-bundle-2026-04-23-6d457b475a0265de:
+    blocked by protected files restriction (Directory.Packages.props). Issue #1184 still open.
+  - Task 2: all open issues have Repo Assist comments, no new human activity requiring new responses.
+    nhirschey's #1178 comments (2026-04-22) align with previous Repo Assist comment: leave Dockerfile for now.
+
 2026-04-24 (run 24885587464): Task 4+9:
-  - Created PR (branch repo-assist/test-tomd-table-html-2026-04-24): 
-    7 new ToMd tests: table column alignments (left, center, right, default, mixed)
-    and InlineHtmlBlock round-trip. 352/352 Markdown tests pass.
-    NOTE: PR number unknown (safeoutputs returned success with patch but no PR number).
-    Should be findable via branch name in next run.
+  - Created PR #1187 (confirmed PR number): test: add 7 ToMd table alignment and InlineHtmlBlock tests.
+    352/352 Markdown tests pass. CI: all 4 checks pass.
 
 2026-04-23 (run 24831099209): Task 10+5:
   - Created issue #1184: deps bundle — FSharp.Core/FCS 202→203, System.Text.Json 10.0.6→10.0.7,
     Microsoft.NET.Test.Sdk 18.4→18.5, FSharp.Data 8.1.10→8.1.11 (619/619 tests pass)
     IMPORTANT: #1184 is an ISSUE not a PR, because Directory.Packages.props is a protected file.
     Contains link for maintainer to click to create the PR. Supersedes Dependabot PRs #1179-#1183.
+    Branch: repo-assist/deps-bundle-2026-04-23-6d457b475a0265de (exists on remote, tested, all green).
     When bundle is merged/PR created, PRs #1179-#1183 can be closed.
   - Created PR #1185: fix Markdown.ToMd unresolved indirect links: preserves [body][key] form
     instead of broken [body](original). 347/347 Markdown tests pass.
-    (IndirectLink fallback was inconsistent with IndirectImage)
 
 2026-04-22 (run 24774101402): Task 1+3:
   - Labelled #1178 (dotnet-interactive deprecation) with `enhancement`, `help wanted`
