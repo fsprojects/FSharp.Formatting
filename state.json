@@ -1,12 +1,12 @@
 {
-  "run": "24928898904",
+  "run": "24954489456",
   "cursor": 1178,
   "monthly": "1131",
   "prs": [
     1187, 1185, 1161, 1175, 1130, 1106
   ],
   "dependabot_prs": [1179, 1180, 1181, 1182, 1183, 1186],
-  "deps_bundle_issue": 1184,
+  "deps_bundle_issues": [1184, 1188],
   "comments_made": {
     "685": "prior",
     "705": "prior",

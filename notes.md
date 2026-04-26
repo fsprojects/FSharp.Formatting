@@ -1,8 +1,17 @@
+2026-04-26 (run 24954489456): Task 10+2:
+  - Updated PR #1161: pushed CSS typo fix (--blockquote-bacground-color → --blockquote-background-color)
+    to trigger CI. PR has nojaf's approval (commit e5ed887d). Once CI passes, can be merged.
+  - Task 2: all open issues have Repo Assist comments, no new human activity requiring new responses.
+  - Issue #1189 ([aw] Repo Assist failed from run 24928898904): root cause was push_to_pull_request_branch
+    failure. This run succeeded, issue #1189 can be closed by maintainer.
+  - Issue #1188: created by run 24928898904 as "protected files" fallback for deps bundle. 
+    It's essentially a duplicate of #1184. Maintainer should close one after using the other.
+
 2026-04-25 (run 24928898904): Task 4+2:
-  - Updated PR #1161: pushed empty commit to trigger CI (was showing 0 check runs since April 22 push).
-    PR is up to date with main (0 commits behind). CI should now run.
-  - Attempted deps bundle PR from branch repo-assist/deps-bundle-2026-04-23-6d457b475a0265de:
-    blocked by protected files restriction (Directory.Packages.props). Issue #1184 still open.
+  - Updated PR #1161: pushed empty commit to trigger CI - FAILED (created #1189 failure issue).
+    NOTE: the push actually FAILED according to #1189. PR #1161 head is still 14ed586d from April 22.
+  - Issue #1188 created: another protected-files issue for deps bundle (from run 24928898904).
+    This is essentially a duplicate of #1184. 
   - Task 2: all open issues have Repo Assist comments, no new human activity requiring new responses.
     nhirschey's #1178 comments (2026-04-22) align with previous Repo Assist comment: leave Dockerfile for now.
 
