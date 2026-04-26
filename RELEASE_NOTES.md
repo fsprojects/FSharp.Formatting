@@ -19,6 +19,7 @@
 * Fix `Markdown.ToLatex` producing invalid LaTeX output for level-6 (and deeper) headings. Previously the LaTeX command was an empty string, resulting in bare `{content}` without a command prefix. Headings at level 6+ are now serialised as `\subparagraph{...}`, which is the deepest sectioning command available in LaTeX.
 
 ### Added
+* Introduce `--panel-background` and `--panel-border` CSS custom properties in `fsdocs-default.css`. These decouple panel/component colours (copy-code button, blockquotes, sidebar, page menu, dialogs, tooltips, API tables) from `--header-background`/`--header-border`. Both variables default to the header values, so existing themes are unaffected; themes that need a different colour for content panels can now override `--panel-background` and `--panel-border` independently. [#1156](https://github.com/fsprojects/FSharp.Formatting/issues/1156)
 * Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
 * Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
 * Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.
