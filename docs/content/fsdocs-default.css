@@ -82,7 +82,7 @@
     --shadow-color: hsla(0, 0%, 0%, .1);
     --main-shadow-color: hsla(0, 0%, 0%, .025);
     --aside-background: var(--panel-background);
-    --blockquote-bacground-color: var(--panel-background);
+    --blockquote-background-color: var(--panel-background);
     --blockquote-color: var(--text-color);
     --on-this-page-color: var(--menu-color);
     --page-menu-background-color: var(--panel-background);
@@ -670,7 +670,7 @@ blockquote {
     margin: var(--spacing-200) 0;
     margin-left: var(--spacing-200);
     padding: var(--spacing-100) var(--spacing-300);
-    background-color: var(--blockquote-bacground-color);
+    background-color: var(--blockquote-background-color);
     color: var(--blockquote-color);
 
     > p {
