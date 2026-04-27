@@ -1,3 +1,12 @@
+2026-04-27 (run 24991187441): Task 4+2:
+  - Created deps bundle PR #1190: FSharp.Core/FCS 202→203, System.Text.Json 10.0.6→10.0.7,
+    Microsoft.NET.Test.Sdk 18.4→18.5, FSharp.Data 8.1.10→8.1.11 (619/619 tests pass).
+    Branch: repo-assist/deps-bundle-2026-04-23-6d457b475a0265de (already tested).
+    Supersedes issues #1184/#1188 and Dependabot PRs #1179-#1183.
+    When merged, close issues #1184/#1188 and Dependabot PRs #1179-#1183.
+  - Task 2: all open user issues have Repo Assist comments, no new human activity requiring new responses.
+    PR #1161 still has 0 check_runs on head SHA 96c1b97f - CI not triggering for bot pushes.
+
 2026-04-26 (run 24954489456): Task 10+2:
   - Updated PR #1161: pushed CSS typo fix (--blockquote-bacground-color → --blockquote-background-color)
     to trigger CI. PR has nojaf's approval (commit e5ed887d). Once CI passes, can be merged.
@@ -5,7 +14,7 @@
   - Issue #1189 ([aw] Repo Assist failed from run 24928898904): root cause was push_to_pull_request_branch
     failure. This run succeeded, issue #1189 can be closed by maintainer.
   - Issue #1188: created by run 24928898904 as "protected files" fallback for deps bundle. 
-    It's essentially a duplicate of #1184. Maintainer should close one after using the other.
+    It's essentially a duplicate of #1184. Both superseded by PR #1190.
 
 2026-04-25 (run 24928898904): Task 4+2:
   - Updated PR #1161: pushed empty commit to trigger CI - FAILED (created #1189 failure issue).
