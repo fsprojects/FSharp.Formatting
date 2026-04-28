@@ -1,13 +1,13 @@
 {
-  "run": "24991187441",
+  "run": "25049012888",
   "cursor": 1178,
   "monthly": "1131",
   "prs": [
-    1190, 1187, 1185, 1161, 1175, 1130, 1106
+    1187, 1185, 1161, 1175, 1130, 1106
   ],
-  "dependabot_prs": [1179, 1180, 1181, 1182, 1183, 1186],
-  "deps_bundle_issues": [1184, 1188],
-  "deps_bundle_pr": 1190,
+  "dependabot_prs": [1179, 1180, 1181, 1182, 1183, 1186, 1191],
+  "deps_bundle_issues": [1184, 1188, 1190],
+  "deps_bundle_branch": "repo-assist/deps-bundle-2026-04-23-6d457b475a0265de",
   "comments_made": {
     "685": "prior",
     "705": "prior",
