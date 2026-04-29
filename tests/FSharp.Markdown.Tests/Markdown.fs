@@ -1894,3 +1894,45 @@ let ``ToLatex EmbedParagraphs delegates to Render()`` () =
     let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
     let result = Markdown.ToLatex(doc)
     result |> should contain "latex text"
+
+// --------------------------------------------------------------------------------------
+// ToMd: untested paragraph types — OutputBlock, code-block language specifier
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves fenced code block language specifier`` () =
+    // Existing test only checks the code body; this test verifies the language tag is kept.
+    let md = "```fsharp\nlet x = 1\n```"
+    let result = toMd md
+    result |> should contain "```fsharp"
+
+[<Test>]
+let ``ToMd serialises OutputBlock non-HTML as fenced code block`` () =
+    // OutputBlock with a non-HTML kind should be wrapped in a fenced code block.
+    let doc = MarkdownDocument([ OutputBlock("hello output", "text/plain", None) ], dict [])
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "```"
+    result |> should contain "hello output"
+
+[<Test>]
+let ``ToMd serialises OutputBlock HTML as raw HTML`` () =
+    // OutputBlock with kind "text/html" should emit the HTML directly, not wrapped in a fence.
+    let doc = MarkdownDocument([ OutputBlock("<p>output</p>", "text/html", None) ], dict [])
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "<p>output</p>"
+    result |> should not' (contain "```")
+
+// --------------------------------------------------------------------------------------
+// ToHtml: AnchorLink renders as a named anchor element
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToHtml renders AnchorLink as named anchor`` () =
+    // AnchorLink is used internally by ApiDocs to emit in-page anchors.
+    // It should produce <a name="id">&#160;</a> in HTML output.
+    let doc =
+        MarkdownDocument([ Paragraph([ AnchorLink("my-section", MarkdownRange.zero) ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToHtml(doc)
+    result |> should contain "name=\"my-section\""
+    result |> should contain "<a "
