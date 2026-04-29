@@ -1,13 +1,14 @@
 {
-  "run": "25049012888",
+  "run": "25105019910",
   "cursor": 1178,
   "monthly": "1131",
   "prs": [
-    1187, 1185, 1161, 1175, 1130, 1106
+    1194, 1187, 1185, 1161, 1175, 1130, 1106
   ],
-  "dependabot_prs": [1179, 1180, 1181, 1182, 1183, 1186, 1191],
+  "dependabot_prs": [1179, 1180, 1181, 1182, 1183, 1186, 1191, 1193],
   "deps_bundle_issues": [1184, 1188, 1190],
   "deps_bundle_branch": "repo-assist/deps-bundle-2026-04-23-6d457b475a0265de",
+  "deps_bundle_test_sdk_warning": "18.5.0 is unlisted on NuGet — use PR #1193 (18.5.1) instead",
   "comments_made": {
     "685": "prior",
     "705": "prior",
@@ -22,6 +23,7 @@
     "1064": "prior",
     "585": "prior",
     "1156": "prior",
-    "1178": "2026-04-22"
+    "1178": "2026-04-22",
+    "1190": "2026-04-29"
   }
 }
