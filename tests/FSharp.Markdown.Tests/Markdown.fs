@@ -1894,3 +1894,83 @@ let ``ToLatex EmbedParagraphs delegates to Render()`` () =
     let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
     let result = Markdown.ToLatex(doc)
     result |> should contain "latex text"
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToFsx: code-with-output tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToFsx emits output comment when code block is followed by an OutputBlock`` () =
+    // A CodeBlock immediately followed by an OutputBlock should produce a
+    // "(* output: ... *)" comment so round-tripping is faithful.
+    let doc =
+        MarkdownDocument(
+            [ CodeBlock("let x = 42", None, Some "```", "fsharp", "", MarkdownRange.zero)
+              OutputBlock("42", "text/plain", Some 1) ],
+            dict []
+        )
+
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    result |> should contain "let x = 42"
+    result |> should contain "(* output:"
+    result |> should contain "42"
+
+[<Test>]
+let ``ToFsx does not emit output comment when code block has no output`` () =
+    let doc = MarkdownDocument([ CodeBlock("let y = 0", None, Some "```", "fsharp", "", MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    result |> should contain "let y = 0"
+    result |> should not' (contain "(* output:")
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToPynb: notebook output tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToPynb code block with output produces execution output in notebook`` () =
+    // A CodeBlock followed by an OutputBlock should produce a code cell with
+    // an "execute_result" output entry.
+    let doc =
+        MarkdownDocument(
+            [ CodeBlock("1 + 1", None, Some "```", "fsharp", "", MarkdownRange.zero)
+              OutputBlock("2", "text/plain", Some 1) ],
+            dict []
+        )
+
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "execute_result"
+    result |> should contain "1 + 1"
+
+[<Test>]
+let ``ToPynb empty document produces notebook with empty cells array`` () =
+    let doc = MarkdownDocument([], dict [])
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "\"nbformat\""
+    result |> should contain "\"cells\""
+
+// --------------------------------------------------------------------------------------
+// ToMd: multi-line LaTeX block with non-equation environment
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves multi-line LaTeX block with align environment`` () =
+    // Multi-line LatexBlock with a non-equation env must round-trip via \begin{}/\end{}.
+    // The parser reads $$...$$ as a single-line equation; for multi-line or named envs
+    // we construct the AST directly.
+    let doc = MarkdownDocument([ LatexBlock("align", [ "a &= b \\\\"; "c &= d" ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "\\begin{align}"
+    result |> should contain "a &= b \\\\"
+    result |> should contain "c &= d"
+    result |> should contain "\\end{align}"
+
+[<Test>]
+let ``ToMd serialises single-line equation block as compact dollar-dollar notation`` () =
+    // A single-line equation LatexBlock must be rendered as $$...$$ not \begin{equation}
+    let doc = MarkdownDocument([ LatexBlock("equation", [ "E = mc^2" ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "$$E = mc^2$$"
+    result |> should not' (contain "\\begin{equation}")
