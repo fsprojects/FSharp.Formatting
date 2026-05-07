@@ -48,3 +48,11 @@
 
 IMPORTANT: Ionide.KeepAChangelog: only standard subsection names; one per version block.
 IMPORTANT: Directory.Packages.props is protected — create_pull_request silently fails, creates no item.
+
+2026-05-07 (run 25469038887): Task 6+3+11:
+  - Task 6: Merged main into PR #1161 branch to re-trigger CI (was stuck at 0 check_runs).
+  - Task 3: Created PR #1201: fix Markdown.ToMd multi-paragraph blockquote round-trip.
+    Root cause: bare blank line between inner paragraphs closed blockquote. Fix: emit '>' separator.
+    2 new tests (round-trip produces single QuotedBlock), 348/348 pass.
+  - Task 11: Updated #1198 monthly activity issue with 2026-05-05 and 2026-05-07 run entries.
+    Added #1201, #1199, #1200 to suggested actions.

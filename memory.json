@@ -1,14 +1,11 @@
 {
-  "run": "25265702844",
-  "cursor": 1178,
-  "monthly": "1131-closed-new-may-created",
+  "run": "25469038887",
+  "cursor": 1198,
+  "monthly": "1198",
   "prs": [
-    1195, 1194, 1187, 1185, 1175, 1161, 1130, 1106
+    1201, 1197, 1195, 1194, 1187, 1185, 1175, 1161, 1130, 1106
   ],
-  "prs_in_progress": [
-    {"branch": "repo-assist/test-fsx-pynb-latex-coverage-2026-05-03", "desc": "test: add ToFsx output-comment, ToPynb execution-output, and LaTeX block tests", "run": "25265702844", "status": "created-pending-number"}
-  ],
-  "dependabot_prs": [1179, 1180, 1182, 1183, 1186, 1191, 1193, 1196],
+  "dependabot_prs": [1179, 1180, 1182, 1183, 1186, 1191, 1193, 1196, 1199, 1200],
   "deps_bundle_issue": 1190,
   "comments_made": {
     "685": "prior",
@@ -28,12 +25,11 @@
     "1190": "2026-04-29"
   },
   "notes": [
-    "PR #1106 has conflict: uses Enumerable.Cast but main now uses Seq.cast (from #1174); needs updating before merge",
-    "PR #1161 CI persistently 0 check_runs; maintainer may need to retrigger",
+    "PR #1201 (blockquote roundtrip fix): focused PR for QuotedBlock ToMd bug; 348/348 pass. Note: PR #1106 covers blockquote+tooltip - #1201 supersedes the blockquote part of #1106",
+    "PR #1161 CI: merged main on 2026-05-07 to re-trigger CI (merged main twice: 2026-05-05 and 2026-05-07). Head SHA updated. Still blocked pending CI.",
     "Do NOT include Test.Sdk 18.5.0 in any bundle; use Dependabot PR #1193 (18.5.1) instead",
     "Issue #1178: nhirschey confirmed keep generation code, update docs to note deprecation, leave Docker for now",
     "Issues #1184, #1188, #1189, #1192: can be closed (superseded/resolved)",
-    "Monthly 2026-04 issue #1131 closed; new 2026-05 monthly issue created this run",
-    "New PR branch repo-assist/test-fsx-pynb-latex-coverage-2026-05-03: 6 new tests (ToFsx output, ToPynb output, LaTeX blocks); 352/352 pass"
+    "Monthly 2026-05 issue is #1198"
   ]
 }
