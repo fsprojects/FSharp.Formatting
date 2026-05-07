@@ -17,6 +17,7 @@
 * Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.
 * Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
 * Fix `Markdown.ToLatex` producing invalid LaTeX output for level-6 (and deeper) headings. Previously the LaTeX command was an empty string, resulting in bare `{content}` without a command prefix. Headings at level 6+ are now serialised as `\subparagraph{...}`, which is the deepest sectioning command available in LaTeX.
+* Fix `Markdown.ToMd` multi-paragraph blockquote round-trip. The old code emitted a bare blank line between inner paragraphs, which CommonMark parses as closing the blockquote, resulting in multiple separate blockquotes on re-parse. Paragraph separators inside a blockquote are now emitted as `>` (an empty blockquote continuation line) so the round-trip preserves a single `QuotedBlock`.
 
 ### Added
 * Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
