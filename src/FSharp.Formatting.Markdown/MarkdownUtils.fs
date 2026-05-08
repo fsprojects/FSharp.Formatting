@@ -268,22 +268,21 @@ module internal MarkdownUtils =
               let replaceEmptyWith x s =
                   if System.String.IsNullOrWhiteSpace s then x else Some s
 
-              yield
-                  [ for r in rows do
-                        [ for ps in r do
-                              let x =
-                                  [ for p in ps do
-                                        yield
-                                            formatParagraph ctx p
-                                            |> Seq.choose (replaceEmptyWith (Some ""))
-                                            |> String.concat "" ]
+              for r in rows do
+                  yield
+                      [ for ps in r do
+                            let x =
+                                [ for p in ps do
+                                      yield
+                                          formatParagraph ctx p
+                                          |> Seq.choose (replaceEmptyWith (Some ""))
+                                          |> String.concat "" ]
 
-                              yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
-                        |> Seq.choose (replaceEmptyWith (Some "&#32;"))
-                        |> String.concat " | " ]
-                  |> String.concat "\n"
+                            yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
+                      |> Seq.choose (replaceEmptyWith (Some "&#32;"))
+                      |> String.concat " | "
 
-              yield "\n"
+              yield ""
 
           | OutputBlock(output, "text/html", _executionCount) ->
               yield (output.Trim())

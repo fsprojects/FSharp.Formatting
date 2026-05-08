@@ -1407,6 +1407,29 @@ let ``ToMd handles a table`` () =
     result |> should contain "B"
 
 [<Test>]
+let ``ToMd table rows each appear on their own line`` () =
+    // Previously, all data rows were joined into one string with a hardcoded "\n",
+    // which produced a single yield item. Now each row is yielded separately so the
+    // caller's newline is used. Verify that each row appears on a distinct line.
+    let md = "H1 | H2\n--- | ---\nR1C1 | R1C2\nR2C1 | R2C2"
+    let result = Markdown.ToMd(Markdown.Parse(md, newline = "\n"), newline = "\n")
+    let lines = result.Split('\n') |> Array.filter (fun s -> s.Trim() <> "")
+    // Expect: header row, separator row, two data rows
+    lines |> should haveLength 4
+
+[<Test>]
+let ``ToMd table row count is correct when Windows newline is used`` () =
+    // Regression: rows were previously joined with a hardcoded "\n" regardless of ctx.Newline,
+    // so on Windows the data section was a single element with embedded Unix newlines.
+    let md = "H1 | H2\n--- | ---\nR1C1 | R1C2\nR2C1 | R2C2"
+    let result = Markdown.ToMd(Markdown.Parse(md, newline = "\r\n"), newline = "\r\n")
+    // All line separators must be \r\n (no stray \n inside the result)
+    result |> should not' (contain "\r\n\n")
+    result |> should not' (contain "\n\r\n")
+    result |> should contain "R1C1"
+    result |> should contain "R2C1"
+
+[<Test>]
 let ``ToMd handles empty document`` () = "" |> toMd |> shouldEqual ""
 
 [<Test>]
