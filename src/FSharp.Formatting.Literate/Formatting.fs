@@ -13,6 +13,9 @@ open FSharp.Formatting.Templating
 /// substitution key–value pairs used by the templating engine to populate page templates.
 module internal Formatting =
 
+    // Compiled once at module load; reused for every HTML page's search-index text extraction.
+    let private htmlTagRegex = Regex("<.*?>", RegexOptions.Compiled ||| RegexOptions.Singleline)
+
     /// Format document with the specified output kind
     let format (doc: MarkdownDocument) generateAnchors outputKind substitutions crefResolver mdlinkResolver =
         match outputKind with
@@ -290,7 +293,7 @@ module internal Formatting =
             (match ctx.OutputKind with
              | OutputKind.Html ->
                  // Strip the html tags
-                 let fullText = Regex.Replace(formattedDocument, "<.*?>", "")
+                 let fullText = htmlTagRegex.Replace(formattedDocument, "")
                  Some(IndexText(fullText, headingTexts))
              | _ -> None)
 

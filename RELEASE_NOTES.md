@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+### Changed
+* Compile `Regex` instances to module-level singletons (with `RegexOptions.Compiled`) in `PageContentList`, `HtmlFormatting`, `Formatting`, `Menu`, and `LlmsTxt`. Previously a new, uncompiled `Regex` was constructed on every call (once per page heading, once per HTML page, once per menu item, once per llms.txt entry), incurring repeated JIT overhead. The patterns are now compiled once at module load and reused across all calls.
+* Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
+* Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
+* Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.0
+* Remove stale `VersionOverride="43.12.201"` on the `FSharp.Compiler.Service` reference in `FSharp.Formatting.Markdown.fsproj`; the package now uses the central pin (`43.12.202`) from `Directory.Packages.props`, eliminating the NU1605 build warning.
+* Replace `Enumerable.Cast<XAttribute>` (LINQ) with `Seq.cast<XAttribute>` (idiomatic F#) in `MarkdownUtils.fs`, removing the `open System.Linq` import.
+
+### Fixed
+* Fix `Markdown.ToMd` serialising table data rows with a hardcoded `\n` line separator instead of the configured newline. On Windows (where `Environment.NewLine` is `\r\n`) this produced mixed line endings in the output. Each data row is now yielded separately, consistent with how every other paragraph type works. The trailing blank line after a table was also emitting a literal `"\n"` string instead of the standard `""` empty-line sentinel.
+* Fix `Markdown.ToFsx` hardcoding a `\n` newline in the `(* output: ...)` comment wrapper around code-cell outputs. The configured `ctx.Newline` is now used, ensuring consistent line endings on Windows.
+* Fix `Markdown.ToMd` silently dropping YAML frontmatter when serialising a parsed `MarkdownDocument` back to Markdown text. Frontmatter is now preserved with its `---` delimiters.
+* Fix `Markdown.ToMd` converting tight lists (no blank lines between items) into loose lists by emitting a blank line after every item. Tight lists now round-trip correctly without inter-item blank lines.
+* Fix `Markdown.ToMd` serialising `HardLineBreak` as a bare newline instead of two trailing spaces + newline. The correct CommonMark representation `"  \n"` is now emitted, so hard line breaks survive a round-trip through `ToMd`.
+* Fix `Markdown.ToMd` serialising `HorizontalRule` as 23 hyphens regardless of the character used in the source. It now emits exactly three characters matching the parsed character (`---`, `***`, or `___`), giving faithful round-trips.
+* Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
+* Fix `Markdown.ToLatex` producing invalid LaTeX output for level-6 (and deeper) headings. Previously the LaTeX command was an empty string, resulting in bare `{content}` without a command prefix. Headings at level 6+ are now serialised as `\subparagraph{...}`, which is the deepest sectioning command available in LaTeX.
+* Fix `Markdown.ToMd` serialising unresolved indirect links as `[body](key)` (treating the reference key as a URL) instead of the correct `[body][key]` form. Unresolved indirect links are now preserved in their original indirect-reference form, consistent with how unresolved indirect images are handled.
+
+### Added
+* Introduce `--panel-background` and `--panel-border` CSS custom properties in `fsdocs-default.css`. These decouple panel/component colours (copy-code button, blockquotes, sidebar, page menu, dialogs, tooltips, API tables) from `--header-background`/`--header-border`. Both variables default to the header values, so existing themes are unaffected; themes that need a different colour for content panels can now override `--panel-background` and `--panel-border` independently. [#1156](https://github.com/fsprojects/FSharp.Formatting/issues/1156)
+* Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
+* Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
+* Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.
+* Fix `Markdown.ToMd` silently dropping `EmbedParagraphs` nodes: the serialiser now delegates to the node's `Render()` method and formats the resulting paragraphs, consistent with the HTML and LaTeX back-ends.
+* Fix `Markdown.ToMd` dropping link titles in `DirectLink` and `DirectImage` spans. Links with a title attribute (e.g. `[text](url "title")`) now round-trip correctly; without this fix the title was silently discarded on serialisation.
+* Fix `Markdown.ToMd` serialising inline code spans that contain backtick characters. Previously, `InlineCode` was always wrapped in single backticks, producing syntactically incorrect Markdown when the code body contained backticks. Now the serialiser selects the shortest backtick fence that does not collide with the body content (e.g. a double-backtick fence for bodies containing single backticks, triple for double, etc.), matching the CommonMark spec.
+* Add direct unit tests for `Markdown.ToLatex`, which previously had no unit test coverage. Tests cover headings (all six levels), inline formatting (bold, italic, inline code), links, images with captions, lists (ordered and unordered), code blocks, blockquotes, tables with bold headers, horizontal rules, LaTeX special character escaping, inline math, and display math.
+
 ## [22.0.0] - 2026-04-03
 
 ### Fixed
@@ -13,6 +42,10 @@
 * Fix crash (`failwith "tbd - IndirectImage"`) when `Markdown.ToMd` is called on a document containing reference-style images with bracket syntax. The indirect image is now serialised as `![alt](url)` when the reference is resolved, or in bracket notation when it is not. [#1094](https://github.com/fsprojects/FSharp.Formatting/pull/1094)
 * Fix `Markdown.ToMd` serialising italic spans with asterisks incorrectly as bold spans. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
 * Fix `Markdown.ToMd` serialising ordered list items with incorrect numbering and formatting. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `Markdown.ToMd` not preserving indented code blocks: bare code output was re-parsed as a paragraph. Indented code blocks are now serialised as fenced code blocks, which round-trip correctly.
+* Fix `Markdown.ToMd` serialising `*emphasis*` (italic) spans as `**...**` (bold) instead of `*...*`. [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `Markdown.ToMd` serialising ordered list items with 0-based numbering and no period (e.g. `0 first`) instead of 1-based with a period (e.g. `1. first`). [#1102](https://github.com/fsprojects/FSharp.Formatting/pull/1102)
+* Fix `HtmlElement` SVG serialisation: `LinearGradient` now renders as `<linearGradient>` and `RadialGradient` now renders as `<radialGradient>` — both previously emitted the invalid tag `<radient>`.
 
 ### Changed
 * `fsdocs build` now pre-computes the navigation menu structure (filter/group/sort) once per build rather than once per output page, reducing work from O(n²) to O(n) for sites with n pages. The filesystem check for custom menu templates is also cached per build. [#1129](https://github.com/fsprojects/FSharp.Formatting/pull/1129)
@@ -20,6 +53,8 @@
 ## [22.0.0-alpha.2] - 2026-03-13
 
 ### Added
+* Add `--root` option to `fsdocs watch` to override the root URL for generated pages. Useful for serving docs via GitHub Codespaces, reverse proxies, or other remote hosting where `localhost` URLs are inaccessible. E.g. `fsdocs watch --root /` or `fsdocs watch --root https://example.com/docs/`. When not set, defaults to `http://localhost:<port>/` as before. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
+* Fix `fsdocs watch` hot-reload WebSocket to connect using the page's actual host (`window.location.host`) instead of a hardcoded `localhost:<port>`, so hot-reload works correctly in GitHub Codespaces, behind reverse proxies, and over HTTPS. [#924](https://github.com/fsprojects/FSharp.Formatting/issues/924)
 * Search dialog now auto-focuses the search input when opened, clears on close, and can be triggered with `Ctrl+K` / `Cmd+K` in addition to `/`.
 * Add `dotnet fsdocs convert` command to convert a single `.md`, `.fsx`, or `.ipynb` file to HTML (or another output format) without building a full documentation site. [#811](https://github.com/fsprojects/FSharp.Formatting/issues/811)
 * `fsdocs convert` now accepts the input file as a positional argument (e.g. `fsdocs convert notebook.ipynb -o notebook.html`). [#1019](https://github.com/fsprojects/FSharp.Formatting/pull/1019)

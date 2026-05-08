@@ -594,13 +594,13 @@ type internal HtmlElement =
             | G(props, children) -> format "g" props children level
             | Image(props, children) -> format "image" props children level
             | Line(props, children) -> format "line" props children level
-            | LinearGradient(props, children) -> format "radient" props children level
+            | LinearGradient(props, children) -> format "linearGradient" props children level
             | Mask(props, children) -> format "mask" props children level
             | Path(props, children) -> format "path" props children level
             | Pattern(props, children) -> format "pattern" props children level
             | Polygon(props, children) -> format "polygon" props children level
             | Polyline(props, children) -> format "polyline" props children level
-            | RadialGradient(props, children) -> format "radient" props children level
+            | RadialGradient(props, children) -> format "radialGradient" props children level
             | Rect(props, children) -> format "rect" props children level
             | Stop(props, children) -> format "stop" props children level
             | Text(props, children) -> format "text" props children level

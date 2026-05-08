@@ -43,7 +43,7 @@ jobs:
       run: dotnet fsi build.fsx
 
     - name: Upload test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.1
       if: failure()
       with:
         name: test-results-ubuntu
@@ -59,7 +59,7 @@ jobs:
         force_orphan: true
     - name: Obtain NuGet key
       # this hash is v1.1.0
-      uses: NuGet/login@d22cc5f58ff5b88bf9bd452535b4335137e24544
+      uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841
       id: login
       with:
           user: dsyme

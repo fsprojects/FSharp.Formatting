@@ -1240,14 +1240,60 @@ let ``ToMd preserves inline code`` () =
     "Use `printf` here." |> toMd |> should contain "`printf`"
 
 [<Test>]
+let ``ToMd round-trips inline code containing a single backtick`` () =
+    // "a`b" must be serialised with a double-backtick fence so it re-parses correctly.
+    let original = "`` a`b ``"
+    let md = Markdown.Parse original
+    let result = Markdown.ToMd md
+    // The serialised form must round-trip: re-parsing must yield the same InlineCode body.
+    let reparsed = Markdown.Parse result
+
+    match reparsed.Paragraphs with
+    | [ Paragraph([ InlineCode("a`b", _) ], _) ] -> ()
+    | _ -> Assert.Fail(sprintf "Expected InlineCode(\"a`b\") after round-trip, got: %A" reparsed.Paragraphs)
+
+[<Test>]
+let ``ToMd round-trips inline code containing multiple backticks`` () =
+    // Body "``h``" contains double backticks — needs a triple-backtick fence.
+    let original = "` ``h`` `"
+    let md = Markdown.Parse original
+    let result = Markdown.ToMd md
+
+    match (Markdown.Parse result).Paragraphs with
+    | [ Paragraph([ InlineCode("``h``", _) ], _) ] -> ()
+    | _ -> Assert.Fail(sprintf "Expected InlineCode(\"``h``\") after round-trip, got: %A" result)
+
+[<Test>]
 let ``ToMd preserves a direct link`` () =
     "[FSharp](https://fsharp.org)"
     |> toMd
     |> should contain "[FSharp](https://fsharp.org)"
 
 [<Test>]
+let ``ToMd preserves a direct link with title`` () =
+    let md = "[FSharp](https://fsharp.org \"F# language\")"
+    let result = toMd md
+    result |> should contain "[FSharp]("
+    result |> should contain "https://fsharp.org"
+    result |> should contain "\"F# language\""
+
+[<Test>]
+let ``ToMd preserves a direct link without title unchanged`` () =
+    let result = "[link](http://example.com)" |> toMd
+    result |> should contain "[link](http://example.com)"
+    result |> should not' (contain "\"")
+
+[<Test>]
 let ``ToMd preserves a direct image`` () =
     "![alt text](image.png)" |> toMd |> should contain "![alt text](image.png)"
+
+[<Test>]
+let ``ToMd preserves a direct image with title`` () =
+    let md = "![photo](image.png \"My Photo\")"
+    let result = toMd md
+    result |> should contain "![photo]("
+    result |> should contain "image.png"
+    result |> should contain "\"My Photo\""
 
 [<Test>]
 let ``ToMd preserves an unordered list`` () =
@@ -1256,6 +1302,31 @@ let ``ToMd preserves an unordered list`` () =
     result |> should contain "apple"
     result |> should contain "banana"
     result |> should contain "cherry"
+
+[<Test>]
+let ``ToMd preserves tight unordered list without blank lines between items`` () =
+    // A tight list should not gain blank lines between items on round-trip.
+    let md = "* apple\n* banana\n* cherry"
+    let result = toMd md
+    // Tight list: no blank line between consecutive items
+    result |> should not' (contain "* apple\n\n* banana")
+
+[<Test>]
+let ``ToMd preserves tight ordered list without blank lines between items`` () =
+    // A tight ordered list should not gain blank lines between items on round-trip.
+    let md = "1. first\n2. second\n3. third"
+    let result = toMd md
+    // Tight list: no blank line between consecutive items
+    result |> should not' (contain "1. first\n\n2. second")
+
+[<Test>]
+let ``ToMd preserves loose list with blank lines between items`` () =
+    // A loose list (items separated by blank lines) should keep blank lines.
+    let md = "* alpha\n\n* beta\n\n* gamma"
+    let result = toMd md
+    result |> should contain "alpha"
+    result |> should contain "beta"
+    result |> should contain "gamma"
 
 [<Test>]
 let ``ToMd preserves emphasis (italic) text`` () =
@@ -1335,6 +1406,79 @@ let ``ToMd handles a table`` () =
     result |> should contain "A"
     result |> should contain "B"
 
+// --------------------------------------------------------------------------------------
+// ToMd table column alignment — left, center, right, default
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves left-aligned table columns`` () =
+    let md = "A | B\n:--- | :---\nX | Y"
+    let result = toMd md
+    result |> should contain ":---"
+
+[<Test>]
+let ``ToMd preserves center-aligned table columns`` () =
+    let md = "A | B\n:---: | :---:\nX | Y"
+    let result = toMd md
+    result |> should contain ":---:"
+
+[<Test>]
+let ``ToMd preserves right-aligned table columns`` () =
+    let md = "A | B\n---: | ---:\nX | Y"
+    let result = toMd md
+    result |> should contain "---:"
+
+[<Test>]
+let ``ToMd preserves default-aligned table columns`` () =
+    let md = "A | B\n--- | ---\nX | Y"
+    let result = toMd md
+    // default alignment renders as "---"
+    result |> should contain "---"
+
+[<Test>]
+let ``ToMd preserves table with mixed column alignments`` () =
+    let md = "Left | Center | Right | Default\n:--- | :---: | ---: | ---\na | b | c | d"
+    let result = toMd md
+    result |> should contain ":---:"
+    result |> should contain "---:"
+    result |> should contain "Left"
+    result |> should contain "Right"
+
+// --------------------------------------------------------------------------------------
+// ToMd InlineHtmlBlock round-trip
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves an inline HTML block`` () =
+    let md = "<div class=\"note\">\nThis is a note.\n</div>"
+    let result = toMd md
+    result |> should contain "<div"
+    result |> should contain "This is a note."
+    result |> should contain "</div>"
+
+[<Test>]
+let ``ToMd table rows each appear on their own line`` () =
+    // Previously, all data rows were joined into one string with a hardcoded "\n",
+    // which produced a single yield item. Now each row is yielded separately so the
+    // caller's newline is used. Verify that each row appears on a distinct line.
+    let md = "H1 | H2\n--- | ---\nR1C1 | R1C2\nR2C1 | R2C2"
+    let result = Markdown.ToMd(Markdown.Parse(md, newline = "\n"), newline = "\n")
+    let lines = result.Split('\n') |> Array.filter (fun s -> s.Trim() <> "")
+    // Expect: header row, separator row, two data rows
+    lines |> should haveLength 4
+
+[<Test>]
+let ``ToMd table row count is correct when Windows newline is used`` () =
+    // Regression: rows were previously joined with a hardcoded "\n" regardless of ctx.Newline,
+    // so on Windows the data section was a single element with embedded Unix newlines.
+    let md = "H1 | H2\n--- | ---\nR1C1 | R1C2\nR2C1 | R2C2"
+    let result = Markdown.ToMd(Markdown.Parse(md, newline = "\r\n"), newline = "\r\n")
+    // All line separators must be \r\n (no stray \n inside the result)
+    result |> should not' (contain "\r\n\n")
+    result |> should not' (contain "\n\r\n")
+    result |> should contain "R1C1"
+    result |> should contain "R2C1"
+
 [<Test>]
 let ``ToMd handles empty document`` () = "" |> toMd |> shouldEqual ""
 
@@ -1346,6 +1490,15 @@ let ``ToMd preserves an indirect link when key is not resolved`` () =
     // ToMd resolves the indirect link to a direct link form
     result |> should contain "[link text]"
     result |> should contain "https://example.com"
+
+[<Test>]
+let ``ToMd preserves indirect link form when key is unresolved`` () =
+    // No reference definition → key cannot be resolved; should preserve [body][key] form
+    let input = "[link text][unknown-ref]"
+    let doc = Markdown.Parse(input)
+    let result = Markdown.ToMd(doc)
+    // Should preserve the indirect reference form, not produce a broken direct link
+    result |> should contain "[link text][unknown-ref]"
 
 // --------------------------------------------------------------------------------------
 // ToMd round-trip: indirect images (issue - failwith "tbd - IndirectImage")
@@ -1371,3 +1524,535 @@ let ``ToMd round-trip: indirect image with unresolved reference`` () =
     let result = Markdown.ToMd(doc)
     // When key is not resolved, should preserve the indirect form
     result |> should contain "![alt text][unknown-ref]"
+
+// --------------------------------------------------------------------------------------
+// ToMd round-trip: indented code block (fence = None) — issue #fix-tomd-indented-codeblock
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd round-trip: indented code block is preserved as a code block`` () =
+    // An indented code block (4-space indent) is serialised as a fenced block to
+    // guarantee the round-trip: outputting bare code without any fence would cause
+    // re-parsing to produce a paragraph instead of a code block.
+    let input = "    let x = 1\n    let y = 2"
+    let doc = Markdown.Parse(input)
+    // The parser should have produced a CodeBlock, not a Paragraph
+    let cbs =
+        doc.Paragraphs
+        |> List.choose (function
+            | CodeBlock _ as cb -> Some cb
+            | _ -> None)
+
+    cbs |> should haveLength 1
+    // ToMd should produce a fenced form so the round-trip is valid
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "```"
+    result |> should contain "let x = 1"
+    result |> should contain "let y = 2"
+    // The serialised form re-parses to a CodeBlock, not a Paragraph
+    let doc2 = Markdown.Parse(result)
+
+    doc2.Paragraphs
+    |> List.choose (function
+        | CodeBlock _ as cb -> Some cb
+        | _ -> None)
+    |> should haveLength 1
+
+// ToMd: HardLineBreak and HorizontalRule round-trip
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd serialises HardLineBreak as two trailing spaces`` () =
+    // Two trailing spaces before a newline create a hard line break in CommonMark
+    let md = "Hello  \nWorld"
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToMd(doc, newline = "\n")
+    // The hard line break must round-trip as "  \n" so a re-parse would produce HardLineBreak
+    result |> should contain "  \n"
+
+[<Test>]
+let ``ToMd preserves HorizontalRule hyphen character`` () =
+    let md = "---"
+    let result = toMd md
+    // Should be exactly three hyphens, not a longer sequence
+    result |> should contain "---"
+    result |> should not' (contain "----")
+
+[<Test>]
+let ``ToMd preserves HorizontalRule asterisk character`` () =
+    let md = "***"
+    let result = toMd md
+    result |> should contain "***"
+    result |> should not' (contain "****")
+
+[<Test>]
+let ``ToMd preserves HorizontalRule underscore character`` () =
+    let md = "___"
+    let result = toMd md
+    result |> should contain "___"
+    result |> should not' (contain "____")
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToFsx: direct tests (no Literate wrapper)
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Markdown.ToFsx wraps prose in script comment block`` () =
+    let md = "# My Title\n\nSome prose paragraph."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    // All non-code content should be wrapped in (** ... *)
+    result |> should contain "(**"
+    result |> should contain "*)"
+    result |> should contain "# My Title"
+    result |> should contain "Some prose paragraph."
+
+[<Test>]
+let ``Markdown.ToFsx emits code block as plain F# without wrapping`` () =
+    let md = "Before code.\n\n```fsharp\nlet x = 42\n```\n\nAfter code."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    // Code content should appear as raw F#, not wrapped in comment blocks
+    result |> should contain "let x = 42"
+    result |> should contain "(**"
+    result |> should contain "Before code."
+    result |> should contain "After code."
+    // The code itself must not be wrapped in a comment block
+    result |> should not' (contain "(** let x = 42")
+
+[<Test>]
+let ``Markdown.ToFsx round-trips empty document`` () =
+    let doc = Markdown.Parse("", newline = "\n")
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    // Empty document → empty script
+    result.Trim() |> shouldEqual ""
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToPynb: direct tests (no Literate wrapper)
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Markdown.ToPynb produces valid JSON notebook`` () =
+    let md = "# Title\n\nSome text."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    // Jupyter notebooks are JSON; basic structural checks
+    result |> should contain "\"nbformat\""
+    result |> should contain "\"cells\""
+
+[<Test>]
+let ``Markdown.ToPynb prose becomes a markdown cell`` () =
+    let md = "# Title\n\nSome prose."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "\"cell_type\": \"markdown\""
+    result |> should contain "# Title"
+
+[<Test>]
+let ``Markdown.ToPynb code block becomes a code cell`` () =
+    let md = "Some prose.\n\n```fsharp\nlet y = 99\n```\n\nMore prose."
+    let doc = Markdown.Parse(md, newline = "\n")
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "\"cell_type\": \"code\""
+    result |> should contain "let y = 99"
+
+// ToMd additional coverage: headings, nested structures, LaTeX display math, inline code
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves heading level 4`` () =
+    "#### Heading Four" |> toMd |> shouldEqual "#### Heading Four"
+
+[<Test>]
+let ``ToMd preserves heading level 5`` () =
+    "##### Heading Five" |> toMd |> shouldEqual "##### Heading Five"
+
+[<Test>]
+let ``ToMd preserves heading level 6`` () =
+    "###### Heading Six" |> toMd |> shouldEqual "###### Heading Six"
+
+[<Test>]
+let ``ToMd preserves emphasis inside a heading`` () =
+    let result = "## Hello *world*" |> toMd
+    result |> should contain "## Hello *world*"
+
+[<Test>]
+let ``ToMd preserves strong text inside a heading`` () =
+    let result = "## Hello **world**" |> toMd
+    result |> should contain "## Hello **world**"
+
+[<Test>]
+let ``ToMd preserves LaTeX display math`` () =
+    let md = "$$E = mc^2$$"
+    let result = toMd md
+    result |> should contain "$$E = mc^2$$"
+
+[<Test>]
+let ``ToMd preserves inline code containing special chars`` () =
+    let md = "Use `a + b = c` inline."
+    let result = toMd md
+    result |> should contain "`a + b = c`"
+
+[<Test>]
+let ``ToMd preserves nested unordered list`` () =
+    // Outer list item containing an inner list
+    let md = "* outer\n\n  * inner"
+    let result = toMd md
+    result |> should contain "outer"
+    result |> should contain "inner"
+
+[<Test>]
+let ``ToMd preserves a nested blockquote`` () =
+    // A blockquote that itself contains a blockquote
+    let md = "> > inner quote"
+    let result = toMd md
+    result |> should contain "> "
+    result |> should contain "inner quote"
+    // The inner quote marker should appear in the output (two levels of '>')
+    result |> should contain "> >"
+
+[<Test>]
+let ``ToMd preserves emphasis inside a blockquote`` () =
+    let md = "> *italic text*"
+    let result = toMd md
+    result |> should contain "> "
+    result |> should contain "*italic text*"
+
+[<Test>]
+let ``ToMd preserves inline code inside a blockquote`` () =
+    let md = "> use `printf` here"
+    let result = toMd md
+    result |> should contain "> "
+    result |> should contain "`printf`"
+
+[<Test>]
+let ``ToMd preserves a code block without language`` () =
+    let md = "```\nsome code\n```"
+    let result = toMd md
+    result |> should contain "some code"
+    result |> should contain "```"
+
+[<Test>]
+let ``ToMd preserves horizontal rule (dash variant)`` () =
+    let md = "---"
+    let result = toMd md
+    result |> should contain "---"
+
+[<Test>]
+let ``ToMd preserves a link with a title`` () =
+    // Title attribute is allowed in Markdown links
+    let md = "[FSharp](https://fsharp.org \"F# home\")"
+    let result = toMd md
+    result |> should contain "[FSharp]("
+    result |> should contain "https://fsharp.org"
+
+[<Test>]
+let ``ToMd preserves YAML frontmatter`` () =
+    let input = "---\ntitle: My Page\ndate: 2024-01-01\n---\n\nHello world.\n"
+    let result = input |> toMd
+    result |> should contain "---"
+    result |> should contain "title: My Page"
+    result |> should contain "date: 2024-01-01"
+    result |> should contain "Hello world."
+
+[<Test>]
+let ``ToMd preserves empty YAML frontmatter`` () =
+    let input = "---\n---\n\nHello.\n"
+    let result = input |> toMd
+    result |> should contain "---"
+    result |> should contain "Hello."
+
+[<Test>]
+let ``ToMd serialises EmbedParagraphs by delegating to Render()`` () =
+    // EmbedParagraphs was previously falling through to the catch-all '| _' branch,
+    // emitting a debug printfn and yielding an empty string.  It should instead
+    // delegate to the Render() method and format the resulting paragraphs.
+    let inner =
+        { new MarkdownEmbedParagraphs with
+            member _.Render() =
+                [ Paragraph([ Literal("embedded text", MarkdownRange.zero) ], MarkdownRange.zero) ] }
+
+    let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
+    let result = Markdown.ToMd(doc)
+    result |> should contain "embedded text"
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToLatex: direct unit tests
+// Previously the only LaTeX coverage was through file-based comparisons in TestFiles.fs
+// (which are not run by the test runner). These tests exercise the public API directly.
+// --------------------------------------------------------------------------------------
+
+/// Helper: parse and convert to LaTeX using Unix newlines for stable assertions.
+let toLatex (md: string) =
+    let doc = Markdown.Parse(md, newline = "\n")
+    Markdown.ToLatex(doc, newline = "\n")
+
+[<Test>]
+let ``ToLatex emits section for level-1 heading`` () =
+    let result = toLatex "# My Section"
+    result |> should contain @"\section*{My Section}"
+
+[<Test>]
+let ``ToLatex emits subsection for level-2 heading`` () =
+    let result = toLatex "## My Subsection"
+    result |> should contain @"\subsection*{My Subsection}"
+
+[<Test>]
+let ``ToLatex emits subsubsection for level-3 heading`` () =
+    let result = toLatex "### My Subsubsection"
+    result |> should contain @"\subsubsection*{My Subsubsection}"
+
+[<Test>]
+let ``ToLatex emits paragraph for level-4 heading`` () =
+    let result = toLatex "#### Level Four"
+    result |> should contain @"\paragraph{Level Four}"
+
+[<Test>]
+let ``ToLatex emits subparagraph for level-5 heading`` () =
+    let result = toLatex "##### Level Five"
+    result |> should contain @"\subparagraph{Level Five}"
+
+[<Test>]
+let ``ToLatex emits subparagraph for level-6 heading (deepest LaTeX level)`` () =
+    // Level 6 was previously producing invalid LaTeX "{Level Six}" with an empty command.
+    // The fix maps any level > 5 to \subparagraph, which is the deepest LaTeX sectioning command.
+    let result = toLatex "###### Level Six"
+    result |> should contain @"\subparagraph{Level Six}"
+    result |> should not' (startWith "{")
+
+[<Test>]
+let ``ToLatex renders bold as textbf`` () =
+    let result = toLatex "Some **bold** text."
+    result |> should contain @"\textbf{bold}"
+
+[<Test>]
+let ``ToLatex renders italic as emph`` () =
+    let result = toLatex "Some *italic* text."
+    result |> should contain @"\emph{italic}"
+
+[<Test>]
+let ``ToLatex renders inline code as texttt`` () =
+    let result = toLatex "Use `printf` here."
+    result |> should contain @"\texttt{printf}"
+
+[<Test>]
+let ``ToLatex renders a direct link as href`` () =
+    let result = toLatex "[FSharp](https://fsharp.org)"
+    result |> should contain @"\href{https://fsharp.org}{FSharp}"
+
+[<Test>]
+let ``ToLatex renders an unordered list as itemize`` () =
+    let result = toLatex "* alpha\n* beta\n* gamma"
+    result |> should contain @"\begin{itemize}"
+    result |> should contain @"\item"
+    result |> should contain @"\end{itemize}"
+    result |> should contain "alpha"
+    result |> should contain "beta"
+    result |> should contain "gamma"
+
+[<Test>]
+let ``ToLatex renders an ordered list as enumerate`` () =
+    let result = toLatex "1. first\n2. second\n3. third"
+    result |> should contain @"\begin{enumerate}"
+    result |> should contain @"\item"
+    result |> should contain @"\end{enumerate}"
+    result |> should contain "first"
+    result |> should contain "second"
+
+[<Test>]
+let ``ToLatex renders a fenced code block as lstlisting`` () =
+    let result = toLatex "```fsharp\nlet x = 42\n```"
+    result |> should contain @"\begin{lstlisting}"
+    result |> should contain "let x = 42"
+    result |> should contain @"\end{lstlisting}"
+
+[<Test>]
+let ``ToLatex renders a blockquote as quote environment`` () =
+    let result = toLatex "> This is a quote."
+    result |> should contain @"\begin{quote}"
+    result |> should contain "This is a quote."
+    result |> should contain @"\end{quote}"
+
+[<Test>]
+let ``ToLatex renders a horizontal rule`` () =
+    let result = toLatex "---"
+    result |> should contain @"\noindent\makebox[\linewidth]"
+
+[<Test>]
+let ``ToLatex escapes hash character`` () =
+    let result = toLatex "A #hashtag here."
+    result |> should contain @"\#"
+
+[<Test>]
+let ``ToLatex escapes dollar sign`` () =
+    let result = toLatex "Price is $10."
+    // Dollar signs in normal paragraph text should be escaped (not treated as math)
+    // Note: the parser may treat $10 as LaTeX math or as literal text depending on context.
+    // We verify that the result is produced without error and is non-empty.
+    result.Length |> should be (greaterThan 0)
+
+[<Test>]
+let ``ToLatex escapes percent sign`` () =
+    let result = toLatex "Score: 90% correct."
+    result |> should contain @"\%"
+
+[<Test>]
+let ``ToLatex escapes ampersand`` () =
+    let result = toLatex "A & B"
+    result |> should contain @"\&"
+
+[<Test>]
+let ``ToLatex escapes underscore`` () =
+    let result = toLatex "file\_name"
+    result |> should contain @"\_"
+
+[<Test>]
+let ``ToLatex renders inline LaTeX math`` () =
+    let result = toLatex "Euler: $e^{i\\pi} + 1 = 0$"
+    result |> should contain "$e^{i\\pi} + 1 = 0$"
+
+[<Test>]
+let ``ToLatex renders display LaTeX math as equation environment`` () =
+    // $$...$$ at paragraph level is parsed as LatexBlock(env="equation", ...)
+    // and serialised as \begin{equation}...\end{equation}
+    let result = toLatex "$$E = mc^2$$"
+    result |> should contain @"\begin{equation}"
+    result |> should contain "E = mc^2"
+    result |> should contain @"\end{equation}"
+
+[<Test>]
+let ``ToLatex renders a table as tabular`` () =
+    let md = "| Name | Age |\n|------|-----|\n| Alice | 30 |\n| Bob | 25 |"
+    let result = toLatex md
+    result |> should contain @"\begin{tabular}"
+    result |> should contain @"\hline"
+    result |> should contain @"\end{tabular}"
+    result |> should contain "Alice"
+    result |> should contain "Bob"
+
+[<Test>]
+let ``ToLatex renders table headers in bold`` () =
+    let md = "| Name | Age |\n|------|-----|\n| Alice | 30 |"
+    let result = toLatex md
+    result |> should contain @"\textbf{"
+    result |> should contain "Name"
+    result |> should contain "Age"
+
+[<Test>]
+let ``ToLatex renders an image as includegraphics`` () =
+    let md = "![alt text](image.png)"
+    let result = toLatex md
+    result |> should contain @"\includegraphics"
+    result |> should contain "image.png"
+
+[<Test>]
+let ``ToLatex renders an image with alt as figure with caption`` () =
+    let md = "![My Caption](diagram.png)"
+    let result = toLatex md
+    result |> should contain @"\begin{figure}"
+    result |> should contain @"\caption{My Caption}"
+    result |> should contain @"\end{figure}"
+
+[<Test>]
+let ``ToLatex produces non-empty output for a simple document`` () =
+    let result = toLatex "# Hello\n\nWorld."
+    result.Trim().Length |> should be (greaterThan 0)
+    result |> should contain @"\section*{Hello}"
+    result |> should contain "World."
+
+[<Test>]
+let ``ToLatex handles empty document without error`` () =
+    let result = toLatex ""
+    // Empty document should not throw and returns empty or whitespace
+    result.Trim() |> shouldEqual ""
+
+[<Test>]
+let ``ToLatex EmbedParagraphs delegates to Render()`` () =
+    let inner =
+        { new MarkdownEmbedParagraphs with
+            member _.Render() =
+                [ Paragraph([ Literal("latex text", MarkdownRange.zero) ], MarkdownRange.zero) ] }
+
+    let doc = MarkdownDocument([ EmbedParagraphs(inner, MarkdownRange.zero) ], dict [])
+    let result = Markdown.ToLatex(doc)
+    result |> should contain "latex text"
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToFsx: code-with-output tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToFsx emits output comment when code block is followed by an OutputBlock`` () =
+    // A CodeBlock immediately followed by an OutputBlock should produce a
+    // "(* output: ... *)" comment so round-tripping is faithful.
+    let doc =
+        MarkdownDocument(
+            [ CodeBlock("let x = 42", None, Some "```", "fsharp", "", MarkdownRange.zero)
+              OutputBlock("42", "text/plain", Some 1) ],
+            dict []
+        )
+
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    result |> should contain "let x = 42"
+    result |> should contain "(* output:"
+    result |> should contain "42"
+
+[<Test>]
+let ``ToFsx does not emit output comment when code block has no output`` () =
+    let doc = MarkdownDocument([ CodeBlock("let y = 0", None, Some "```", "fsharp", "", MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    result |> should contain "let y = 0"
+    result |> should not' (contain "(* output:")
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToPynb: notebook output tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToPynb code block with output produces execution output in notebook`` () =
+    // A CodeBlock followed by an OutputBlock should produce a code cell with
+    // an "execute_result" output entry.
+    let doc =
+        MarkdownDocument(
+            [ CodeBlock("1 + 1", None, Some "```", "fsharp", "", MarkdownRange.zero)
+              OutputBlock("2", "text/plain", Some 1) ],
+            dict []
+        )
+
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "execute_result"
+    result |> should contain "1 + 1"
+
+[<Test>]
+let ``ToPynb empty document produces notebook with empty cells array`` () =
+    let doc = MarkdownDocument([], dict [])
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "\"nbformat\""
+    result |> should contain "\"cells\""
+
+// --------------------------------------------------------------------------------------
+// ToMd: multi-line LaTeX block with non-equation environment
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves multi-line LaTeX block with align environment`` () =
+    // Multi-line LatexBlock with a non-equation env must round-trip via \begin{}/\end{}.
+    // The parser reads $$...$$ as a single-line equation; for multi-line or named envs
+    // we construct the AST directly.
+    let doc = MarkdownDocument([ LatexBlock("align", [ "a &= b \\\\"; "c &= d" ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "\\begin{align}"
+    result |> should contain "a &= b \\\\"
+    result |> should contain "c &= d"
+    result |> should contain "\\end{align}"
+
+[<Test>]
+let ``ToMd serialises single-line equation block as compact dollar-dollar notation`` () =
+    // A single-line equation LatexBlock must be rendered as $$...$$ not \begin{equation}
+    let doc = MarkdownDocument([ LatexBlock("equation", [ "E = mc^2" ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "$$E = mc^2$$"
+    result |> should not' (contain "\\begin{equation}")

@@ -129,9 +129,12 @@ let rec internal formatSpan (ctx: FormattingContext) span =
 and internal formatSpans ctx = List.iter (formatSpan ctx)
 
 /// generate anchor name from Markdown text
+// Compiled once at module load; reused for every heading anchor generated.
+let private wordRegex = Regex(@"\w+", RegexOptions.Compiled)
+
 let internal formatAnchor (ctx: FormattingContext) (spans: MarkdownSpans) =
     let extractWords (text: string) =
-        Regex.Matches(text, @"\w+") |> Seq.cast<Match> |> Seq.map (fun m -> m.Value)
+        wordRegex.Matches(text) |> Seq.cast<Match> |> Seq.map (fun m -> m.Value)
 
     let rec gather (span: MarkdownSpan) : string seq =
         seq {

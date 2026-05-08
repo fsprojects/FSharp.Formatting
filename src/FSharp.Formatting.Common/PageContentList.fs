@@ -13,10 +13,11 @@ let EmptyContent = "<div class=\"empty\"></div>"
 /// We process the html to collect the table of content.
 /// We can't use the doc.MarkdownDocument because we cannot easily get the generated id values.
 /// It is safer to parse the html.
-let mkPageContentMenu (html: string) =
-    let headingLinkPattern = "<h(\\d)><a [^>]*href=\"([^\"]+)\">([^<]+)</a></h\\d>"
 
-    let regex = Regex(headingLinkPattern)
+// Compiled once at module load; reused across all pages.
+let private headingLinkRegex = Regex("<h(\\d)><a [^>]*href=\"([^\"]+)\">([^<]+)</a></h\\d>", RegexOptions.Compiled)
+
+let mkPageContentMenu (html: string) =
 
     let extractHeadingLinks (matchItem: Match) =
         let level = int matchItem.Groups.[1].Value
@@ -26,7 +27,7 @@ let mkPageContentMenu (html: string) =
         linkText, li [ Class $"level-%i{level}" ] [ a [ Href href ] [ !!linkText ] ]
 
     let headingTexts, listItems =
-        regex.Matches(html)
+        headingLinkRegex.Matches(html)
         |> Seq.cast<Match>
         |> Seq.map extractHeadingLinks
         |> Seq.toList
