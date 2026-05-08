@@ -17,7 +17,7 @@
       "rollForward": false
     },
     "dotnet-repl": {
-      "version": "0.3.250",
+      "version": "0.3.259",
       "commands": [
         "dotnet-repl"
       ],

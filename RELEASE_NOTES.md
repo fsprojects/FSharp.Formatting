@@ -7,8 +7,12 @@
 * Replace deprecated `System.Net.WebClient` with `System.Net.Http.HttpClient` in the image downloader used by `--saveimages`. Removes the `#nowarn "44"` suppression.
 * Bump `Newtonsoft.Json` transitive-dependency pin from 13.0.3 to 13.0.4.
 * Bump `System.Memory` transitive-dependency pin from 4.5.5 to 4.6.3.0
+* Remove stale `VersionOverride="43.12.201"` on the `FSharp.Compiler.Service` reference in `FSharp.Formatting.Markdown.fsproj`; the package now uses the central pin (`43.12.202`) from `Directory.Packages.props`, eliminating the NU1605 build warning.
+* Replace `Enumerable.Cast<XAttribute>` (LINQ) with `Seq.cast<XAttribute>` (idiomatic F#) in `MarkdownUtils.fs`, removing the `open System.Linq` import.
 
 ### Fixed
+* Fix `Markdown.ToMd` serialising table data rows with a hardcoded `\n` line separator instead of the configured newline. On Windows (where `Environment.NewLine` is `\r\n`) this produced mixed line endings in the output. Each data row is now yielded separately, consistent with how every other paragraph type works. The trailing blank line after a table was also emitting a literal `"\n"` string instead of the standard `""` empty-line sentinel.
+* Fix `Markdown.ToFsx` hardcoding a `\n` newline in the `(* output: ...)` comment wrapper around code-cell outputs. The configured `ctx.Newline` is now used, ensuring consistent line endings on Windows.
 * Fix `Markdown.ToMd` silently dropping YAML frontmatter when serialising a parsed `MarkdownDocument` back to Markdown text. Frontmatter is now preserved with its `---` delimiters.
 * Fix `Markdown.ToMd` converting tight lists (no blank lines between items) into loose lists by emitting a blank line after every item. Tight lists now round-trip correctly without inter-item blank lines.
 * Fix `Markdown.ToMd` serialising `HardLineBreak` as a bare newline instead of two trailing spaces + newline. The correct CommonMark representation `"  \n"` is now emitted, so hard line breaks survive a round-trip through `ToMd`.
@@ -16,8 +20,10 @@
 * Remove stray `printfn` debug output emitted to stdout when `Markdown.ToMd` encountered an unrecognised paragraph type.
 * Fix `Markdown.ToMd` serialising a multi-paragraph blockquote as multiple separate blockquotes. The blank separator between paragraphs inside a `QuotedBlock` is now emitted as `>` (an empty blockquote line) instead of a plain blank line, so re-parsing the output yields a single `QuotedBlock` with all paragraphs intact. Also eliminates `> ` lines with trailing whitespace that the previous code produced.
 * Fix `Markdown.ToLatex` producing invalid LaTeX output for level-6 (and deeper) headings. Previously the LaTeX command was an empty string, resulting in bare `{content}` without a command prefix. Headings at level 6+ are now serialised as `\subparagraph{...}`, which is the deepest sectioning command available in LaTeX.
+* Fix `Markdown.ToMd` serialising unresolved indirect links as `[body](key)` (treating the reference key as a URL) instead of the correct `[body][key]` form. Unresolved indirect links are now preserved in their original indirect-reference form, consistent with how unresolved indirect images are handled.
 
 ### Added
+* Introduce `--panel-background` and `--panel-border` CSS custom properties in `fsdocs-default.css`. These decouple panel/component colours (copy-code button, blockquotes, sidebar, page menu, dialogs, tooltips, API tables) from `--header-background`/`--header-border`. Both variables default to the header values, so existing themes are unaffected; themes that need a different colour for content panels can now override `--panel-background` and `--panel-border` independently. [#1156](https://github.com/fsprojects/FSharp.Formatting/issues/1156)
 * Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
 * Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
 * Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.

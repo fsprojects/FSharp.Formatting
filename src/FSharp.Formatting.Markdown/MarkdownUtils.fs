@@ -6,7 +6,6 @@ namespace rec FSharp.Formatting.Markdown
 
 open System
 open System.Collections.Generic
-open System.Linq
 open System.Xml.Linq
 open FSharp.Formatting.Templating
 
@@ -114,8 +113,8 @@ module internal MarkdownUtils =
 
             "[" + formatSpans ctx body + "](" + link + t + ")"
 
-        | IndirectLink(body, _, LookupKey ctx.Links (link, _), _)
-        | IndirectLink(body, link, _, _) -> "[" + formatSpans ctx body + "](" + link + ")"
+        | IndirectLink(body, _, LookupKey ctx.Links (link, _), _) -> "[" + formatSpans ctx body + "](" + link + ")"
+        | IndirectLink(body, _, key, _) -> "[" + formatSpans ctx body + "][" + key + "]"
 
         | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) -> sprintf "![%s](%s)" body link
         | IndirectImage(body, _, key, _) -> sprintf "![%s][%s]" body key
@@ -269,22 +268,21 @@ module internal MarkdownUtils =
               let replaceEmptyWith x s =
                   if System.String.IsNullOrWhiteSpace s then x else Some s
 
-              yield
-                  [ for r in rows do
-                        [ for ps in r do
-                              let x =
-                                  [ for p in ps do
-                                        yield
-                                            formatParagraph ctx p
-                                            |> Seq.choose (replaceEmptyWith (Some ""))
-                                            |> String.concat "" ]
+              for r in rows do
+                  yield
+                      [ for ps in r do
+                            let x =
+                                [ for p in ps do
+                                      yield
+                                          formatParagraph ctx p
+                                          |> Seq.choose (replaceEmptyWith (Some ""))
+                                          |> String.concat "" ]
 
-                              yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
-                        |> Seq.choose (replaceEmptyWith (Some "&#32;"))
-                        |> String.concat " | " ]
-                  |> String.concat "\n"
+                            yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
+                      |> Seq.choose (replaceEmptyWith (Some "&#32;"))
+                      |> String.concat " | "
 
-              yield "\n"
+              yield ""
 
           | OutputBlock(output, "text/html", _executionCount) ->
               yield (output.Trim())
@@ -432,7 +430,7 @@ module internal MarkdownUtils =
                         let attributes =
                             match System.Xml.XPath.Extensions.XPathEvaluate(element, "//*/@*[contains(., '.md')]") with
                             | :? System.Collections.IEnumerable as enumerable ->
-                                enumerable |> Enumerable.Cast<XAttribute> |> Seq.toArray
+                                enumerable |> Seq.cast<XAttribute> |> Seq.toArray
                             | _ -> Array.empty
 
                         if Array.isEmpty attributes then
