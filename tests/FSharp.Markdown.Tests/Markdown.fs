@@ -1418,6 +1418,15 @@ let ``ToMd preserves an indirect link when key is not resolved`` () =
     result |> should contain "[link text]"
     result |> should contain "https://example.com"
 
+[<Test>]
+let ``ToMd preserves indirect link form when key is unresolved`` () =
+    // No reference definition → key cannot be resolved; should preserve [body][key] form
+    let input = "[link text][unknown-ref]"
+    let doc = Markdown.Parse(input)
+    let result = Markdown.ToMd(doc)
+    // Should preserve the indirect reference form, not produce a broken direct link
+    result |> should contain "[link text][unknown-ref]"
+
 // --------------------------------------------------------------------------------------
 // ToMd round-trip: indirect images (issue - failwith "tbd - IndirectImage")
 // --------------------------------------------------------------------------------------

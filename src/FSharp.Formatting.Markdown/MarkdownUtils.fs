@@ -6,7 +6,6 @@ namespace rec FSharp.Formatting.Markdown
 
 open System
 open System.Collections.Generic
-open System.Linq
 open System.Xml.Linq
 open FSharp.Formatting.Templating
 
@@ -114,8 +113,8 @@ module internal MarkdownUtils =
 
             "[" + formatSpans ctx body + "](" + link + t + ")"
 
-        | IndirectLink(body, _, LookupKey ctx.Links (link, _), _)
-        | IndirectLink(body, link, _, _) -> "[" + formatSpans ctx body + "](" + link + ")"
+        | IndirectLink(body, _, LookupKey ctx.Links (link, _), _) -> "[" + formatSpans ctx body + "](" + link + ")"
+        | IndirectLink(body, _, key, _) -> "[" + formatSpans ctx body + "][" + key + "]"
 
         | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) -> sprintf "![%s](%s)" body link
         | IndirectImage(body, _, key, _) -> sprintf "![%s][%s]" body key
@@ -423,7 +422,7 @@ module internal MarkdownUtils =
                         let attributes =
                             match System.Xml.XPath.Extensions.XPathEvaluate(element, "//*/@*[contains(., '.md')]") with
                             | :? System.Collections.IEnumerable as enumerable ->
-                                enumerable |> Enumerable.Cast<XAttribute> |> Seq.toArray
+                                enumerable |> Seq.cast<XAttribute> |> Seq.toArray
                             | _ -> Array.empty
 
                         if Array.isEmpty attributes then
