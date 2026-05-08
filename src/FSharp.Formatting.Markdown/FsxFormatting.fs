@@ -62,7 +62,7 @@ let rec formatParagraphs ctx paragraphs =
                 code2
                 + (match codeOutput with
                    | [] -> ""
-                   | _out -> "(* output: \n" + output + "*)")
+                   | _out -> "(* output: " + ctx.Newline + output + "*)")
             | Choice2Of2 markdown ->
                 "(**"
                 + ctx.Newline

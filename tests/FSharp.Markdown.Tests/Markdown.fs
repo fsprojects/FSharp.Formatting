@@ -1407,6 +1407,29 @@ let ``ToMd handles a table`` () =
     result |> should contain "B"
 
 [<Test>]
+let ``ToMd table rows each appear on their own line`` () =
+    // Previously, all data rows were joined into one string with a hardcoded "\n",
+    // which produced a single yield item. Now each row is yielded separately so the
+    // caller's newline is used. Verify that each row appears on a distinct line.
+    let md = "H1 | H2\n--- | ---\nR1C1 | R1C2\nR2C1 | R2C2"
+    let result = Markdown.ToMd(Markdown.Parse(md, newline = "\n"), newline = "\n")
+    let lines = result.Split('\n') |> Array.filter (fun s -> s.Trim() <> "")
+    // Expect: header row, separator row, two data rows
+    lines |> should haveLength 4
+
+[<Test>]
+let ``ToMd table row count is correct when Windows newline is used`` () =
+    // Regression: rows were previously joined with a hardcoded "\n" regardless of ctx.Newline,
+    // so on Windows the data section was a single element with embedded Unix newlines.
+    let md = "H1 | H2\n--- | ---\nR1C1 | R1C2\nR2C1 | R2C2"
+    let result = Markdown.ToMd(Markdown.Parse(md, newline = "\r\n"), newline = "\r\n")
+    // All line separators must be \r\n (no stray \n inside the result)
+    result |> should not' (contain "\r\n\n")
+    result |> should not' (contain "\n\r\n")
+    result |> should contain "R1C1"
+    result |> should contain "R2C1"
+
+[<Test>]
 let ``ToMd handles empty document`` () = "" |> toMd |> shouldEqual ""
 
 [<Test>]
@@ -1417,6 +1440,15 @@ let ``ToMd preserves an indirect link when key is not resolved`` () =
     // ToMd resolves the indirect link to a direct link form
     result |> should contain "[link text]"
     result |> should contain "https://example.com"
+
+[<Test>]
+let ``ToMd preserves indirect link form when key is unresolved`` () =
+    // No reference definition → key cannot be resolved; should preserve [body][key] form
+    let input = "[link text][unknown-ref]"
+    let doc = Markdown.Parse(input)
+    let result = Markdown.ToMd(doc)
+    // Should preserve the indirect reference form, not produce a broken direct link
+    result |> should contain "[link text][unknown-ref]"
 
 // --------------------------------------------------------------------------------------
 // ToMd round-trip: indirect images (issue - failwith "tbd - IndirectImage")
@@ -1936,3 +1968,83 @@ let ``ToHtml renders AnchorLink as named anchor`` () =
     let result = Markdown.ToHtml(doc)
     result |> should contain "name=\"my-section\""
     result |> should contain "<a "
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToFsx: code-with-output tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToFsx emits output comment when code block is followed by an OutputBlock`` () =
+    // A CodeBlock immediately followed by an OutputBlock should produce a
+    // "(* output: ... *)" comment so round-tripping is faithful.
+    let doc =
+        MarkdownDocument(
+            [ CodeBlock("let x = 42", None, Some "```", "fsharp", "", MarkdownRange.zero)
+              OutputBlock("42", "text/plain", Some 1) ],
+            dict []
+        )
+
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    result |> should contain "let x = 42"
+    result |> should contain "(* output:"
+    result |> should contain "42"
+
+[<Test>]
+let ``ToFsx does not emit output comment when code block has no output`` () =
+    let doc = MarkdownDocument([ CodeBlock("let y = 0", None, Some "```", "fsharp", "", MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToFsx(doc, newline = "\n")
+    result |> should contain "let y = 0"
+    result |> should not' (contain "(* output:")
+
+// --------------------------------------------------------------------------------------
+// Markdown.ToPynb: notebook output tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToPynb code block with output produces execution output in notebook`` () =
+    // A CodeBlock followed by an OutputBlock should produce a code cell with
+    // an "execute_result" output entry.
+    let doc =
+        MarkdownDocument(
+            [ CodeBlock("1 + 1", None, Some "```", "fsharp", "", MarkdownRange.zero)
+              OutputBlock("2", "text/plain", Some 1) ],
+            dict []
+        )
+
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "execute_result"
+    result |> should contain "1 + 1"
+
+[<Test>]
+let ``ToPynb empty document produces notebook with empty cells array`` () =
+    let doc = MarkdownDocument([], dict [])
+    let result = Markdown.ToPynb(doc, newline = "\n")
+    result |> should contain "\"nbformat\""
+    result |> should contain "\"cells\""
+
+// --------------------------------------------------------------------------------------
+// ToMd: multi-line LaTeX block with non-equation environment
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves multi-line LaTeX block with align environment`` () =
+    // Multi-line LatexBlock with a non-equation env must round-trip via \begin{}/\end{}.
+    // The parser reads $$...$$ as a single-line equation; for multi-line or named envs
+    // we construct the AST directly.
+    let doc = MarkdownDocument([ LatexBlock("align", [ "a &= b \\\\"; "c &= d" ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "\\begin{align}"
+    result |> should contain "a &= b \\\\"
+    result |> should contain "c &= d"
+    result |> should contain "\\end{align}"
+
+[<Test>]
+let ``ToMd serialises single-line equation block as compact dollar-dollar notation`` () =
+    // A single-line equation LatexBlock must be rendered as $$...$$ not \begin{equation}
+    let doc = MarkdownDocument([ LatexBlock("equation", [ "E = mc^2" ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "$$E = mc^2$$"
+    result |> should not' (contain "\\begin{equation}")
