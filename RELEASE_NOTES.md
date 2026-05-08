@@ -22,6 +22,7 @@
 * Fix `Markdown.ToMd` serialising unresolved indirect links as `[body](key)` (treating the reference key as a URL) instead of the correct `[body][key]` form. Unresolved indirect links are now preserved in their original indirect-reference form, consistent with how unresolved indirect images are handled.
 
 ### Added
+* Introduce `--panel-background` and `--panel-border` CSS custom properties in `fsdocs-default.css`. These decouple panel/component colours (copy-code button, blockquotes, sidebar, page menu, dialogs, tooltips, API tables) from `--header-background`/`--header-border`. Both variables default to the header values, so existing themes are unaffected; themes that need a different colour for content panels can now override `--panel-background` and `--panel-border` independently. [#1156](https://github.com/fsprojects/FSharp.Formatting/issues/1156)
 * Add tests for `Markdown.ToFsx` (direct serialisation to F# script format), which previously had no unit test coverage.
 * Add tests for `Markdown.ToPynb` (direct serialisation to Jupyter notebook format), which previously had no unit test coverage.
 * Add round-trip tests for `HardLineBreak` and `HorizontalRule` character preservation in `Markdown.ToMd`.
