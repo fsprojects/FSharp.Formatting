@@ -1978,6 +1978,49 @@ let ``ToLatex EmbedParagraphs delegates to Render()`` () =
     result |> should contain "latex text"
 
 // --------------------------------------------------------------------------------------
+// Markdown.ToMd: blockquote round-trip tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves multi-paragraph blockquote as a single blockquote`` () =
+    // A blockquote with two paragraphs should round-trip as a *single* QuotedBlock.
+    // The old code emitted a bare blank line between paragraphs, which CommonMark
+    // interprets as closing the blockquote — resulting in two separate QuotedBlocks.
+    let md = "> First paragraph.\n>\n> Second paragraph.\n"
+    let doc = Markdown.Parse(md, newline = "\n")
+    let serialised = Markdown.ToMd(doc, newline = "\n")
+    let reparsed = Markdown.Parse(serialised, newline = "\n")
+
+    let quotedBlocks =
+        reparsed.Paragraphs
+        |> List.choose (function
+            | QuotedBlock _ as q -> Some q
+            | _ -> None)
+
+    quotedBlocks.Length |> shouldEqual 1
+
+[<Test>]
+let ``ToMd blockquote does not produce bare blank lines inside blockquote`` () =
+    // Bare blank lines (non-'>' prefixed) between inner paragraphs cause the
+    // CommonMark parser to close the blockquote early.
+    let md = "> First paragraph.\n>\n> Second paragraph.\n"
+    let doc = Markdown.Parse(md, newline = "\n")
+    let serialised = Markdown.ToMd(doc, newline = "\n")
+
+    // The separator between blockquote inner paragraphs must itself start with '>';
+    // a bare blank line ("") would close the blockquote and introduce a bug.
+    // We only look at lines that are strictly inside the blockquote section (starts with '>').
+    let lines = serialised.Split('\n')
+
+    let inBlockquote =
+        lines
+        |> Array.skipWhile (fun l -> not (l.StartsWith(">")))
+        |> Array.takeWhile (fun l -> l.StartsWith(">"))
+
+    // There should be at least two content lines (one per paragraph)
+    inBlockquote.Length |> should be (greaterThan 1)
+
+// --------------------------------------------------------------------------------------
 // ToMd: untested paragraph types — OutputBlock, code-block language specifier
 // --------------------------------------------------------------------------------------
 

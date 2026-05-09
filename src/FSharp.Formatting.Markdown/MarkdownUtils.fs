@@ -306,13 +306,18 @@ module internal MarkdownUtils =
               yield ""
           | Span(body = body) -> yield formatSpans ctx body
           | QuotedBlock(paragraphs = paragraphs) ->
-              for paragraph in paragraphs do
-                  let lines = formatParagraph ctx paragraph
+              let paragraphLines =
+                  paragraphs
+                  |> List.map (fun paragraph -> formatParagraph ctx paragraph |> List.filter (fun line -> line <> ""))
 
+              for i, lines in List.indexed paragraphLines do
                   for line in lines do
                       yield "> " + line
 
-                  yield ""
+                  if i < paragraphLines.Length - 1 then
+                      yield ">"
+
+              yield ""
           | EmbedParagraphs(cmd, _) -> yield! cmd.Render() |> Seq.collect (formatParagraph ctx) ]
 
     /// Strips <c>#if SYMBOL</c> / <c>#endif // SYMBOL</c> conditional compilation lines from an .fsx code block
