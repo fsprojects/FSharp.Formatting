@@ -104,7 +104,7 @@ module internal MarkdownUtils =
         | Literal(str, _) -> str
         | HardLineBreak(_) -> "  " + ctx.Newline
 
-        | AnchorLink _ -> ""
+        | AnchorLink(link, _) -> sprintf "<a name=\"%s\"></a>" link
         | DirectLink(body, link, title, _) ->
             let t =
                 title

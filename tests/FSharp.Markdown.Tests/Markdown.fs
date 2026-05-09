@@ -2056,3 +2056,20 @@ let ``ToMd serialises single-line equation block as compact dollar-dollar notati
     let result = Markdown.ToMd(doc, newline = "\n")
     result |> should contain "$$E = mc^2$$"
     result |> should not' (contain "\\begin{equation}")
+
+[<Test>]
+let ``ToMd serialises AnchorLink as inline HTML anchor`` () =
+    // AnchorLink spans must not be silently dropped — they should be emitted as <a name="…"></a>
+    // so that named anchors survive a ToMd round-trip and remain functional when later converted to HTML.
+    let doc =
+        MarkdownDocument(
+            [ Paragraph(
+                  [ AnchorLink("my-anchor", MarkdownRange.zero); Literal("text", MarkdownRange.zero) ],
+                  MarkdownRange.zero
+              ) ],
+            dict []
+        )
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "<a name=\"my-anchor\"></a>"
+    result |> should contain "text"
