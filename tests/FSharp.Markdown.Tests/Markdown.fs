@@ -1978,6 +1978,91 @@ let ``ToLatex EmbedParagraphs delegates to Render()`` () =
     result |> should contain "latex text"
 
 // --------------------------------------------------------------------------------------
+// Markdown.ToMd: blockquote round-trip tests
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves multi-paragraph blockquote as a single blockquote`` () =
+    // A blockquote with two paragraphs should round-trip as a *single* QuotedBlock.
+    // The old code emitted a bare blank line between paragraphs, which CommonMark
+    // interprets as closing the blockquote — resulting in two separate QuotedBlocks.
+    let md = "> First paragraph.\n>\n> Second paragraph.\n"
+    let doc = Markdown.Parse(md, newline = "\n")
+    let serialised = Markdown.ToMd(doc, newline = "\n")
+    let reparsed = Markdown.Parse(serialised, newline = "\n")
+
+    let quotedBlocks =
+        reparsed.Paragraphs
+        |> List.choose (function
+            | QuotedBlock _ as q -> Some q
+            | _ -> None)
+
+    quotedBlocks.Length |> shouldEqual 1
+
+[<Test>]
+let ``ToMd blockquote does not produce bare blank lines inside blockquote`` () =
+    // Bare blank lines (non-'>' prefixed) between inner paragraphs cause the
+    // CommonMark parser to close the blockquote early.
+    let md = "> First paragraph.\n>\n> Second paragraph.\n"
+    let doc = Markdown.Parse(md, newline = "\n")
+    let serialised = Markdown.ToMd(doc, newline = "\n")
+
+    // The separator between blockquote inner paragraphs must itself start with '>';
+    // a bare blank line ("") would close the blockquote and introduce a bug.
+    // We only look at lines that are strictly inside the blockquote section (starts with '>').
+    let lines = serialised.Split('\n')
+
+    let inBlockquote =
+        lines
+        |> Array.skipWhile (fun l -> not (l.StartsWith(">")))
+        |> Array.takeWhile (fun l -> l.StartsWith(">"))
+
+    // There should be at least two content lines (one per paragraph)
+    inBlockquote.Length |> should be (greaterThan 1)
+
+// --------------------------------------------------------------------------------------
+// ToMd: untested paragraph types — OutputBlock, code-block language specifier
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToMd preserves fenced code block language specifier`` () =
+    // Existing test only checks the code body; this test verifies the language tag is kept.
+    let md = "```fsharp\nlet x = 1\n```"
+    let result = toMd md
+    result |> should contain "```fsharp"
+
+[<Test>]
+let ``ToMd serialises OutputBlock non-HTML as fenced code block`` () =
+    // OutputBlock with a non-HTML kind should be wrapped in a fenced code block.
+    let doc = MarkdownDocument([ OutputBlock("hello output", "text/plain", None) ], dict [])
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "```"
+    result |> should contain "hello output"
+
+[<Test>]
+let ``ToMd serialises OutputBlock HTML as raw HTML`` () =
+    // OutputBlock with kind "text/html" should emit the HTML directly, not wrapped in a fence.
+    let doc = MarkdownDocument([ OutputBlock("<p>output</p>", "text/html", None) ], dict [])
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "<p>output</p>"
+    result |> should not' (contain "```")
+
+// --------------------------------------------------------------------------------------
+// ToHtml: AnchorLink renders as a named anchor element
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ToHtml renders AnchorLink as named anchor`` () =
+    // AnchorLink is used internally by ApiDocs to emit in-page anchors.
+    // It should produce <a name="id">&#160;</a> in HTML output.
+    let doc =
+        MarkdownDocument([ Paragraph([ AnchorLink("my-section", MarkdownRange.zero) ], MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToHtml(doc)
+    result |> should contain "name=\"my-section\""
+    result |> should contain "<a "
+
+// --------------------------------------------------------------------------------------
 // Markdown.ToFsx: code-with-output tests
 // --------------------------------------------------------------------------------------
 
@@ -2056,3 +2141,20 @@ let ``ToMd serialises single-line equation block as compact dollar-dollar notati
     let result = Markdown.ToMd(doc, newline = "\n")
     result |> should contain "$$E = mc^2$$"
     result |> should not' (contain "\\begin{equation}")
+
+[<Test>]
+let ``ToMd serialises AnchorLink as inline HTML anchor`` () =
+    // AnchorLink spans must not be silently dropped — they should be emitted as <a name="…"></a>
+    // so that named anchors survive a ToMd round-trip and remain functional when later converted to HTML.
+    let doc =
+        MarkdownDocument(
+            [ Paragraph(
+                  [ AnchorLink("my-anchor", MarkdownRange.zero); Literal("text", MarkdownRange.zero) ],
+                  MarkdownRange.zero
+              ) ],
+            dict []
+        )
+
+    let result = Markdown.ToMd(doc, newline = "\n")
+    result |> should contain "<a name=\"my-anchor\"></a>"
+    result |> should contain "text"
