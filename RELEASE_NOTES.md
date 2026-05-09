@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Removed
+* Remove `docs/Dockerfile` (used for mybinder.org Binder integration) and mybinder badge links from documentation pages. The Binder integration relied on a deprecated .NET 7 SDK image and a deprecated `Microsoft.dotnet-interactive` version; mybinder.org support is discontinued.
+
 ## [22.0.1] - 2026-04-19
 
 ### Changed
