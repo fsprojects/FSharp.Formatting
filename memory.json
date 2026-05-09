@@ -1,12 +1,10 @@
 {
-  "run": "25469038887",
+  "run": "25586398257",
   "cursor": 1198,
   "monthly": "1198",
   "prs": [
-    1201, 1197, 1195, 1194, 1187, 1185, 1175, 1161, 1130, 1106
+    1203, 1202, 1194, 1175, 1130, 1106
   ],
-  "dependabot_prs": [1179, 1180, 1182, 1183, 1186, 1191, 1193, 1196, 1199, 1200],
-  "deps_bundle_issue": 1190,
   "comments_made": {
     "685": "prior",
     "705": "prior",
@@ -25,11 +23,11 @@
     "1190": "2026-04-29"
   },
   "notes": [
-    "PR #1201 (blockquote roundtrip fix): focused PR for QuotedBlock ToMd bug; 348/348 pass. Note: PR #1106 covers blockquote+tooltip - #1201 supersedes the blockquote part of #1106",
-    "PR #1161 CI: merged main on 2026-05-07 to re-trigger CI (merged main twice: 2026-05-05 and 2026-05-07). Head SHA updated. Still blocked pending CI.",
-    "Do NOT include Test.Sdk 18.5.0 in any bundle; use Dependabot PR #1193 (18.5.1) instead",
-    "Issue #1178: nhirschey confirmed keep generation code, update docs to note deprecation, leave Docker for now",
+    "PR #1203 (AnchorLink fix): fix ToMd AnchorLink silent drop → <a name=...></a>; 362/362 ✅",
+    "PR #1202 (blockquote roundtrip fix): focused PR for QuotedBlock ToMd bug; passing CI",
+    "PR #1202 supersedes PR #1106 for the blockquote part — #1106 also covers tooltip",
     "Issues #1184, #1188, #1189, #1192: can be closed (superseded/resolved)",
-    "Monthly 2026-05 issue is #1198"
+    "Monthly 2026-05 issue is #1198",
+    "PRs merged 2026-05-08: #1161 (CSS), #1195 (table newline), #1197 (tests), #1187 (tests), #1185 (indirect links), #1193 (Test.Sdk), #1199 (NUnit), #1200 (Suave closed), #1179 (FCS closed), #1186 (github-script closed)"
   ]
 }
