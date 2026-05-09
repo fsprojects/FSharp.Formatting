@@ -1,9 +1,9 @@
 {
-  "run": "25586398257",
-  "cursor": 1198,
+  "run": "25601743658",
+  "cursor": 1178,
   "monthly": "1198",
   "prs": [
-    1203, 1202, 1194, 1175, 1130, 1106
+    1130
   ],
   "comments_made": {
     "685": "prior",
@@ -23,11 +23,11 @@
     "1190": "2026-04-29"
   },
   "notes": [
-    "PR #1203 (AnchorLink fix): fix ToMd AnchorLink silent drop → <a name=...></a>; 362/362 ✅",
-    "PR #1202 (blockquote roundtrip fix): focused PR for QuotedBlock ToMd bug; passing CI",
-    "PR #1202 supersedes PR #1106 for the blockquote part — #1106 also covers tooltip",
-    "Issues #1184, #1188, #1189, #1192: can be closed (superseded/resolved)",
+    "PR #1130 (tooltip fix): open, closes #949",
+    "PR (new, this run): remove Dockerfile + mybinder badges — closes #1178",
+    "PRs merged 2026-05-09 by dsyme: #1203 (AnchorLink), #1202 (blockquote roundtrip), #1194 (tests), #1175 (22.0.1 release)",
+    "PR #1106 closed (superseded by #1202 and #1130)",
     "Monthly 2026-05 issue is #1198",
-    "PRs merged 2026-05-08: #1161 (CSS), #1195 (table newline), #1197 (tests), #1187 (tests), #1185 (indirect links), #1193 (Test.Sdk), #1199 (NUnit), #1200 (Suave closed), #1179 (FCS closed), #1186 (github-script closed)"
+    "All open user issues have Repo Assist comments as of 2026-05-09"
   ]
 }
