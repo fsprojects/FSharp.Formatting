@@ -1,9 +1,10 @@
 {
-  "run": "25601743658",
+  "run": "25832556777",
   "cursor": 1178,
   "monthly": "1198",
   "prs": [
-    1130
+    1130,
+    1204
   ],
   "comments_made": {
     "685": "prior",
@@ -24,7 +25,7 @@
   },
   "notes": [
     "PR #1130 (tooltip fix): open, closes #949",
-    "PR (new, this run): remove Dockerfile + mybinder badges — closes #1178",
+    "PR #1204 (remove mybinder): open, closes #1178 — CI fixed 2026-05-13",
     "PRs merged 2026-05-09 by dsyme: #1203 (AnchorLink), #1202 (blockquote roundtrip), #1194 (tests), #1175 (22.0.1 release)",
     "PR #1106 closed (superseded by #1202 and #1130)",
     "Monthly 2026-05 issue is #1198",
