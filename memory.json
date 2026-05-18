@@ -1,5 +1,5 @@
 {
-  "run": "25832556777",
+  "run": "26042961275",
   "cursor": 1178,
   "monthly": "1198",
   "prs": [
@@ -25,10 +25,11 @@
   },
   "notes": [
     "PR #1130 (tooltip fix): open, closes #949",
-    "PR #1204 (remove mybinder): open, closes #1178 — CI fixed 2026-05-13",
+    "PR #1204 (remove mybinder + notebook badges): open, closes #1178 — CI passing as of 2026-05-13",
     "PRs merged 2026-05-09 by dsyme: #1203 (AnchorLink), #1202 (blockquote roundtrip), #1194 (tests), #1175 (22.0.1 release)",
     "PR #1106 closed (superseded by #1202 and #1130)",
     "Monthly 2026-05 issue is #1198",
-    "All open user issues have Repo Assist comments as of 2026-05-09"
+    "All open user issues have Repo Assist comments as of 2026-05-09",
+    "2026-05-18: removed notebook badge links from docs per dsyme/nhirschey request, pushed to PR #1204"
   ]
 }
