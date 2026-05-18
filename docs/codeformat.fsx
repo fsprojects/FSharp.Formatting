@@ -22,8 +22,7 @@ index: 1
 #endif // IPYNB
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
 
 Code formatting
 ==============================
@@ -75,7 +74,6 @@ in the source code and the second contains any errors reported by the compiler.
 A single source file can include multiple snippets using the same formatting tags
 as those used on [fssnip.net](http://www.fssnip.net) as documented in the
 [about page](http://www.fssnip.net/pages/About).
-
 
 Working with returned tokens
 ----------------------------

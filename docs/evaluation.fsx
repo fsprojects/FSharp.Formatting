@@ -22,11 +22,9 @@ index: 8
 #endif // IPYNB
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
 
 # Embedding script output
-
 
 For literate F# scripts, you may embed the result of running the script as part of the literate output.
 This is a feature of the functions discussed in [literate programming](literate.html) and
@@ -49,7 +47,6 @@ To include the a formatted value use ``include-it``:
     [ 0 .. 99 ]
 
     (*** include-it ***)
-
 
 To include the meta output of F# Interactive processing such as type signatures use `(*** include-fsi-output ***)`:
 

@@ -21,10 +21,8 @@ index: 4
 #r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
 #endif // IPYNB
 
-
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
 
 Literate Scripts
 ================

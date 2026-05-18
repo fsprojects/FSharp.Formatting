@@ -27,8 +27,7 @@ index: 7
 let root = "C:\\"
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
 
 API Documentation Generation
 ====================================
@@ -193,7 +192,6 @@ module Forest =
     /// </summary>
     let findSquirrels (limit : int) = []
 
-
 (** You can find the correct value for `cref` in the generated `.xml` documentation file (this will be generated alongside the assembly's `.dll``).
 
 You can also omit the `cref`'s arguments, and `fsdocs` will make an attempt to find the first member that matches.
@@ -205,7 +203,6 @@ For example:
 
 If the member cannot be found, a link to the containing module/type will be used instead.
 *)
-
 
 (**
 ### Classic XMl Doc Comments: Excluding APIs from the docs
@@ -361,7 +358,6 @@ module Bar2 =
     let a = 42
 
 (**
-
 
 ## Building library documentation programmatically
 
