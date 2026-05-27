@@ -507,7 +507,14 @@ module Crack =
         let collectionName, projectFiles =
             match projects, ignoreProjects with
             | [], false ->
-                match Directory.GetFiles(slnDir, "*.sln") with
+                let slnFiles =
+                    Directory.GetFiles(slnDir, "*.sln*")
+                    |> Array.filter (fun f ->
+                        f.EndsWith(".sln", StringComparison.Ordinal)
+                        || f.EndsWith(".slnf", StringComparison.Ordinal)
+                        || f.EndsWith(".slnx", StringComparison.Ordinal))
+
+                match slnFiles with
                 | [| sln |] ->
                     printfn "getting projects from solution file %s" sln
 

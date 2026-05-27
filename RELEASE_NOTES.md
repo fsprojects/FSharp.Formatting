@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [22.1.0] - 2026-05-22
+
+### Changed
+* Improve `ProjectCracker` project resolution to handle `*.slnf` and `*.slnx`. [#1213](https://github.com/fsproject
+s/FSharp.Formatting/pull/1213)
 
 ## [22.0.1] - 2026-04-19
 
