@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [22.1.0] - 2026-05-22
+
+### Changed
+* Improve `ProjectCracker` project resolution to handle `*.slnf` and `*.slnx`. [#1213](https://github.com/fsproject
+s/FSharp.Formatting/pull/1213)
 
 ### Removed
 * Remove `docs/Dockerfile` (used for mybinder.org Binder integration) and mybinder badge links from documentation pages. The Binder integration relied on a deprecated .NET 7 SDK image and a deprecated `Microsoft.dotnet-interactive` version; mybinder.org support is discontinued.
