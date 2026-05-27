@@ -1,0 +1,106 @@
+\documentclass{article}
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\definecolor{officegreen}{rgb}{0, 0.5, 0}
+\definecolor{navy}{rgb}{0, 0, 0.5}
+\definecolor{linecolor}{rgb}{0.5, 0.6875, 0.6875}
+\definecolor{outputcolor}{rgb}{0.375, 0.375, 0.375}
+
+\newcommand{\id}[1]{\textcolor{black}{#1}}
+\newcommand{\com}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\inact}[1]{\textcolor{gray}{#1}}
+\newcommand{\kwd}[1]{\textcolor{navy}{#1}}
+\newcommand{\num}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\ops}[1]{\textcolor{purple}{#1}}
+\newcommand{\prep}[1]{\textcolor{purple}{#1}}
+\newcommand{\str}[1]{\textcolor{olive}{#1}}
+\newcommand{\lines}[1]{\textcolor{linecolor}{#1}}
+\newcommand{\fsi}[1]{\textcolor{outputcolor}{#1}}
+\newcommand{\omi}[1]{\textcolor{gray}{#1}}
+
+% Overriding color and style of line numbers
+\renewcommand{\theFancyVerbLine}{
+\lines{\small \arabic{FancyVerbLine}:}}
+
+\lstset{%
+  backgroundcolor=\color{gray!15},
+  basicstyle=\ttfamily,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\title{{page-title}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+\section*{Literate Notebooks}
+
+
+
+Content may be created using  \href{https://github.com/dotnet/interactive/tree/main}{.NET interactive} polyglot notebooks as the input file. Notebooks are processed by converting the notebook to a literate \texttt{.fsx} script and then passing the script through the script processing pipeline. Markdown notebook cells are passed through as comments surrounded by \texttt{(**} and \texttt{*)}, F\# code cells are passed through as code, and non-F\# code is passed through as markdown fenced code blocks between \texttt{(**} and \texttt{*)} comment markers.
+
+
+The \texttt{fsdocs} tool uses \href{https://github.com/jonsequitur/dotnet-repl}{dotnet-repl} to evaluate polyglot notebooks. You need this tool to evaluate notebooks using \texttt{dotnet fsdocs [build|watch] --eval}. It can be installed into your local tool manifest using the command \texttt{dotnet tool install dotnet-repl}.
+
+
+F\# Formatting tries to faithfully reproduce a notebook's native appearance when generating documents. Notebook cell outputs are passed through unchanged to preserve the notebook's html output. The below snippet demonstrates a notebook's html output for F\# records, which differs from the output you would get with the same code inside a literate scripts.
+\begin{lstlisting}[numbers=left]
+
+[escapeinside=\\\{\}]
+\kwd{type} \ltyp{ContactCard} \ops{=}
+    {\{} {Name}{:} \ltyp{string}
+      {Phone}{:} \ltyp{string}
+      {ZipCode}{:} \ltyp{string} {\}}
+
+\com{// Create a new record}
+{\{} {Name} \ops{=} \str{"Alf"}{;} {Phone} \ops{=} \str{"(555) 555-5555"}{;} {ZipCode} \ops{=} \str{"90210"} {\}}
+
+\end{lstlisting}
+
+<p><details open="open" class="dni-treeview"><summary><span class="dni-code-hint"><code>{ Name = &quot;Alf&quot;\n  Phone = &quot;(555) 555-5555&quot;\n  ZipCode = &quot;90210&quot; }</code></span></summary><div><table><thead><tr></tr></thead><tbody><tr><td>Name</td><td><div class="dni-plaintext"><pre>Alf</pre></div></td></tr><tr><td>Phone</td><td><div class="dni-plaintext"><pre>(555) 555-5555</pre></div></td></tr><tr><td>ZipCode</td><td><div class="dni-plaintext"><pre>90210</pre></div></td></tr></tbody></table></div></details><style>
+.dni-code-hint {
+    font-style: italic;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.dni-treeview {
+    white-space: nowrap;
+}
+.dni-treeview td {
+    vertical-align: top;
+    text-align: start;
+}
+details.dni-treeview {
+    padding-left: 1em;
+}
+table td {
+    text-align: start;
+}
+table tr { 
+    vertical-align: top; 
+    margin: 0em 0px;
+}
+table tr td pre 
+{ 
+    vertical-align: top !important; 
+    margin: 0em 0px !important;
+} 
+table th {
+    text-align: start;
+}
+</style>
+</p>
+
+
+\end{document}
