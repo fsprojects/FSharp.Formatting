@@ -1,8 +1,9 @@
 {
-  "run": "30593753354",
+  "run": "30675670248",
   "cursor": 1221,
   "monthly": "July-2026",
-  "prs": [1130],
+  "monthly_issue": 1239,
+  "prs": [1130, 1238],
   "comments_made": {
     "685": "prior",
     "705": "prior",
@@ -24,11 +25,11 @@
   },
   "notes": [
     "PR #1130 (tooltip fix): open, closes #949, CI passing — needs maintainer review",
-    "PR #1204 merged: removed mybinder/notebook badges",
-    "Monthly 2026-07 issue created this run (May 2026 issue #1198 closed)",
-    "PR created this run: docs fix for #1220 (hide keyword clarity in sidescript.fsx)",
-    "4 open Dependabot PRs: #1237, #1236, #1223, #1219 — consider bundling",
+    "PR #1238 (docs hide clarity): open, closes #1220 — needs maintainer review",
+    "PR #aw_bundledeps (deps bundle): created 2026-08-01, bundles #1236 #1223 #1219 #1237",
+    "4 Dependabot PRs #1237 #1236 #1223 #1219 — bundled in this run, close after merging bundle PR",
     "Issue #1215 (aw failure) is stale — can be closed",
-    "All open user issues have Repo Assist comments as of 2026-07-29"
+    "All open user issues have Repo Assist comments as of 2026-07-29",
+    "Monthly issue #1239 created for July 2026"
   ]
 }
