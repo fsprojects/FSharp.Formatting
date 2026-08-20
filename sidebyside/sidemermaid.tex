@@ -1,0 +1,130 @@
+\documentclass{article}
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\definecolor{officegreen}{rgb}{0, 0.5, 0}
+\definecolor{navy}{rgb}{0, 0, 0.5}
+\definecolor{linecolor}{rgb}{0.5, 0.6875, 0.6875}
+\definecolor{outputcolor}{rgb}{0.375, 0.375, 0.375}
+
+\newcommand{\id}[1]{\textcolor{black}{#1}}
+\newcommand{\com}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\inact}[1]{\textcolor{gray}{#1}}
+\newcommand{\kwd}[1]{\textcolor{navy}{#1}}
+\newcommand{\num}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\ops}[1]{\textcolor{purple}{#1}}
+\newcommand{\prep}[1]{\textcolor{purple}{#1}}
+\newcommand{\str}[1]{\textcolor{olive}{#1}}
+\newcommand{\lines}[1]{\textcolor{linecolor}{#1}}
+\newcommand{\fsi}[1]{\textcolor{outputcolor}{#1}}
+\newcommand{\omi}[1]{\textcolor{gray}{#1}}
+
+% Overriding color and style of line numbers
+\renewcommand{\theFancyVerbLine}{
+\lines{\small \arabic{FancyVerbLine}:}}
+
+\lstset{%
+  backgroundcolor=\color{gray!15},
+  basicstyle=\ttfamily,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\title{{page-title}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+\section*{Example: Mermaid Diagrams}
+
+
+
+\href{https://mermaid.js.org/}{Mermaid} is a JavaScript-based diagramming and charting tool that renders Markdown-inspired text definitions into diagrams.
+\subsection*{Setup}
+
+
+
+Add the Mermaid JavaScript library to your site by creating or editing a \texttt{\_head.html} file in your \texttt{docs} folder:
+\begin{lstlisting}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+</script>
+
+\end{lstlisting}
+\subsection*{Usage}
+
+
+
+To embed a Mermaid diagram, wrap your Mermaid syntax in a \texttt{<div>} element with the \texttt{mermaid} CSS class:
+\begin{lstlisting}
+<div class="mermaid">
+graph LR
+    A[Input docs] --> B[fsdocs build]
+    B --> C[HTML output]
+    B --> D[API reference]
+</div>
+
+\end{lstlisting}
+
+
+This renders as:
+<div class="mermaid">
+graph LR
+    A[Input docs] --> B[fsdocs build]
+    B --> C[HTML output]
+    B --> D[API reference]
+</div>
+\subsection*{More Examples}
+
+
+
+Sequence diagram:
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant fsdocs
+    participant Browser
+    User->>fsdocs: dotnet fsdocs watch
+    fsdocs-->>Browser: Serve docs
+    User->>fsdocs: Edit .md or .fsx
+    fsdocs-->>Browser: Reload page
+</div>
+
+
+Class diagram:
+<div class="mermaid">
+classDiagram
+    class ApiDocComment {
+        +Summary: string
+        +Remarks: string option
+        +Parameters: ApiDocSection list
+    }
+    class ApiDocMember {
+        +Name: string
+        +Comment: ApiDocComment
+    }
+    ApiDocMember --> ApiDocComment
+</div>
+\subsection*{Tips}
+
+\begin{itemize}
+\item You can also use \texttt{<div class="mermaid text-center">} to centre the diagram on the page.
+
+\item To customise the Mermaid theme, pass options to \texttt{mermaid.initialize()} before the \texttt{import} call.
+
+\item See the \href{https://mermaid.js.org/intro/}{Mermaid documentation} for the full list of supported diagram types.
+
+\end{itemize}
+
+
+
+\end{document}
