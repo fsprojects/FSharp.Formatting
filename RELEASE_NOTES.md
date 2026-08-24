@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+* Support top-level `<seealso cref="..."/>` XML doc tags in API documentation generation. Per the [xmldoc recommended tags](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/recommended-tags#seealso), `<seealso>` is a top-level section (unlike the inline `<see>` tag) and is now rendered as a "See also" list in both HTML and Markdown API doc output, for both members and entities. [#1256](https://github.com/fsprojects/FSharp.Formatting/issues/1256)
+
 ### Changed
 * Rewrote the Mermaid documentation recipe as `docs/mermaid.md` (moved from the oddly-named `docs/sidebyside/sidemermaid.md`) to follow the approach used by the fantomas docs: diagrams are written as plain ```mermaid fenced code blocks, which GitHub renders natively, and an `_body.html` script promotes those blocks into `<div class="mermaid">` elements on fsdocs pages. The FSharp.Formatting docs now ship that script (`docs/_body.html`), so the recipe page actually demonstrates working diagrams.
 
