@@ -173,6 +173,12 @@ module CommentExamples =
     ///
     let attribInCodeExample () = ()
 
+module SeeAlsoExamples =
+    /// <summary>this does the thing</summary>
+    /// <seealso cref="M:FsLib.CommentExamples.dothing"/>
+    /// <seealso cref="M:FsLib.CommentExamples.dothing2"/>
+    let dothingwithseealso () = ()
+
 /// Base class for testing inherited members (issue #590)
 type BaseClassForInheritance() =
     /// A documented instance method on the base class

@@ -122,6 +122,15 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                       ``#####`` [ !!"Note" ]
                       p [ embed e ]
 
+                  if not m.Comment.SeeAlso.IsEmpty then
+                      ``#####`` [ !!"See also" ]
+
+                      ul
+                          [ for (nm, url, html) in m.Comment.SeeAlso do
+                                [ match url with
+                                  | Some href -> p [ link [ !!nm ] href ]
+                                  | None -> p [ embed html ] ] ]
+
                   for e in m.Comment.Examples do
                       ``#####`` [ !!"Example" ]
                       p [ embed e ]
@@ -250,6 +259,15 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           for note in entity.Comment.Notes do
               ``#####`` [ !!"Note" ]
               p [ embed note ]
+
+          if not entity.Comment.SeeAlso.IsEmpty then
+              ``#####`` [ !!"See also" ]
+
+              ul
+                  [ for (nm, url, html) in entity.Comment.SeeAlso do
+                        [ match url with
+                          | Some href -> p [ link [ !!nm ] href ]
+                          | None -> p [ embed html ] ] ]
 
           for example in entity.Comment.Examples do
               ``#####`` [ !!"Example" ]
