@@ -567,10 +567,27 @@ module __FsiSettings =
                       Exception = e
                       StdErr = e.Result.Error.Merged }
 
-                let msg =
-                    $"Evaluation failed and --strict is on\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n\    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
+                // Always surface evaluation failures to stderr so they are visible by default,
+                // even when the caller has not subscribed to EvaluationFailed or provided onError.
+                let fileInfo =
+                    match file with
+                    | Some f -> $" in %s{f}"
+                    | None -> ""
 
-                onError msg
+                let stderr = e.Result.Error.Merged.Trim()
+
+                let errorMsg =
+                    if stderr <> "" then
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%s{stderr}"
+                    else
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%A{e.InnerException}"
+
+                eprintfn "%s" errorMsg
+
+                let strictMsg =
+                    $"Evaluation failed\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
+
+                onError strictMsg
 
                 { Output = None
                   FsiOutput = None
