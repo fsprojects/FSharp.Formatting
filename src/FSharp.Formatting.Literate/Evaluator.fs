@@ -571,16 +571,16 @@ module __FsiSettings =
                 // even when the caller has not subscribed to EvaluationFailed or provided onError.
                 let fileInfo =
                     match file with
-                    | Some f -> $" in {f}"
+                    | Some f -> $" in %s{f}"
                     | None -> ""
 
                 let stderr = e.Result.Error.Merged.Trim()
 
                 let errorMsg =
                     if stderr <> "" then
-                        $"fsdocs eval: evaluation failure{fileInfo}\n{stderr}"
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%s{stderr}"
                     else
-                        $"fsdocs eval: evaluation failure{fileInfo}\n{e.InnerException}"
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%A{e.InnerException}"
 
                 eprintfn "%s" errorMsg
 
