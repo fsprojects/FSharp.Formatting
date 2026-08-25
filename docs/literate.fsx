@@ -282,3 +282,21 @@ All of the three methods discussed in the previous two sections take a number of
 parameters that can be used to tweak how the formatting works
 
 *)
+
+(**
+## Using Literate scripts as doc tests
+
+Because Literate scripts execute embedded F# code via F# Interactive when the `eval` option
+(or `fsdocs build --eval` / `fsdocs watch --eval`) is enabled, they double as a lightweight
+form of "doc testing": the code samples in your documentation are run for real, and any
+exceptions raised during evaluation cause the build to fail (or, with the `(*** include-output ***)`
+directive, the *actual* output of the snippet is captured and included verbatim in the
+generated page). This means documentation examples can't silently drift out of sync with
+the API they describe — if a sample stops compiling or throws, you'll find out the next
+time the docs are built.
+
+This is not a full doc-test framework (there's no built-in support for asserting expected
+output against actual output), but combined with `(*** include-output ***)` and
+`(*** include-value ***)` it gives a useful low-effort way to keep documentation examples
+honest.
+*)
