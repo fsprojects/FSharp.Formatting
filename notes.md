@@ -12,3 +12,11 @@
   Deprecated/Fixed/Removed/Security); each version block can only have ONE of each subsection type.
 - PR #1176 (list-block-refactor): CLOSED. Do not re-propose.
 - PR #1173 (Seq allocations): CLOSED. Do not re-propose.
+- 2026-08-25 run (32792528607): Task 2+6+5+11.
+  - Task 6: all 4 open Repo Assist PRs (#1264, #1242, #1241, #1130) green CI — no action needed.
+  - Task 2: reviewed oldest open issues (#1256, #1240, #1243, #685, #1221) — all already have
+    appropriate Repo Assist comments/PRs; no new human activity warranting fresh comment.
+  - Task 5: opened new PR (branch repo-assist/docs-literate-doctest) adding a "doc testing" section
+    to docs/literate.fsx addressing #1221 (documents that --eval + include-output/include-value
+    already provide lightweight doc-testing). Verified via fantomas --check, dotnet build, fsdocs build.
+  - Task 11: updated Monthly Activity issue #1243 (August 2026) with new PR entry.
