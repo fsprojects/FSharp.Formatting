@@ -56,3 +56,11 @@ IMPORTANT: Directory.Packages.props is protected — create_pull_request silentl
     2 new tests (round-trip produces single QuotedBlock), 348/348 pass.
   - Task 11: Updated #1198 monthly activity issue with 2026-05-05 and 2026-05-07 run entries.
     Added #1201, #1199, #1200 to suggested actions.
+
+### 2026-08-27 — Run 33030005324 (Tasks 2, 4, 5, 11)
+- Labelled #1256 `enhancement`; removed malformed stray-bracket labels from #1243.
+- Closed stale duplicate issue #1198 (Monthly Activity 2026-05), superseded by #1243.
+- Task 2: reviewed all open issues oldest-first; no new comment needed (all already have adequate engagement or open PRs addressing them).
+- Task 4: checked NuGet versions + CI workflow versions; no new safe bump beyond Dependabot #1268; deps bundle #1240 still blocked (workflow-file push protection).
+- Task 5: reviewed several TODO-marked candidates (Markdown/Latex parsers, Categorise.fs, ParseScript.fs) — none judged safely implementable this run without deeper investigation; no PR opened.
+- Task 11: update_issue quota (1/run) was consumed closing #1198, so posted the monthly run-summary as a comment on #1243 instead of editing the body directly.

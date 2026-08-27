@@ -1,11 +1,11 @@
 {
-  "run": "30963411635",
+  "run": "33030005324",
   "cursor": 1221,
   "monthly": "August-2026",
-  "monthly_issue": "aw_aug2026",
-  "prs": [1130, 1238, 1241, "aw_fix685"],
+  "monthly_issue": "1243",
+  "prs": [1130, 1241, 1242, 1264, 1267, 1268],
   "comments_made": {
-    "685": "2026-08-05",
+    "685": "prior",
     "705": "prior",
     "828": "prior",
     "898": "prior",
@@ -18,20 +18,25 @@
     "1064": "prior",
     "585": "prior",
     "1156": "prior",
-    "1178": "2026-04-22",
-    "1190": "2026-04-29",
-    "1220": "2026-07-29",
-    "1221": "2026-07-29"
+    "1178": "prior",
+    "1190": "prior",
+    "1220": "prior",
+    "1221": "prior",
+    "1243": "2026-08-27"
   },
   "notes": [
     "PR #1130 (tooltip fix): open, closes #949 — needs maintainer review",
-    "PR #1238 (docs hide clarity): open, closes #1220 — needs maintainer review",
     "PR #1241 (perf-hashset-cultures): open — needs maintainer review",
-    "PR aw_fix685 (eval error surfacing): open, closes #685 — needs maintainer review",
-    "Deps bundle issue #1240: PR blocked by workflow file protection, manual steps documented",
+    "PR #1242 (eval error surfacing): open, closes #685 — needs maintainer review",
+    "PR #1264 (top-level <seealso> support): open, closes #1256 — needs maintainer review",
+    "PR #1267 (docs literate doc-testing, addresses #1221): open draft — check mergeable_state next run, may need conflict resolution",
+    "Dependabot PR #1268 (NUnit3TestAdapter 6.2.0->6.3.0): open, no action needed, awaiting maintainer merge",
+    "Deps bundle issue #1240: still blocked by workflow-file push protection; manual steps documented in issue body",
     "4 Dependabot PRs #1237 #1236 #1223 #1219 — bundled in issue #1240, close after applying bundle",
-    "Issue #1215 (aw failure) is stale — can be closed",
-    "Issue #1198 (Monthly Activity 2026-05) is stale — can be closed",
-    "Monthly issue #1239 (July) closed, new August issue created"
+    "Issue #1198 (Monthly Activity 2026-05) CLOSED this run (2026-08-27) as stale duplicate",
+    "Issue #1256 labelled 'enhancement' this run; addressed by PR #1264",
+    "Monthly issue #1243 (August 2026) is current — cleaned up malformed labels, added run summary via comment (update_issue quota was used on #1198 this run)",
+    "Task 5 candidates reviewed but not implemented (too risky without deeper investigation): MarkdownBlockParser.fs HtmlBlock TODO, MarkdownInlineParser.fs Emphasised nested-emphasis TODO, LatexFormatting.fs CodeBlock/OutputBlock TODO, Categorise.fs FSharp.Core namespace-exclude hack, ParseScript.fs printfn debug fallback on frontmatter parse failure",
+    "Task 4: no dependency/CI improvement found beyond what's already tracked (Dependabot #1268, deps bundle #1240)"
   ]
 }
