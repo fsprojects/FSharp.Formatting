@@ -20,3 +20,5 @@
     to docs/literate.fsx addressing #1221 (documents that --eval + include-output/include-value
     already provide lightweight doc-testing). Verified via fantomas --check, dotnet build, fsdocs build.
   - Task 11: updated Monthly Activity issue #1243 (August 2026) with new PR entry.
+
+- **Suave 3.4.5 breaking change (found 2026-08-29)**: Dependabot PR #1269 bumps Suave 2.6.2→3.4.5, a major breaking version. Suave rewrote internals from `Async`-based to `Task`-based APIs. This breaks `src/fsdocs-tool/BuildCommand.fs` (uses removed `HttpRuntime.logger`, mixes `Async<'a>` with new `SocketOp`/`Task` types around lines 30/864/872/885/1315). Not a trivial fix — requires migrating the `fsdocs watch` live-reload server code to the new Suave API. Do not attempt to merge #1269 as-is.
