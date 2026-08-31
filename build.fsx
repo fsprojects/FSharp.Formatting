@@ -110,4 +110,11 @@ pipeline "Verify" {
     runIfOnlySpecified true
 }
 
+// Start the documentation site in watch mode with the locally built fsdocs tool.
+// Runs until interrupted (Ctrl+C); the site is served on http://localhost:8901.
+pipeline "Docs" {
+    stage "WatchDocs" { run "dotnet run --project src/fsdocs-tool -- watch" }
+    runIfOnlySpecified true
+}
+
 tryPrintPipelineCommandHelp ()
