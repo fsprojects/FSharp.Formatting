@@ -1,0 +1,280 @@
+\documentclass{article}
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\definecolor{officegreen}{rgb}{0, 0.5, 0}
+\definecolor{navy}{rgb}{0, 0, 0.5}
+\definecolor{linecolor}{rgb}{0.5, 0.6875, 0.6875}
+\definecolor{outputcolor}{rgb}{0.375, 0.375, 0.375}
+
+\newcommand{\id}[1]{\textcolor{black}{#1}}
+\newcommand{\com}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\inact}[1]{\textcolor{gray}{#1}}
+\newcommand{\kwd}[1]{\textcolor{navy}{#1}}
+\newcommand{\num}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\ops}[1]{\textcolor{purple}{#1}}
+\newcommand{\prep}[1]{\textcolor{purple}{#1}}
+\newcommand{\str}[1]{\textcolor{olive}{#1}}
+\newcommand{\lines}[1]{\textcolor{linecolor}{#1}}
+\newcommand{\fsi}[1]{\textcolor{outputcolor}{#1}}
+\newcommand{\omi}[1]{\textcolor{gray}{#1}}
+
+% Overriding color and style of line numbers
+\renewcommand{\theFancyVerbLine}{
+\lines{\small \arabic{FancyVerbLine}:}}
+
+\lstset{%
+  backgroundcolor=\color{gray!15},
+  basicstyle=\ttfamily,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\title{{page-title}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+\section*{Command line}
+
+
+
+To use F\# Formatting tools via the command line, you can use the \texttt{fsdocs} dotnet tool.
+\begin{lstlisting}
+dotnet tool install fsdocs-tool
+dotnet fsdocs [command] [options]
+
+\end{lstlisting}
+\subsection*{The build command}
+
+
+
+This command processes a \texttt{docs} directory and generates API docs for projects in the solution according to the
+rules of \href{apidocs.html}{API doc generation}. The input accepted is described in \href{content.html}{content}.
+\begin{lstlisting}
+fsdocs build
+
+\end{lstlisting}
+
+
+The command line options accepted are:
+\begin{tabular}{|l|l|}\hline
+\textbf{Command Line Option} & \textbf{Description}\\ \hline\hline
+\texttt{--input} & Input directory of content (default: \texttt{docs})\\ \hline
+\texttt{--projects} & Project files to build API docs for outputs, defaults to all packable projects\\ \hline
+\texttt{--output} & Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch')\\ \hline
+\texttt{--ignoreuncategorized} & Disable generation of the 'Other' category in the navigation bar for uncategorized docs\\ \hline
+\texttt{--noapidocs} & Disable generation of API docs\\ \hline
+\texttt{--ignoreprojects} & Disable project cracking\\ \hline
+\texttt{--eval} & Evaluate F\# fragments in scripts\\ \hline
+\texttt{--saveimages} & Save images referenced in docs (\texttt{none}{\textbackslash}|\texttt{some}{\textbackslash}|\texttt{all}, default: \texttt{none}). If \texttt{some}, images are downloaded and saved locally for LaTeX (\texttt{.tex}) and notebook (\texttt{.ipynb}) outputs. If \texttt{all}, images are also saved for HTML and Markdown outputs. See \href{\#embedding-images}{Embedding Images} for details.\\ \hline
+\texttt{--nolinenumbers} & Don't add line numbers, the default is to add line numbers.\\ \hline
+\texttt{--parameters} & Additional substitution parameters for templates\\ \hline
+\texttt{--nonpublic} & The tool will also generate documentation for non-public members\\ \hline
+\texttt{--nodefaultcontent} & Do not copy default content styles, javascript or use default templates\\ \hline
+\texttt{--clean} & Clean the output directory\\ \hline
+\texttt{--help} & Display this help screen\\ \hline
+\texttt{--version} & Display version information\\ \hline
+\texttt{--properties} & Provide properties to dotnet msbuild, e.g. --properties Configuration=Release Version=3.4\\ \hline
+\texttt{--fscoptions} & Additional arguments passed down as \texttt{otherflags} to the F\# compiler when the API is being generated.<br/>Note that these arguments are trimmed, this is to overcome \href{https://github.com/commandlineparser/commandline/issues/58}{a limitation in the command line argument processing}.<br/>A typical use-case would be to pass an addition assembly reference.<br/>Example \texttt{--fscoptions " -r:MyAssembly.dll"}\\ \hline
+\texttt{--strict} & Fail if docs are missing or can't be generated\\ \hline
+\end{tabular}
+
+
+
+The following command line options are also accepted but it is instead recommended you use
+settings in your .fsproj project files:
+\begin{tabular}{|l|l|}\hline
+\textbf{Command Line Option} & \textbf{Description}\\ \hline\hline
+\texttt{--sourcefolder} & Source folder at time of component build (\texttt{<FsDocsSourceFolder>})\\ \hline
+\texttt{--sourcerepo} & Source repository for github links (\texttt{<FsDocsSourceRepository>})\\ \hline
+\texttt{--mdcomments} & Assume comments in F\# code are markdown (\texttt{<UsesMarkdownComments>})\\ \hline
+\end{tabular}
+
+\subsection*{Project file settings}
+
+
+
+Many fsdocs behaviours can be controlled via MSBuild properties in your \texttt{.fsproj} (or \texttt{Directory.Build.props}) file.
+\begin{tabular}{|l|l|l|}\hline
+\textbf{Property} & \textbf{Default} & \textbf{Description}\\ \hline\hline
+\texttt{<GenerateDocumentationFile>true</GenerateDocumentationFile>} & \texttt{false} & Required — enables XML doc generation so fsdocs can produce API docs for this project.\\ \hline
+\texttt{<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>} & \texttt{false} & Include this project even though its \texttt{OutputType} is not \texttt{Library}.\\ \hline
+\texttt{<UsesMarkdownComments>true</UsesMarkdownComments>} & \texttt{false} & Treat \texttt{///} doc comments as Markdown rather than XML doc. Equivalent to \texttt{--mdcomments}.\\ \hline
+\texttt{<FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>} & \texttt{false} & Emit warnings for public members that have no documentation comments.\\ \hline
+\texttt{<FsDocsSourceFolder>src</FsDocsSourceFolder>} & \emph{(auto)} & Root source folder used when constructing source-link URLs. Equivalent to \texttt{--sourcefolder}.\\ \hline
+\texttt{<FsDocsSourceRepository>https://github.com/…/blob/main</FsDocsSourceRepository>} & \emph{(auto from repo)} & Repository URL prefix for source links. Equivalent to \texttt{--sourcerepo}.\\ \hline
+\texttt{<FsDocsCollectionNameLink>https://example.com</FsDocsCollectionNameLink>} & \emph{(none)} & URL for the collection-name link in the navigation header.\\ \hline
+\texttt{<FsDocsLogoSource>img/logo.png</FsDocsLogoSource>} & \emph{(none)} & Path to the logo image shown in the header.\\ \hline
+\texttt{<FsDocsLogoAlt>My Project</FsDocsLogoAlt>} & \texttt{Logo} & Alt text for the header logo (accessibility).\\ \hline
+\texttt{<FsDocsLogoLink>https://example.com</FsDocsLogoLink>} & \emph{(none)} & URL the logo links to.\\ \hline
+\texttt{<FsDocsFaviconSource>img/favicon.ico</FsDocsFaviconSource>} & \emph{(none)} & Path to the favicon.\\ \hline
+\texttt{<FsDocsTheme>default</FsDocsTheme>} & \texttt{default} & Theme to use for generated HTML.\\ \hline
+\texttt{<FsDocsLicenseLink>https://…/LICENSE</FsDocsLicenseLink>} & \emph{(none)} & URL to the project licence, shown in the footer.\\ \hline
+\texttt{<FsDocsReleaseNotesLink>https://…/RELEASE\_NOTES.md</FsDocsReleaseNotesLink>} & \emph{(none)} & URL to the release notes, shown in the footer.\\ \hline
+\texttt{<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>} & \texttt{false} & Suppress the "Inherited from X" sections on type pages.\\ \hline
+\texttt{<FsDocsTypeConstraints>Short</FsDocsTypeConstraints>} & \texttt{Short} & Controls how generic type constraints are displayed in member tooltips. \texttt{None} hides constraints entirely; \texttt{Short} (default) shows them inline using the compact \texttt{(requires ...)} style (e.g. \texttt{'T (requires equality)}); \texttt{Full} shows them in a separate "Constraints:" section with full \texttt{when} syntax.\\ \hline
+\texttt{<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>} & \texttt{true} & Generate \texttt{llms.txt} and \texttt{llms-full.txt} for LLM consumption alongside the HTML output.\\ \hline
+\end{tabular}
+
+
+
+The command will report on any \texttt{.fsproj} files that it finds, telling you if it decides to skip a particular file and why.
+
+
+For example, a project will be skipped if:
+\begin{itemize}
+\item 
+
+The project name contains ".Tests" or "test" (because it looks like a test project)
+
+\item 
+
+The project does not contain
+\begin{lstlisting}[numbers=left]
+
+[escapeinside=\\\{\}]
+{<}\id{GenerateDocumentationFile}{>}\kwd{true}\ops{</}\id{GenerateDocumentationFile}{>}
+
+
+\end{lstlisting}
+
+
+\item 
+
+The project \texttt{OutputType} is not \texttt{Library}. To include an executable project, add this to the project file:
+\begin{lstlisting}[numbers=left]
+
+[escapeinside=\\\{\}]
+{<}\id{FsDocsAllowExecutableProject}{>}\kwd{true}\ops{</}\id{FsDocsAllowExecutableProject}{>}
+
+
+\end{lstlisting}
+
+
+\end{itemize}
+
+\subsection*{The watch command}
+
+
+
+This command does the same as \texttt{fsdocs build} but in "watch" mode, waiting for changes. Only the files in the input
+directory (e.g. \texttt{docs}) are watched. A browser will be launched automatically (unless \texttt{--nolaunch} is specified).
+
+
+You will need to ensure that the input directory exists, and contains at least \texttt{index.md}, otherwise the browser will
+report an error (e.g. "Problem loading...", "Connection was reset").
+\begin{lstlisting}
+fsdocs watch
+
+\end{lstlisting}
+
+
+Restarting may be necesssary on changes to project files. The same parameters are accepted, plus these:
+\begin{tabular}{|l|l|}\hline
+\textbf{Command Line Option} & \textbf{Description}\\ \hline\hline
+\texttt{--noserver} & Do not serve content when watching.\\ \hline
+\texttt{--nolaunch} & Do not launch a browser window.\\ \hline
+\texttt{--open} & URL extension to launch \href{http://localhost:<port>/\%s.}{http://localhost:<port>/\%s.}\\ \hline
+\texttt{--port} & Port to serve content for \href{http://localhost}{http://localhost} serving.\\ \hline
+\end{tabular}
+
+\subsection*{Searchable docs}
+
+
+
+When using the command-line tool a \href{https://www.fusejs.io/}{Fuse} search index is automatically generated in \texttt{index.json}.
+A search box is included in the default template via an \href{https://developer.mozilla.org/docs/Web/HTML/Element/dialog}{HTML Dialog element}.
+
+To add search to your own \texttt{\_template.html}:
+\begin{itemize}
+\item include an HTML element with id \texttt{search-btn}
+
+\item include a \texttt{dialog} element
+
+\item include \texttt{fsdocs-search.js} script
+
+\end{itemize}
+
+\begin{lstlisting}
+<button id="search-btn">Open search dialog</button>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="{`{root}}content/fsdocs-search.js"></script>
+
+\end{lstlisting}
+\subsection*{Embedding Images}
+
+\subsubsection*{Downloading Remote Images (\texttt{--saveimages})}
+
+
+
+The \texttt{--saveimages} flag controls whether images referenced in your docs are downloaded and saved locally alongside the generated output. This is primarily useful for non-HTML output formats such as LaTeX (PDF) and Jupyter Notebook (\texttt{.ipynb}), which cannot reference remote URLs at display time.
+\begin{tabular}{|l|l|}\hline
+\textbf{Value} & \textbf{Behaviour}\\ \hline\hline
+\texttt{none} (default) & Images are referenced by their original URL; nothing is downloaded.\\ \hline
+\texttt{some} & Images are downloaded and saved for LaTeX and notebook outputs only.\\ \hline
+\texttt{all} & Images are downloaded and saved for all output formats including HTML and Markdown.\\ \hline
+\end{tabular}
+
+
+
+Example:
+\begin{lstlisting}
+fsdocs build --saveimages some
+
+\end{lstlisting}
+\subsubsection*{Embedding Images Generated by Scripts}
+
+
+
+When using \texttt{--eval} to evaluate literate F\# scripts, you can embed images produced by code (e.g. charts, plots) directly into the HTML output.
+
+
+\textbf{Option 1: Inline Base64 image using \texttt{include-it-raw}}
+
+
+Write a helper that reads an image file and returns an HTML \texttt{<img>} tag with the image data embedded as a Base64 string. Then use \texttt{(*** include-it-raw ***)} to inject the raw HTML into the output:
+\begin{lstlisting}[numbers=left]
+
+[escapeinside=\\\{\}]
+\kwd{let} \id{inlinePng} {(}\id{fileName}{:} \id{string}{)} \ops{=}
+    \kwd{let} \id{bytes} \ops{=} \id{System}{.}\id{IO}{.}\id{File}{.}\id{ReadAllBytes}{(}\id{fileName}{)}
+    \kwd{let} \id{b64} \ops{=} \id{System}{.}\id{Convert}{.}\id{ToBase64String}{(}\id{bytes}{)}
+    \id{sprintf} \str{"""<img src="data:image/png;base64,\%s" />"""} \id{b64}
+
+\com{// Generate the image in your script, then embed it:}
+\com{// myChart.SavePng("chart.png")}
+\com{// (*** hide ***)}
+\com{// inlinePng "chart.png"}
+\com{// (*** include-it-raw ***)}
+
+
+\end{lstlisting}
+
+
+
+The \texttt{(*** hide ***)} command suppresses the source code of the expression, so only the rendered image appears in the output.
+
+
+\textbf{Option 2: Custom HTML printer via \texttt{fsi.AddHtmlPrinter}}
+
+
+If your charting library produces values of a known type, you can register a custom HTML printer so that values of that type are automatically rendered as images whenever they appear via \texttt{(*** include-it ***)}. See \href{evaluation.html\#using-addprinter-and-addhtmlprinter}{Embedding Script Output} for details.
+
+
+\end{document}

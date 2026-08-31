@@ -1,0 +1,83 @@
+\documentclass{article}
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\definecolor{officegreen}{rgb}{0, 0.5, 0}
+\definecolor{navy}{rgb}{0, 0, 0.5}
+\definecolor{linecolor}{rgb}{0.5, 0.6875, 0.6875}
+\definecolor{outputcolor}{rgb}{0.375, 0.375, 0.375}
+
+\newcommand{\id}[1]{\textcolor{black}{#1}}
+\newcommand{\com}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\inact}[1]{\textcolor{gray}{#1}}
+\newcommand{\kwd}[1]{\textcolor{navy}{#1}}
+\newcommand{\num}[1]{\textcolor{officegreen}{#1}}
+\newcommand{\ops}[1]{\textcolor{purple}{#1}}
+\newcommand{\prep}[1]{\textcolor{purple}{#1}}
+\newcommand{\str}[1]{\textcolor{olive}{#1}}
+\newcommand{\lines}[1]{\textcolor{linecolor}{#1}}
+\newcommand{\fsi}[1]{\textcolor{outputcolor}{#1}}
+\newcommand{\omi}[1]{\textcolor{gray}{#1}}
+
+% Overriding color and style of line numbers
+\renewcommand{\theFancyVerbLine}{
+\lines{\small \arabic{FancyVerbLine}:}}
+
+\lstset{%
+  backgroundcolor=\color{gray!15},
+  basicstyle=\ttfamily,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\title{{page-title}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+\section*{Users of FSharp.Formatting}
+
+
+
+The FSharp.Formatting documentation tool is widely used within the F\# community.
+
+Here is a non-exhaustive list of projects:
+<!-- temporary -->
+<style>
+table { table-layout: fixed; }
+tr td { padding: 15px 0; }
+tr td p { margin: 0 }
+tr th:first-child, tr td:first-child { width: 20%; }
+tr th:last-child, tr td:last-child { width: 35% }
+</style>
+\begin{tabular}{|l|l|l|l|}\hline
+\textbf{Project name} & \textbf{} & \textbf{Repository} & \textbf{Note}\\ \hline\hline
+\href{https://fsprojects.github.io/FSharp.Formatting/}{FSharp.Formatting} &  & \href{https://github.com/fsprojects/FSharp.Formatting/}{\href{https://github.com/fsprojects/FSharp.Formatting/}{https://github.com/fsprojects/FSharp.Formatting/}} & \\ \hline
+\href{https://fsharp.github.io/fsharp-compiler-docs/}{F\# compiler guide} &  & \href{https://github.com/dotnet/fsharp/}{\href{https://github.com/dotnet/fsharp/}{https://github.com/dotnet/fsharp/}} & The documentation is generated and published from \href{https://github.com/fsharp/fsharp-compiler-docs}{\href{https://github.com/fsharp/fsharp-compiler-docs}{https://github.com/fsharp/fsharp-compiler-docs}}\\ \hline
+\href{https://fsharp.github.io/fsharp-core-docs/}{F\# Core Library Documentation} &  & \href{https://github.com/dotnet/fsharp/}{\href{https://github.com/dotnet/fsharp/}{https://github.com/dotnet/fsharp/}} & The documentation is generated and published from \href{https://github.com/fsharp/fsharp-core-docs}{\href{https://github.com/fsharp/fsharp-core-docs}{https://github.com/fsharp/fsharp-core-docs}}\\ \hline
+\href{https://fsprojects.github.io/FsLexYacc}{FsLexYacc} &  & \href{https://github.com/fsprojects/fslexYacc/}{\href{https://github.com/fsprojects/fslexYacc/}{https://github.com/fsprojects/fslexYacc/}} & \\ \hline
+\href{https://fsprojects.github.io/FSharp.Data/}{FSharp.Data} &  & \href{https://github.com/fsprojects/FSharp.Data/}{\href{https://github.com/fsprojects/FSharp.Data/}{https://github.com/fsprojects/FSharp.Data/}} & \\ \hline
+\href{https://plotly.net/}{Plotly.NET} &  & \href{https://github.com/plotly/Plotly.NET}{\href{https://github.com/plotly/Plotly.NET}{https://github.com/plotly/Plotly.NET}} & \\ \hline
+\href{https://fslab.org/FSharp.Stats/}{FSharp.Stats} &  & \href{https://github.com/fslaborg/FSharp.Stats/}{\href{https://github.com/fslaborg/FSharp.Stats/}{https://github.com/fslaborg/FSharp.Stats/}} & \\ \hline
+\href{https://fsprojects.github.io/FsHttp/}{FsHttp} &  & \href{https://github.com/fsprojects/FsHttp/}{\href{https://github.com/fsprojects/FsHttp/}{https://github.com/fsprojects/FsHttp/}} & \\ \hline
+\href{https://fsprojects.github.io/fantomas/docs/}{Fantomas} &  & \href{https://github.com/fsprojects/fantomas/}{\href{https://github.com/fsprojects/fantomas/}{https://github.com/fsprojects/fantomas/}} & \\ \hline
+\href{https://nojaf.com/telplin/docs/}{Telplin} &  & \href{https://github.com/nojaf/telplin/}{\href{https://github.com/nojaf/telplin/}{https://github.com/nojaf/telplin/}} & \\ \hline
+\href{https://github.com/nhirschey/FSharp.Data.Fred/}{FSharp.Data.Fred} &  & \href{https://github.com/nhirschey/FSharp.Data.Fred/}{\href{https://github.com/nhirschey/FSharp.Data.Fred/}{https://github.com/nhirschey/FSharp.Data.Fred/}} & \\ \hline
+\href{https://nhirschey.github.io/Teaching/}{N Hirschey Teaching} &  & \href{https://github.com/nhirschey/Teaching}{\href{https://github.com/nhirschey/Teaching}{https://github.com/nhirschey/Teaching}} & \\ \hline
+\href{https://fsprojects.github.io/FsUnit/}{FsUnit} &  & \href{https://github.com/fsprojects/FsUnit}{\href{https://github.com/fsprojects/FsUnit}{https://github.com/fsprojects/FsUnit}} & \\ \hline
+\href{https://fake.build/}{FAKE} &  & \href{https://github.com/fsprojects/FAKE}{\href{https://github.com/fsprojects/FAKE}{https://github.com/fsprojects/FAKE}} & \\ \hline
+\href{https://fsprojects.github.io/FSharp.Data.GraphQL/}{FSharp.Data.GraphQL} &  & \href{https://github.com/fsprojects/FSharp.Data.GraphQL}{\href{https://github.com/fsprojects/FSharp.Data.GraphQL}{https://github.com/fsprojects/FSharp.Data.GraphQL}} & \\ \hline
+\end{tabular}
+
+
+
+\end{document}
