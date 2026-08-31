@@ -1,6 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [22.2.0] - 2026-08-31
+
+### Changed
+* Bump `Suave` from 2.6.2 to 3.4.6. The `fsdocs watch` websocket handling was migrated to Suave 3's `Task`-based socket API, the removed `Suave.Logging` usage was dropped, and clients that disconnect without a close handshake are now deregistered so a live-reload broadcast can no longer crash the watch server with an `ObjectDisposedException`.
+* During `fsdocs watch`, the logo now links to the locally hosted site root (e.g. `http://localhost:8901/`) instead of the production URL, even when `<FsDocsLogoLink>` is set. Release builds are unaffected.
+* The `fsdocs watch` console no longer logs websocket connection chatter ("New websocket connection", "WebSocket disconnected", ...) on every page reload.
 
 ### Changed
 * Replace `sprintf "<pre><code>"` (a format string with no format arguments) with the plain string literal `"<pre><code>"` in `HtmlFormatting.fs`. This is on the hot path invoked once per rendered code/output block, and avoids the unnecessary printf-format parsing overhead for a string with no substitutions.
