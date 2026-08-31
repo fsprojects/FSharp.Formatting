@@ -1,5 +1,5 @@
 {
-  "run": "33223130401",
+  "run": "33344407295",
   "cursor": 1221,
   "monthly": "August-2026",
   "monthly_issue": "1243",
@@ -47,6 +47,7 @@
     "Monthly issue #1243 (August 2026) is current \u2014 cleaned up malformed labels, added run summary via comment (update_issue quota was used on #1198 this run)",
     "Task 5 candidates reviewed but not implemented (too risky without deeper investigation): MarkdownBlockParser.fs HtmlBlock TODO, MarkdownInlineParser.fs Emphasised nested-emphasis TODO, LatexFormatting.fs CodeBlock/OutputBlock TODO, Categorise.fs FSharp.Core namespace-exclude hack, ParseScript.fs printfn debug fallback on frontmatter parse failure",
     "2026-08-29 run: diagnosed Suave 3.4.5 breaking change causing PR #1269 CI failure (Async->Task rewrite breaks BuildCommand.fs HttpRuntime.logger/SocketOp usage); posted diagnostic comment on PR, no code fix attempted (out of scope/risky).",
-    "2026-08-29 run: verified all 4 open repo-assist PRs (#1130,#1241,#1242,#1264) CI passing; PR #1267 still draft/blocked; no fixable bug/help-wanted issue found for Task 3; no new Task 2 comment needed (all issues already adequately covered)."
+    "2026-08-29 run: verified all 4 open repo-assist PRs (#1130,#1241,#1242,#1264) CI passing; PR #1267 still draft/blocked; no fixable bug/help-wanted issue found for Task 3; no new Task 2 comment needed (all issues already adequately covered).",
+    "2026-08-31 run (tasks 5,8,3): opened new PR (branch repo-assist/perf-sprintf-precode-20260831) replacing sprintf \"<pre><code>\" (no format args) with plain string literal in HtmlFormatting.fs, 3 call sites in hot rendering path. Verified fantomas unchanged, dotnet build clean, 368/368 FSharp.Markdown.Tests pass. Task 3: no new fixable bug/help-wanted issue found (same as prior run). Removed malformed [automation/help wanted] labels from #1243. Updated Monthly Activity #1243 body (replace) with new PR + run entry."
   ]
 }

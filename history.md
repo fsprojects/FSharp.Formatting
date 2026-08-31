@@ -71,3 +71,10 @@ IMPORTANT: Directory.Packages.props is protected — create_pull_request silentl
 - Task 2: Reviewed all 15 open issues — all already have adequate Repo Assist comments from prior runs, no new human activity found.
 - Verified CI green on #1130, #1241, #1242, #1264; #1267 still draft/blocked.
 - Task 11: Updated Monthly Activity issue #1243 (replace body) with fresh Suggested Actions list and new run history entry.
+
+## 2026-08-31 — Run 33344407295 (tasks: 5, 8, 3)
+- Task 8 (Performance): Created PR replacing `sprintf "<pre><code>"` (zero format args) with plain string literal at 3 sites in `src/FSharp.Formatting.Markdown/HtmlFormatting.fs` (hot per-code-block rendering path). Verified fantomas unchanged, `dotnet build` clean, `dotnet test tests/FSharp.Markdown.Tests` 368/368 pass. Branch: repo-assist/perf-sprintf-precode-20260831.
+- Task 5 (Coding Improvements): substituted into performance search; reviewed List.append/@ patterns, List.length-in-loop patterns, partitionUntil implementation — no other safe, clearly-beneficial change identified this run.
+- Task 3 (Issue Fix): reviewed bug/help-wanted/good-first-issue labelled issues (#585, #685, #1064) — #685 already covered by open PR #1242; #585/#1064 remain large architectural asks, not minimal fixes. No new PR.
+- Removed malformed stray-bracket labels (`[automation`, `help wanted]`) from #1243.
+- Task 11: updated Monthly Activity issue #1243 (replace body) with new PR entry and run history.
