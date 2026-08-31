@@ -27,7 +27,6 @@ open Suave.Sockets.Control
 open Suave.WebSocket
 open Suave.Operators
 open Suave.Filters
-open Suave.Logging
 open FSharp.Formatting.Markdown
 
 
@@ -860,21 +859,33 @@ module Serve =
 
     let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 
-    let socketHandler (webSocket: WebSocket) (context: HttpContext) =
-        context.runtime.logger.info (Message.eventX "New websocket connection")
+    let socketHandler (webSocket: WebSocket) (_context: HttpContext) : SocketOp<unit> =
         connectedClients.TryAdd(webSocket, ()) |> ignore
 
-        socket {
-            let! msg = webSocket.read ()
+        Threading.Tasks.ValueTask<Result<unit, Sockets.Error>>(
+            task {
+                try
+                    // Block until the client sends a message or disconnects.
+                    let! msg = (webSocket.read ()).AsTask()
 
-            match msg with
-            | Close, _, _ ->
-                context.runtime.logger.info (Message.eventX "Closing connection")
+                    match msg with
+                    | Ok(Close, _, _) ->
+                        let emptyResponse = [||] |> ByteSegment
+                        let! _ = (webSocket.send Close emptyResponse true).AsTask()
+                        ()
+                    | _ -> ()
+                with _ ->
+                    ()
+
+                // Deregister the client however the connection ended, so reload
+                // broadcasts never touch a dead (and possibly recycled) socket.
                 connectedClients.TryRemove webSocket |> ignore
-                let emptyResponse = [||] |> ByteSegment
-                do! webSocket.send Close emptyResponse true
-            | _ -> ()
-        }
+
+                // Return Ok even when the client vanished without a close handshake,
+                // otherwise Suave writes a "WebSocket disconnected" line to the console.
+                return Ok()
+            }
+        )
 
     let broadCastReload (msg: string) =
         let msg = msg |> Encoding.UTF8.GetBytes |> ByteSegment
@@ -882,8 +893,16 @@ module Serve =
         connectedClients.Keys
         |> Seq.map (fun client ->
             async {
-                let! _ = client.send Text msg true
-                ()
+                try
+                    let! result = (client.send Text msg true).AsTask() |> Async.AwaitTask
+
+                    match result with
+                    | Ok() -> ()
+                    | Result.Error _ -> connectedClients.TryRemove client |> ignore
+                with _ ->
+                    // Suave 3 throws (e.g. ObjectDisposedException) when the client
+                    // disconnected without a close handshake; drop the stale client.
+                    connectedClients.TryRemove client |> ignore
             })
         |> Async.Parallel
         |> Async.Ignore
@@ -1312,7 +1331,8 @@ module Serve =
                   >=> Writers.setHeader "Expires" "0"
                   >=> Files.browseHome ]
 
-        startWebServerAsync serverConfig app |> snd |> Async.Start
+        // In Suave 3.x the server part of the tuple is a hot Task, no explicit start needed.
+        startWebServerAsync serverConfig app |> snd |> ignore
 
 /// Helpers for generating llms.txt and llms-full.txt content.
 module internal LlmsTxt =
@@ -1648,6 +1668,21 @@ type CoreBuildOptions(watch) =
         // See https://github.com/ionide/proj-info/issues/123
         System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
 
+        // In watch mode the logo must link to the locally hosted site, even when
+        // <FsDocsLogoLink> is set to a production URL for the published site.
+        let overrideLogoLinkForWatch substitutions =
+            if watch then
+                substitutions
+                |> List.map (fun (pk, v) ->
+                    if pk = ParamKeys.``fsdocs-logo-link`` then
+                        (pk, root)
+                    else
+                        (pk, v))
+            else
+                substitutions
+
+        let docsSubstitutions = overrideLogoLinkForWatch docsSubstitutions
+
         if crackedProjects.Length > 0 then
             printfn ""
             printfn "Inputs for API Docs:"
@@ -1725,7 +1760,7 @@ type CoreBuildOptions(watch) =
                     XmlFile = None
                     SourceRepo = sourceRepo
                     SourceFolder = Some sourceFolder
-                    Substitutions = Some projectParameters
+                    Substitutions = Some(overrideLogoLinkForWatch projectParameters)
                     MarkdownComments = this.mdcomments || projectMarkdownComments
                     Warn = projectWarn
                     PublicOnly = not this.nonpublic
