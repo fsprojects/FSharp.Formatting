@@ -1637,6 +1637,29 @@ let ``ApiDocs Markdown uses section-based member layout instead of tables`` () =
     nestedContent |> shouldNotContainText "Function or value | Description | Source"
 
 [<Test>]
+let ``ApiDocs Markdown generates See also section for top-level seealso tags`` () =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] OutputFormat.Markdown false "FsLib2_markdown_seealso"
+
+    let seeAlsoContent = files.["fslib-seealsoexamples.md"]
+
+    seeAlsoContent |> shouldContainText "##### See also"
+    seeAlsoContent |> shouldContainText "dothing"
+    seeAlsoContent |> shouldContainText "dothing2"
+
+[<Test>]
+let ``ApiDocs HTML generates See also section for top-level seealso tags`` () =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] OutputFormat.Html false "FsLib2_html_seealso"
+
+    let seeAlsoContent = files.["fslib-seealsoexamples.html"]
+
+    seeAlsoContent |> shouldContainText "See also"
+    seeAlsoContent |> shouldContainText "fsdocs-seealso-list"
+
+[<Test>]
 let ``ApiDocs Markdown generates Example and Note section headings`` () =
     let library = testBin </> "FsLib2.dll" |> fullpath
 

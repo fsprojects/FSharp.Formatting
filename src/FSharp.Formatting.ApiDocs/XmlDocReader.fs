@@ -110,6 +110,7 @@ module internal XmlDocReader =
             examples = examples,
             notes = notes,
             exceptions = [],
+            seeAlso = [],
             rawData = raw
         )
 
@@ -366,6 +367,41 @@ module internal XmlDocReader =
                               readXmlElementAsHtml true urlMap cmds html e
                               cname, None, ApiDocHtml(html.ToString(), None) ]
 
+        let seeAlso =
+            // Only top-level <seealso> elements (direct children of the doc comment), per the
+            // xmldoc recommended-tags convention: <seealso> is a section, <see> is an inline link.
+            let seeAlsoNodes = doc.Elements(XName.Get "seealso") |> Seq.toList
+
+            [ for e in seeAlsoNodes do
+                  let cref = e.Attribute(XName.Get "cref")
+
+                  if not (isNull cref) then
+                      if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+                          printfn "Warning: Invalid cref specified in: %A" doc
+                      else
+                          // Older FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
+                          let cname = cref.Value
+                          let cname = if cname.Contains(":") then cname else "T:" + cname
+
+                          match urlMap.ResolveCref cname with
+                          | Some reference ->
+                              let html = new StringBuilder()
+                              readXmlElementAsHtml true urlMap cmds html e
+                              reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString(), None)
+                          | _ ->
+                              let html = new StringBuilder()
+                              readXmlElementAsHtml true urlMap cmds html e
+                              cname, None, ApiDocHtml(html.ToString(), None)
+                  else
+                      // no cref: render the element's own content (e.g. <seealso href="...">text</seealso>)
+                      let html = new StringBuilder()
+                      readXmlElementAsHtml true urlMap cmds html e
+                      let href = e.Attribute(XName.Get "href")
+
+                      let link = if isNull href then None else Some href.Value
+
+                      (if isNull href then "" else href.Value), link, ApiDocHtml(html.ToString(), None) ]
+
         let examples =
             let exampleNodes = doc.Elements(XName.Get "example") |> Seq.toList
 
@@ -404,7 +440,8 @@ module internal XmlDocReader =
             && ln <> "example"
             && ln <> "note"
             && ln <> "returns"
-            && ln <> "remarks")
+            && ln <> "remarks"
+            && ln <> "seealso")
         |> Seq.groupBy (fun n -> n.Name.LocalName)
         |> Seq.iter (fun (n, lst) ->
             let lst = Seq.toList lst
@@ -425,6 +462,7 @@ module internal XmlDocReader =
                 examples = examples,
                 notes = notes,
                 exceptions = exceptions,
+                seeAlso = seeAlso,
                 rawData = rawData
             )
 
@@ -459,6 +497,7 @@ module internal XmlDocReader =
             returns = combineHtmlOptions c1.Returns c2.Returns,
             notes = c1.Notes @ c2.Notes,
             exceptions = c1.Exceptions @ c2.Exceptions,
+            seeAlso = c1.SeeAlso @ c2.SeeAlso,
             rawData = c1.RawData @ c2.RawData
         )
 

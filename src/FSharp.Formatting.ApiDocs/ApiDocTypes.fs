@@ -129,7 +129,7 @@ type ApiDocHtml(html: string, id: string option) =
     member _.Id = id
 
 /// Represents a documentation comment attached to source code
-type ApiDocComment(xmldoc, summary, remarks, parameters, returns, examples, notes, exceptions, rawData) =
+type ApiDocComment(xmldoc, summary, remarks, parameters, returns, examples, notes, exceptions, seeAlso, rawData) =
 
     /// The XElement for the XML doc if available
     member _.Xml: XElement option = xmldoc
@@ -155,10 +155,13 @@ type ApiDocComment(xmldoc, summary, remarks, parameters, returns, examples, note
     /// The notes sections of the comment
     member _.Exceptions: (string * string option * ApiDocHtml) list = exceptions
 
+    /// The top-level "seealso" sections of the comment, rendered as a "See also:" list
+    member _.SeeAlso: (string * string option * ApiDocHtml) list = seeAlso
+
     /// The raw data of the comment
     member _.RawData: KeyValuePair<string, string> list = rawData
 
-    static member internal Empty = ApiDocComment(None, ApiDocHtml("", None), None, [], None, [], [], [], [])
+    static member internal Empty = ApiDocComment(None, ApiDocHtml("", None), None, [], None, [], [], [], [], [])
 
 /// Represents a custom attribute attached to source code
 type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments) =
