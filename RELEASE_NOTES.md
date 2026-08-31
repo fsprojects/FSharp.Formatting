@@ -1,6 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [22.2.0] - 2026-08-31
+
+### Changed
+* Bump `Suave` from 2.6.2 to 3.4.6. The `fsdocs watch` websocket handling was migrated to Suave 3's `Task`-based socket API, the removed `Suave.Logging` usage was dropped, and clients that disconnect without a close handshake are now deregistered so a live-reload broadcast can no longer crash the watch server with an `ObjectDisposedException`.
+* During `fsdocs watch`, the logo now links to the locally hosted site root (e.g. `http://localhost:8901/`) instead of the production URL, even when `<FsDocsLogoLink>` is set. Release builds are unaffected.
+* The `fsdocs watch` console no longer logs websocket connection chatter ("New websocket connection", "WebSocket disconnected", ...) on every page reload.
 
 ### Removed
 * Remove `docs/Dockerfile` (used for mybinder.org Binder integration) and mybinder badge links from documentation pages. The Binder integration relied on a deprecated .NET 7 SDK image and a deprecated `Microsoft.dotnet-interactive` version; mybinder.org support is discontinued.
