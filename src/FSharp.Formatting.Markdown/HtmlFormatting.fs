@@ -203,7 +203,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
         if String.IsNullOrWhiteSpace(language) then
-            ctx.Writer.Write(sprintf "<pre><code>")
+            ctx.Writer.Write("<pre><code>")
         else
             let langCode = sprintf "language-%s" (htmlEncodeQuotes language)
             ctx.Writer.Write(sprintf "<pre><code class=\"%s\">" langCode)
@@ -218,7 +218,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
-        ctx.Writer.Write(sprintf "<pre><code>")
+        ctx.Writer.Write("<pre><code>")
         ctx.Writer.Write(htmlEncode code)
         ctx.Writer.Write("</code></pre>")
 
@@ -315,7 +315,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
-        ctx.Writer.Write(sprintf "<pre><code>")
+        ctx.Writer.Write("<pre><code>")
 
         for (code, _) in lines do
             ctx.Writer.Write(htmlEncode code)
