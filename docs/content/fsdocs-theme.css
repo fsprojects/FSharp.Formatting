@@ -1,1 +1,9 @@
 ﻿/* Override any variables here */
+
+.mermaid {
+  margin: 1rem auto;
+  & svg {
+    display: block;
+    margin: 0 auto;
+  }
+}
