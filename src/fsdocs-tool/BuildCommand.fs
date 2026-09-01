@@ -1,6 +1,7 @@
 namespace fsdocs
 
 open System.Collections.Concurrent
+open System.Collections.Generic
 open CommandLine
 
 open System
@@ -101,7 +102,7 @@ type internal DocContent
                 None
             else
                 Some x.TwoLetterISOLanguageName)
-        |> Array.distinct
+        |> HashSet<string>
 
     let makeMarkdownLinkResolver
         (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap: Map<(string * OutputKind), string>, outputKind)
@@ -489,7 +490,7 @@ type internal DocContent
 
           // Two-letter directory names (e.g. 'ja') with 'docs' count as multi-language and are suppressed from table-of-content
           // generation and site search index
-          let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures |> Array.contains indirName)
+          let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures.Contains indirName)
 
           let possibleNewHtmlTemplate = Path.Combine(inputFolderAsGiven, "_template.html")
 
