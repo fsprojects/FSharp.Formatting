@@ -5,6 +5,9 @@
 ### Changed
 * Rewrote the Mermaid documentation recipe as `docs/mermaid.md` (moved from the oddly-named `docs/sidebyside/sidemermaid.md`) to follow the approach used by the fantomas docs: diagrams are written as plain ```mermaid fenced code blocks, which GitHub renders natively, and an `_body.html` script promotes those blocks into `<div class="mermaid">` elements on fsdocs pages. The FSharp.Formatting docs now ship that script (`docs/_body.html`), so the recipe page actually demonstrates working diagrams.
 
+### Fixed
+* Fix `FrontMatterFile.ParseFromLines` truncating front-matter values that contain a `:` character (e.g. `title: F#: An Introduction` was previously captured as just `F#`). Additional colons in a value are now preserved.
+
 ## [22.2.0] - 2026-08-31
 
 ### Changed

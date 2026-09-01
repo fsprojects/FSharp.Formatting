@@ -745,3 +745,24 @@ let ``LlmsTxt collapses excessive blank lines in content`` () =
     llmsFullTxt.Contains("\n\n\n") |> shouldEqual false
     llmsFullTxt |> shouldContainText "First paragraph"
     llmsFullTxt |> shouldContainText "Second paragraph"
+
+// --------------------------------------------------------------------------------------
+// Tests for FrontMatterFile.ParseFromLines
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``ParseFromLines preserves colons in front-matter values`` () =
+    let lines = [ "---"; "title: F#: An Introduction"; "category: Guides"; "categoryindex: 2"; "index: 1"; "---" ]
+
+    match FrontMatterFile.ParseFromLines "test.md" lines with
+    | Some frontMatter ->
+        frontMatter.Category |> shouldEqual "Guides"
+        frontMatter.CategoryIndex |> shouldEqual 2
+        frontMatter.Index |> shouldEqual 1
+    | None -> failwith "Expected front matter to be parsed"
+
+[<Test>]
+let ``ParseFromLines returns None when required fields are missing`` () =
+    let lines = [ "---"; "title: No Category Here"; "---" ]
+
+    FrontMatterFile.ParseFromLines "test.md" lines |> shouldEqual None
