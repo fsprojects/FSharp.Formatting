@@ -22,3 +22,12 @@
   - Task 11: updated Monthly Activity issue #1243 (August 2026) with new PR entry.
 
 - **Suave 3.4.5 breaking change (found 2026-08-29)**: Dependabot PR #1269 bumps Suave 2.6.2→3.4.5, a major breaking version. Suave rewrote internals from `Async`-based to `Task`-based APIs. This breaks `src/fsdocs-tool/BuildCommand.fs` (uses removed `HttpRuntime.logger`, mixes `Async<'a>` with new `SocketOp`/`Task` types around lines 30/864/872/885/1315). Not a trivial fix — requires migrating the `fsdocs watch` live-reload server code to the new Suave API. Do not attempt to merge #1269 as-is.
+
+## 2026-09-03 — Run 33699124048 (tasks: 2, 4, 3)
+- Task 4 (Engineering Investments): Created PR (branch repo-assist/deps-bump-projinfo-nunit-20260903) bumping Ionide.ProjInfo 0.74.2→0.75.0 and NUnit3TestAdapter 6.2.0→6.3.0 directly in Directory.Packages.props (no workflow files touched, avoiding the push-protection issue that blocked prior deps bundles like #1240). Verified: dotnet restore/build clean, 12/12 fsdocs-tool.Tests, 368/368 FSharp.Markdown.Tests pass. Supersedes Dependabot PRs #1273 and #1268.
+- Confirmed Suave 3.4.6 migration (previously flagged as a breaking-change risk for old Dependabot PR #1269) is ALREADY MERGED as PR #1272 — BuildCommand.fs was migrated to Task-based Suave 3 API. This concern is now resolved; do not re-flag.
+- Task 3 (Issue Fix): reviewed #585, #1064 (large architectural asks, unchanged from prior runs) and #685 (covered by open PR #1242) — no new fixable issue found.
+- Task 2 (Issue Comment): reviewed all 15 open issues — all have adequate prior Repo Assist engagement, no new human activity found.
+- Task 11: Closed August Monthly Activity issue #1243, created new September issue "[repo-assist] Monthly Activity 2026-09".
+- Deps bundle issue #1240 (Aug 2026, FSharp.Data/G-Research.FSharp.Analyzers/fsharp-analyzers/gh-aw-actions) still blocked by workflow-file push protection — unchanged, needs manual maintainer action.
+- Dependabot PR #1270 (gh-aw-actions/setup 0.86.2→0.87.4): still open, no CI status checked this run.
