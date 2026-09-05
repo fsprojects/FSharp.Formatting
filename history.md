@@ -78,3 +78,9 @@ IMPORTANT: Directory.Packages.props is protected — create_pull_request silentl
 - Task 3 (Issue Fix): reviewed bug/help-wanted/good-first-issue labelled issues (#585, #685, #1064) — #685 already covered by open PR #1242; #585/#1064 remain large architectural asks, not minimal fixes. No new PR.
 - Removed malformed stray-bracket labels (`[automation`, `help wanted]`) from #1243.
 - Task 11: updated Monthly Activity issue #1243 (replace body) with new PR entry and run history.
+
+## 2026-09-05 (run 33932588559) — Tasks 6, 10, 3, 11
+- Task 6: Rebased & pushed PR #1264 (seealso) — resolved real RELEASE_NOTES.md conflict, build clean, 90/90 ApiDocs tests pass. Rebased & pushed PR #1267 (docs literate doctest) — no conflicts, fantomas clean. Verified PR #1275 needs no action (already up to date, no conflict).
+- Task 3: Reviewed candidate issues #585, #1064, #685 — no new fixable bug (too large in scope / already covered by open PR #1242). Substituted with Task 10.
+- Task 10: Created new PR (branch `repo-assist/deps-bump-projinfo-nunit-20260905`) bundling Ionide.ProjInfo 0.74.2→0.75.0 and NUnit3TestAdapter 6.2.0→6.3.0 — retry of blocked attempt from issue #1276, this time using `create_pull_request` (which permits protected-file diffs with review) instead of `push_to_pull_request_branch`. Build + tests green (fsdocs-tool.Tests 12/12, FSharp.Markdown.Tests 368/368). Supersedes issue #1276; also resolves stale issue #1278.
+- Task 11: Updated Monthly Activity issue #1277 with new Suggested Actions and Run History entry.

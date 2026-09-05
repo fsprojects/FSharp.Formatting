@@ -3,13 +3,9 @@
   "cursor": 1178,
   "monthly": "1131",
   "prs": [
-    1194,
-    1187,
-    1185,
-    1161,
-    1175,
-    1130,
-    1106
+    1264,
+    1267,
+    1275
   ],
   "dependabot_prs": [
     1179,
@@ -46,14 +42,17 @@
     "1190": "2026-04-29"
   },
   "last_run": {
-    "run_id": "33699124048",
-    "date": "2026-09-03",
+    "run_id": "33932588559",
+    "date": "2026-09-05",
     "tasks": [
-      2,
-      4,
+      6,
+      10,
       3,
       11
     ]
   },
-  "current_monthly_activity_issue": "new-2026-09"
+  "current_monthly_activity_issue": "1277",
+  "notes": [
+    "2026-09-05: rebased+pushed #1264 (seealso) and #1267 (docs literate); #1275 confirmed clean. Created new PR bundling Ionide.ProjInfo 0.75.0 + NUnit3TestAdapter 6.3.0 (branch repo-assist/deps-bump-projinfo-nunit-20260905), supersedes stale issue #1276. Issue #1278 (protected files notice for #1264) now resolved."
+  ]
 }
