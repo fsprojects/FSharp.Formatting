@@ -803,7 +803,7 @@ type CoreBuildOptions(watch) =
 
             printfn ""
             printfn "starting server on http://localhost:%d for content in %s" this.port_option this.input
-            printfn "pages are built when first requested"
+            printfn "pages are built when first requested; see http://localhost:%d/.fsdocs/doctor" this.port_option
 
             DevServer.startWebServer site this.port_option
 

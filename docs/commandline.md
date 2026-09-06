@@ -115,6 +115,13 @@ process stays up, even with `--strict`.
 
 The search index (`index.json`) and `llms.txt` are the only URLs that need every page.
 
+Two diagnostic pages are served under the reserved `/.fsdocs/` prefix:
+
+- `/.fsdocs/doctor`: the projects that were cracked, the substitutions and where they come from, the
+  templates that were tried and chosen, the navigation with the source of every title, the routes, the
+  state of every requested page, the recent file events and the collected errors.
+- `/.fsdocs/doctor.json`: the same as JSON, handy for troubleshooting with an LLM.
+
 Restarting may be necessary on changes to project files. The same parameters as `build` are accepted
 (`--output`, `--clean` and `--saveimages` are ignored with a note), plus these:
 

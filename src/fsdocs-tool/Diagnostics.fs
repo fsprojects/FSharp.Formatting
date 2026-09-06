@@ -45,7 +45,7 @@ type ResolutionDiagnostics =
     }
 
 /// Everything known about a build or watch session before any page is generated.
-/// The console output is rendered from this value.
+/// The console output and the doctor endpoints are both rendered from this value.
 type internal Diagnostics =
     {
         ToolVersion: string

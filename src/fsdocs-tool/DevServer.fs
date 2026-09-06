@@ -762,7 +762,7 @@ type internal Site(config: SiteConfig) =
         while errors.Count > 200 do
             errors.TryDequeue() |> ignore
 
-    /// The content options with an error callback that also keeps the message
+    /// The content options with an error callback that also keeps the message for the doctor
     let contentOptions =
         { config.ContentOptions with
             OnError =
@@ -1650,13 +1650,486 @@ type internal Site(config: SiteConfig) =
             for d in disposables do
                 d.Dispose()
 
+/// The state of the watch session, as shown by /.fsdocs/doctor and /.fsdocs/doctor.json.
+/// Plain records and strings only, so System.Text.Json can serialize it.
+type DoctorSubstitution =
+    {
+        Key: string
+        Value: string
+        Source: string
+    }
+
+type DoctorProject =
+    {
+        ProjectFile: string
+        TargetPath: string
+        TargetExists: bool
+        References: string list
+        DroppedReferences: string list
+        OverridingSubstitutions: DoctorSubstitution list
+    }
+
+type DoctorRoute =
+    {
+        Url: string
+        Kind: string
+        Source: string
+        Template: string option
+    }
+
+type DoctorNavPage =
+    {
+        Title: string
+        TitleSource: string
+        Category: string option
+        CategoryIndex: int option
+        Index: int option
+        Source: string
+        Url: string
+    }
+
+type DoctorSkipped = { Path: string; Reason: string }
+
+type DoctorApi =
+    {
+        Dlls: string list
+        Template: string option
+        OutputKind: string
+        Status: string
+        BuiltAt: DateTime option
+        Error: string option
+        Namespaces: int
+        Entities: int
+        Pages: int
+    }
+
+type DoctorUrl =
+    {
+        Url: string
+        State: string
+        LastBuilt: DateTime option
+        LastError: string option
+    }
+
+type DoctorEvent =
+    {
+        Time: DateTime
+        Path: string
+        Change: string
+        Invalidated: bool
+    }
+
+type DoctorComputed =
+    {
+        Time: DateTime
+        Source: string
+        OutputKind: string
+    }
+
+type DoctorError = { Time: DateTime; Message: string }
+
+type Doctor =
+    {
+        ToolVersion: string
+        CommandLine: string
+        Command: string
+        Input: string
+        Root: string
+        CollectionName: string
+        GenerateLlmsTxt: bool
+        IgnoredOptions: IgnoredOption list
+        Projects: DoctorProject list
+        Substitutions: DoctorSubstitution list
+        DefaultTemplate: ResolutionDiagnostics
+        DefaultMarkdownTemplate: ResolutionDiagnostics
+        ApiDocsTemplate: ResolutionDiagnostics
+        Extras: ResolutionDiagnostics
+        HeadTemplate: string option
+        BodyTemplate: string option
+        MenuTemplatesFound: bool
+        Routes: DoctorRoute list
+        NavPages: DoctorNavPage list
+        Skipped: DoctorSkipped list
+        Api: DoctorApi
+        Urls: DoctorUrl list
+        Events: DoctorEvent list
+        ComputedModels: DoctorComputed list
+        Errors: DoctorError list
+    }
+
+module internal Doctor =
+
+    let ofSite (site: Site) : Doctor =
+        let d = site.Config.Diagnostics
+        let scan = site.Scan
+        let api = site.ApiState
+
+        let substitution (s: SubstitutionDiagnostics) =
+            {
+                Key = s.Key
+                Value = s.Value
+                Source =
+                    match s.Source with
+                    | Project -> "project"
+                    | Parameters -> "--parameters"
+                    | WatchOverride -> "watch override"
+            }
+
+        let titleSource (t: TitleSource) =
+            match t with
+            | TitleSource.FrontMatter -> "front matter"
+            | TitleSource.Heading -> "heading"
+            | TitleSource.FileName -> "file name"
+
+        let states = site.UrlStates |> List.map (fun s -> s.Url, s) |> Map.ofList
+
+        {
+            ToolVersion = d.ToolVersion
+            CommandLine = d.CommandLine
+            Command = d.Command
+            Input = d.Input
+            Root = d.Root
+            CollectionName = d.CollectionName
+            GenerateLlmsTxt = d.GenerateLlmsTxt
+            IgnoredOptions = d.IgnoredOptions
+            Projects =
+                [
+                    for p in d.Projects ->
+                        {
+                            ProjectFile = p.ProjectFile
+                            TargetPath = p.TargetPath
+                            TargetExists = p.TargetExists
+                            References = p.References
+                            DroppedReferences = p.DroppedReferences
+                            OverridingSubstitutions =
+                                [
+                                    for (k, v) in p.OverridingSubstitutions ->
+                                        {
+                                            Key = k
+                                            Value = v
+                                            Source = "project"
+                                        }
+                                ]
+                        }
+                ]
+            Substitutions = d.Substitutions |> List.map substitution
+            DefaultTemplate = d.DefaultTemplate
+            DefaultMarkdownTemplate = d.DefaultMarkdownTemplate
+            ApiDocsTemplate = d.ApiDocsTemplate
+            Extras = d.Extras
+            HeadTemplate = d.HeadTemplate
+            BodyTemplate = d.BodyTemplate
+            MenuTemplatesFound = d.MenuTemplatesFound
+            Routes =
+                [
+                    for KeyValue(url, route) in scan.Routes ->
+                        match route with
+                        | ContentPage r ->
+                            {
+                                Url = url
+                                Kind = sprintf "content (%s)" r.OutputKind.Extension
+                                Source = r.InputFile
+                                Template = r.Template
+                            }
+                        | StaticFile path ->
+                            {
+                                Url = url
+                                Kind = "static file"
+                                Source = path
+                                Template = None
+                            }
+                        | ApiPage rel ->
+                            {
+                                Url = url
+                                Kind = "API docs"
+                                Source = rel
+                                Template = site.Config.ApiDocsTemplate
+                            }
+                        | SearchIndex ->
+                            {
+                                Url = url
+                                Kind = "search index"
+                                Source = "all pages and the API docs"
+                                Template = None
+                            }
+                        | LlmsTxt
+                        | LlmsFullTxt ->
+                            {
+                                Url = url
+                                Kind = "llms.txt"
+                                Source = "all pages and the API docs"
+                                Template = None
+                            }
+                ]
+            NavPages =
+                [
+                    for p in scan.NavPages ->
+                        {
+                            Title = p.Title.Trim()
+                            TitleSource =
+                                scan.TitleSources.TryFind p.InputPath
+                                |> Option.map titleSource
+                                |> Option.defaultValue ""
+                            Category = p.Category
+                            CategoryIndex = p.CategoryIndex
+                            Index = p.Index
+                            Source = p.InputPath
+                            Url = p.Uri site.Config.Root
+                        }
+                ]
+            Skipped = [ for (path, reason) in scan.Skipped -> { Path = path; Reason = reason } ]
+            Api =
+                {
+                    Dlls = site.Config.ApiDllPaths
+                    Template = site.Config.ApiDocsTemplate
+                    OutputKind = string<OutputKind> site.Config.ApiDocsOutputKind
+                    Status =
+                        match api with
+                        | None -> "not built (no request needed it yet)"
+                        | Some a when a.Error.IsSome -> "failed"
+                        | Some a when a.Phased.IsNone -> "nothing to generate"
+                        | Some _ -> "built"
+                    BuiltAt = api |> Option.bind (fun a -> a.BuiltAt)
+                    Error = api |> Option.bind (fun a -> a.Error)
+                    Namespaces =
+                        api
+                        |> Option.bind (fun a -> a.Phased)
+                        |> Option.map (fun p -> p.Model.Collection.Namespaces.Length)
+                        |> Option.defaultValue 0
+                    Entities =
+                        api
+                        |> Option.bind (fun a -> a.Phased)
+                        |> Option.map (fun p ->
+                            p.Model.Collection.Namespaces |> List.sumBy (fun ns -> ns.Entities.Length))
+                        |> Option.defaultValue 0
+                    Pages = api |> Option.map (fun a -> a.Pages.Count) |> Option.defaultValue 0
+                }
+            Urls =
+                [
+                    for (url, outOfDate) in site.NodeStates ->
+                        let state = states.TryFind url
+
+                        {
+                            Url = url
+                            State =
+                                match state with
+                                | Some s when s.LastError.IsSome -> "error"
+                                | _ when outOfDate -> "out of date"
+                                | _ -> "valid"
+                            LastBuilt = state |> Option.bind (fun s -> s.LastBuilt)
+                            LastError = state |> Option.bind (fun s -> s.LastError)
+                        }
+                ]
+            Events =
+                [
+                    for e in site.Events ->
+                        {
+                            Time = e.Time
+                            Path = e.Path
+                            Change = e.Change
+                            Invalidated = e.Invalidated
+                        }
+                ]
+            ComputedModels =
+                [
+                    for (path, kind, time) in site.ComputedModels ->
+                        {
+                            Time = time
+                            Source = path
+                            OutputKind = string<OutputKind> kind
+                        }
+                ]
+            Errors = [ for (time, msg) in site.Errors -> { Time = time; Message = msg } ]
+        }
+
+    let toJson (doctor: Doctor) =
+        System.Text.Json.JsonSerializer.Serialize(doctor, System.Text.Json.JsonSerializerOptions(WriteIndented = true))
+
+    /// A single HTML page with inline styles, independent of the site template so it works when that is broken.
+    let toHtml (doctor: Doctor) =
+        let sb = StringBuilder()
+        let encode (s: string) = System.Web.HttpUtility.HtmlEncode s
+        let str (o: string option) = defaultArg o ""
+
+        let time (t: DateTime option) =
+            t |> Option.map (fun t -> t.ToString("HH:mm:ss")) |> str
+
+        let section (title: string) =
+            sb.AppendFormat("<h2>{0}</h2>\n", encode title) |> ignore
+
+        let para (text: string) =
+            sb.AppendFormat("<p>{0}</p>\n", encode text) |> ignore
+
+        let table (headers: string list) (rows: string list list) =
+            if rows.IsEmpty then
+                para "none"
+            else
+                sb.Append("<table><thead><tr>") |> ignore
+
+                for h in headers do
+                    sb.AppendFormat("<th>{0}</th>", encode h) |> ignore
+
+                sb.Append("</tr></thead><tbody>\n") |> ignore
+
+                for row in rows do
+                    sb.Append("<tr>") |> ignore
+
+                    for cell in row do
+                        sb.AppendFormat("<td>{0}</td>", encode cell) |> ignore
+
+                    sb.Append("</tr>\n") |> ignore
+
+                sb.Append("</tbody></table>\n") |> ignore
+
+        let resolution (name: string) (r: ResolutionDiagnostics) =
+            [ name; str r.Chosen; String.concat ", " r.Tried; str r.Note ]
+
+        sb.Append(
+            "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>fsdocs doctor</title><style>"
+            + "body{font-family:system-ui,sans-serif;margin:2rem;color:#222}table{border-collapse:collapse;margin:.5rem 0 1rem;font-size:.9rem}"
+            + "th,td{border:1px solid #ccc;padding:.2rem .5rem;text-align:left;vertical-align:top;word-break:break-all}th{background:#eee}"
+            + "h2{margin-top:2rem;border-bottom:1px solid #ccc}code{background:#f4f4f4;padding:0 .2rem}.err{color:#b00}"
+            + "</style></head><body>\n"
+        )
+        |> ignore
+
+        sb.AppendFormat(
+            "<h1>fsdocs doctor</h1>\n<p>fsdocs {0}, <code>fsdocs {1}</code>. ",
+            encode doctor.ToolVersion,
+            encode doctor.CommandLine
+        )
+        |> ignore
+
+        sb.Append("Machine readable: <a href=\"/.fsdocs/doctor.json\">/.fsdocs/doctor.json</a></p>\n")
+        |> ignore
+
+        section "Session"
+
+        table
+            [ "Setting"; "Value" ]
+            [
+                [ "command"; doctor.Command ]
+                [ "input"; doctor.Input ]
+                [ "root"; doctor.Root ]
+                [ "collection name"; doctor.CollectionName ]
+                [ "llms.txt"; string<bool> doctor.GenerateLlmsTxt ]
+                [ "_head.html"; str doctor.HeadTemplate ]
+                [ "_body.html"; str doctor.BodyTemplate ]
+                [ "menu templates"; string<bool> doctor.MenuTemplatesFound ]
+            ]
+
+        if not doctor.IgnoredOptions.IsEmpty then
+            table [ "Ignored option"; "Reason" ] [ for o in doctor.IgnoredOptions -> [ "--" + o.Option; o.Reason ] ]
+
+        section "Errors"
+        table [ "Time"; "Message" ] [ for e in doctor.Errors -> [ e.Time.ToString("HH:mm:ss"); e.Message ] ]
+
+        section "Projects"
+
+        table
+            [ "Project"; "Target"; "Exists"; "References kept"; "References dropped"; "Overriding substitutions" ]
+            [
+                for p in doctor.Projects ->
+                    [
+                        p.ProjectFile
+                        p.TargetPath
+                        string<bool> p.TargetExists
+                        string<int> p.References.Length
+                        String.concat ", " p.DroppedReferences
+                        p.OverridingSubstitutions
+                        |> List.map (fun s -> sprintf "%s = %s" s.Key s.Value)
+                        |> String.concat ", "
+                    ]
+            ]
+
+        section "API docs"
+
+        table
+            [ "Setting"; "Value" ]
+            [
+                [ "status"; doctor.Api.Status ]
+                [ "built at"; time doctor.Api.BuiltAt ]
+                [ "output kind"; doctor.Api.OutputKind ]
+                [ "template"; str doctor.Api.Template ]
+                [ "dlls"; String.concat ", " doctor.Api.Dlls ]
+                [ "namespaces"; string<int> doctor.Api.Namespaces ]
+                [ "entities"; string<int> doctor.Api.Entities ]
+                [ "pages"; string<int> doctor.Api.Pages ]
+                [ "error"; str doctor.Api.Error ]
+            ]
+
+        section "Substitutions"
+        table [ "Key"; "Value"; "Source" ] [ for s in doctor.Substitutions -> [ s.Key; s.Value; s.Source ] ]
+
+        section "Templates and extras"
+
+        table
+            [ "What"; "Chosen"; "Tried"; "Note" ]
+            [
+                resolution "default template" doctor.DefaultTemplate
+                resolution "default markdown template" doctor.DefaultMarkdownTemplate
+                resolution "API docs template" doctor.ApiDocsTemplate
+                resolution "extras folder" doctor.Extras
+            ]
+
+        section "Navigation"
+
+        table
+            [ "Title"; "Title from"; "Category"; "Category index"; "Index"; "Source"; "Url" ]
+            [
+                for p in doctor.NavPages ->
+                    [
+                        p.Title
+                        p.TitleSource
+                        str p.Category
+                        p.CategoryIndex |> Option.map string<int> |> str
+                        p.Index |> Option.map string<int> |> str
+                        p.Source
+                        p.Url
+                    ]
+            ]
+
+        section "Requested pages"
+
+        table
+            [ "Url"; "State"; "Last built"; "Error" ]
+            [ for u in doctor.Urls -> [ u.Url; u.State; time u.LastBuilt; str u.LastError ] ]
+
+        section "Computed page models"
+
+        table
+            [ "Time"; "Source"; "Output" ]
+            [ for c in List.rev doctor.ComputedModels -> [ c.Time.ToString("HH:mm:ss"); c.Source; c.OutputKind ] ]
+
+        section "Recent file events"
+
+        table
+            [ "Time"; "Path"; "Change"; "Invalidated" ]
+            [
+                for e in List.rev doctor.Events ->
+                    [ e.Time.ToString("HH:mm:ss"); e.Path; e.Change; string<bool> e.Invalidated ]
+            ]
+
+        section "Routes"
+
+        table
+            [ "Url"; "Kind"; "Source"; "Template" ]
+            [ for r in doctor.Routes -> [ r.Url; r.Kind; r.Source; str r.Template ] ]
+
+        section "Skipped files"
+        table [ "Path"; "Reason" ] [ for s in doctor.Skipped -> [ s.Path; s.Reason ] ]
+
+        sb.Append("</body></html>\n") |> ignore
+        sb.ToString()
+
+/// The Suave application serving a Site.
 module internal DevServer =
 
     let errorPage (url: string) (ex: exn) =
         let encode (s: string) = System.Web.HttpUtility.HtmlEncode s
 
         sprintf
-            "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>fsdocs: error</title></head><body style=\"font-family: sans-serif\"><h1>fsdocs could not build %s</h1><pre style=\"white-space: pre-wrap\">%s</pre><p>Fix the file and reload.</p>%s</body></html>"
+            "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>fsdocs: error</title></head><body style=\"font-family: sans-serif\"><h1>fsdocs could not build %s</h1><pre style=\"white-space: pre-wrap\">%s</pre><p>Fix the file and reload. See <a href=\"/.fsdocs/doctor\">/.fsdocs/doctor</a>.</p>%s</body></html>"
             (encode url)
             (encode (string<exn> ex))
             (Serve.generateWatchScript ())
@@ -1687,10 +2160,30 @@ module internal DevServer =
                                 ctx
             }
 
+        let doctor (render: Doctor -> string) (mime: string) (ctx: HttpContext) =
+            async {
+                do! Async.SwitchToThreadPool()
+
+                try
+                    let text = render (Doctor.ofSite site)
+                    return! (Writers.setMimeType mime >=> Successful.OK text) ctx
+                with ex ->
+                    return!
+                        (Writers.setMimeType "text/plain; charset=utf-8"
+                         >=> ServerErrors.INTERNAL_ERROR(string<exn> ex))
+                            ctx
+            }
+
         choose
             [
                 path "/" >=> Redirection.redirect "/index.html"
                 path "/websocket" >=> handShake liveReload.SocketHandler
+                path "/.fsdocs/doctor"
+                >=> noCache
+                >=> doctor Doctor.toHtml "text/html; charset=utf-8"
+                path "/.fsdocs/doctor.json"
+                >=> noCache
+                >=> doctor Doctor.toJson "application/json; charset=utf-8"
                 noCache >=> serve
             ]
 
