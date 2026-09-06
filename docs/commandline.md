@@ -113,7 +113,8 @@ reconciler walks the watched folders every two seconds as a guard against missed
 A page that fails to build returns a `500` with the error message; the other pages keep working and the
 process stays up, even with `--strict`.
 
-The search index (`index.json`) and `llms.txt` are the only URLs that need every page.
+The search index (`index.json`) and `llms.txt` are the only URLs that need every page, and they are only
+requested when the search dialog is first opened.
 
 Two diagnostic pages are served under the reserved `/.fsdocs/` prefix:
 
