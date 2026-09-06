@@ -18,9 +18,17 @@
   <ItemGroup>
     <Compile Include="Options.fs" />
     <Compile Include="ProjectCracker.fs" />
+    <Compile Include="DocContent.fs" />
+    <Compile Include="LlmsTxt.fs" />
+    <Compile Include="Diagnostics.fs" />
+    <Compile Include="DevServer.fs" />
     <Compile Include="BuildCommand.fs" />
     <Compile Include="InitCommand.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="fsdocs-tool.Tests" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,5 +59,6 @@
     <PackageReference Include="CommandLineParser" />
     <PackageReference Include="Ionide.ProjInfo" />
     <PackageReference Include="Suave" />
+    <PackageReference Include="FSharp.Data.Adaptive" />
   </ItemGroup>
 </Project>

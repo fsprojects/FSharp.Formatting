@@ -546,11 +546,12 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let toc = listOfNamespaces true true None
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
 
-    /// Writes all API documentation Markdown files (index, one per namespace, one per entity)
-    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
-    member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
+    /// The pages of the API documentation: the output file relative to the output folder
+    /// (forward slashes) and a function rendering the page for a template and global substitutions.
+    /// Nothing is rendered until the function is called.
+    member _.Pages(collectionName: string) : (string * (string option -> Substitutions -> string)) list =
 
-        let getSubstitutons parameters toc (content: MarkdownDocument) pageTitle =
+        let getSubstitutons parameters toc (content: MarkdownDocument) pageTitle globalParameters =
             [|
                 yield! parameters
                 yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
@@ -561,58 +562,65 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 yield! globalParameters
             |]
 
+        let page outFile parameters toc (content: unit -> MarkdownDocument) pageTitle =
+            let render (templateOpt: string option) (globalParameters: Substitutions) =
+                let substitutions = getSubstitutons parameters toc (content ()) pageTitle globalParameters
+
+                SimpleTemplating.RenderWithFileTemplate(substitutions, templateOpt)
+
+            outFile, render
+
         let collection = model.Collection
 
-        (let content =
-            MarkdownDocument(
-                [
-                    ``#`` [ !!"API Reference" ]
-                    ``##`` [ !!"Available Namespaces" ]
-                    ul [ (listOfNamespacesAux false false None) ]
-                ],
-                Map.empty
-            )
+        [
+            (let content () =
+                MarkdownDocument(
+                    [
+                        ``#`` [ !!"API Reference" ]
+                        ``##`` [ !!"Available Namespaces" ]
+                        ul [ (listOfNamespacesAux false false None) ]
+                    ],
+                    Map.empty
+                )
 
-         let pageTitle = sprintf "%s (API Reference)" collectionName
+             let pageTitle = sprintf "%s (API Reference)" collectionName
 
-         let toc = listOfNamespaces false true None
+             let toc = listOfNamespaces false true None
 
-         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
+             let outFile = model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
 
-         let outFile =
-             Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
+             page outFile model.Substitutions toc content pageTitle)
 
-         printfn "  Generating %s" outFile
-         SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile))
+            for nsIndex, ns in Seq.indexed collection.Namespaces do
 
-        ()
+                let content () =
+                    MarkdownDocument(namespaceContent (nsIndex, ns), Map.empty)
 
-        for nsIndex, ns in Seq.indexed collection.Namespaces do
+                let pageTitle = ns.Name
+                let toc = listOfNamespaces false true (Some ns)
 
-            let content = MarkdownDocument(namespaceContent (nsIndex, ns), Map.empty)
+                let outFile = ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
 
-            let pageTitle = ns.Name
-            let toc = listOfNamespaces false true (Some ns)
+                page outFile model.Substitutions toc content pageTitle
 
-            let substitutions = getSubstitutons model.Substitutions toc content pageTitle
+            for info in model.EntityInfos do
+                let content () =
+                    MarkdownDocument(entityContent info, Map.empty)
 
-            let outFile =
-                Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
+                let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
 
+                let toc = listOfNamespaces false true (Some info.Namespace)
+
+                let outFile = info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
+
+                page outFile info.Entity.Substitutions toc content pageTitle
+        ]
+
+    /// Writes all API documentation Markdown files (index, one per namespace, one per entity)
+    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
+    member x.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
+        for (relativeFile, render) in x.Pages(collectionName) do
+            let outFile = Path.Combine(outDir, relativeFile)
+            let outputText = render templateOpt globalParameters
             printfn "  Generating %s" outFile
-            SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
-
-        for info in model.EntityInfos do
-            let content = MarkdownDocument(entityContent info, Map.empty)
-
-            let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
-
-            let toc = listOfNamespaces false true (Some info.Namespace)
-
-            let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
-
-            let outFile =
-                Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
-
-            printfn "  Generating %s" outFile
-            SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
+            SimpleTemplating.WriteOutputFile(outFile, outputText)

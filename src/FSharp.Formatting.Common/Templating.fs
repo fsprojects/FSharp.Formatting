@@ -298,11 +298,14 @@ module internal SimpleTemplating =
              | false, _ -> "")
         | Some templateText -> ApplySubstitutionsInText substitutions templateText
 
-    let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =
+    /// Read the template file (if any) and apply the substitutions, returning the output text.
+    let RenderWithFileTemplate (substitutions: (ParamKey * string) seq, templateOpt: string option) =
         let templateTextOpt = templateOpt |> Option.map System.IO.File.ReadAllText
 
-        let outputText = ApplySubstitutions substitutions templateTextOpt
+        ApplySubstitutions substitutions templateTextOpt
 
+    /// Write the output text to the file, creating the containing directory when needed.
+    let WriteOutputFile (outputFile: string, outputText: string) =
         try
             let path = Path.GetFullPath(outputFile) |> Path.GetDirectoryName
 
@@ -311,3 +314,7 @@ module internal SimpleTemplating =
             ()
 
         File.WriteAllText(outputFile, outputText)
+
+    let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =
+        let outputText = RenderWithFileTemplate(substitutions, templateOpt)
+        WriteOutputFile(outputFile, outputText)
