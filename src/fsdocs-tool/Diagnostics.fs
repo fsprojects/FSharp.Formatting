@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Reflection
 open FSharp.Formatting.Templating
+open FSharp.Formatting.ApiDocs
 
 /// A command line option without effect for the current command.
 type IgnoredOption = { Option: string; Reason: string }
@@ -38,6 +39,32 @@ type ResolutionDiagnostics =
         Tried: string list
         Chosen: string option
         Note: string option
+    }
+
+/// The compiler references of one project, from its design-time build.
+type internal ProjectReferences =
+    {
+        ProjectFile: string
+        /// References that exist on disk and are passed to the F# compiler
+        References: string list
+        /// References dropped because they were not on disk
+        DroppedReferences: string list
+    }
+
+/// Everything derived from the project files: the site-wide substitutions, the inputs of the API
+/// docs and the diagnostics about the projects. Recomputed by 'watch' when a project file changes.
+[<ReferenceEquality>]
+type internal CrackResult =
+    {
+        Substitutions: Substitutions
+        SubstitutionDiagnostics: SubstitutionDiagnostics list
+        ApiDocInputs: ApiDocInput list
+        /// The compiler flags for the API docs: references and user options
+        ApiDocOtherFlags: string list
+        /// Folders where referenced DLLs are found
+        LibDirs: string list
+        Projects: ProjectDiagnostics list
+        References: ProjectReferences list
     }
 
 /// Everything known about a build or watch session before any page is generated.

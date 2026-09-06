@@ -21,6 +21,9 @@
 ### Fixed
 * Fix `FrontMatterFile.ParseFromLines` truncating front-matter values that contain a `:` character (e.g. `title: F#: An Introduction` was previously captured as just `F#`). Additional colons in a value are now preserved.
 
+### Added
+* `fsdocs watch` builds the API reference in the background at startup and after a project DLL or project file change, so no page request waits for it. Project files and the solution-wide MSBuild files are watched: a change re-cracks the projects, so substitutions such as `<FsDocsLogoSource>` and the compiler references are picked up without a restart.
+
 ### Removed
 * Remove the `--noserver` option of `fsdocs watch`; watching without serving no longer does anything now that no output folder is written.
 

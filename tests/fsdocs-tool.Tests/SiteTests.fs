@@ -19,6 +19,7 @@ type internal Fixture() =
 
     let input = root </> "docs"
     let extras = root </> "extras"
+    let project = root </> "Lib.fsproj"
 
     do
         Directory.CreateDirectory input |> ignore
@@ -27,7 +28,7 @@ type internal Fixture() =
 
         File.WriteAllText(
             input </> "_template.html",
-            "<html><body><nav>{{fsdocs-list-of-documents}}</nav><main>{{fsdocs-content}}</main></body></html>"
+            "<html><body><nav>{{fsdocs-list-of-documents}}</nav><main>{{fsdocs-content}}</main><footer>{{fsdocs-collection-name}}</footer></body></html>"
         )
 
         File.WriteAllText(input </> "index.md", "# Home\n\nWelcome.\n")
@@ -49,9 +50,11 @@ type internal Fixture() =
         File.WriteAllText(input </> "x.md", "# X from input\n")
         File.WriteAllText(extras </> "x.md", "# X from extras\n")
         File.WriteAllText(extras </> "logo.png", "png")
+        File.WriteAllText(project, "Collection v1\n")
 
     member _.Input = input
     member _.Extras = extras
+    member _.Project = project
 
     member _.Config: SiteConfig =
         {
@@ -74,8 +77,26 @@ type internal Fixture() =
             ApiDllPaths = []
             ApiDocsOutputKind = OutputKind.Html
             ApiDocsTemplate = None
-            GenerateApi = (fun _ -> None)
-            ResolvedReferences = (fun () -> None)
+            GenerateApi = (fun _ _ -> None)
+            Crack =
+                (fun () ->
+                    {
+                        Substitutions =
+                            [
+                                FSharp.Formatting.Templating.ParamKey "fsdocs-collection-name",
+                                (if File.Exists project then
+                                     File.ReadAllText(project).Trim()
+                                 else
+                                     "Test")
+                            ]
+                        SubstitutionDiagnostics = []
+                        ApiDocInputs = []
+                        ApiDocOtherFlags = []
+                        LibDirs = []
+                        Projects = []
+                        References = []
+                    })
+            ProjectFiles = [ project ]
             WatchScript = ""
             Diagnostics =
                 {
@@ -324,3 +345,30 @@ let ``a broken page fails alone and recovers`` () =
     site.Refresh nb |> shouldEqual true
     body (site.Render "/broken.html") |> shouldContainText "Fixed"
     File.Delete cFile
+
+[<Test>]
+let ``a project file change re-cracks and recomputes the pages`` () =
+    let fx = Fixture()
+    use site = new Site(fx.Config)
+    body (site.Render "/index.html") |> shouldContainText "Collection v1"
+    computedSince site [ "index.md" ]
+
+    // a byte-identical rewrite of the project file changes nothing
+    File.WriteAllText(fx.Project, "Collection v1\n")
+    site.Refresh fx.Project |> shouldEqual false
+    body (site.Render "/index.html") |> ignore
+    computedSince site []
+
+    File.WriteAllText(fx.Project, "Collection v2\n")
+    site.Refresh fx.Project |> shouldEqual true
+    body (site.Render "/index.html") |> shouldContainText "Collection v2"
+    computedSince site [ "index.md" ]
+    body (site.Render "/sub/c.html") |> shouldContainText "Collection v2"
+
+    // A change of the same length that keeps the last write time, as two quick writes get on
+    // Windows, where the granularity of the file time is coarser than the write itself
+    let writtenAt = File.GetLastWriteTimeUtc fx.Project
+    File.WriteAllText(fx.Project, "Collection v3\n")
+    File.SetLastWriteTimeUtc(fx.Project, writtenAt)
+    site.Refresh fx.Project |> shouldEqual true
+    body (site.Render "/index.html") |> shouldContainText "Collection v3"

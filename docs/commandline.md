@@ -103,12 +103,14 @@ such as images and css are served from their source location. A browser will be 
     fsdocs watch
 
 The input directory (e.g. `docs`) and the extra content shipped with the tool are watched, together with the
-project output DLLs used for the API docs. Every change goes through the same pipeline: the file is
+project files, the solution-wide MSBuild files (`Directory.Build.props` and friends) and the project output
+DLLs used for the API docs. Every change goes through the same pipeline: the file is
 stat-ed, its content hashed when the content matters, and only a real change invalidates the pages that
 depend on it. A byte-identical rewrite (for example by a formatter) invalidates nothing. Editing a heading in
 `a.md` rebuilds `a.html` on the next request and refreshes the navigation of the other pages without
-rebuilding them; touching a project DLL rebuilds the API reference on the next request. A background
-reconciler walks the watched folders every two seconds as a guard against missed file system events.
+rebuilding them; a project DLL or project file change re-cracks the projects and rebuilds the API reference in the
+background. The API reference is also built in the background at startup, so the first page does not wait
+for it. A background reconciler walks the watched folders every two seconds as a guard against missed file system events.
 
 A page that fails to build returns a `500` with the error message; the other pages keep working and the
 process stays up, even with `--strict`.
@@ -123,7 +125,8 @@ Two diagnostic pages are served under the reserved `/.fsdocs/` prefix:
   state of every requested page, the recent file events and the collected errors.
 - `/.fsdocs/doctor.json`: the same as JSON, handy for troubleshooting with an LLM.
 
-Restarting may be necessary on changes to project files. The same parameters as `build` are accepted
+Adding a project to the solution, or changing a project's output path, still needs a restart. The same
+parameters as `build` are accepted
 (`--output`, `--clean` and `--saveimages` are ignored with a note), plus these:
 
 | Command Line Option                 |  Description    |
