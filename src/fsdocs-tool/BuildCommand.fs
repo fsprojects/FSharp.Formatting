@@ -177,45 +177,52 @@ type CoreBuildOptions(watch) =
         // See https://github.com/ionide/proj-info/issues/123
         let prevDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")
 
+        let extraMsbuildProperties =
+            this.extraMsbuildProperties
+            |> Seq.toList
+            |> List.map (fun s ->
+                let arr = s.Split("=")
+
+                if arr.Length > 1 then
+                    arr.[0], String.concat "=" arr.[1..]
+                else
+                    failwith "properties must be of the form 'PropName=PropValue'")
+
+        let getTime (p: string) =
+            try
+                File.GetLastWriteTimeUtc(p)
+            with _ ->
+                DateTime.Now
+
+        let discoveredCollectionName, projectFiles =
+            Crack.discoverProjects userCollectionName (Seq.toList this.projects) this.ignoreprojects
+
+        // The cracked projects are cached in '.fsdocs/cache' until a project file, one of the
+        // solution-wide MSBuild files, the options or the tool change.
+        let crackKey =
+            let msbuildFiles =
+                [ "Directory.Build.props"; "Directory.Build.targets"; "Directory.Packages.props"; "global.json" ]
+                |> List.filter File.Exists
+
+            (userRoot,
+             Seq.toList this.parameters,
+             extraMsbuildProperties,
+             projectFiles,
+             getTime (typeof<CoreBuildOptions>.Assembly.Location),
+             (projectFiles @ msbuildFiles |> List.map getTime |> List.toArray))
+
         let (root, collectionName, crackedProjects, paths, docsSubstitutions, generateLlmsTxt), _key =
-            let projects = Seq.toList this.projects
-            let cacheFile = ".fsdocs/cache"
-
-            let getTime (p: string) =
-                try
-                    File.GetLastWriteTimeUtc(p)
-                with _ ->
-                    DateTime.Now
-
-            let key1 =
-                (userRoot,
-                 this.parameters,
-                 projects,
-                 getTime (typeof<CoreBuildOptions>.Assembly.Location),
-                 (projects |> List.map getTime |> List.toArray))
-
-            Utils.cacheBinary cacheFile (fun (_, key2) -> key1 = key2) (fun () ->
-                let props =
-                    this.extraMsbuildProperties
-                    |> Seq.toList
-                    |> List.map (fun s ->
-                        let arr = s.Split("=")
-
-                        if arr.Length > 1 then
-                            arr.[0], String.concat "=" arr.[1..]
-                        else
-                            failwith "properties must be of the form 'PropName=PropValue'")
-
+            Utils.cacheBinary ".fsdocs/cache" (fun (_, key2) -> crackKey = key2) (fun () ->
                 Crack.crackProjects (
                     onError,
-                    props,
+                    extraMsbuildProperties,
                     userRoot,
-                    userCollectionName,
                     userParameters,
-                    projects,
+                    discoveredCollectionName,
+                    projectFiles,
                     this.ignoreprojects
                 ),
-                key1)
+                crackKey)
 
         // See https://github.com/ionide/proj-info/issues/123
         System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
@@ -277,33 +284,69 @@ type CoreBuildOptions(watch) =
                     }
             ]
 
-        // The '-r:' references of each project, split by whether they exist on disk.
-        let projectReferences =
-            [
-                for project in crackedProjects ->
-                    let refs =
-                        [
-                            for otherFlag in project.OtherOptions do
-                                if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
-                                    otherFlag
-                        ]
+        // The '-r:' references of each project, split by whether they exist on disk. They come from
+        // a design-time build, the expensive part of project cracking, so they are resolved only when
+        // the API docs are generated and cached in '.fsdocs/references' with the same key as the projects.
+        let projectReferences: Lazy<(Crack.CrackedProject * string list * string list) list> =
+            lazy
+                (let resolved, _ =
+                    Utils.cacheBinary ".fsdocs/references" (fun (_, key2) -> crackKey = key2) (fun () ->
+                        printfn "  resolving the references of %d projects..." crackedProjects.Length
 
-                    let kept, dropped = refs |> List.partition (fun r -> File.Exists(r.[3..]))
-                    project, kept, dropped
-            ]
+                        let options =
+                            Crack.resolveCompilerOptions
+                                extraMsbuildProperties
+                                [ for project in crackedProjects -> project.ProjectFileName, project.TargetFrameworks ]
+
+                        [
+                            for project in crackedProjects ->
+                                project.ProjectFileName,
+                                (options.TryFind project.ProjectFileName |> Option.defaultValue [])
+                        ],
+                        crackKey)
+
+                 let optionsByProject = Map.ofList resolved
+
+                 [
+                     for project in crackedProjects ->
+                         let refs =
+                             [
+                                 for otherFlag in optionsByProject.[project.ProjectFileName] do
+                                     if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
+                                         otherFlag
+                             ]
+
+                         let kept, dropped = refs |> List.partition (fun r -> File.Exists(r.[3..]))
+
+                         for r in dropped do
+                             printfn "NOTE: the reference '%s' was not seen on disk, ignoring" r
+
+                         project, kept, dropped
+                 ])
 
         // Compute the merge of all referenced DLLs across all projects
         // so they can be resolved during API doc generation.
         //
         // TODO: This is inaccurate: the different projects might not be referencing the same DLLs.
         // We should do doc generation for each output of each proejct separately
-        let apiDocOtherFlags =
+        let apiDocOtherFlags () =
             [
-                for (_, kept, _) in projectReferences do
+                for (_, kept, _) in projectReferences.Force() do
                     yield! kept
             ]
             // TODO: This 'distinctBy' is merging references that may be inconsistent across the project set
             |> List.distinctBy (fun ref -> Path.GetFileName(ref.[3..]))
+
+        /// The references per project file once they have been resolved, for the doctor
+        let resolvedReferences () =
+            if projectReferences.IsValueCreated then
+                projectReferences.Value
+                |> List.map (fun (project, kept, dropped) ->
+                    project.ProjectFileName, (kept |> List.map (fun r -> r.[3..]), dropped))
+                |> Map.ofList
+                |> Some
+            else
+                None
 
         // Only used by 'build'; 'watch' keeps no output folder
         let rootOutputFolderAsGiven =
@@ -458,7 +501,7 @@ type CoreBuildOptions(watch) =
                 IgnoredOptions = this.ignoredOptions
                 Projects =
                     [
-                        for (project, kept, dropped) in projectReferences ->
+                        for project in crackedProjects ->
                             {
                                 ProjectFile = project.ProjectFileName
                                 TargetPath = project.TargetPath
@@ -469,8 +512,6 @@ type CoreBuildOptions(watch) =
                                             if siteSubstitutions.ContainsKey pk && siteSubstitutions.[pk] <> value then
                                                 key, value
                                     ]
-                                References = kept |> List.map (fun r -> r.[3..])
-                                DroppedReferences = dropped
                             }
                     ]
                 Substitutions = Diagnostics.substitutions docsSubstitutions userParameters watchOverrides
@@ -504,7 +545,6 @@ type CoreBuildOptions(watch) =
                 if this.strict then failwith msg else printfn "%s" msg
 
         Diagnostics.printSubstitutions diagnostics
-        Diagnostics.printDroppedReferences diagnostics
         Diagnostics.printExtras diagnostics
 
         // The incremental state (as well as the files written to disk)
@@ -578,7 +618,7 @@ type CoreBuildOptions(watch) =
                             substitutions = docsSubstitutions,
                             qualify = this.qualify,
                             ?template = apiDocsTemplate,
-                            otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                            otherFlags = apiDocOtherFlags () @ Seq.toList this.fscoptions,
                             root = root,
                             libDirs = paths,
                             onError = onError,
@@ -594,7 +634,7 @@ type CoreBuildOptions(watch) =
                             substitutions = docsSubstitutions,
                             qualify = this.qualify,
                             ?template = apiDocsTemplate,
-                            otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                            otherFlags = apiDocOtherFlags () @ Seq.toList this.fscoptions,
                             root = root,
                             libDirs = paths,
                             onError = onError
@@ -794,6 +834,7 @@ type CoreBuildOptions(watch) =
                     ApiDocsOutputKind = apiDocsOutputKind
                     ApiDocsTemplate = apiDocsTemplate
                     GenerateApi = (fun outputFolder -> generateApiDocs outputFolder siteOnError)
+                    ResolvedReferences = resolvedReferences
                     WatchScript = Serve.generateWatchScript ()
                     Diagnostics = diagnostics
                 }
@@ -802,6 +843,7 @@ type CoreBuildOptions(watch) =
             site.Start()
 
             printfn ""
+
             printfn "starting server on http://localhost:%d for content in %s" this.port_option this.input
             printfn "pages are built when first requested; see http://localhost:%d/.fsdocs/doctor" this.port_option
 

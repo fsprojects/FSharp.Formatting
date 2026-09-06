@@ -16,10 +16,6 @@ type internal ProjectDiagnostics =
         TargetExists: bool
         /// Substitutions of this project that differ from the site-wide ones
         OverridingSubstitutions: (string * string) list
-        /// References passed to the F# compiler when generating API docs
-        References: string list
-        /// References dropped because they were not on disk
-        DroppedReferences: string list
     }
 
 /// Where a substitution value came from.
@@ -157,11 +153,6 @@ module internal Diagnostics =
             for p in d.Projects do
                 for (key, value) in p.OverridingSubstitutions do
                     printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(p.TargetPath)) key value
-
-    let printDroppedReferences (d: Diagnostics) =
-        for p in d.Projects do
-            for r in p.DroppedReferences do
-                printfn "NOTE: the reference '%s' was not seen on disk, ignoring" r
 
     let printExtras (d: Diagnostics) =
         match d.Extras.Chosen, d.Extras.Tried with
