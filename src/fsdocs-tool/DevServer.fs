@@ -672,6 +672,8 @@ type internal SiteConfig =
         ApiDocsTemplate: string option
         /// Generate the API docs for a (virtual) output folder, None when there are none
         GenerateApi: string -> ApiDocsPhased option
+        /// The compiler references per project file (kept, dropped), None until the API docs needed them
+        ResolvedReferences: unit -> Map<string, string list * string list> option
         WatchScript: string
         Diagnostics: Diagnostics
     }
@@ -1664,6 +1666,8 @@ type DoctorProject =
         ProjectFile: string
         TargetPath: string
         TargetExists: bool
+        /// 'resolved' once the design-time build ran, else 'not resolved yet'
+        ReferencesStatus: string
         References: string list
         DroppedReferences: string list
         OverridingSubstitutions: DoctorSubstitution list
@@ -1795,12 +1799,20 @@ module internal Doctor =
             Projects =
                 [
                     for p in d.Projects ->
+                        let references =
+                            site.Config.ResolvedReferences()
+                            |> Option.bind (fun m -> m.TryFind p.ProjectFile)
+
                         {
                             ProjectFile = p.ProjectFile
                             TargetPath = p.TargetPath
                             TargetExists = p.TargetExists
-                            References = p.References
-                            DroppedReferences = p.DroppedReferences
+                            ReferencesStatus =
+                                (match references with
+                                 | Some _ -> "resolved"
+                                 | None -> "not resolved yet (no request needed the API docs)")
+                            References = references |> Option.map fst |> Option.defaultValue []
+                            DroppedReferences = references |> Option.map snd |> Option.defaultValue []
                             OverridingSubstitutions =
                                 [
                                     for (k, v) in p.OverridingSubstitutions ->
@@ -2027,14 +2039,17 @@ module internal Doctor =
         section "Projects"
 
         table
-            [ "Project"; "Target"; "Exists"; "References kept"; "References dropped"; "Overriding substitutions" ]
+            [ "Project"; "Target"; "Exists"; "References"; "References dropped"; "Overriding substitutions" ]
             [
                 for p in doctor.Projects ->
                     [
                         p.ProjectFile
                         p.TargetPath
                         string<bool> p.TargetExists
-                        string<int> p.References.Length
+                        (if p.ReferencesStatus = "resolved" then
+                             sprintf "%d resolved" p.References.Length
+                         else
+                             p.ReferencesStatus)
                         String.concat ", " p.DroppedReferences
                         p.OverridingSubstitutions
                         |> List.map (fun s -> sprintf "%s = %s" s.Key s.Value)

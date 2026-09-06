@@ -177,8 +177,26 @@ module DotNetCli =
         ps.WaitForExit()
         output.Trim()
 
-/// Project-cracking logic: uses Ionide.ProjInfo to load MSBuild project options
-/// and extract the fsdocs-specific MSBuild properties.
+    /// Run `dotnet msbuild <args>` and receive the exit code, standard output and standard error.
+    let msbuildResult (pwd: string) (args: string) : int * string * string =
+        let psi = ProcessStartInfo "dotnet"
+        psi.WorkingDirectory <- pwd
+        psi.Arguments <- $"msbuild %s{args}"
+        psi.RedirectStandardOutput <- true
+        psi.RedirectStandardError <- true
+        psi.UseShellExecute <- false
+        psi.CreateNoWindow <- true
+        use ps = new Process()
+        ps.StartInfo <- psi
+        ps.Start() |> ignore
+        let output = ps.StandardOutput.ReadToEndAsync()
+        let error = ps.StandardError.ReadToEndAsync()
+        ps.WaitForExit()
+        ps.ExitCode, output.Result.Trim(), error.Result.Trim()
+
+/// Project-cracking logic: evaluates the fsdocs-specific MSBuild properties of each project
+/// with `dotnet msbuild --getProperty`, and resolves compiler references with Ionide.ProjInfo
+/// only for the projects that take part in the API docs, and only when they are needed.
 module Crack =
 
     [<return: Struct>]
@@ -230,15 +248,14 @@ module Crack =
 
         exitCode, (workingDir, exePath, args)
 
-    type private CrackErrors = GetProjectOptionsErrors of error: string * messages: string list
-
-    /// All fsdocs-relevant MSBuild properties and Ionide project options for a single project,
-    /// obtained after cracking the project file.
+    /// All fsdocs-relevant MSBuild properties of a single project, read by evaluating the project
+    /// (no design-time build).
     type CrackedProjectInfo =
         {
             ProjectFileName: string
-            ProjectOptions: ProjectOptions option
             TargetPath: string option
+            /// The target frameworks of a multi-targeting project, empty otherwise
+            TargetFrameworks: string list
             IsTestProject: bool
             IsLibrary: bool
             IsPackable: bool
@@ -270,169 +287,164 @@ module Crack =
             Copyright: string option
             PackageVersion: string option
             PackageIconUrl: string option
-            //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-            //PackageReleaseNotes : string option
             RepositoryCommit: string option
         }
 
-    /// Uses Ionide.ProjInfo to load the MSBuild project options and custom fsdocs properties
-    /// for a single project file, returning the target-framework list alongside the cracked info.
-    let private crackProjectFileAndIncludeTargetFrameworks _slnDir extraMsbuildProperties (projectFile: string) =
-        let additionalInfo =
+    /// The MSBuild properties fsdocs reads from a project.
+    let private fsdocsProperties =
+        [
+            "TargetPath"
+            "TargetFrameworks"
+            "OutputType"
+            "IsTestProject"
+            "IsPackable"
+            "RepositoryUrl"
+            "UsesMarkdownComments"
+            "FsDocsCollectionNameLink"
+            "FsDocsLogoSource"
+            "FsDocsLogoAlt"
+            "FsDocsFaviconSource"
+            "FsDocsTheme"
+            "FsDocsLogoLink"
+            "FsDocsLicenseLink"
+            "FsDocsReleaseNotesLink"
+            "FsDocsSourceFolder"
+            "FsDocsSourceRepository"
+            "FsDocsWarnOnMissingDocs"
+            "FsDocsGenerateLlmsTxt"
+            "FsDocsAllowExecutableProject"
+            "FsDocsNoInheritedMembers"
+            "FsDocsTypeConstraints"
+            "RepositoryType"
+            "RepositoryBranch"
+            "PackageProjectUrl"
+            "Authors"
+            "GenerateDocumentationFile"
+            //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+            //"Description"
+            "PackageLicenseExpression"
+            "PackageTags"
+            "Copyright"
+            "PackageVersion"
+            "PackageIconUrl"
+            //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+            //"PackageReleaseNotes"
+            "RepositoryCommit"
+        ]
+
+    /// Evaluate the fsdocs properties of a project with `dotnet msbuild --getProperty`.
+    /// This is a plain MSBuild evaluation: no restore, no design-time build, a fraction of a second.
+    let evaluateProperties
+        (extraMsbuildProperties: (string * string) list)
+        (projectFile: string)
+        : Map<string, string> =
+        let args =
             [
-                "OutputType"
-                "IsTestProject"
-                "IsPackable"
-                "RepositoryUrl"
-                "UsesMarkdownComments"
-                "FsDocsCollectionNameLink"
-                "FsDocsLogoSource"
-                "FsDocsLogoAlt"
-                "FsDocsFaviconSource"
-                "FsDocsTheme"
-                "FsDocsLogoLink"
-                "FsDocsLicenseLink"
-                "FsDocsReleaseNotesLink"
-                "FsDocsSourceFolder"
-                "FsDocsSourceRepository"
-                "FsDocsWarnOnMissingDocs"
-                "FsDocsGenerateLlmsTxt"
-                "FsDocsAllowExecutableProject"
-                "FsDocsNoInheritedMembers"
-                "FsDocsTypeConstraints"
-                "RepositoryType"
-                "RepositoryBranch"
-                "PackageProjectUrl"
-                "Authors"
-                "GenerateDocumentationFile"
-                //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-                //"Description"
-                "PackageLicenseExpression"
-                "PackageTags"
-                "Copyright"
-                "PackageVersion"
-                "PackageIconUrl"
-                //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-                //"PackageReleaseNotes"
-                "RepositoryCommit"
-                "TargetFrameworks"
-                "RunArguments"
+                yield sprintf "\"%s\"" projectFile
+                yield "-nologo"
+                for p in fsdocsProperties do
+                    yield "--getProperty:" + p
+                for (k, v) in extraMsbuildProperties do
+                    yield sprintf "-p:%s=\"%s\"" k v
             ]
+            |> String.concat " "
 
-        let customProperties = ("TargetPath" :: additionalInfo)
+        let exitCode, output, error = DotNetCli.msbuildResult (Path.GetDirectoryName projectFile) args
 
-        let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
+        if exitCode <> 0 then
+            failwithf "evaluating '%s' failed (exit code %d):\n%s\n%s" projectFile exitCode output error
 
-        let result =
-            let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
-            let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
-            let toolsPath = Init.init cwd dotnetExe
-            let loader = WorkspaceLoader.Create(toolsPath, extraMsbuildProperties)
+        try
+            use json = System.Text.Json.JsonDocument.Parse output
 
-            use _ =
-                loader.Notifications.Subscribe(fun msg ->
-                    match msg with
-                    | WorkspaceProjectState.Failed(_, err) -> loggedMessages.Enqueue(err.ToString())
-                    | _ -> ())
+            json.RootElement.GetProperty("Properties").EnumerateObject()
+            |> Seq.map (fun p -> p.Name, p.Value.GetString())
+            |> Map.ofSeq
+        with ex ->
+            failwithf "could not read the properties of '%s' from:\n%s\n%s" projectFile output ex.Message
 
-            let projects =
-                loader.LoadProjects([ projectFile ], customProperties, BinaryLogGeneration.Off)
-                |> Seq.toList
+    let private infoOfProperties (projectFile: string) (props: Map<string, string>) : CrackedProjectInfo =
+        let msbuildPropString prop =
+            props
+            |> Map.tryFind prop
+            |> Option.bind (function
+                | s when String.IsNullOrWhiteSpace(s) -> None
+                | s -> Some s)
 
-            match projects with
-            | projOptions :: _ -> Ok(Some projOptions)
-            | [] ->
-                let msgs = loggedMessages.ToArray() |> Array.toList
-                let detail = msgs |> List.tryHead |> Option.defaultWith (fun () -> "not a standard project")
-                printfn $"  skipping project '%s{Path.GetFileName projectFile}': %s{detail}"
-                Ok None
+        let targetFrameworks =
+            match msbuildPropString "TargetFrameworks" with
+            | Some s ->
+                s.Split(";", StringSplitOptions.RemoveEmptyEntries)
+                |> Array.map (fun s' -> s'.Trim())
+                |> Array.toList
+            | None -> []
 
-        let msgs = (loggedMessages.ToArray() |> Array.toList)
+        let msbuildPropBool prop =
+            prop |> msbuildPropString |> Option.bind msbuildPropBool
 
-        match result with
-        | Ok None -> Ok None
-        | Ok(Some projOptions) ->
+        {
+            ProjectFileName = projectFile
+            TargetPath = msbuildPropString "TargetPath"
+            TargetFrameworks = targetFrameworks
+            IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
+            IsLibrary =
+                msbuildPropString "OutputType"
+                |> Option.map (fun s -> s.ToLowerInvariant())
+                |> ((=) (Some "library"))
+            IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
+            RepositoryUrl = msbuildPropString "RepositoryUrl"
+            RepositoryType = msbuildPropString "RepositoryType"
+            RepositoryBranch = msbuildPropString "RepositoryBranch"
+            FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
+            FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
+            FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
+            FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
+            FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
+            FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
+            FsDocsLogoAlt = msbuildPropString "FsDocsLogoAlt"
+            FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
+            FsDocsTheme = msbuildPropString "FsDocsTheme"
+            FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
+            FsDocsGenerateLlmsTxt = msbuildPropBool "FsDocsGenerateLlmsTxt" |> Option.defaultValue true
+            FsDocsAllowExecutableProject = msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
+            FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
+            FsDocsTypeConstraints =
+                msbuildPropString "FsDocsTypeConstraints"
+                |> Option.bind (fun s ->
+                    match s.Trim() with
+                    | "None" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.None
+                    | "Short" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
+                    | "Full" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Full
+                    | _ -> None)
+                |> Option.defaultValue FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
+            UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
+            PackageProjectUrl = msbuildPropString "PackageProjectUrl"
+            Authors = msbuildPropString "Authors"
+            GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
+            PackageLicenseExpression = msbuildPropString "PackageLicenseExpression"
+            PackageTags = msbuildPropString "PackageTags"
+            Copyright = msbuildPropString "Copyright"
+            PackageVersion = msbuildPropString "PackageVersion"
+            PackageIconUrl = msbuildPropString "PackageIconUrl"
+            RepositoryCommit = msbuildPropString "RepositoryCommit"
+        }
 
-            let props =
-                projOptions.CustomProperties
-                |> List.map (fun p -> p.Name, p.Value)
-                |> Map.ofList
-            //printfn "props = %A" (Map.toList props)
-            let msbuildPropString prop =
-                props
-                |> Map.tryFind prop
-                |> Option.bind (function
-                    | s when String.IsNullOrWhiteSpace(s) -> None
-                    | s -> Some s)
+    /// Reads the fsdocs properties of a project. A multi-targeting project has no target path
+    /// until a target framework is chosen; the first one is used.
+    let crackProjectFile extraMsbuildProperties (file: string) : CrackedProjectInfo =
+        let info = infoOfProperties file (evaluateProperties extraMsbuildProperties file)
 
-            let splitTargetFrameworks =
-                function
-                | Some(s: string) ->
-                    s.Split(";", StringSplitOptions.RemoveEmptyEntries)
-                    |> Array.map (fun s' -> s'.Trim())
-                    |> Some
-                | _ -> None
+        match info.TargetPath, info.TargetFrameworks with
+        | None, tfm :: _ ->
+            let props = evaluateProperties (extraMsbuildProperties @ [ "TargetFramework", tfm ]) file
 
-            let targetFrameworks = msbuildPropString "TargetFrameworks" |> splitTargetFrameworks
-
-            let msbuildPropBool prop =
-                prop |> msbuildPropString |> Option.bind msbuildPropBool
-
-            let projOptions2 =
-
-                {
-                    ProjectFileName = projectFile
-                    ProjectOptions = Some projOptions
-                    TargetPath = msbuildPropString "TargetPath"
-                    IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
-                    IsLibrary =
-                        msbuildPropString "OutputType"
-                        |> Option.map (fun s -> s.ToLowerInvariant())
-                        |> ((=) (Some "library"))
-                    IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
-                    RepositoryUrl = msbuildPropString "RepositoryUrl"
-                    RepositoryType = msbuildPropString "RepositoryType"
-                    RepositoryBranch = msbuildPropString "RepositoryBranch"
-                    FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
-                    FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
-                    FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
-                    FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
-                    FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
-                    FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
-                    FsDocsLogoAlt = msbuildPropString "FsDocsLogoAlt"
-                    FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
-                    FsDocsTheme = msbuildPropString "FsDocsTheme"
-                    FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
-                    FsDocsGenerateLlmsTxt = msbuildPropBool "FsDocsGenerateLlmsTxt" |> Option.defaultValue true
-                    FsDocsAllowExecutableProject =
-                        msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
-                    FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
-                    FsDocsTypeConstraints =
-                        msbuildPropString "FsDocsTypeConstraints"
-                        |> Option.bind (fun s ->
-                            match s.Trim() with
-                            | "None" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.None
-                            | "Short" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
-                            | "Full" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Full
-                            | _ -> None)
-                        |> Option.defaultValue FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
-                    UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
-                    PackageProjectUrl = msbuildPropString "PackageProjectUrl"
-                    Authors = msbuildPropString "Authors"
-                    GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
-                    PackageLicenseExpression = msbuildPropString "PackageLicenseExpression"
-                    PackageTags = msbuildPropString "PackageTags"
-                    Copyright = msbuildPropString "Copyright"
-                    PackageVersion = msbuildPropString "PackageVersion"
-                    PackageIconUrl = msbuildPropString "PackageIconUrl"
-                    RepositoryCommit = msbuildPropString "RepositoryCommit"
-                }
-
-            Ok(Some(targetFrameworks, projOptions2))
-        | Error err -> GetProjectOptionsErrors(err, msgs) |> Result.Error
+            { infoOfProperties file props with
+                TargetFrameworks = info.TargetFrameworks
+            }
+        | _ -> info
 
     /// Checks whether the project has been restored (i.e. the assets file exists) and
-    /// calls <c>dotnet restore</c> if not.
+    /// fails if not.
     let private ensureProjectWasRestored (file: string) =
         let projDir = Path.GetDirectoryName(file)
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
@@ -464,35 +476,56 @@ module Crack =
                 // subsequent cracking step will fail with a more specific error.
                 printfn $"Warning: could not verify that project '%s{file}' was restored. Proceeding anyway."
 
-    /// Cracks a single F# project file, selecting the appropriate target framework when
-    /// the project multi-targets, and returns the full <see cref="CrackedProjectInfo"/> or
-    /// <c>None</c> when the project cannot be loaded.
-    let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo option =
-        ensureProjectWasRestored file
+    /// The MSBuild tools path, initialised once per process.
+    let private toolsPath =
+        lazy
+            (let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
+             let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
+             Init.init cwd dotnetExe)
 
-        let result = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties file
-        //printfn "msgs = %A" msgs
-        match result with
-        | Ok None -> None
-        | Ok(Some(Some targetFrameworks, crackedProjectInfo)) when
-            crackedProjectInfo.TargetPath.IsNone && targetFrameworks.Length > 1
-            ->
-            // no targetpath and there are multiple target frameworks
-            // let us retry with first target framework specified:
-            let extraMsbuildPropertiesAndFirstTargetFramework =
-                List.append extraMsbuildProperties [ ("TargetFramework", targetFrameworks.[0]) ]
+    /// Resolve the compiler options (references) of the given projects with a design-time build.
+    /// One Ionide.ProjInfo loader handles all projects that share a target framework choice, so
+    /// shared project references are loaded once. Returns the options per project file; projects
+    /// that fail to load are reported and left out.
+    let resolveCompilerOptions
+        (extraMsbuildProperties: (string * string) list)
+        (projects: (string * string list) list)
+        : Map<string, string list> =
+        for (projectFile, _) in projects do
+            ensureProjectWasRestored projectFile
 
-            let result2 =
-                crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildPropertiesAndFirstTargetFramework file
+        // A multi-targeting project needs its target framework as a global property
+        let groups =
+            projects
+            |> List.groupBy (fun (_, targetFrameworks) ->
+                match targetFrameworks with
+                | tfm :: _ -> Some tfm
+                | [] -> None)
 
-            match result2 with
-            | Ok None -> None
-            | Ok(Some(_, crackedProjectInfo)) -> Some crackedProjectInfo
-            | Error(GetProjectOptionsErrors(err, msgs)) ->
-                failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
-        | Ok(Some(_, crackedProjectInfo)) -> Some crackedProjectInfo
-        | Error(GetProjectOptionsErrors(err, msgs)) ->
-            failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
+        [
+            for (tfm, group) in groups do
+                let properties =
+                    match tfm with
+                    | Some tfm -> extraMsbuildProperties @ [ "TargetFramework", tfm ]
+                    | None -> extraMsbuildProperties
+
+                let loader = WorkspaceLoader.Create(toolsPath.Force(), properties)
+
+                use _ =
+                    loader.Notifications.Subscribe(fun msg ->
+                        match msg with
+                        | WorkspaceProjectState.Failed(file, err) ->
+                            printfn "  could not resolve the references of '%s': %O" (Path.GetFileName file) err
+                        | _ -> ())
+
+                let files = group |> List.map fst
+                let wanted = set files
+
+                for options in loader.LoadProjects(files, [], BinaryLogGeneration.Off) do
+                    if wanted.Contains options.ProjectFileName then
+                        yield options.ProjectFileName, options.OtherOptions
+        ]
+        |> Map.ofList
 
     /// Parses a Visual Studio solution file and returns the ordered list of project file paths.
     let getProjectsFromSlnFile (slnPath: string) =
@@ -505,11 +538,12 @@ module Crack =
     /// Discovers project files (from solutions, directories, or explicit lists),
     /// cracks each one, and returns the collection name, collection URL, and per-project info.
     /// A project whose API documentation is generated, with the settings read from the project file.
+    /// The compiler references are not part of it: see resolveCompilerOptions.
     type CrackedProject =
         {
             ProjectFileName: string
             TargetPath: string
-            OtherOptions: string list
+            TargetFrameworks: string list
             RepositoryUrl: string option
             RepositoryBranch: string option
             RepositoryType: string option
@@ -522,9 +556,9 @@ module Crack =
             Substitutions: (ParamKey * string) list
         }
 
-    let crackProjects
-        (onError, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects, ignoreProjects)
-        : string * string * CrackedProject list * string list * (ParamKey * string) list * bool =
+    /// Find the project files to document: the projects given explicitly, else the solution in the
+    /// current folder, else the project files up to two folders deep. Returns the collection name too.
+    let discoverProjects (userCollectionName: string option) (projects: string list) (ignoreProjects: bool) =
         let slnDir = Path.GetFullPath "."
 
         //printfn "x.projects = %A" x.projects
@@ -575,7 +609,9 @@ module Crack =
         //printfn "projects = %A" projectFiles
         let projectFiles =
             projectFiles
-            |> List.filter (fun s ->
+            |> List.choose (fun projectFile ->
+                let s = Path.GetFullPath projectFile
+
                 let isFSharpFormattingTestProject =
                     s.Contains $"FSharp.ApiDocs.Tests%c{Path.DirectorySeparatorChar}files"
                     || s.EndsWith("FSharp.Formatting.TestHelpers.fsproj", StringComparison.Ordinal)
@@ -584,8 +620,24 @@ module Crack =
                     printfn
                         $"  skipping project '%s{Path.GetFileName s}' because the project is part of the FSharp.Formatting test suite."
 
-                not isFSharpFormattingTestProject)
+                    None
+                else
+                    Some s)
 
+        collectionName, projectFiles
+
+    /// Crack the discovered projects: evaluate their properties, keep the documentable ones and
+    /// compute the site-wide substitutions.
+    let crackProjects
+        (
+            onError,
+            extraMsbuildProperties,
+            userRoot,
+            userParameters,
+            collectionName: string,
+            projectFiles: string list,
+            ignoreProjects
+        ) : string * string * CrackedProject list * string list * (ParamKey * string) list * bool =
         //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 && (ignoreProjects |> not) then
             printfn "no project files found, no API docs will be generated"
@@ -597,21 +649,26 @@ module Crack =
 
         let projectInfos =
             projectFiles
-            |> Array.ofList
-            |> Array.choose (fun p ->
-                try
-                    crackProjectFile slnDir extraMsbuildProperties p
-                with e ->
-                    printfn
-                        "  skipping project '%s' because an error occurred while cracking it: %O"
-                        (Path.GetFileName p)
-                        e
+            |> List.map (fun p ->
+                async {
+                    return
+                        try
+                            Some(crackProjectFile extraMsbuildProperties p)
+                        with e ->
+                            printfn
+                                "  skipping project '%s' because an error occurred while cracking it: %O"
+                                (Path.GetFileName p)
+                                e
 
-                    if not ignoreProjects then
-                        onError "Project cracking failed and --strict is on, exiting"
+                            if not ignoreProjects then
+                                onError "Project cracking failed and --strict is on, exiting"
 
-                    None)
+                            None
+                })
+            |> Async.Parallel
+            |> Async.RunSynchronously
             |> Array.toList
+            |> List.choose id
 
         //printfn "projectInfos = %A" projectInfos
         let projectInfos =
@@ -670,8 +727,8 @@ module Crack =
         let projectInfoForDocs =
             {
                 ProjectFileName = ""
-                ProjectOptions = None
                 TargetPath = None
+                TargetFrameworks = []
                 IsTestProject = false
                 IsLibrary = true
                 IsPackable = true
@@ -799,15 +856,15 @@ module Crack =
         let crackedProjects =
             projectInfos
             |> List.choose (fun info ->
-                match info.TargetPath, info.ProjectOptions with
-                | Some targetPath, Some projectOptions ->
+                match info.TargetPath with
+                | Some targetPath ->
                     let substitutions = parametersForProjectInfo info
 
                     Some
                         {
                             ProjectFileName = info.ProjectFileName
                             TargetPath = targetPath
-                            OtherOptions = projectOptions.OtherOptions
+                            TargetFrameworks = info.TargetFrameworks
                             RepositoryUrl = info.RepositoryUrl
                             RepositoryBranch = info.RepositoryBranch
                             RepositoryType = info.RepositoryType

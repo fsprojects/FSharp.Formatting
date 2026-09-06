@@ -75,6 +75,7 @@ type internal Fixture() =
             ApiDocsOutputKind = OutputKind.Html
             ApiDocsTemplate = None
             GenerateApi = (fun _ -> None)
+            ResolvedReferences = (fun () -> None)
             WatchScript = ""
             Diagnostics =
                 {
