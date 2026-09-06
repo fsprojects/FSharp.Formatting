@@ -671,9 +671,11 @@ type internal SiteConfig =
         ApiDocsOutputKind: OutputKind
         ApiDocsTemplate: string option
         /// Generate the API docs for a (virtual) output folder, None when there are none
-        GenerateApi: string -> ApiDocsPhased option
-        /// The compiler references per project file (kept, dropped), None until the API docs needed them
-        ResolvedReferences: unit -> Map<string, string list * string list> option
+        GenerateApi: CrackResult -> string -> ApiDocsPhased option
+        /// Re-crack the projects from disk; called when a project file changes
+        Crack: unit -> CrackResult
+        /// The project files and solution-wide MSBuild files that feed the crack
+        ProjectFiles: string list
         WatchScript: string
         Diagnostics: Diagnostics
     }
@@ -691,6 +693,8 @@ type internal Site(config: SiteConfig) =
     let templateFolder = config.DefaultTemplateFolder |> Option.map Path.GetFullPath
     let dllPaths = config.ApiDllPaths |> List.map Path.GetFullPath
     let dllSet = set dllPaths
+    let projectPaths = config.ProjectFiles |> List.map Path.GetFullPath
+    let projectSet = set projectPaths
 
     /// A folder that is never created: output paths are only ever used relatively.
     let virtualOutput = Path.Combine(Path.GetTempPath(), "fsdocs-watch-" + Guid.NewGuid().ToString("N"))
@@ -724,6 +728,7 @@ type internal Site(config: SiteConfig) =
 
     let isWatchedFile (path: string) =
         dllSet.Contains path
+        || projectSet.Contains path
         || treeRoots |> List.exists (fun r -> isUnder r path && not (isInDotFolder r path))
 
     let isMenuTemplate (path: string) =
@@ -742,12 +747,14 @@ type internal Site(config: SiteConfig) =
         || name = "_body.html"
         || isMenuTemplate path
         || dllSet.Contains path
+        || projectSet.Contains path
 
     // ---------------------------------------------------------------------------------------------
     // Inputs of the graph and the change pipeline
 
     let files = cmap<string, FileStamp>()
     let dlls = cmap<string, FileStamp>()
+    let projects = cmap<string, FileStamp>()
     let lastStat = Dictionary<string, struct (int64 * DateTime)>()
     let knownHash = Dictionary<string, string>()
     let refreshLock = obj ()
@@ -837,7 +844,10 @@ type internal Site(config: SiteConfig) =
             elif not (isWatchedFile path) then
                 false
             else
-                let map = if dllSet.Contains path then dlls else files
+                let map =
+                    if dllSet.Contains path then dlls
+                    elif projectSet.Contains path then projects
+                    else files
 
                 match tryStat path with
                 | None ->
@@ -917,6 +927,9 @@ type internal Site(config: SiteConfig) =
             for dll in dllPaths do
                 if File.Exists dll then
                     yield dll
+            for project in projectPaths do
+                if File.Exists project then
+                    yield project
         ]
 
     /// Compare the watched roots with the last snapshot and refresh every difference.
@@ -1145,49 +1158,63 @@ type internal Site(config: SiteConfig) =
             BuiltAt = None
         }
 
-    let buildApi () : ApiState =
+    let mutable apiBuilding = false
+
+    let buildApi (crack: CrackResult) : ApiState =
+        apiBuilding <- true
+
         try
-            match config.GenerateApi virtualOutput with
-            | None -> emptyApi
-            | Some phased ->
-                let model = phased.Model
+            try
+                match config.GenerateApi crack virtualOutput with
+                | None -> emptyApi
+                | Some phased ->
+                    let model = phased.Model
 
-                // Used to resolve code references in content with respect to the API Docs model
-                let resolveInlineCodeReference (s: string) =
-                    if s.StartsWith("cref:", StringComparison.Ordinal) then
-                        match model.Resolver.ResolveCref s.[5..] with
-                        | None -> None
-                        | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
-                    else
-                        None
+                    // Used to resolve code references in content with respect to the API Docs model
+                    let resolveInlineCodeReference (s: string) =
+                        if s.StartsWith("cref:", StringComparison.Ordinal) then
+                            match model.Resolver.ResolveCref s.[5..] with
+                            | None -> None
+                            | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
+                        else
+                            None
 
-                {
-                    Phased = Some phased
-                    Globals = phased.GlobalSubstitutions
-                    CrefResolver = resolveInlineCodeReference
-                    Pages =
-                        phased.Pages
-                        |> List.map (fun (file, render) -> file.Replace("\\", "/"), render)
-                        |> Map.ofList
-                    SearchIndex = phased.SearchIndex
-                    Error = None
+                    {
+                        Phased = Some phased
+                        Globals = phased.GlobalSubstitutions
+                        CrefResolver = resolveInlineCodeReference
+                        Pages =
+                            phased.Pages
+                            |> List.map (fun (file, render) -> file.Replace("\\", "/"), render)
+                            |> Map.ofList
+                        SearchIndex = phased.SearchIndex
+                        Error = None
+                        BuiltAt = Some DateTime.Now
+                    }
+            with ex ->
+                printfn "Error : \n%O" ex
+                contentOptions.OnError(sprintf "API doc generation failed: %s" ex.Message)
+
+                { emptyApi with
+                    Error = Some(string<exn> ex)
                     BuiltAt = Some DateTime.Now
                 }
-        with ex ->
-            printfn "Error : \n%O" ex
-            contentOptions.OnError(sprintf "API doc generation failed: %s" ex.Message)
-
-            { emptyApi with
-                Error = Some(string<exn> ex)
-                BuiltAt = Some DateTime.Now
-            }
+        finally
+            apiBuilding <- false
 
     let stampOf (path: string) : aval<FileStamp option> = AMap.tryFind path files
 
     let sortedStamps (m: amap<string, FileStamp>) =
         m |> AMap.toAVal |> AVal.map (fun m -> m |> HashMap.toList |> List.sort)
 
-    let apiState = sortedStamps dlls |> Adaptive.mapCached (fun _ -> buildApi ())
+    let crackState = sortedStamps projects |> Adaptive.mapCached (fun _ -> config.Crack())
+
+    /// The site-wide substitutions, from the project files
+    let substitutions = crackState |> Adaptive.mapCached (fun c -> c.Substitutions)
+
+    let apiState =
+        AVal.map2 (fun stamps crack -> stamps, crack) (sortedStamps dlls) crackState
+        |> Adaptive.mapCached (fun (_, crack) -> buildApi crack)
 
     let allPaths =
         files
@@ -1263,10 +1290,11 @@ type internal Site(config: SiteConfig) =
                 loadStamps.GetValue token,
                 api.GetValue token,
                 frontMatterList.GetValue token,
-                fileMap.GetValue token)
+                fileMap.GetValue token,
+                substitutions.GetValue token)
 
         inputs
-        |> Adaptive.mapCached (fun (_, _, api, filesWithFrontMatter, fileMap) ->
+        |> Adaptive.mapCached (fun (_, _, api, filesWithFrontMatter, fileMap, substitutions) ->
             let crefResolver =
                 match api with
                 | Some a -> a.CrefResolver
@@ -1285,7 +1313,9 @@ type internal Site(config: SiteConfig) =
 
             let model =
                 Content.computeModel
-                    contentOptions
+                    { contentOptions with
+                        Substitutions = substitutions
+                    }
                     (Some route.RootInputFolder)
                     path
                     route.OutputKind
@@ -1562,15 +1592,20 @@ type internal Site(config: SiteConfig) =
     member _.ComputedModels = computedModels |> Seq.toList
 
     /// The current scan of the input trees.
-    member _.Scan = lock renderLock (fun () -> AVal.force scan)
+    member _.Scan = AVal.force scan
 
-    /// The API docs state when it has been built, None when no request needed it yet.
+    /// The current crack result (re-cracks when a project file changed).
+    member _.CrackResult = AVal.force crackState
+
+    /// The API docs state when it has been built, None when it is not built or being built.
     member _.ApiState =
-        lock renderLock (fun () ->
-            if apiState.OutOfDate then
-                None
-            else
-                Some(AVal.force apiState))
+        if apiState.OutOfDate then
+            None
+        else
+            Some(AVal.force apiState)
+
+    /// Whether the API docs are being generated right now.
+    member _.ApiBuilding = apiBuilding
 
     member _.UrlStates = urlStates.Values |> Seq.sortBy (fun s -> s.Url) |> List.ofSeq
 
@@ -1598,8 +1633,8 @@ type internal Site(config: SiteConfig) =
 
     member _.Config = config
 
-    /// Start the file watchers and the reconciler.
-    member _.Start() =
+    /// Start the file watchers, the reconciler and the background API docs build.
+    member this.Start() =
         // File system events are hints to refresh a path now
         let watcherFor (folder: string) (filter: string) =
             let watcher = new FileSystemWatcher(folder, filter, IncludeSubdirectories = true)
@@ -1626,11 +1661,11 @@ type internal Site(config: SiteConfig) =
             if Directory.Exists root then
                 watcherFor root "*"
 
-        for dll in dllPaths do
-            let dir = Path.GetDirectoryName dll
+        for file in dllPaths @ projectPaths do
+            let dir = Path.GetDirectoryName file
 
             if Directory.Exists dir then
-                watcherFor dir (Path.GetFileName dll)
+                watcherFor dir (Path.GetFileName file)
 
         // The reconciler guards against missed events, atomic saves and network mounts
         let reconciler =
@@ -1646,6 +1681,32 @@ type internal Site(config: SiteConfig) =
             )
 
         disposables.Add reconciler
+
+        // The API docs are needed by almost every page: build them in the background at startup
+        // and again after a DLL or project change, so no request has to wait for them.
+        let buildApiInBackground () =
+            if not dllPaths.IsEmpty then
+                Threading.Tasks.Task.Run(fun () ->
+                    lock renderLock (fun () ->
+                        try
+                            AVal.force apiState |> ignore
+                        with ex ->
+                            printfn "API docs failed: %s" ex.Message))
+                |> ignore
+
+        let apiRebuildScheduled = ref 0
+
+        this.Changed.Add(fun path ->
+            if dllSet.Contains path || projectSet.Contains path then
+                if Interlocked.Exchange(&apiRebuildScheduled.contents, 1) = 0 then
+                    async {
+                        do! Async.Sleep 500
+                        Interlocked.Exchange(&apiRebuildScheduled.contents, 0) |> ignore
+                        buildApiInBackground ()
+                    }
+                    |> Async.Start)
+
+        buildApiInBackground ()
 
     interface IDisposable with
         member _.Dispose() =
@@ -1767,6 +1828,9 @@ module internal Doctor =
         let d = site.Config.Diagnostics
         let scan = site.Scan
         let api = site.ApiState
+        let crack = site.CrackResult
+
+        let referencesByProject = crack.References |> List.map (fun r -> r.ProjectFile, r) |> Map.ofList
 
         let substitution (s: SubstitutionDiagnostics) =
             {
@@ -1798,10 +1862,8 @@ module internal Doctor =
             IgnoredOptions = d.IgnoredOptions
             Projects =
                 [
-                    for p in d.Projects ->
-                        let references =
-                            site.Config.ResolvedReferences()
-                            |> Option.bind (fun m -> m.TryFind p.ProjectFile)
+                    for p in crack.Projects ->
+                        let references = referencesByProject.TryFind p.ProjectFile
 
                         {
                             ProjectFile = p.ProjectFile
@@ -1810,9 +1872,12 @@ module internal Doctor =
                             ReferencesStatus =
                                 (match references with
                                  | Some _ -> "resolved"
-                                 | None -> "not resolved yet (no request needed the API docs)")
-                            References = references |> Option.map fst |> Option.defaultValue []
-                            DroppedReferences = references |> Option.map snd |> Option.defaultValue []
+                                 | None -> "not resolved")
+                            References = references |> Option.map (fun r -> r.References) |> Option.defaultValue []
+                            DroppedReferences =
+                                references
+                                |> Option.map (fun r -> r.DroppedReferences)
+                                |> Option.defaultValue []
                             OverridingSubstitutions =
                                 [
                                     for (k, v) in p.OverridingSubstitutions ->
@@ -1824,7 +1889,7 @@ module internal Doctor =
                                 ]
                         }
                 ]
-            Substitutions = d.Substitutions |> List.map substitution
+            Substitutions = crack.SubstitutionDiagnostics |> List.map substitution
             DefaultTemplate = d.DefaultTemplate
             DefaultMarkdownTemplate = d.DefaultMarkdownTemplate
             ApiDocsTemplate = d.ApiDocsTemplate
@@ -1897,7 +1962,8 @@ module internal Doctor =
                     OutputKind = string<OutputKind> site.Config.ApiDocsOutputKind
                     Status =
                         match api with
-                        | None -> "not built (no request needed it yet)"
+                        | None when site.ApiBuilding -> "building"
+                        | None -> "not built"
                         | Some a when a.Error.IsSome -> "failed"
                         | Some a when a.Phased.IsNone -> "nothing to generate"
                         | Some _ -> "built"
