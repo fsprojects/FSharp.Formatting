@@ -153,6 +153,14 @@ type CoreBuildOptions(watch) =
 
         let userParametersDict = readOnlyDict userParameters
 
+        // The address the watch server is announced on. Page links are relative, so the site works
+        // from any address the server is reachable on; the site URL only feeds the absolute links
+        // (Open Graph metadata, llms.txt).
+        let publicHost =
+            match this.host_option.Trim() with
+            | h when String.IsNullOrEmpty h || h = "0.0.0.0" || h = "*" || h = "+" -> "localhost"
+            | host -> host
+
         // Adjust the user substitutions for 'watch' mode site root
         // The site URL given by the user, if any. '{{root}}' is relative per page, so the user sets
         // the absolute URL as 'fsdocs-site-root'; a 'root' parameter still works but is meant to
@@ -176,7 +184,7 @@ type CoreBuildOptions(watch) =
                 let userRoot =
                     match this.site_root_option with
                     | Some r -> r
-                    | None -> sprintf "http://localhost:%d/" this.port_option
+                    | None -> sprintf "http://%s:%d/" publicHost this.port_option
 
                 if userSiteRoot.IsSome && this.site_root_option.IsNone then
                     logger.Warnf "ignoring the user-specified site root since in watch mode, site root = %s" userRoot
@@ -1023,10 +1031,19 @@ type CoreBuildOptions(watch) =
             site.Start()
             site.CheckAssets()
 
-            logger.Infof "starting server on http://localhost:%d for content in %s" this.port_option this.input
-            logger.Infof "pages are built when first requested; see http://localhost:%d/.fsdocs/doctor" this.port_option
+            logger.Infof
+                "starting server on http://%s:%d (bound to %s) for content in %s"
+                publicHost
+                this.port_option
+                this.host_option
+                this.input
 
-            DevServer.startWebServer site this.port_option
+            logger.Infof
+                "pages are built when first requested; see http://%s:%d/.fsdocs/doctor"
+                publicHost
+                this.port_option
+
+            DevServer.startWebServer site this.host_option this.port_option
 
             if not this.nolaunch_option then
                 let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
@@ -1127,6 +1144,9 @@ type CoreBuildOptions(watch) =
 
     abstract port_option: int
     default x.port_option = 0
+
+    abstract host_option: string
+    default x.host_option = "localhost"
 
     abstract site_root_option: string option
     default x.site_root_option = None
@@ -1582,6 +1602,15 @@ type WatchCommand() =
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
 
+    override x.host_option = x.host
+
+    [<Option("host",
+             Required = false,
+             Default = "localhost",
+             HelpText =
+                 "Address to bind the server to. Use 0.0.0.0 to serve on all interfaces, e.g. to browse from another machine; page links are relative so the site works from any address.")>]
+    member val host = "localhost" with get, set
+
     override x.site_root_option =
         if String.IsNullOrEmpty x.siteroot then
             None
@@ -1592,5 +1621,5 @@ type WatchCommand() =
              Required = false,
              Default = "",
              HelpText =
-                 "The absolute URL of the site ({{fsdocs-site-root}}), only used by the links that must be absolute such as Open Graph metadata and llms.txt; page links are relative. When not set, defaults to http://localhost:<port>/.")>]
+                 "The absolute URL of the site ({{fsdocs-site-root}}), only used by the links that must be absolute such as Open Graph metadata and llms.txt; page links are relative. When not set, defaults to http://<host>:<port>/.")>]
     member val siteroot = "" with get, set

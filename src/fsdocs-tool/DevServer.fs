@@ -449,23 +449,21 @@ module Serve =
         | ".zip" -> Writers.createMimeType "application/x-zip-compressed" false
         | _ -> None
 
-    /// Start the server with the given application; the mime map is used for static files.
-    let startWebServer (app: WebPart) localPort =
-        let defaultBinding = defaultConfig.bindings.[0]
+    /// Normalize a --host value the way Suave's HttpBinding does.
+    let normalizeHost (host: string) =
+        match host.Trim() with
+        | h when String.IsNullOrEmpty h || h = "localhost" -> "127.0.0.1"
+        | "*"
+        | "+" -> "0.0.0.0"
+        | h -> h
 
-        let withPort =
-            { defaultBinding.socketBinding with
-                port = uint16 localPort
-            }
+    /// Start the server with the given application; the mime map is used for static files.
+    let startWebServer (app: WebPart) (host: string) localPort =
+        let host = normalizeHost host
 
         let serverConfig =
             { defaultConfig with
-                bindings =
-                    [
-                        { defaultBinding with
-                            socketBinding = withPort
-                        }
-                    ]
+                bindings = [ HttpBinding.createSimple HTTP host localPort ]
                 mimeTypesMap = mimeTypesMap
             }
 
@@ -2509,7 +2507,7 @@ module internal DevServer =
                 }
                 |> Async.Start)
 
-    let startWebServer (site: Site) (port: int) =
+    let startWebServer (site: Site) (host: string) (port: int) =
         let liveReload = LiveReload()
         connectLiveReload site liveReload
-        Serve.startWebServer (app site liveReload) port
+        Serve.startWebServer (app site liveReload) host port
