@@ -762,9 +762,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc); yield ParamKeys.``fsdocs-body-class``, "api-docs" ]
 
-    member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
+    /// The pages of the API documentation: the output file relative to the output folder
+    /// (forward slashes) and a function rendering the page for a template and global substitutions.
+    /// Nothing is rendered until the function is called.
+    member _.Pages(collectionName: string) : (string * (string option -> Substitutions -> string)) list =
 
-        let getSubstitutons parameters toc (content: HtmlElement) pageTitle =
+        let getSubstitutons parameters toc (content: HtmlElement) pageTitle globalParameters =
             [|
                 yield! parameters
                 yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
@@ -777,61 +780,68 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 yield! globalParameters
             |]
 
+        let page outFile parameters toc (content: unit -> HtmlElement) pageTitle =
+            let render (templateOpt: string option) (globalParameters: Substitutions) =
+                let substitutions = getSubstitutons parameters toc (content ()) pageTitle globalParameters
+
+                SimpleTemplating.RenderWithFileTemplate(substitutions, templateOpt)
+
+            outFile, render
+
         let collection = model.Collection
 
-        (let content =
-            div [] [
-                h1 [] [ !!"API Reference" ]
-                h2 [] [ !!"Available Namespaces:" ]
-                table [ Class "table outer-list fsdocs-member-list" ] [
-                    thead [] [
-                        tr [] [
-                            td [ Class "fsdocs-member-list-header" ] [ !!"Namespace" ]
-                            td [ Class "fsdocs-member-list-header" ] [ !!"Description" ]
+        [
+            (let content () =
+                div [] [
+                    h1 [] [ !!"API Reference" ]
+                    h2 [] [ !!"Available Namespaces:" ]
+                    table [ Class "table outer-list fsdocs-member-list" ] [
+                        thead [] [
+                            tr [] [
+                                td [ Class "fsdocs-member-list-header" ] [ !!"Namespace" ]
+                                td [ Class "fsdocs-member-list-header" ] [ !!"Description" ]
+                            ]
                         ]
+                        tbody [] (tableOfNamespacesAux ())
                     ]
-                    tbody [] (tableOfNamespacesAux ())
                 ]
-            ]
 
-         let pageTitle = sprintf "%s (API Reference)" collectionName
+             let pageTitle = sprintf "%s (API Reference)" collectionName
 
-         let toc = listOfNamespacesNav false None
+             let toc = listOfNamespacesNav false None
 
-         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
+             let outFile = model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
 
-         let outFile =
-             Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
+             page outFile model.Substitutions toc content pageTitle)
 
-         printfn "  Generating %s" outFile
-         SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile))
+            //printfn "Namespaces = %A" [ for ns in collection.Namespaces -> ns.Name ]
 
-        //printfn "Namespaces = %A" [ for ns in collection.Namespaces -> ns.Name ]
+            for (nsIndex, ns) in Seq.indexed collection.Namespaces do
+                let content () = div [] (namespaceContent (nsIndex, ns))
+                let pageTitle = ns.Name
+                let toc = listOfNamespacesNav false (Some ns)
 
-        for (nsIndex, ns) in Seq.indexed collection.Namespaces do
-            let content = div [] (namespaceContent (nsIndex, ns))
-            let pageTitle = ns.Name
-            let toc = listOfNamespacesNav false (Some ns)
+                let outFile = ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
 
-            let substitutions = getSubstitutons model.Substitutions toc content pageTitle
+                page outFile model.Substitutions toc content pageTitle
 
-            let outFile =
-                Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
+            for info in model.EntityInfos do
+                let content () = div [] (entityContent info)
 
+                let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
+
+                let toc = listOfNamespacesNav false (Some info.Namespace)
+
+                let outFile = info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
+
+                page outFile info.Entity.Substitutions toc content pageTitle
+        ]
+
+    /// Writes all API documentation HTML files (index, one per namespace, one per entity)
+    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
+    member x.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
+        for (relativeFile, render) in x.Pages(collectionName) do
+            let outFile = Path.Combine(outDir, relativeFile)
+            let outputText = render templateOpt globalParameters
             printfn "  Generating %s" outFile
-            SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
-
-        for info in model.EntityInfos do
-            let content = div [] (entityContent info)
-
-            let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
-
-            let toc = listOfNamespacesNav false (Some info.Namespace)
-
-            let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
-
-            let outFile =
-                Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
-
-            printfn "  Generating %s" outFile
-            SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
+            SimpleTemplating.WriteOutputFile(outFile, outputText)

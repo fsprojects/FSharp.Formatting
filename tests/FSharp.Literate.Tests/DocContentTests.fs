@@ -810,3 +810,35 @@ let ``ParseFromLines returns None when required fields are missing`` () =
     let lines = [ "---"; "title: No Category Here"; "---" ]
 
     FrontMatterFile.ParseFromLines "test.md" lines |> shouldEqual None
+
+[<Test>]
+let ``ParseBlockComments returns all block comments in source order`` () =
+    let file = Path.GetTempFileName() + ".fsx"
+
+    File.WriteAllText(
+        file,
+        """(**
+---
+category: Docs
+---
+*)
+(*** condition: prepare ***)
+let a = 1 (* inline *)
+(**
+# Heading
+*)
+"""
+    )
+
+    // A multi-line comment is rebuilt line by line with the line ending of the machine, so it is
+    // '\r\n' on Windows.
+    let comments =
+        ParseScript.ParseBlockComments file
+        |> List.map (fun s -> s.Trim().Replace("\r\n", "\n"))
+
+    comments
+    |> shouldEqual
+        [ "(**\n---\ncategory: Docs\n---\n*)"; "(*** condition: prepare ***)"; "(* inline *)"; "(**\n# Heading\n*)" ]
+
+    // The front matter is still read from the first comment
+    (ParseScript.ParseFrontMatter file).IsSome |> shouldEqual false

@@ -25,7 +25,7 @@ The command line options accepted are:
 |:---------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `--input`            | Input directory of content (default: `docs`)                                                                                                                                                                                                                                                                                                                                                                    |
 | `--projects`         | Project files to build API docs for outputs, defaults to all packable projects                                                                                                                                                                                                                                                                                                                                  |
-| `--output`           | Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch')                                                                                                                                                                                                                                                                                                                                     |
+| `--output`           | Output Directory (default 'output'). Ignored by `watch`, which keeps no output folder.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `--ignoreuncategorized` | Disable generation of the 'Other' category in the navigation bar for uncategorized docs |
 | `--noapidocs`        | Disable generation of API docs                                                                                                                                                                                                                                                                                                                                                                                  |
 | `--ignoreprojects`   | Disable project cracking                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -35,7 +35,7 @@ The command line options accepted are:
 | `--parameters`       | Additional substitution parameters for templates                                                                                                                                                                                                                                                                                                                                                                |
 | `--nonpublic`        | The tool will also generate documentation for non-public members                                                                                                                                                                                                                                                                                                                                                |
 | `--nodefaultcontent` | Do not copy default content styles, javascript or use default templates                                                                                                                                                                                                                                                                                                                                         |
-| `--clean`            | Clean the output directory                                                                                                                                                                                                                                                                                                                                                                                      |
+| `--clean`            | Clean the output directory. Ignored by `watch`, which keeps no output folder.                                                                                                                                                                                                                                                                                                                                   |
 | `--help`             | Display this help screen                                                                                                                                                                                                                                                                                                                                                                                        |
 | `--version`          | Display version information                                                                                                                                                                                                                                                                                                                                                                                     |
 | `--properties`       | Provide properties to dotnet msbuild, e.g. --properties Configuration=Release Version=3.4                                                                                                                                                                                                                                                                                                                       |
@@ -94,23 +94,36 @@ For example, a project will be skipped if:
 
 ## The watch command
 
-This command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input
-directory (e.g. `docs`) are watched. A browser will be launched automatically (unless `--nolaunch` is specified).
-
-You will need to ensure that the input directory exists, and contains at least `index.md`, otherwise the browser will
-report an error (e.g. "Problem loading...", "Connection was reset").
+This command serves the documentation from memory while you edit it. Nothing is written to disk: a page is
+built the first time the browser asks for it and kept until a file that influences it changes. Static files
+such as images and css are served from their source location. A browser will be launched automatically
+(unless `--nolaunch` is specified).
 
     [lang=text]
     fsdocs watch
 
- Restarting may be necesssary on changes to project files. The same parameters are accepted, plus these:
+The input directory (e.g. `docs`) and the extra content shipped with the tool are watched, together with the
+project output DLLs used for the API docs. Every change goes through the same pipeline: the file is
+stat-ed, its content hashed when the content matters, and only a real change invalidates the pages that
+depend on it. A byte-identical rewrite (for example by a formatter) invalidates nothing. Editing a heading in
+`a.md` rebuilds `a.html` on the next request and refreshes the navigation of the other pages without
+rebuilding them; touching a project DLL rebuilds the API reference on the next request. A background
+reconciler walks the watched folders every two seconds as a guard against missed file system events.
+
+A page that fails to build returns a `500` with the error message; the other pages keep working and the
+process stays up, even with `--strict`.
+
+The search index (`index.json`) and `llms.txt` are the only URLs that need every page.
+
+Restarting may be necessary on changes to project files. The same parameters as `build` are accepted
+(`--output`, `--clean` and `--saveimages` are ignored with a note), plus these:
 
 | Command Line Option                 |  Description    |
 |:-----------------------|:-----------------------------------------|
-| `--noserver`     |   Do not serve content when watching.  |
 | `--nolaunch`     |   Do not launch a browser window. |
 | `--open`     |   URL extension to launch http://localhost:<port>/%s. |
 | `--port`     |   Port to serve content for http://localhost serving. |
+| `--root`     |   Override the root URL for generated pages, e.g. for reverse proxies. |
 
 
 

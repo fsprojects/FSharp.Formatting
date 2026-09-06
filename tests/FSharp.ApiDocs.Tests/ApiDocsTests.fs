@@ -1855,12 +1855,14 @@ CONTENT: {{fsdocs-menu-item-content}}
 """
     )
 
-    let _, substitutions, _, _ =
+    let phased =
         match format with
         | OutputFormat.Html ->
             ApiDocs.GenerateHtmlPhased([ inputs ], output, "Collection", [], menuTemplateFolder = "menu")
         | OutputFormat.Markdown ->
             ApiDocs.GenerateMarkdownPhased([ inputs ], output, "Collection", [], menuTemplateFolder = "menu")
+
+    let substitutions = phased.GlobalSubstitutions
 
     let listOfNamespaces =
         substitutions

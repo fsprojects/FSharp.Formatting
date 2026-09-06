@@ -783,4 +783,5 @@ type Literate private () =
 [<assembly: InternalsVisibleTo("fsdocs")>]
 [<assembly: InternalsVisibleTo("FSharp.Formatting.TestHelpers")>]
 [<assembly: InternalsVisibleTo("FSharp.Literate.Tests")>]
+[<assembly: InternalsVisibleTo("fsdocs-tool.Tests")>]
 do ()

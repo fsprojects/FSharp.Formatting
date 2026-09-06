@@ -504,9 +504,27 @@ module Crack =
 
     /// Discovers project files (from solutions, directories, or explicit lists),
     /// cracks each one, and returns the collection name, collection URL, and per-project info.
+    /// A project whose API documentation is generated, with the settings read from the project file.
+    type CrackedProject =
+        {
+            ProjectFileName: string
+            TargetPath: string
+            OtherOptions: string list
+            RepositoryUrl: string option
+            RepositoryBranch: string option
+            RepositoryType: string option
+            UsesMarkdownComments: bool
+            WarnOnMissingDocs: bool
+            SourceFolder: string option
+            SourceRepository: string option
+            NoInheritedMembers: bool
+            TypeConstraints: FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode
+            Substitutions: (ParamKey * string) list
+        }
+
     let crackProjects
         (onError, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects, ignoreProjects)
-        =
+        : string * string * CrackedProject list * string list * (ParamKey * string) list * bool =
         let slnDir = Path.GetFullPath "."
 
         //printfn "x.projects = %A" x.projects
@@ -785,20 +803,22 @@ module Crack =
                 | Some targetPath, Some projectOptions ->
                     let substitutions = parametersForProjectInfo info
 
-                    Some(
-                        targetPath,
-                        projectOptions.OtherOptions,
-                        info.RepositoryUrl,
-                        info.RepositoryBranch,
-                        info.RepositoryType,
-                        info.UsesMarkdownComments,
-                        info.FsDocsWarnOnMissingDocs,
-                        info.FsDocsSourceFolder,
-                        info.FsDocsSourceRepository,
-                        info.FsDocsNoInheritedMembers,
-                        info.FsDocsTypeConstraints,
-                        substitutions
-                    )
+                    Some
+                        {
+                            ProjectFileName = info.ProjectFileName
+                            TargetPath = targetPath
+                            OtherOptions = projectOptions.OtherOptions
+                            RepositoryUrl = info.RepositoryUrl
+                            RepositoryBranch = info.RepositoryBranch
+                            RepositoryType = info.RepositoryType
+                            UsesMarkdownComments = info.UsesMarkdownComments
+                            WarnOnMissingDocs = info.FsDocsWarnOnMissingDocs
+                            SourceFolder = info.FsDocsSourceFolder
+                            SourceRepository = info.FsDocsSourceRepository
+                            NoInheritedMembers = info.FsDocsNoInheritedMembers
+                            TypeConstraints = info.FsDocsTypeConstraints
+                            Substitutions = substitutions
+                        }
                 | _ -> None)
 
         let paths =
