@@ -12,11 +12,10 @@ open FSharp.Formatting.Common
 
 open Ionide.ProjInfo
 
-[<AutoOpen>]
 /// General utility helpers shared across the fsdocs tool.
+[<AutoOpen>]
 module Utils =
 
-    /// Creates the directory at <c>path</c> if it does not already exist.
     let ensureDirectory path =
         let dir = DirectoryInfo(path)
 
@@ -52,9 +51,6 @@ module Utils =
         with _ ->
             None
 
-    /// Attempts to restore a previously cached value from <c>cacheFile</c>. If the cache
-    /// is absent or invalid (as judged by <c>cacheValid</c>), calls <c>f</c> to compute
-    /// a fresh value and saves it to the cache.
     let cacheBinary cacheFile cacheValid (f: unit -> 'T) : 'T =
         let attempt =
             if File.Exists(cacheFile) then
@@ -121,10 +117,6 @@ module DotNetCli =
         ps.WaitForExit()
         ps.ExitCode, output.Result.Trim(), error.Result.Trim()
 
-/// Project-cracking logic: evaluates the fsdocs-specific MSBuild properties of each project
-/// with `dotnet msbuild --getProperty`, and resolves the compiler references with a design-time
-/// build (`dotnet msbuild -t:...CoreCompile -getItem:FscCommandLineArgs`) only for the projects
-/// that take part in the API docs, and only when they are needed.
 module Crack =
 
     [<return: Struct>]
@@ -146,43 +138,10 @@ module Crack =
             | ConditionEquals "True" -> Some true
             | _ -> Some false
 
-    /// Runs an external process, routing stdout and stderr lines to <c>log</c>,
-    /// and returns the exit code together with the process arguments for diagnostics.
-    let runProcess (log: string -> unit) (workingDir: string) (exePath: string) (args: string) =
-        let psi = System.Diagnostics.ProcessStartInfo()
-        psi.FileName <- exePath
-        psi.WorkingDirectory <- workingDir
-        psi.RedirectStandardOutput <- true
-        psi.RedirectStandardError <- true
-        psi.Arguments <- args
-        psi.CreateNoWindow <- true
-        psi.UseShellExecute <- false
-
-        use p = new System.Diagnostics.Process()
-        p.StartInfo <- psi
-
-        p.OutputDataReceived.Add(fun ea -> log (ea.Data))
-
-        p.ErrorDataReceived.Add(fun ea -> log (ea.Data))
-
-        // printfn "running: %s %s" psi.FileName psi.Arguments
-
-        p.Start() |> ignore
-        p.BeginOutputReadLine()
-        p.BeginErrorReadLine()
-        p.WaitForExit()
-
-        let exitCode = p.ExitCode
-
-        exitCode, (workingDir, exePath, args)
-
-    /// All fsdocs-relevant MSBuild properties of a single project, read by evaluating the project
-    /// (no design-time build).
     type CrackedProjectInfo =
         {
             ProjectFileName: string
             TargetPath: string option
-            /// The target frameworks of a multi-targeting project, empty otherwise
             TargetFrameworks: string list
             IsTestProject: bool
             IsLibrary: bool
@@ -219,7 +178,7 @@ module Crack =
         }
 
     /// The MSBuild properties fsdocs reads from a project.
-    let private fsdocsProperties =
+    let fsdocsProperties =
         [
             "TargetPath"
             "TargetFrameworks"
@@ -291,7 +250,7 @@ module Crack =
         with ex ->
             failwithf "could not read the properties of '%s' from:\n%s\n%s" projectFile output ex.Message
 
-    let private infoOfProperties (projectFile: string) (props: Map<string, string>) : CrackedProjectInfo =
+    let infoOfProperties (projectFile: string) (props: Map<string, string>) : CrackedProjectInfo =
         let msbuildPropString prop =
             props
             |> Map.tryFind prop
@@ -373,7 +332,7 @@ module Crack =
 
     /// Checks whether the project has been restored (i.e. the assets file exists) and
     /// fails if not.
-    let private ensureProjectWasRestored (file: string) =
+    let ensureProjectWasRestored (file: string) =
         let projDir = Path.GetDirectoryName(file)
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
 
@@ -404,20 +363,16 @@ module Crack =
                 // subsequent cracking step will fail with a more specific error.
                 logger.Warnf $"could not verify that project '%s{file}' was restored. Proceeding anyway."
 
-    /// The result of the design-time build of one project.
     type DesignTimeBuild =
         {
-            /// The compiler options, including the '-r:' references
             OtherOptions: string list
-            /// The fsdocs properties as they are after the targets ran; properties set by targets
-            /// (such as a version computed from a changelog) are only correct here
             Properties: (string * string) list
         }
 
     /// The targets of a design-time build: they resolve the references and make CoreCompile emit
     /// the compiler command line without running the compiler. The list is the one Ionide.ProjInfo
     /// uses, see https://github.com/dotnet/project-system/blob/main/docs/design-time-builds.md.
-    let private designTimeTargets =
+    let designTimeTargets =
         [
             "ResolveAssemblyReferencesDesignTime"
             "ResolveProjectReferencesDesignTime"
@@ -432,7 +387,7 @@ module Crack =
 
     /// The global properties of a design-time build: no compiler run, no build of the referenced
     /// projects, and a non-existent input so that CoreCompile is never skipped as up to date.
-    let private designTimeProperties =
+    let designTimeProperties =
         [
             "ProvideCommandLineArgs", "true"
             "DesignTimeBuild", "true"
@@ -445,10 +400,7 @@ module Crack =
     /// Run the design-time build of one project with `dotnet msbuild` and read the compiler command
     /// line and the fsdocs properties from its output. Unlike an evaluation, the properties reflect
     /// what the targets set, such as a version computed from a changelog.
-    let private designTimeBuildOf
-        (extraMsbuildProperties: (string * string) list)
-        (projectFile: string)
-        : DesignTimeBuild =
+    let designTimeBuildOf (extraMsbuildProperties: (string * string) list) (projectFile: string) : DesignTimeBuild =
         let args =
             [
                 yield sprintf "\"%s\"" projectFile
@@ -488,8 +440,6 @@ module Crack =
         with ex ->
             failwithf "could not read the design-time build of '%s' from:\n%s\n%s" projectFile output ex.Message
 
-    /// Run the design-time build of the given projects (in parallel) and return the result per
-    /// project file; projects whose build fails are reported and left out.
     let resolveCompilerOptions
         (extraMsbuildProperties: (string * string) list)
         (projects: (string * string list) list)
@@ -522,8 +472,6 @@ module Crack =
         |> Array.choose id
         |> Map.ofArray
 
-    /// The project info as the design-time build saw it: the same properties, but with the values
-    /// set by MSBuild targets. The evaluated value is kept where the build reported none.
     let refineProjectInfo (info: CrackedProjectInfo) (build: DesignTimeBuild) : CrackedProjectInfo =
         let refined = infoOfProperties info.ProjectFileName (Map.ofList build.Properties)
 
@@ -540,10 +488,6 @@ module Crack =
         //this.LoadProjects(projs, crosstargetingStrategy, useBinaryLogger, numberOfThreads)
         | Error e -> raise (exn ("cannot load the sln", e))
 
-    /// Discovers project files (from solutions, directories, or explicit lists),
-    /// cracks each one, and returns the collection name, collection URL, and per-project info.
-    /// A project whose API documentation is generated, with the settings read from the project file.
-    /// The compiler references are not part of it: see resolveCompilerOptions.
     type CrackedProject =
         {
             ProjectFileName: string
@@ -561,8 +505,6 @@ module Crack =
             Substitutions: (ParamKey * string) list
         }
 
-    /// Find the project files to document: the projects given explicitly, else the solution in the
-    /// current folder, else the project files up to two folders deep. Returns the collection name too.
     let discoverProjects (userCollectionName: string option) (projects: string list) (ignoreProjects: bool) =
         let slnDir = Path.GetFullPath "."
 
@@ -631,7 +573,6 @@ module Crack =
 
         collectionName, projectFiles
 
-    /// Evaluate the discovered projects and keep the documentable ones. No design-time build.
     let evaluateProjects
         (onError, extraMsbuildProperties, projectFiles: string list, ignoreProjects)
         : CrackedProjectInfo list =
@@ -698,10 +639,6 @@ module Crack =
 
         projectInfos
 
-    /// The site-wide settings and the per-project substitutions of the given projects: the root URL,
-    /// the documented projects, the folders holding their DLLs, the substitutions of the content
-    /// pages and whether llms.txt is generated. Missing settings are only reported when 'warnMissing'
-    /// is set, so a recomputation after a design-time build stays quiet.
     let siteOf
         (
             userRoot: string option,
