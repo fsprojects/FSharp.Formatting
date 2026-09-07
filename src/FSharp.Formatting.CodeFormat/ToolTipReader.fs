@@ -46,9 +46,11 @@ let internal stripParameterAttributes (line: string) =
 
 /// Turn string into a sequence of lines interleaved with line breaks
 let formatMultilineString (lines: string array) =
-    [ for line in lines do
-          yield HardLineBreak
-          yield Literal line ]
+    [
+        for line in lines do
+            yield HardLineBreak
+            yield Literal line
+    ]
     |> List.tail
 
 /// Format comment in the tool tip
@@ -76,26 +78,28 @@ let private formatElement tooltip =
             else
                 items |> Seq.take 10 |> List.ofSeq, true
 
-        [ for it in items do
-              yield!
-                  it.MainDescription
-                  |> linesFromTaggedText
-                  |> Seq.choose (fun s ->
-                      let stripped = stripParameterAttributes s
-                      if stripped.Trim() <> "" then Some stripped else None)
-                  |> Seq.toArray
-                  |> formatMultilineString
+        [
+            for it in items do
+                yield!
+                    it.MainDescription
+                    |> linesFromTaggedText
+                    |> Seq.choose (fun s ->
+                        let stripped = stripParameterAttributes s
+                        if stripped.Trim() <> "" then Some stripped else None)
+                    |> Seq.toArray
+                    |> formatMultilineString
 
-              yield HardLineBreak
-              yield! formatComment it.XmlDoc
+                yield HardLineBreak
+                yield! formatComment it.XmlDoc
 
-              // Add note with the number of omitted overloads
-              if trimmed then
-                  let msg = sprintf "(+%d other overloads)" (items.Length - 10)
+                // Add note with the number of omitted overloads
+                if trimmed then
+                    let msg = sprintf "(+%d other overloads)" (items.Length - 10)
 
-                  yield Literal "   "
-                  yield Emphasis [ Literal(msg) ]
-                  yield HardLineBreak ]
+                    yield Literal "   "
+                    yield Emphasis [ Literal(msg) ]
+                    yield HardLineBreak
+        ]
     //| FSharpToolTipElement.SingleParameter(_paramType,_doc,_name) ->
     //  [   yield ToolTipSpan.Literal _paramType
     //      yield ToolTipSpan.HardLineBreak
@@ -109,15 +113,17 @@ let private formatTip tip =
         match tip with
         | ToolTipText([ single ]) -> formatElement single
         | ToolTipText(items) ->
-            [ yield Literal "Multiple items"
-              yield HardLineBreak
-              for first, item in Seq.mapi (fun i it -> i = 0, it) items do
-                  if not first then
-                      yield HardLineBreak
-                      yield Literal "--------------------"
-                      yield HardLineBreak
+            [
+                yield Literal "Multiple items"
+                yield HardLineBreak
+                for first, item in Seq.mapi (fun i it -> i = 0, it) items do
+                    if not first then
+                        yield HardLineBreak
+                        yield Literal "--------------------"
+                        yield HardLineBreak
 
-                  yield! formatElement item ]
+                    yield! formatElement item
+            ]
 
     // Remove unnecessary line breaks
     spans

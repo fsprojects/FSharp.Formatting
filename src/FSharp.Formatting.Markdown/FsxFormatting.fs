@@ -78,12 +78,14 @@ let rec formatParagraphs ctx paragraphs =
 /// Code cells become raw F# code; Markdown prose cells are wrapped in <c>(** ... *)</c> comment blocks.
 let formatAsFsx links substitutions newline crefResolver mdlinkResolver paragraphs =
     let ctx =
-        { Links = links
-          Substitutions = substitutions
-          Newline = newline
-          CodeReferenceResolver = crefResolver
-          MarkdownDirectLinkResolver = mdlinkResolver
-          DefineSymbol = "FSX" }
+        {
+            Links = links
+            Substitutions = substitutions
+            Newline = newline
+            CodeReferenceResolver = crefResolver
+            MarkdownDirectLinkResolver = mdlinkResolver
+            DefineSymbol = "FSX"
+        }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
 

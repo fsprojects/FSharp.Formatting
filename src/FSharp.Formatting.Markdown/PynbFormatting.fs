@@ -10,10 +10,12 @@ open MarkdownUtils
 let formatCodeOutput executionCount (output: string, kind) : Output =
     let lines = output.Split([| '\n'; '\r' |])
 
-    { data = OutputData(kind, lines)
-      execution_count = executionCount
-      metadata = ""
-      output_type = "execute_result" }
+    {
+        data = OutputData(kind, lines)
+        execution_count = executionCount
+        metadata = ""
+        output_type = "execute_result"
+    }
 
 /// Write a list of MarkdownParagraph values to a TextWriter
 let rec formatParagraphs ctx paragraphs =
@@ -37,12 +39,14 @@ let rec formatParagraphs ctx paragraphs =
 
 let formatAsPynb links replacements newline crefResolver mdlinkResolver paragraphs =
     let ctx =
-        { Links = links
-          Substitutions = replacements
-          Newline = newline
-          CodeReferenceResolver = crefResolver
-          MarkdownDirectLinkResolver = mdlinkResolver
-          DefineSymbol = "IPYNB" }
+        {
+            Links = links
+            Substitutions = replacements
+            Newline = newline
+            CodeReferenceResolver = crefResolver
+            MarkdownDirectLinkResolver = mdlinkResolver
+            DefineSymbol = "IPYNB"
+        }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
 
@@ -50,6 +54,7 @@ let formatAsPynb links replacements newline crefResolver mdlinkResolver paragrap
 
     let notebook =
         { Notebook.Default with
-            cells = Array.ofList cells }
+            cells = Array.ofList cells
+        }
 
     notebook.ToString()

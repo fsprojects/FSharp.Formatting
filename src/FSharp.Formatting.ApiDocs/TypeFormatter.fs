@@ -129,11 +129,13 @@ module internal TypeFormatter =
     /// Collects all constraints from a list of type parameters as text strings,
     /// skipping any constraints that cannot be represented in F# source syntax.
     let formatConstraintsAsText (typars: FSharpGenericParameter list) =
-        [ for typar in typars do
-              for cx in typar.Constraints do
-                  match formatConstraintAsText typar cx with
-                  | Some s -> yield s
-                  | None -> () ]
+        [
+            for typar in typars do
+                for cx in typar.Constraints do
+                    match formatConstraintAsText typar cx with
+                    | Some s -> yield s
+                    | None -> ()
+        ]
 
     /// Wraps an <see cref="HtmlElement"/> in parentheses.
     let bracketHtml (str: HtmlElement) = span [] [ !!"("; str; !!")" ]
@@ -264,10 +266,12 @@ module internal TypeFormatter =
     let formatArgNameAndTypePairUsageAsHtml ctx (argName0, argType) =
         span
             []
-            [ !!(match argName0 with
-                 | None -> ""
-                 | Some argName -> argName + ":&#32;")
-              formatTypeWithPrecAsHtml ctx 2 argType ]
+            [
+                !!(match argName0 with
+                   | None -> ""
+                   | Some argName -> argName + ":&#32;")
+                formatTypeWithPrecAsHtml ctx 2 argType
+            ]
 
     /// Formats the full curried argument list for a member or function as HTML,
     /// parenthesising argument groups as appropriate.

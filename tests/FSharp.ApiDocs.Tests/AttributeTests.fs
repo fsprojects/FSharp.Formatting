@@ -56,10 +56,12 @@ let findType name (typeInfos: ApiDocEntityInfo list) =
     |> List.find (fun t -> t.Name = name)
 
 let info =
-    [ ParamKeys.``fsdocs-collection-name``, "FSharp.ProjectScaffold"
-      ParamKeys.``fsdocs-authors``, "Your Name"
-      ParamKeys.``fsdocs-repository-link``, "http://github.com/pblasucci/fsharp-project-scaffold"
-      ParamKeys.root, "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
+    [
+        ParamKeys.``fsdocs-collection-name``, "FSharp.ProjectScaffold"
+        ParamKeys.``fsdocs-authors``, "Your Name"
+        ParamKeys.``fsdocs-repository-link``, "http://github.com/pblasucci/fsharp-project-scaffold"
+        ParamKeys.root, "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold"
+    ]
 
 [<Test>]
 let ``ApiDocs extracts Attribute on Module`` () =

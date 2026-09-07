@@ -41,7 +41,7 @@ let solutionFile = "FSharp.Formatting.sln"
 let lintStage =
     stage "Lint" {
         run "dotnet tool restore"
-        run $"dotnet fantomas {__SOURCE_FILE__} src tests docs --check"
+        run $"dotnet fantomas check {__SOURCE_FILE__} src tests docs"
     }
 
 let testStage =

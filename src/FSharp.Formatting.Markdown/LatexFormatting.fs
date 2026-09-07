@@ -16,18 +16,19 @@ open MarkdownUtils
 /// from http://tex.stackexchange.com/questions/34580/escape-character-in-latex
 let specialChars =
     [| // This line comes first to avoid double replacing
-       // It also accommodates \r, \n, \t, etc.
-       @"\", @"<\textbackslash>"
-       "#", @"\#"
-       "$", @"\$"
-       "%", @"\%"
-       "&", @"\&"
-       "_", @"\_"
-       "{", @"\{"
-       "}", @"\}"
-       @"<\textbackslash>", @"{\textbackslash}"
-       "~", @"{\textasciitilde}"
-       "^", @"{\textasciicircum}" |]
+        // It also accommodates \r, \n, \t, etc.
+        @"\", @"<\textbackslash>"
+        "#", @"\#"
+        "$", @"\$"
+        "%", @"\%"
+        "&", @"\&"
+        "_", @"\_"
+        "{", @"\{"
+        "}", @"\}"
+        @"<\textbackslash>", @"{\textbackslash}"
+        "~", @"{\textasciitilde}"
+        "^", @"{\textasciicircum}"
+    |]
 
 let latexEncode s =
     specialChars
@@ -35,12 +36,14 @@ let latexEncode s =
 
 /// Context passed around while formatting the LaTEX
 type FormattingContext =
-    { LineBreak: unit -> unit
-      Newline: string
-      Writer: TextWriter
-      Links: IDictionary<string, string * string option>
-      GenerateLineNumbers: bool
-      DefineSymbol: string }
+    {
+        LineBreak: unit -> unit
+        Newline: string
+        Writer: TextWriter
+        Links: IDictionary<string, string * string option>
+        GenerateLineNumbers: bool
+        DefineSymbol: string
+    }
 
 let smallBreak (ctx: FormattingContext) () = ctx.Writer.Write(ctx.Newline)
 let noBreak (_ctx: FormattingContext) () = ()
@@ -269,20 +272,24 @@ and formatParagraphsAsLatex ctx paragraphs =
 /// and a dictionary with link keys defined in the document.
 let formatAsLatex writer links replacements newline crefResolver mdlinkResolver lineNumbers paragraphs =
     let ctx =
-        { Links = links
-          Substitutions = replacements
-          Newline = newline
-          CodeReferenceResolver = crefResolver
-          MarkdownDirectLinkResolver = mdlinkResolver
-          DefineSymbol = "LATEX" }
+        {
+            Links = links
+            Substitutions = replacements
+            Newline = newline
+            CodeReferenceResolver = crefResolver
+            MarkdownDirectLinkResolver = mdlinkResolver
+            DefineSymbol = "LATEX"
+        }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
 
     formatParagraphsAsLatex
-        { Writer = writer
-          Links = links
-          Newline = newline
-          LineBreak = ignore
-          GenerateLineNumbers = lineNumbers
-          DefineSymbol = "LATEX" }
+        {
+            Writer = writer
+            Links = links
+            Newline = newline
+            LineBreak = ignore
+            GenerateLineNumbers = lineNumbers
+            DefineSymbol = "LATEX"
+        }
         paragraphs

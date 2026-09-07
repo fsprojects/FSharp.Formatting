@@ -22,27 +22,31 @@ let properNewLines (text: string) =
     text.Replace("\r\n", "\n").Replace("\n", System.Environment.NewLine)
 
 let enabledSections =
-    [ "Fenced code blocks"
-      "Indented code blocks"
-      "Paragraphs"
-      "Precedence"
-      "Tabs"
-      "Blank lines"
-      "Inlines"
-      "Soft line breaks"
-      "Textual content"
-      "ATX headings"
-      "Thematic breaks"
-      "Setext headings" ]
+    [
+        "Fenced code blocks"
+        "Indented code blocks"
+        "Paragraphs"
+        "Precedence"
+        "Tabs"
+        "Blank lines"
+        "Inlines"
+        "Soft line breaks"
+        "Textual content"
+        "ATX headings"
+        "Thematic breaks"
+        "Setext headings"
+    ]
 
 // Known remaining failures after partial CommonMark compliance improvements.
 // These are skipped until the underlying parser issues are resolved.
 let skippedExamples =
     set
-        [ 26 // Thematic breaks: list item whose content is * * * needs block-level (not inline) parsing
-          55 // Setext headings: inline code span / HTML attribute containing newline
-          58 // Setext headings: ambiguity when multi-line paragraph precedes ---
-          65 ] // Setext headings: backslash-escaped > before a setext underline
+        [
+            26 // Thematic breaks: list item whose content is * * * needs block-level (not inline) parsing
+            55 // Setext headings: inline code span / HTML attribute containing newline
+            58 // Setext headings: ambiguity when multi-line paragraph precedes ---
+            65
+        ] // Setext headings: backslash-escaped > before a setext underline
 
 let getTests () =
     sample
