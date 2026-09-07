@@ -22,7 +22,7 @@ index: 6
 #endif // IPYNB
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
+[![Script](img/badge-script.svg)]({{root}}{{fsdocs-source-basename}}.fsx)
 
 Creating Content
 ===================================
@@ -138,7 +138,8 @@ See [Styling](styling.html) for information about template parameters and stylin
 
 |  Substitution name            | Generated content |
 |:------------------------------|:--------------------------------------------------------------|
-| `root`                        | `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`. |
+| `root`                        | The relative path from the page to the root of the site, ending with `/` (`./`, `../`, ...). Links built with it work wherever the site is hosted. |
+| `fsdocs-site-root`            | The absolute URL of the site: `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`. For the links that must be absolute, such as `og:url`. |
 | `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |
 | `fsdocs-content`              | Main page content                                             |
 | `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |

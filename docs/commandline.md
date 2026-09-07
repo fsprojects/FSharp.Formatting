@@ -138,7 +138,7 @@ parameters as `build` are accepted
 | `--nolaunch`     |   Do not launch a browser window. |
 | `--open`     |   URL extension to launch http://localhost:<port>/%s. |
 | `--port`     |   Port to serve content for http://localhost serving. |
-| `--root`     |   Override the root URL for generated pages, e.g. for reverse proxies. |
+| `--site-root`     |   The absolute URL of the site (`{{fsdocs-site-root}}`), only used by the links that must be absolute such as Open Graph metadata and `llms.txt`. Defaults to `http://localhost:<port>/`. |
 
 
 

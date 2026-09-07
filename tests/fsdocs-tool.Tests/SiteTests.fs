@@ -28,7 +28,7 @@ type internal Fixture() =
 
         File.WriteAllText(
             input </> "_template.html",
-            "<html><body><nav>{{fsdocs-list-of-documents}}</nav><main>{{fsdocs-content}}</main><footer>{{fsdocs-collection-name}}</footer></body></html>"
+            "<html data-root=\"{{root}}\"><body><nav>{{fsdocs-list-of-documents}}</nav><main>{{fsdocs-content}}</main><footer>{{fsdocs-collection-name}} {{fsdocs-site-root}}</footer></body></html>"
         )
 
         File.WriteAllText(input </> "index.md", "# Home\n\nWelcome.\n")
@@ -66,6 +66,8 @@ type internal Fixture() =
                              File.ReadAllText(project).Trim()
                          else
                              "Test")
+                        FSharp.Formatting.Templating.ParamKeys.root, "http://localhost:8901/"
+                        FSharp.Formatting.Templating.ParamKeys.``fsdocs-site-root``, "http://localhost:8901/"
                     ]
                 SubstitutionDiagnostics = []
                 ApiDocInputs = []
@@ -91,6 +93,7 @@ type internal Fixture() =
                     LineNumbers = None
                     Evaluate = false
                     Substitutions = []
+                    RootKeys = [ FSharp.Formatting.Templating.ParamKeys.root ]
                     OnError = ignore
                 }
             ApiDllPaths = []
@@ -318,7 +321,8 @@ let ``search index forces all pages and is invalidated with them`` () =
     use site = new Site(fx.Config)
     let json = body (site.Render "/index.json")
     json |> shouldContainText "\"title\":\"Page A"
-    json |> shouldContainText "\"uri\":\"http://localhost:8901/sub/c.html\""
+    // the URIs are relative to the root of the site; the search script prefixes the page's root
+    json |> shouldContainText "\"uri\":\"sub/c.html\""
     computedSince site [ "a.md"; "b.fsx"; "c.md"; "index.md"; "lib.fsx"; "x.md" ]
     body (site.Render "/index.json") |> ignore
     computedSince site []
@@ -405,3 +409,40 @@ let ``next and previous page links only come from the content trees`` () =
     |> shouldEqual [| "a.md"; "b.fsx" |]
 
     body (site.Render "/index.html") |> shouldContainText "href=\"a.html\""
+
+[<Test>]
+let ``the root of a page is relative to its folder`` () =
+    let fx = Fixture()
+    File.WriteAllText(fx.Input </> "sub" </> "d.md", "# Page D\n\n![logo]({{root}}logo.png)\n")
+    use site = new Site(fx.Config)
+
+    let index = body (site.Render "/index.html")
+    index |> shouldContainText "data-root=\"./\""
+    index |> shouldContainText "href=\"./a.html\""
+    // the absolute site URL stays available for the links that must be absolute
+    index |> shouldContainText "Collection v1 http://localhost:8901/"
+
+    let d = body (site.Render "/sub/d.html")
+    d |> shouldContainText "data-root=\"../\""
+    d |> shouldContainText "href=\"../a.html\""
+    d |> shouldContainText "src=\"../logo.png\""
+
+[<Test>]
+let ``folder urls serve their index page and get their trailing slash`` () =
+    let fx = Fixture()
+    use site = new Site(fx.Config)
+
+    match site.Resolve "/" with
+    | Some(ContentPage r) -> r.InputFile |> shouldEqual (fx.Input </> "index.md")
+    | other -> failwithf "unexpected %A" other
+
+    // no index page in 'sub': nothing to redirect to
+    site.Resolve "/sub/" |> shouldEqual None
+    site.RedirectTo "/sub" |> shouldEqual None
+    site.RedirectTo "/a.html" |> shouldEqual None
+
+    File.WriteAllText(fx.Input </> "sub" </> "index.md", "# Sub home\n")
+    site.Refresh(fx.Input </> "sub" </> "index.md") |> shouldEqual true
+    site.RedirectTo "/sub" |> shouldEqual (Some "/sub/")
+    body (site.Render "/sub/") |> shouldContainText "Sub home"
+    body (site.Render "/sub/") |> shouldContainText "data-root=\"../\""

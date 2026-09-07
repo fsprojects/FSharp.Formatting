@@ -428,7 +428,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
     /// Builds the list-of-namespaces Markdown fragment (for sidebar navigation or index page).
     /// When <paramref name="nav"/> is <c>true</c> the active namespace is expanded to show its entities.
-    let listOfNamespacesAux otherDocs nav (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesAux (root: string) otherDocs nav (nsOpt: ApiDocNamespace option) =
         [
             // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
             //
@@ -493,9 +493,9 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         ]
 
     /// Returns the list-of-namespaces string, using a menu template when available.
-    let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesWithRoot (root: string) otherDocs nav (nsOpt: ApiDocNamespace option) =
         let noTemplatingFallback () =
-            listOfNamespacesAux otherDocs nav nsOpt
+            listOfNamespacesAux root otherDocs nav nsOpt
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
@@ -541,10 +541,17 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                     Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
 
-    /// Get the substitutions relevant to all
-    member _.GlobalSubstitutions: Substitutions =
-        let toc = listOfNamespaces true true None
+    let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
+        listOfNamespacesWithRoot root otherDocs nav nsOpt
+
+    /// The substitutions relevant to all pages, with the namespace links built for the given root
+    /// (a content page deeper in the site needs a different relative root than the API pages).
+    member _.GlobalSubstitutionsFor(root: string) : Substitutions =
+        let toc = listOfNamespacesWithRoot root true true None
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
+
+    /// Get the substitutions relevant to all
+    member x.GlobalSubstitutions: Substitutions = x.GlobalSubstitutionsFor root
 
     /// The pages of the API documentation: the output file relative to the output folder
     /// (forward slashes) and a function rendering the page for a template and global substitutions.
@@ -578,7 +585,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     [
                         ``#`` [ !!"API Reference" ]
                         ``##`` [ !!"Available Namespaces" ]
-                        ul [ (listOfNamespacesAux false false None) ]
+                        ul [ (listOfNamespacesAux root false false None) ]
                     ],
                     Map.empty
                 )

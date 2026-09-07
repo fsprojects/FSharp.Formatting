@@ -13,6 +13,9 @@ type internal ApiDocsPhased =
     {
         Model: ApiDocModel
         GlobalSubstitutions: Substitutions
+        /// The global substitutions with the namespace links built for the given root
+        GlobalSubstitutionsFor: string -> Substitutions
+        /// The search index with URIs relative to the root of the site
         SearchIndex: ApiDocsSearchIndexEntry array
         Pages: (string * (string option -> Substitutions -> string)) list
         Generate: Substitutions -> unit
@@ -123,11 +126,12 @@ type ApiDocs =
 
         let renderer = GenerateHtml.HtmlRender(model, ?menuTemplateFolder = menuTemplateFolder)
 
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model
+        let index = GenerateSearchIndex.searchIndexEntriesForModelWithRoot "" model
 
         {
             Model = model
             GlobalSubstitutions = renderer.GlobalSubstitutions
+            GlobalSubstitutionsFor = renderer.GlobalSubstitutionsFor
             SearchIndex = index
             Pages = renderer.Pages(collectionName)
             Generate = (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))
@@ -226,11 +230,12 @@ type ApiDocs =
 
         let renderer = GenerateMarkdown.MarkdownRender(model, ?menuTemplateFolder = menuTemplateFolder)
 
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model
+        let index = GenerateSearchIndex.searchIndexEntriesForModelWithRoot "" model
 
         {
             Model = model
             GlobalSubstitutions = renderer.GlobalSubstitutions
+            GlobalSubstitutionsFor = renderer.GlobalSubstitutionsFor
             SearchIndex = index
             Pages = renderer.Pages(collectionName)
             Generate = (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))

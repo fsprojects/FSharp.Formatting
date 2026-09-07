@@ -823,6 +823,7 @@ module Crack =
                 id
                 [
                     param None ParamKeys.root (Some root)
+                    param None ParamKeys.``fsdocs-site-root`` (Some root)
                     param None ParamKeys.``fsdocs-authors`` (Some(info.Authors |> Option.defaultValue ""))
                     param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
                     param None ParamKeys.``fsdocs-copyright`` info.Copyright

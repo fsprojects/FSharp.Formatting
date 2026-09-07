@@ -61,6 +61,13 @@ let fsdocsLocalBin =
 let checkDocScriptsStage =
     stage "CheckDocScripts" { run $"\"{fsdocsLocalBin}\" build --strict --clean --properties Configuration=Release" }
 
+let buildStage =
+    stage "Build" {
+        run $"dotnet restore {solutionFile} -tl"
+        run $"dotnet build {solutionFile} --configuration {configuration} -tl"
+    }
+
+
 pipeline "CI" {
     lintStage
 
@@ -71,10 +78,7 @@ pipeline "CI" {
             [ "bin"; "temp"; "tests/bin" ] |> Seq.iter Directory.ensure)
     }
 
-    stage "Build" {
-        run $"dotnet restore {solutionFile} -tl"
-        run $"dotnet build {solutionFile} --configuration {configuration} -tl"
-    }
+    buildStage
 
     stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
 
@@ -103,6 +107,7 @@ pipeline "CI" {
 }
 
 pipeline "Verify" {
+    buildStage
     lintStage
     testStage
     stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }

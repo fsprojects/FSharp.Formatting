@@ -80,8 +80,13 @@ type FrontMatterFile =
 [<RequireQualifiedAccess>]
 module ParamKeys =
 
-    /// A parameter key known to FSharp.Formatting
+    /// The relative path from the page to the root of the site, ending with '/'
+    /// (e.g. './' or '../../'), so that '{{root}}content/x.css' works wherever the site is hosted.
     let root = ParamKey "root"
+
+    /// The absolute URL of the site (e.g. 'https://fsprojects.github.io/FSharp.Formatting/'),
+    /// for the links that must be absolute: Open Graph metadata, canonical links, llms.txt.
+    let ``fsdocs-site-root`` = ParamKey "fsdocs-site-root"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-authors`` = ParamKey "fsdocs-authors"
