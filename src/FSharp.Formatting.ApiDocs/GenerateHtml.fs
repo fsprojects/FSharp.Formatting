@@ -843,5 +843,5 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         for (relativeFile, render) in x.Pages(collectionName) do
             let outFile = Path.Combine(outDir, relativeFile)
             let outputText = render templateOpt globalParameters
-            printfn "  Generating %s" outFile
+            logger.Debugf "  Generating %s" outFile
             SimpleTemplating.WriteOutputFile(outFile, outputText)

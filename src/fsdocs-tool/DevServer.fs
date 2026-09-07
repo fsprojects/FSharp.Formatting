@@ -8,12 +8,14 @@ open System.Security.Cryptography
 open System.Text
 open System.Text.RegularExpressions
 open System.Threading
+open System.Diagnostics
 
 open FSharp.Data.Adaptive
 open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Common
 open FSharp.Formatting.Literate
 open FSharp.Formatting.Templating
+open Microsoft.Extensions.Logging
 
 open Suave
 open Suave.Sockets
@@ -854,6 +856,7 @@ type internal Site(config: SiteConfig) =
                     if lastStat.Remove path then
                         knownHash.Remove path |> ignore
                         transact (fun () -> map.Remove path |> ignore)
+                        logger.Debugf "deleted %s: invalidated" path
                         recordEvent path "deleted" true
                         true
                     else
@@ -883,6 +886,7 @@ type internal Site(config: SiteConfig) =
 
                             match knownHash.TryGetValue path with
                             | true, known when contentMatters path && known = hash ->
+                                logger.Tracef "%s %s: content unchanged" change path
                                 recordEvent path change false
                                 false
                             | _ ->
@@ -896,6 +900,7 @@ type internal Site(config: SiteConfig) =
                                             Hash = hash
                                         })
 
+                                logger.Debugf "%s %s: invalidated" change path
                                 recordEvent path change true
                                 changedFiles.Trigger path
                                 true)
@@ -1192,7 +1197,7 @@ type internal Site(config: SiteConfig) =
                         BuiltAt = Some DateTime.Now
                     }
             with ex ->
-                printfn "Error : \n%O" ex
+                logger.Errorf "API doc generation failed:\n%O" ex
                 contentOptions.OnError(sprintf "API doc generation failed: %s" ex.Message)
 
                 { emptyApi with
@@ -1207,6 +1212,7 @@ type internal Site(config: SiteConfig) =
     let sortedStamps (m: amap<string, FileStamp>) =
         m |> AMap.toAVal |> AVal.map (fun m -> m |> HashMap.toList |> List.sort)
 
+    /// The evaluated projects; recomputed when a project file changes
     let crackState = sortedStamps projects |> Adaptive.mapCached (fun _ -> config.Crack())
 
     /// The site-wide substitutions, from the project files
@@ -1510,7 +1516,7 @@ type internal Site(config: SiteConfig) =
 
     do
         if config.ContentOptions.Evaluate then
-            printfn "note, --eval evaluates a script when its page is first requested"
+            logger.Infof "--eval evaluates a script when its page is first requested"
 
         reconcile ()
         started <- true
@@ -1540,9 +1546,15 @@ type internal Site(config: SiteConfig) =
                 | None -> NotFound
                 | Some node ->
                     let wasOutOfDate = node.OutOfDate
+                    let stopwatch = Stopwatch.StartNew()
 
                     try
                         let response = AVal.force node
+
+                        if wasOutOfDate then
+                            logger.Infof "built %s in %d ms" url stopwatch.ElapsedMilliseconds
+                        else
+                            logger.Debugf "served %s from cache" url
 
                         urlStates.[url] <-
                             {
@@ -1563,7 +1575,7 @@ type internal Site(config: SiteConfig) =
                         | Some r -> Rendered r
                         | None -> NotFound
                     with ex ->
-                        printfn "Error : \n%O" ex
+                        logger.Errorf "%s failed:\n%O" url ex
                         recordError (sprintf "%s: %s" url ex.Message)
 
                         urlStates.[url] <-
@@ -1674,7 +1686,7 @@ type internal Site(config: SiteConfig) =
                     (try
                         reconcile ()
                      with ex ->
-                         printfn "reconcile failed: %s" ex.Message)),
+                         logger.Warnf "reconcile failed: %s" ex.Message)),
                 null,
                 2000,
                 2000
@@ -1691,7 +1703,7 @@ type internal Site(config: SiteConfig) =
                         try
                             AVal.force apiState |> ignore
                         with ex ->
-                            printfn "API docs failed: %s" ex.Message))
+                            logger.Errorf "API docs failed: %s" ex.Message))
                 |> ignore
 
         let apiRebuildScheduled = ref 0
@@ -1820,6 +1832,8 @@ type Doctor =
         Events: DoctorEvent list
         ComputedModels: DoctorComputed list
         Errors: DoctorError list
+        /// The last log lines of the process, oldest first
+        Log: LogLine list
     }
 
 module internal Doctor =
@@ -2018,6 +2032,7 @@ module internal Doctor =
                         }
                 ]
             Errors = [ for (time, msg) in site.Errors -> { Time = time; Message = msg } ]
+            Log = Verbosity.buffer.Lines
         }
 
     let toJson (doctor: Doctor) =
@@ -2292,14 +2307,14 @@ module internal DevServer =
                     |> List.partition (fun n -> n.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
 
                 if not others.IsEmpty then
-                    printfn "Detected change in %s, browser will reload" (String.concat ", " others)
+                    logger.Infof "changed %s, browser will reload" (String.concat ", " others)
                     liveReload.Broadcast "full"
                 else
                     for c in css do
-                        printfn "Detected change in %s, hot swapping css" c
+                        logger.Infof "changed %s, hot swapping css" c
                         liveReload.Broadcast c
             with ex ->
-                printfn "browser reload failed: %O" ex
+                logger.Warnf "browser reload failed: %O" ex
 
         site.Changed.Add(fun path ->
             pending.Enqueue path

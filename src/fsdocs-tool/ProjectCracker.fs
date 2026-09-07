@@ -9,6 +9,7 @@ open System.Xml
 
 open System.Xml.Linq
 open FSharp.Formatting.Templating
+open FSharp.Formatting.Common
 
 open Ionide.ProjInfo
 open Ionide.ProjInfo.Types
@@ -136,10 +137,10 @@ module Utils =
                 match v with
                 | Some v ->
                     if cacheValid v then
-                        printfn "restored project state from '%s'" cacheFile
+                        logger.Debugf "restored project state from '%s'" cacheFile
                         Some v
                     else
-                        printfn "discarding project state in '%s' as now invalid" cacheFile
+                        logger.Debugf "discarding project state in '%s' as now invalid" cacheFile
                         None
                 | None -> None
             else
@@ -474,7 +475,7 @@ module Crack =
                 // Could not determine the assets file location (e.g. old SDK without --getProperty support,
                 // or nonstandard project layout). Warn and continue; if the project truly isn't restored the
                 // subsequent cracking step will fail with a more specific error.
-                printfn $"Warning: could not verify that project '%s{file}' was restored. Proceeding anyway."
+                logger.Warnf $"could not verify that project '%s{file}' was restored. Proceeding anyway."
 
     /// The MSBuild tools path, initialised once per process.
     let private toolsPath =
@@ -515,7 +516,7 @@ module Crack =
                     loader.Notifications.Subscribe(fun msg ->
                         match msg with
                         | WorkspaceProjectState.Failed(file, err) ->
-                            printfn "  could not resolve the references of '%s': %O" (Path.GetFileName file) err
+                            logger.Warnf "could not resolve the references of '%s': %O" (Path.GetFileName file) err
                         | _ -> ())
 
                 let files = group |> List.map fst
@@ -574,7 +575,7 @@ module Crack =
 
                 match slnFiles with
                 | [| sln |] ->
-                    printfn "getting projects from solution file %s" sln
+                    logger.Debugf "getting projects from solution file %s" sln
 
                     let collectionName = defaultArg userCollectionName (Path.GetFileNameWithoutExtension(sln))
 
@@ -617,8 +618,8 @@ module Crack =
                     || s.EndsWith("FSharp.Formatting.TestHelpers.fsproj", StringComparison.Ordinal)
 
                 if isFSharpFormattingTestProject then
-                    printfn
-                        $"  skipping project '%s{Path.GetFileName s}' because the project is part of the FSharp.Formatting test suite."
+                    logger.Debugf
+                        $"skipping project '%s{Path.GetFileName s}' because the project is part of the FSharp.Formatting test suite."
 
                     None
                 else
@@ -640,12 +641,12 @@ module Crack =
         ) : string * string * CrackedProject list * string list * (ParamKey * string) list * bool =
         //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 && (ignoreProjects |> not) then
-            printfn "no project files found, no API docs will be generated"
+            logger.Warnf "no project files found, no API docs will be generated"
 
         if ignoreProjects then
-            printfn "project files are ignored, no API docs will be generated"
+            logger.Infof "project files are ignored, no API docs will be generated"
 
-        printfn "cracking projects..."
+        logger.Debugf "cracking projects..."
 
         let projectInfos =
             projectFiles
@@ -655,8 +656,8 @@ module Crack =
                         try
                             Some(crackProjectFile extraMsbuildProperties p)
                         with e ->
-                            printfn
-                                "  skipping project '%s' because an error occurred while cracking it: %O"
+                            logger.Warnf
+                                "skipping project '%s' because an error occurred while cracking it: %O"
                                 (Path.GetFileName p)
                                 e
 
@@ -677,19 +678,19 @@ module Crack =
                 let shortName = Path.GetFileName info.ProjectFileName
 
                 if info.TargetPath.IsNone then
-                    printfn "  skipping project '%s' because it doesn't have a target path" shortName
+                    logger.Warnf "skipping project '%s' because it doesn't have a target path" shortName
                     None
                 elif not info.IsLibrary && not info.FsDocsAllowExecutableProject then
-                    printfn
-                        "  skipping project '%s' because it isn't a library (add <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject> to include it)"
+                    logger.Debugf
+                        "skipping project '%s' because it isn't a library (add <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject> to include it)"
                         shortName
 
                     None
                 elif info.IsTestProject then
-                    printfn "  skipping project '%s' because it has <IsTestProject> true" shortName
+                    logger.Debugf "skipping project '%s' because it has <IsTestProject> true" shortName
                     None
                 elif not info.GenerateDocumentationFile then
-                    printfn "  skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
+                    logger.Warnf "skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
                     None
                 else
                     Some info)
@@ -697,14 +698,14 @@ module Crack =
         //printfn "projectInfos = %A" projectInfos
 
         if projectInfos.Length = 0 && projectFiles.Length > 0 then
-            printfn "Warning: While cracking project files, no project files succeeded."
+            logger.Warnf "While cracking project files, no project files succeeded."
 
         let param setting key v =
             match v with
             | Some v -> Some(key, v)
             | None ->
                 match setting with
-                | Some setting -> printfn "please set '%s' in 'Directory.Build.props'" setting
+                | Some setting -> logger.Warnf "please set '%s' in 'Directory.Build.props'" setting
                 | None -> ()
 
                 None

@@ -1,5 +1,7 @@
 namespace FSharp.Formatting.Internal
 
+open FSharp.Formatting.Common
+
 open System
 open System.IO
 open System.Text
@@ -43,28 +45,8 @@ module internal Env =
 
 open Env
 
-/// Lightweight structured logger backed by a <see cref="T:System.Diagnostics.TraceSource"/>
-/// named <c>"FSharp.Formatting.Internal"</c>.
-module internal Log =
-    let source = new TraceSource("FSharp.Formatting.Internal")
-
-    /// Emits a trace event of type <paramref name="t"/> using a printf-style format string.
-    let traceEventf t f =
-        Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
-
-    /// Logs an information message.
-    let infof f =
-        traceEventf TraceEventType.Information f
-
-    /// Logs an error message.
-    let errorf f = traceEventf TraceEventType.Error f
-    /// Logs a warning message.
-    let warnf f = traceEventf TraceEventType.Warning f
-    /// Logs a critical message.
-    let critf f = traceEventf TraceEventType.Critical f
-    /// Logs a verbose/diagnostic message.
-    let verbf f = traceEventf TraceEventType.Verbose f
-
+/// Formatting helpers for log messages.
+module internal LogFormat =
     /// Formats a sequence of arguments as a newline-indented list string for log messages.
     let formatArgs (args: _ seq) =
         System.String.Join("\n  ", args) |> sprintf "\n  %s"
@@ -102,7 +84,7 @@ module internal CompilerServiceExtensions =
                     )
                     |> Async.RunSynchronously
 
-                 printfn "isNetCoreApp = %b" isNetCoreApp
+                 logger.Debugf "isNetCoreApp = %b" isNetCoreApp
                  //for r in options.OtherOptions do
                  //    printfn "option: %s" r
 
@@ -172,8 +154,8 @@ module internal CompilerServiceExtensions =
             match tried |> List.tryPick tryCheckFsCore with
             | Some s -> s
             | None ->
-                let paths = Log.formatPaths tried
-                printfn "Could not find a FSharp.Core.dll in %s" paths
+                let paths = LogFormat.formatPaths tried
+                logger.Errorf "Could not find a FSharp.Core.dll in %s" paths
                 failwithf "Could not find a FSharp.Core.dll in %s" paths
 
         /// Returns <c>true</c> if any DLL in the list has the base name <paramref name="asm"/> (case-insensitive).
@@ -276,7 +258,7 @@ module internal CompilerServiceExtensions =
                     dllFiles
                     libDirs
                     otherFlags
-            //Log.verbf "Checker Arguments: %O" (Log.formatArgs args)
+            //Log.verbf "Checker Arguments: %O" (LogFormat.formatArgs args)
 
             let options = checker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
 
@@ -297,11 +279,11 @@ module internal CompilerServiceExtensions =
                 let errorMsg =
                     sprintf "Parsing and checking project failed: \n\t%s" (System.String.Join("\n\t", errors))
 
-                Log.errorf "%s" errorMsg
+                logger.Errorf "%s" errorMsg
                 failwith errorMsg
             else if results.Diagnostics.Length > 0 then
                 let warnings = results.Diagnostics |> Seq.map mapError
-                Log.warnf "Parsing and checking warnings: \n\t%s" (System.String.Join("\n\t", warnings))
+                logger.Warnf "Parsing and checking warnings: \n\t%s" (System.String.Join("\n\t", warnings))
 
             let references = results.ProjectContext.GetReferencedAssemblies()
 
@@ -438,7 +420,7 @@ type internal FsiEvaluationException
                 (nl x.Result.Error.Merged)
                 (nl x.Result.Output.Merged)
                 (nl x.Input)
-                (Log.formatArgs args)
+                (LogFormat.formatArgs args)
                 (base.ToString())
 
 /// Exception for invalid expression types
@@ -660,7 +642,7 @@ type internal FsiOptions =
         else
             let fsCore = FSharpAssemblyHelper.findFSCore [] includes
 
-            Log.verbf "Using FSharp.Core: %s" fsCore
+            logger.Debugf "Using FSharp.Core: %s" fsCore
 
             { FsiOptions.Empty with
                 LibDirs = includes
@@ -1062,7 +1044,7 @@ type internal FsiSession
     // Build command line arguments & start FSI session
     let args = [| yield "C:\\fsi.exe"; yield! options.AsArgs |]
 
-    do Log.verbf "Starting nested fsi.exe with args: %s" (Log.formatArgs args)
+    do logger.Debugf "Starting nested fsi.exe with args: %s" (LogFormat.formatArgs args)
 
     let saveOutput () =
         let out = out.GetOutputAndResetLocal()
@@ -1104,7 +1086,7 @@ type internal FsiSession
             raise
             <| new FsiEvaluationException(
                 "Error while creating a fsi session.",
-                sprintf "Fsi Arguments: %s" (Log.formatArgs args),
+                sprintf "Fsi Arguments: %s" (LogFormat.formatArgs args),
                 args |> Array.toList |> Some,
                 { Output = out; Error = err },
                 e

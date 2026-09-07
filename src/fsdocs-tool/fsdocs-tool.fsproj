@@ -16,6 +16,7 @@
   </PropertyGroup>
     
   <ItemGroup>
+    <Compile Include="Log.fs" />
     <Compile Include="Options.fs" />
     <Compile Include="ProjectCracker.fs" />
     <Compile Include="DocContent.fs" />
@@ -60,5 +61,6 @@
     <PackageReference Include="Ionide.ProjInfo" />
     <PackageReference Include="Suave" />
     <PackageReference Include="FSharp.Data.Adaptive" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 </Project>
