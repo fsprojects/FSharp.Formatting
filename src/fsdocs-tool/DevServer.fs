@@ -24,10 +24,8 @@ open Suave.WebSocket
 open Suave.Operators
 open Suave.Filters
 
-/// Processes and runs Suave server to host them on localhost
 module Serve =
 
-    /// generate the script to inject into html to enable hot reload during development
     let generateWatchScript () =
         """
 <script type="text/javascript">
@@ -471,7 +469,6 @@ module Serve =
         startWebServerAsync serverConfig app |> snd |> ignore
 
 
-/// The websocket clients of the browser live reload and the broadcasts to them.
 type internal LiveReload() =
     let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 
@@ -503,7 +500,6 @@ type internal LiveReload() =
             }
         )
 
-    /// Send a message to every connected browser: a css file name is hot swapped, anything else reloads the page.
     member _.Broadcast(msg: string) =
         let msg = msg |> Encoding.UTF8.GetBytes |> ByteSegment
 
@@ -547,7 +543,6 @@ module internal Adaptive =
     let ofList (xs: aval<'a> list) : aval<'a list> =
         AVal.custom (fun token -> xs |> List.map (fun x -> x.GetValue token))
 
-/// Identity of a watched file as seen by the dependency graph.
 [<Struct>]
 type internal RefreshCause =
     /// The file system raised an event about this one file
@@ -560,11 +555,9 @@ type internal FileStamp =
     {
         Length: int64
         LastWriteUtc: DateTime
-        /// SHA-256 of the content for files whose content feeds the graph, otherwise empty
         Hash: string
     }
 
-/// A content page served by the site: the input file and how it is rendered for one output kind.
 type internal ContentRoute =
     {
         InputFile: string
@@ -572,14 +565,11 @@ type internal ContentRoute =
         Template: string option
         OutputFileRelativeToRoot: string
         OutputFolderRelativeToRoot: string
-        /// The folder containing the input file
         InputFolder: string
-        /// The input root (as given on the command line) this file belongs to
         RootInputFolder: string
         IsOtherLang: bool
     }
 
-/// What a URL of the site resolves to.
 type internal Route =
     | ContentPage of ContentRoute
     | StaticFile of sourceFullPath: string
@@ -588,20 +578,15 @@ type internal Route =
     | LlmsTxt
     | LlmsFullTxt
 
-/// Cheap facts about a content file, recomputed when the file changes.
 type internal ContentMeta =
     {
         FrontMatter: ScannedFrontMatter
-        /// The front matter used for next/previous links, present only when complete
         FrontMatterFile: FrontMatterFile option
-        /// Full paths of the files loaded with '#load'
         Loads: string list
-        /// Whether the file mentions 'cref:' and therefore needs the API model
         UsesCref: bool
         Error: string option
     }
 
-/// The result of scanning the input trees.
 type internal ScanResult =
     {
         Routes: Map<string, Route>
@@ -612,14 +597,11 @@ type internal ScanResult =
         Skipped: (string * string) list
     }
 
-/// The API documentation model with its page renderers, rebuilt when a project DLL changes.
 [<ReferenceEquality>]
 type internal ApiState =
     {
         Phased: ApiDocsPhased option
-        /// The global substitutions for a page with the given relative root
         GlobalsFor: string -> Substitutions
-        /// The 'cref:' resolver for a page with the given relative root
         CrefResolver: string -> string -> (string * string) option
         Pages: Map<string, string option -> Substitutions -> string>
         SearchIndex: ApiDocsSearchIndexEntry array
@@ -657,11 +639,8 @@ type internal UrlState =
 type internal SiteConfig =
     {
         Input: string
-        /// Extra input folders (as given) and the output folder they map to
         ExtraInputs: (string * string) list
-        /// The folder holding the default template, watched for changes
         DefaultTemplateFolder: string option
-        /// The absolute URL of the site; the pages use relative roots
         Root: string
         CollectionName: string
         DefaultTemplate: string option
@@ -669,26 +648,17 @@ type internal SiteConfig =
         GenerateLlmsTxt: bool
         IgnoreUncategorized: bool
         ContentOptions: ContentOptions
-        /// The project DLLs feeding the API docs
         ApiDllPaths: string list
         ApiDocsOutputKind: OutputKind
         ApiDocsTemplate: string option
-        /// Generate the API docs for a (virtual) output folder, None when there are none
         GenerateApi: CrackResult -> string -> ApiDocsPhased option
-        /// Re-crack the projects from disk (an evaluation, no design-time build); called when a
-        /// project file changes
         Crack: unit -> CrackResult
-        /// Run the design-time build of the projects on disk and return the crack result with the
-        /// references and the properties set by targets; 'true' skips the on-disk cache
         Resolve: bool -> CrackResult
-        /// The project files and solution-wide MSBuild files that feed the crack
         ProjectFiles: string list
         WatchScript: string
         Diagnostics: Diagnostics
     }
 
-/// The documentation site as an adaptive dependency graph: every URL is computed on first
-/// request and cached until a watched file that influences it changes. No output folder is written.
 type internal Site(config: SiteConfig) =
     let sep = string<char> Path.DirectorySeparatorChar
     let inputRoot = Path.GetFullPath config.Input
@@ -1580,15 +1550,11 @@ type internal Site(config: SiteConfig) =
         reconcile ()
         started <- true
 
-    /// The mime type for a static file.
     member _.MimeOf(path: string) = mimeOf path
 
-    /// Resolve a URL path (e.g. '/index.html') to what it is served from.
     member _.Resolve(url: string) : Route option =
         lock renderLock (fun () -> resolve (normalizeUrl url))
 
-    /// The URL to redirect a folder URL without its trailing slash to (e.g. '/docs' to '/docs/'), as
-    /// static web servers do. The relative links of the index page only work with the slash.
     member _.RedirectTo(url: string) : string option =
         let url = normalizeUrl url
 
@@ -1602,7 +1568,6 @@ type internal Site(config: SiteConfig) =
             else
                 None)
 
-    /// Compute (or reuse) the response for a URL path. Static files are read from their source.
     member _.Render(url: string) : RenderResult =
         let url = normalizeUrl url
 
@@ -1671,26 +1636,18 @@ type internal Site(config: SiteConfig) =
     /// Bring the graph up to date with a file that may have changed.
     member _.Refresh(path: string) = refresh FileEvent "changed" path
 
-    /// Walk the watched roots and refresh every difference with the last snapshot.
     member _.Reconcile() = reconcile ()
 
-    /// Raised (with the full path) whenever a change invalidated something in the graph.
     member _.Changed = changedFiles.Publish
 
-    /// The number of content page models computed so far.
     member _.ModelComputations = modelComputations
 
-    /// The content page models computed so far, oldest first (at most the last 500).
     member _.ComputedModels = computedModels |> Seq.toList
 
-    /// The current scan of the input trees.
     member _.Scan = AVal.force scan
 
-    /// The current crack result (re-cracks when a project file changed), with the design-time
-    /// build when it ran.
     member _.CrackResult = lock renderLock (fun () -> AVal.force resolvedCrack)
 
-    /// When the design-time build of the current projects ran in this session, if it did.
     member _.DesignTimeBuiltAt =
         lock renderLock (fun () ->
             let crack = AVal.force crackState
@@ -1699,23 +1656,19 @@ type internal Site(config: SiteConfig) =
             | Some(evaluated, _, at) when obj.ReferenceEquals(evaluated, crack) -> Some at
             | _ -> None)
 
-    /// Run the design-time build of the projects now, skipping the cache.
     member _.RunDesignTimeBuild() =
         lock renderLock (fun () -> ensureDesignTime true)
 
-    /// The API docs state when it has been built, None when it is not built or being built.
     member _.ApiState =
         if apiState.OutOfDate then
             None
         else
             Some(AVal.force apiState)
 
-    /// Whether the API docs are being generated right now.
     member _.ApiBuilding = apiBuilding
 
     member _.UrlStates = urlStates.Values |> Seq.sortBy (fun s -> s.Url) |> List.ofSeq
 
-    /// The cache state of every URL that has a node, whether requested since its last invalidation or not.
     member _.NodeStates =
         [
             for KeyValue(route, node) in rendered ->
@@ -1734,13 +1687,10 @@ type internal Site(config: SiteConfig) =
 
     member _.Events = events |> Seq.toList
 
-    /// The error messages reported while computing pages and API docs, oldest first.
     member _.Errors = errors |> Seq.toList
 
     member _.Config = config
 
-    /// Warn when the logo or the favicon of the site is not served: the value comes from the cracked
-    /// projects (or the default), which need not match the input folder when the tool runs elsewhere.
     member _.CheckAssets() =
         for (key, setting) in Content.assetSubstitutions do
             match AVal.force substitutions |> List.tryFind (fst >> (=) key) with
@@ -1755,7 +1705,6 @@ type internal Site(config: SiteConfig) =
                         url
             | _ -> ()
 
-    /// Start the file watchers, the reconciler and the background API docs build.
     member this.Start() =
         // File system events are hints to refresh a path now
         let watcherFor (folder: string) (filter: string) =
@@ -1836,8 +1785,6 @@ type internal Site(config: SiteConfig) =
             for d in disposables do
                 d.Dispose()
 
-/// The state of the watch session, as shown by /.fsdocs/doctor and /.fsdocs/doctor.json.
-/// Plain records and strings only, so System.Text.Json can serialize it.
 type DoctorSubstitution =
     {
         Key: string
@@ -1857,11 +1804,9 @@ type DoctorProject =
         ProjectFile: string
         TargetPath: string
         TargetExists: bool
-        /// 'done' once the design-time build ran, else 'not run yet'
         DesignTimeBuild: string
         References: string list
         DroppedReferences: string list
-        /// The substitutions whose value the design-time build changed (properties set by targets)
         ChangedByDesignTimeBuild: DoctorSubstitutionChange list
         OverridingSubstitutions: DoctorSubstitution list
     }
@@ -1936,7 +1881,6 @@ type Doctor =
         GenerateLlmsTxt: bool
         IgnoredOptions: IgnoredOption list
         Projects: DoctorProject list
-        /// When the design-time build of the projects ran in this session, None when it did not
         DesignTimeBuiltAt: DateTime option
         Substitutions: DoctorSubstitution list
         DefaultTemplate: ResolutionDiagnostics
@@ -1954,7 +1898,6 @@ type Doctor =
         Events: DoctorEvent list
         ComputedModels: DoctorComputed list
         Errors: DoctorError list
-        /// The last log lines of the process, oldest first
         Log: LogLine list
     }
 
@@ -2380,7 +2323,6 @@ module internal Doctor =
         sb.Append("</body></html>\n") |> ignore
         sb.ToString()
 
-/// The Suave application serving a Site.
 module internal DevServer =
 
     let errorPage (url: string) (ex: exn) =

@@ -1132,7 +1132,6 @@ type CoreBuildOptions(watch) =
 
             if ok then 0 else 1
 
-    /// Options given on the command line that have no effect for this command.
     abstract ignoredOptions: IgnoredOption list
     default x.ignoredOptions = []
 
@@ -1157,19 +1156,19 @@ module private ConvertHelpers =
     open System.Text.RegularExpressions
 
     // Compiled at module load; shared across all calls to embedResourcesInHtml.
-    let private cssPattern =
+    let cssPattern =
         Regex(
             """<link\b(?=[^>]*\brel=["']stylesheet["'])[^>]*\bhref=["']([^"']+)["'][^>]*/?>""",
             RegexOptions.IgnoreCase ||| RegexOptions.Compiled
         )
 
-    let private jsPattern =
+    let jsPattern =
         Regex(
             """<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*</script>""",
             RegexOptions.IgnoreCase ||| RegexOptions.Compiled
         )
 
-    let private imgPattern =
+    let imgPattern =
         Regex("""(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)""", RegexOptions.IgnoreCase ||| RegexOptions.Compiled)
 
     /// Return candidate directories in which to search for locally-referenced assets (CSS, JS, images).

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,15 +14,18 @@
       The 'dotnet fsdocs' documentation generation tool for F# projects. Install use 'dotnet tool add fsdocs-tool'. See the project site for documentation.
     </Description>
   </PropertyGroup>
-    
+
   <ItemGroup>
     <Compile Include="Log.fs" />
     <Compile Include="Options.fs" />
+    <Compile Include="ProjectCracker.fsi" />
     <Compile Include="ProjectCracker.fs" />
     <Compile Include="DocContent.fs" />
     <Compile Include="LlmsTxt.fs" />
     <Compile Include="Diagnostics.fs" />
+    <Compile Include="DevServer.fsi" />
     <Compile Include="DevServer.fs" />
+    <Compile Include="BuildCommand.fsi" />
     <Compile Include="BuildCommand.fs" />
     <Compile Include="InitCommand.fs" />
     <Compile Include="Program.fs" />
