@@ -394,19 +394,11 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         let mutable hasErrors = false
 
         for (SourceError((l0, c0), (l1, c1), kind, msg)) in diagnostics do
-            printfn
-                "   %s: %s(%d,%d)-(%d,%d) %s"
-                filePath
-                (if kind = ErrorKind.Error then
-                     hasErrors <- true
-                     "error"
-                 else
-                     "warning")
-                l0
-                c0
-                l1
-                c1
-                msg
+            if kind = ErrorKind.Error then
+                hasErrors <- true
+                logger.Errorf "%s(%d,%d)-(%d,%d): error: %s" filePath l0 c0 l1 c1 msg
+            else
+                logger.Warnf "%s(%d,%d)-(%d,%d): warning: %s" filePath l0 c0 l1 c1 msg
 
         if hasErrors then
             ctx.OnError(sprintf "errors found in '%s'" filePath)
@@ -483,5 +475,5 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                 let lines = commentText.Split '\n'
                 FrontMatterFile.ParseFromLines fileName lines
         with ex ->
-            printfn "Failed to find frontmatter in %s, %A" fileName ex
+            logger.Warnf "Failed to find frontmatter in %s, %A" fileName ex
             None

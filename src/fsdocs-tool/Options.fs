@@ -39,7 +39,7 @@ module Common =
     /// If b is true, prints a prompt and blocks until the user presses Ctrl+C
     let waitForKey b =
         if b then
-            printf "\nPress Ctrl+C to stop ..."
+            printfn "Press Ctrl+C to stop ..."
             let exiting = new System.Threading.ManualResetEventSlim(false)
 
             System.Console.CancelKeyPress.AddHandler(fun _ ea ->

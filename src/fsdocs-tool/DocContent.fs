@@ -158,7 +158,7 @@ module internal Content =
 
                     Some uri
                 with _ ->
-                    printfn
+                    logger.Warnf
                         $"Couldn't map markdown reference %s{markdownReference} that seemed to correspond to an input file"
 
                     None
@@ -353,7 +353,7 @@ module internal Content =
         let onError = options.OnError
 
         if isFsxFile inputFileFullPath then
-            printfn "  generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
+            logger.Debugf "generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
             let fsiEvaluator =
                 (if options.Evaluate then
@@ -384,7 +384,7 @@ module internal Content =
                 fsiEvaluator |> Option.iter (fun e -> e.Dispose())
 
         elif isMdFile inputFileFullPath then
-            printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+            logger.Debugf "preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
             Literate.ParseAndTransformMarkdownFile(
                 inputFileFullPath,
@@ -405,11 +405,11 @@ module internal Content =
                 filesWithFrontMatter = filesWithFrontMatter
             )
         elif isPynbFile inputFileFullPath then
-            printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+            logger.Debugf "preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
             if options.Evaluate then
                 checkDotnetReplInstall ()
-                printfn $"  evaluating %s{inputFileFullPath} with dotnet-repl"
+                logger.Debugf $"evaluating %s{inputFileFullPath} with dotnet-repl"
                 evaluateNotebook inputFileFullPath
 
             Literate.ParseAndTransformPynbFile(
@@ -622,7 +622,7 @@ type internal DocContent
                 let fn = sprintf "%s/%s" rootOutputFolderAsGiven url2
 
                 ensureDirectory (sprintf "%s/savedimages" rootOutputFolderAsGiven)
-                printfn "downloading %s --> %s" url fn
+                logger.Debugf "downloading %s --> %s" url fn
                 let bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult()
                 File.WriteAllBytes(fn, bytes)
                 url2
@@ -695,7 +695,7 @@ type internal DocContent
             let name = Path.GetFileName(inputFileFullPath)
 
             if name.StartsWith('.') then
-                printfn "skipping file %s" inputFileFullPath
+                logger.Debugf "skipping file %s" inputFileFullPath
             elif not (Content.isSkippedFileName name) then
                 let isContent = Content.isContentFile inputFileFullPath
 
@@ -792,7 +792,7 @@ type internal DocContent
                                   else
                                       None),
                                  (fun p ->
-                                     printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                     logger.Debugf "writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
                                      ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
 
                                      SimpleTemplating.WriteOutputFile(
@@ -804,7 +804,7 @@ type internal DocContent
                             yield
                                 (None,
                                  (fun _p ->
-                                     printfn "  copying %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                     logger.Debugf "copying %s --> %s" inputFileFullPath outputFileRelativeToRoot
                                      ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
                                      // check the file still exists for the incremental case
                                      if (File.Exists inputFileFullPath) then
@@ -916,7 +916,7 @@ type internal DocContent
 
                 if subFolderIsOutput || subFolderIsSkipped then
 
-                    printfn "  skipping directory %s" subInputFolderFullPath
+                    logger.Debugf "skipping directory %s" subInputFolderFullPath
                 else
                     yield!
                         processFolder

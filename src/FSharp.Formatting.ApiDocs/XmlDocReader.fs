@@ -196,7 +196,7 @@ module internal XmlDocReader =
 
                     if not (isNull cref) then
                         if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-                            printfn "ignoring invalid cref specified in: %A" e
+                            logger.Warnf "ignoring invalid cref specified in: %A" e
 
                         // Older FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
                         let cname = cref.Value
@@ -348,7 +348,7 @@ module internal XmlDocReader =
 
                     if not (isNull cref) then
                         if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-                            printfn "Warning: Invalid cref specified in: %A" doc
+                            logger.Warnf "Invalid cref specified in: %A" doc
 
                         else
                             // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805

@@ -57,6 +57,24 @@ type internal Fixture() =
     member _.Project = project
 
     member _.Config: SiteConfig =
+        let crack () : CrackResult =
+            {
+                Substitutions =
+                    [
+                        FSharp.Formatting.Templating.ParamKey "fsdocs-collection-name",
+                        (if File.Exists project then
+                             File.ReadAllText(project).Trim()
+                         else
+                             "Test")
+                    ]
+                SubstitutionDiagnostics = []
+                ApiDocInputs = []
+                ApiDocOtherFlags = []
+                LibDirs = []
+                Projects = []
+                References = []
+            }
+
         {
             Input = input
             ExtraInputs = [ (extras, ".") ]
@@ -78,24 +96,7 @@ type internal Fixture() =
             ApiDocsOutputKind = OutputKind.Html
             ApiDocsTemplate = None
             GenerateApi = (fun _ _ -> None)
-            Crack =
-                (fun () ->
-                    {
-                        Substitutions =
-                            [
-                                FSharp.Formatting.Templating.ParamKey "fsdocs-collection-name",
-                                (if File.Exists project then
-                                     File.ReadAllText(project).Trim()
-                                 else
-                                     "Test")
-                            ]
-                        SubstitutionDiagnostics = []
-                        ApiDocInputs = []
-                        ApiDocOtherFlags = []
-                        LibDirs = []
-                        Projects = []
-                        References = []
-                    })
+            Crack = crack
             ProjectFiles = [ project ]
             WatchScript = ""
             Diagnostics =

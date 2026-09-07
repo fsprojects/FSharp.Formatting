@@ -22,6 +22,7 @@
 * Fix `FrontMatterFile.ParseFromLines` truncating front-matter values that contain a `:` character (e.g. `title: F#: An Introduction` was previously captured as just `F#`). Additional colons in a value are now preserved.
 
 ### Added
+* Logging goes through `Microsoft.Extensions.Logging`. The libraries are silent by default; hosts set `FSharp.Formatting.Common.Logging.LoggerFactory` or call `Logging.UseConsole(level)`. The tool has `-v`/`--verbosity quiet|minimal|normal|detailed|diagnostic` on `build`, `watch`, `convert` and `init`; `normal` prints one line per phase with counts and durations instead of one line per file, warnings and errors go to standard error with a `warning:`/`error:` prefix, and the doctor shows the last log lines.
 * `fsdocs watch` builds the API reference in the background at startup and after a project DLL or project file change, so no page request waits for it. Project files and the solution-wide MSBuild files are watched: a change re-cracks the projects, so substitutions such as `<FsDocsLogoSource>` and the compiler references are picked up without a restart.
 
 ### Removed

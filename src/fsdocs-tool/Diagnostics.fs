@@ -159,34 +159,33 @@ module internal Diagnostics =
                 }
         ]
 
-    /// The 'Inputs for API Docs' block of the console output.
-    let printInputs (d: Diagnostics) =
+    /// Log the session: a one-line summary at information level, the details at debug level.
+    let log (d: Diagnostics) =
         if not d.Projects.IsEmpty then
-            printfn ""
-            printfn "Inputs for API Docs:"
+            logger.Infof
+                "%d projects for the API docs, %d substitutions (use --verbosity detailed to list them)"
+                d.Projects.Length
+                d.Substitutions.Length
+
+            logger.Debugf "Inputs for API Docs:"
 
             for p in d.Projects do
-                printfn "    %s" p.TargetPath
+                logger.Debugf "    %s" p.TargetPath
 
-    /// The 'Substitutions/parameters' block of the console output.
-    let printSubstitutions (d: Diagnostics) =
-        if not d.Projects.IsEmpty then
-            printfn ""
-            printfn "Substitutions/parameters:"
+            logger.Debugf "Substitutions/parameters:"
 
             for s in d.Substitutions do
-                printfn "  %s --> %s" s.Key s.Value
+                logger.Debugf "  %s --> %s" s.Key s.Value
 
             for p in d.Projects do
                 for (key, value) in p.OverridingSubstitutions do
-                    printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(p.TargetPath)) key value
+                    logger.Debugf "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(p.TargetPath)) key value
 
-    let printExtras (d: Diagnostics) =
         match d.Extras.Chosen, d.Extras.Tried with
-        | Some chosen, _ -> printfn "using extra content from %s" chosen
-        | None, [ attempt1; attempt2 ] -> printfn "no extra content found at %s or %s" attempt1 attempt2
+        | Some chosen, _ -> logger.Debugf "using extra content from %s" chosen
+        | None, [ attempt1; attempt2 ] -> logger.Warnf "no extra content found at %s or %s" attempt1 attempt2
         | None, _ -> ()
 
-    let printIgnoredOptions (d: Diagnostics) =
+    let logIgnoredOptions (d: Diagnostics) =
         for o in d.IgnoredOptions do
-            printfn "note, ignoring --%s: %s" o.Option o.Reason
+            logger.Warnf "ignoring --%s: %s" o.Option o.Reason

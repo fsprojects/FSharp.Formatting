@@ -13,6 +13,7 @@ open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Literate.Evaluation
 open fsdocs.Common
 open FSharp.Formatting.Templating
+open Microsoft.Extensions.Logging
 
 type CoreBuildOptions(watch) =
 
@@ -112,11 +113,21 @@ type CoreBuildOptions(watch) =
     [<Option("clean", Required = false, Default = false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
+    [<Option('v',
+             "verbosity",
+             Required = false,
+             Default = "normal",
+             HelpText = "How much to log: quiet, minimal, normal, detailed or diagnostic.")>]
+    member val verbosity = "normal" with get, set
+
     member this.Execute() =
+
+        if not (Verbosity.configure this.verbosity) then
+            exit 1
 
         let onError msg =
             if this.strict then
-                printfn "%s" msg
+                logger.Errorf "%s" msg
                 exit 1
 
         let protect phase f =
@@ -124,7 +135,7 @@ type CoreBuildOptions(watch) =
                 f ()
                 true
             with ex ->
-                printfn "Error : \n%O" ex
+                logger.Errorf "%s failed:\n%O" phase ex
 
                 onError (sprintf "%s failed, and --strict is on : \n%O" phase ex)
                 false
@@ -134,7 +145,7 @@ type CoreBuildOptions(watch) =
             let parameters = Array.ofSeq this.parameters
 
             if parameters.Length % 2 = 1 then
-                printfn "The --parameters option's arguments' count has to be an even number"
+                logger.Errorf "The --parameters option's arguments' count has to be an even number"
                 exit 1
 
             evalPairwiseStringsNoOption parameters
@@ -154,7 +165,7 @@ type CoreBuildOptions(watch) =
                     userParametersDict.ContainsKey(ParamKeys.root)
                     && this.root_override_option.IsNone
                 then
-                    printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
+                    logger.Warnf "ignoring user-specified root since in watch mode, root = %s" userRoot
 
                 let userParameters =
                     [ ParamKeys.root, userRoot ]
@@ -310,7 +321,7 @@ type CoreBuildOptions(watch) =
 
             let resolved, _ =
                 Utils.cacheBinary ".fsdocs/references" (fun (_, key2) -> key = key2) (fun () ->
-                    printfn "  resolving the references of %d projects..." crackedProjects.Length
+                    logger.Infof "resolving the references of %d projects..." crackedProjects.Length
 
                     let options =
                         Crack.resolveCompilerOptions
@@ -338,7 +349,7 @@ type CoreBuildOptions(watch) =
                     let kept, dropped = refs |> List.partition File.Exists
 
                     for r in dropped do
-                        printfn "NOTE: the reference '-r:%s' was not seen on disk, ignoring" r
+                        logger.Warnf "the reference '-r:%s' was not seen on disk, ignoring" r
 
                     {
                         ProjectFile = project.ProjectFileName
@@ -564,7 +575,7 @@ type CoreBuildOptions(watch) =
                 MenuTemplatesFound = Menu.isTemplatingAvailable this.input
             }
 
-        Diagnostics.printInputs diagnostics
+        Diagnostics.log diagnostics
 
         for project in diagnostics.Projects do
             if not project.TargetExists then
@@ -573,10 +584,8 @@ type CoreBuildOptions(watch) =
                         "*** %s does not exist, has it been built? You may need to provide --properties Configuration=Release."
                         project.TargetPath
 
-                if this.strict then failwith msg else printfn "%s" msg
+                if this.strict then failwith msg else logger.Warnf "%s" msg
 
-        Diagnostics.printSubstitutions diagnostics
-        Diagnostics.printExtras diagnostics
 
         // The incremental state (as well as the files written to disk)
         let mutable latestApiDocModel = None
@@ -637,45 +646,58 @@ type CoreBuildOptions(watch) =
             if crack.ApiDocInputs.IsEmpty || this.noapidocs then
                 None
             else
-                apiDocsTemplateResolution.Note |> Option.iter (printfn "%s")
+                apiDocsTemplateResolution.Note
+                |> Option.iter (fun note -> logger.Warnf "%s" note)
 
-                printfn ""
-                printfn "API docs:"
-                printfn "  generating model for %d assemblies in API docs..." crack.ApiDocInputs.Length
+                logger.Infof "API docs: generating the model for %d assemblies..." crack.ApiDocInputs.Length
+                let stopwatch = Stopwatch.StartNew()
 
-                match apiDocsOutputKind with
-                | OutputKind.Html ->
-                    Some(
-                        ApiDocs.GenerateHtmlPhased(
-                            inputs = crack.ApiDocInputs,
-                            output = outputFolder,
-                            collectionName = collectionName,
-                            substitutions = crack.Substitutions,
-                            qualify = this.qualify,
-                            ?template = apiDocsTemplate,
-                            otherFlags = crack.ApiDocOtherFlags,
-                            root = root,
-                            libDirs = crack.LibDirs,
-                            onError = onError,
-                            menuTemplateFolder = this.input
+                let phased =
+                    match apiDocsOutputKind with
+                    | OutputKind.Html ->
+                        Some(
+                            ApiDocs.GenerateHtmlPhased(
+                                inputs = crack.ApiDocInputs,
+                                output = outputFolder,
+                                collectionName = collectionName,
+                                substitutions = crack.Substitutions,
+                                qualify = this.qualify,
+                                ?template = apiDocsTemplate,
+                                otherFlags = crack.ApiDocOtherFlags,
+                                root = root,
+                                libDirs = crack.LibDirs,
+                                onError = onError,
+                                menuTemplateFolder = this.input
+                            )
                         )
-                    )
-                | OutputKind.Markdown ->
-                    Some(
-                        ApiDocs.GenerateMarkdownPhased(
-                            inputs = crack.ApiDocInputs,
-                            output = outputFolder,
-                            collectionName = collectionName,
-                            substitutions = crack.Substitutions,
-                            qualify = this.qualify,
-                            ?template = apiDocsTemplate,
-                            otherFlags = crack.ApiDocOtherFlags,
-                            root = root,
-                            libDirs = crack.LibDirs,
-                            onError = onError
+                    | OutputKind.Markdown ->
+                        Some(
+                            ApiDocs.GenerateMarkdownPhased(
+                                inputs = crack.ApiDocInputs,
+                                output = outputFolder,
+                                collectionName = collectionName,
+                                substitutions = crack.Substitutions,
+                                qualify = this.qualify,
+                                ?template = apiDocsTemplate,
+                                otherFlags = crack.ApiDocOtherFlags,
+                                root = root,
+                                libDirs = crack.LibDirs,
+                                onError = onError
+                            )
                         )
-                    )
-                | outputKind -> failwithf "API Docs format '%A' is not supported" outputKind
+                    | outputKind -> failwithf "API Docs format '%A' is not supported" outputKind
+
+                phased
+                |> Option.iter (fun phased ->
+                    let namespaces = phased.Model.Collection.Namespaces
+
+                    logger.Infof
+                        "API docs: %d namespaces, %d entities in %.1f s"
+                        namespaces.Length
+                        (namespaces |> List.sumBy (fun ns -> ns.Entities.Length))
+                        stopwatch.Elapsed.TotalSeconds)
+
+                phased
 
         /// Resolve 'cref:' code references in content with respect to the API Docs model
         let makeCodeReferenceResolver (model: ApiDocModel) (s: string) =
@@ -703,8 +725,7 @@ type CoreBuildOptions(watch) =
 
         let runGeneratePhase2 () =
             protect "API doc generation (phase 2)" (fun () ->
-                printfn ""
-                printfn "Write API Docs:"
+                logger.Debugf "writing the API docs"
 
                 let globals = getLatestWatchScript () @ getLatestGlobalParameters ()
 
@@ -716,8 +737,7 @@ type CoreBuildOptions(watch) =
             protect "Content generation (phase 1)" (fun () ->
                 //printfn "projectInfos = %A" projectInfos
 
-                printfn ""
-                printfn "Content:"
+                let stopwatch = Stopwatch.StartNew()
 
                 let saveImages =
                     (match this.saveImages with
@@ -760,6 +780,8 @@ type CoreBuildOptions(watch) =
                     docContent.Convert(this.input, defaultTemplate, extraInputs, ?defaultMdTemplate = mdTemplate)
 
                 let actualDocModels = docModels |> List.map fst |> List.choose id
+
+                logger.Infof "Content: %d pages in %.1f s" actualDocModels.Length stopwatch.Elapsed.TotalSeconds
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
                 // Pre-compute the navigation structure once; returned closure cheaply
@@ -812,8 +834,7 @@ type CoreBuildOptions(watch) =
 
                 latestDocContentPhase2 <-
                     (fun globals ->
-                        printfn ""
-                        printfn "Write Content:"
+                        logger.Debugf "writing the content"
 
                         for (optDocModel, action) in docModels do
                             let globals =
@@ -842,10 +863,10 @@ type CoreBuildOptions(watch) =
         // Watch: a lazy site served from memory, no output folder
 
         if watch then
-            Diagnostics.printIgnoredOptions diagnostics
+            Diagnostics.logIgnoredOptions diagnostics
 
             // Errors are printed, never fatal: the server stays up so the page can be fixed and reloaded
-            let siteOnError msg = printfn "%s" msg
+            let siteOnError msg = logger.Errorf "%s" msg
 
             let config: SiteConfig =
                 {
@@ -878,22 +899,20 @@ type CoreBuildOptions(watch) =
             use site = new Site(config)
             site.Start()
 
-            printfn ""
-
-            printfn "starting server on http://localhost:%d for content in %s" this.port_option this.input
-            printfn "pages are built when first requested; see http://localhost:%d/.fsdocs/doctor" this.port_option
+            logger.Infof "starting server on http://localhost:%d for content in %s" this.port_option this.input
+            logger.Infof "pages are built when first requested; see http://localhost:%d/.fsdocs/doctor" this.port_option
 
             DevServer.startWebServer site this.port_option
 
             if not this.nolaunch_option then
                 let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
 
-                printfn "launching browser window to open %s" url
+                logger.Infof "launching browser window to open %s" url
 
                 try
                     Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
                 with ex ->
-                    printfn "Warning, unable to launch browser(%s), try manually browsing to %s" ex.Message url
+                    logger.Warnf "unable to launch browser (%s), try manually browsing to %s" ex.Message url
 
             waitForKey watch
             0
@@ -924,9 +943,9 @@ type CoreBuildOptions(watch) =
                     try
                         clean rootOutputFolderFullPath
                     with e ->
-                        printfn "warning: error during cleaning, continuing: %s" e.Message
+                        logger.Warnf "error during cleaning, continuing: %s" e.Message
                 else
-                    printfn "warning: skipping cleaning due to strange output path: \"%s\"" rootOutputFolderAsGiven
+                    logger.Warnf "skipping cleaning due to strange output path: \"%s\"" rootOutputFolderAsGiven
 
             //-----------------------------------------
             // Build
@@ -1160,11 +1179,21 @@ type ConvertCommand() =
                  "Disable automatic inlining of local CSS, JS, and images into the output HTML. By default, when a template is used for HTML output, all locally-referenced assets are embedded so the output is a self-contained single file.")>]
     member val noEmbedResources = false with get, set
 
+    [<Option('v',
+             "verbosity",
+             Required = false,
+             Default = "normal",
+             HelpText = "How much to log: quiet, minimal, normal, detailed or diagnostic.")>]
+    member val verbosity = "normal" with get, set
+
     member this.Execute() =
+        if not (Verbosity.configure this.verbosity) then
+            exit 1
+
         let inputFile = Path.GetFullPath(this.input)
 
         if not (File.Exists inputFile) then
-            printfn "error: input file '%s' does not exist" inputFile
+            logger.Errorf "input file '%s' does not exist" inputFile
             1
         else
 
@@ -1226,7 +1255,7 @@ type ConvertCommand() =
                 let parameters = Array.ofSeq this.parameters
 
                 if parameters.Length % 2 = 1 then
-                    printfn "The --parameters option's argument count must be even"
+                    logger.Errorf "The --parameters option's argument count must be even"
                     exit 1
 
                 evalPairwiseStringsNoOption parameters
@@ -1298,7 +1327,7 @@ type ConvertCommand() =
 
             try
                 if isMd then
-                    printfn "converting %s --> %s" inputFile outputFile
+                    logger.Infof "converting %s --> %s" inputFile outputFile
 
                     Literate.ConvertMarkdownFile(
                         inputFile,
@@ -1311,7 +1340,7 @@ type ConvertCommand() =
 
                     0
                 elif isFsx then
-                    printfn "converting %s --> %s" inputFile outputFile
+                    logger.Infof "converting %s --> %s" inputFile outputFile
 
                     let fsiEvaluator =
                         if this.eval then
@@ -1331,7 +1360,7 @@ type ConvertCommand() =
 
                     0
                 elif isPynb then
-                    printfn "converting %s --> %s" inputFile outputFile
+                    logger.Infof "converting %s --> %s" inputFile outputFile
 
                     Literate.ConvertPynbFile(
                         inputFile,
@@ -1344,11 +1373,13 @@ type ConvertCommand() =
 
                     0
                 else
-                    printfn "error: unsupported input file type '%s'" (Path.GetExtension inputFile)
-                    printfn "supported types: .md, .fsx, .ipynb"
+                    logger.Errorf
+                        "unsupported input file type '%s', supported types: .md, .fsx, .ipynb"
+                        (Path.GetExtension inputFile)
+
                     1
             with ex ->
-                printfn "Error during conversion: %O" ex
+                logger.Errorf "Error during conversion: %O" ex
                 1
             |> fun exitCode ->
                 // Clean up any temporary template file we created.
@@ -1365,7 +1396,11 @@ type ConvertCommand() =
                     let searchDirs =
                         ConvertHelpers.findContentSearchDirs outputFile (Option.map Path.GetFullPath templateOpt)
 
-                    printfn "embedding resources into %s (search dirs: %s)" outputFile (String.concat ", " searchDirs)
+                    logger.Debugf
+                        "embedding resources into %s (search dirs: %s)"
+                        outputFile
+                        (String.concat ", " searchDirs)
+
                     ConvertHelpers.embedResourcesInHtml outputFile searchDirs
 
                 exitCode
