@@ -455,6 +455,34 @@ module Serve =
         | "+" -> "0.0.0.0"
         | h -> h
 
+    /// Whether host:port can be bound right now; binds and immediately releases it.
+    let private canBind (host: string) (port: int) =
+        try
+            let ip = Net.IPAddress.Parse(normalizeHost host)
+            let listener = new Net.Sockets.TcpListener(ip, port)
+            listener.Start()
+            listener.Stop()
+            true
+        with :? Net.Sockets.SocketException ->
+            false
+
+    /// The port to actually serve on: 'port' if free, else 'port + 1'. On a bind failure, Suave logs
+    /// it to the console via its own logger and keeps the process running instead of exiting, so this
+    /// checks up front and fails fast with a clear message before any 'watch' work (cracking,
+    /// design-time build) happens, when neither port is free.
+    let resolvePort (host: string) (port: int) =
+        if canBind host port then
+            port
+        elif canBind host (port + 1) then
+            logger.Warnf "port %d is already in use on %s, using %d instead" port host (port + 1)
+            port + 1
+        else
+            failwithf
+                "ports %d and %d are already in use on %s; pick another port with --port, or stop whatever is already listening there"
+                port
+                (port + 1)
+                host
+
     /// Start the server with the given application; the mime map is used for static files.
     let startWebServer (app: WebPart) (host: string) localPort =
         let host = normalizeHost host

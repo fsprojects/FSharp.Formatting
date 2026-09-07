@@ -161,6 +161,18 @@ type CoreBuildOptions(watch) =
             | h when String.IsNullOrEmpty h || h = "0.0.0.0" || h = "*" || h = "+" -> "localhost"
             | host -> host
 
+        // The port to actually serve on: resolved once, up front, so the site's own default root URL
+        // (below) and the server started later agree even when the requested port was taken.
+        let port =
+            if watch then
+                try
+                    Serve.resolvePort this.host_option this.port_option
+                with ex ->
+                    logger.Errorf "%s" ex.Message
+                    exit 1
+            else
+                this.port_option
+
         // Adjust the user substitutions for 'watch' mode site root
         // The site URL given by the user, if any. '{{root}}' is relative per page, so the user sets
         // the absolute URL as 'fsdocs-site-root'; a 'root' parameter still works but is meant to
@@ -184,7 +196,7 @@ type CoreBuildOptions(watch) =
                 let userRoot =
                     match this.site_root_option with
                     | Some r -> r
-                    | None -> sprintf "http://%s:%d/" publicHost this.port_option
+                    | None -> sprintf "http://%s:%d/" publicHost port
 
                 if userSiteRoot.IsSome && this.site_root_option.IsNone then
                     logger.Warnf "ignoring the user-specified site root since in watch mode, site root = %s" userRoot
@@ -1034,19 +1046,16 @@ type CoreBuildOptions(watch) =
             logger.Infof
                 "starting server on http://%s:%d (bound to %s) for content in %s"
                 publicHost
-                this.port_option
+                port
                 this.host_option
                 this.input
 
-            logger.Infof
-                "pages are built when first requested; see http://%s:%d/.fsdocs/doctor"
-                publicHost
-                this.port_option
+            logger.Infof "pages are built when first requested; see http://%s:%d/.fsdocs/doctor" publicHost port
 
-            DevServer.startWebServer site this.host_option this.port_option
+            DevServer.startWebServer site this.host_option port
 
             if not this.nolaunch_option then
-                let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
+                let url = sprintf "http://localhost:%d/%s" port this.open_option
 
                 logger.Infof "launching browser window to open %s" url
 

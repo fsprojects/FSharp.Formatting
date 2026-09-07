@@ -28,6 +28,9 @@ open Suave.Filters
 module Serve =
     /// generate the script to inject into html to enable hot reload during development
     val generateWatchScript: unit -> string
+    /// The port to actually serve on: the given port if free, else port + 1; raises with a clear
+    /// message when neither is free.
+    val resolvePort: host: string -> port: int -> int
 
 /// The websocket clients of the browser live reload and the broadcasts to them.
 type internal LiveReload =
