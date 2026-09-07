@@ -39,3 +39,15 @@
 - Verified: dotnet build (Release) succeeded 0 errors; FSharp.ApiDocs.Tests 90/90 passed (4 skipped, pre-existing).
 - Pushed rebased branch via push_to_pull_request_branch — success.
 IMPORTANT LEARNING 2026-09-05: push_to_pull_request_branch blocks protected files (Directory.Packages.props) but create_pull_request appears to accept them (records patch for review). Use create_pull_request for future deps-bundle attempts instead of push_to_pull_request_branch.
+
+## Run 2026-09-05 (run_id 34069576904) — Tasks 2,4,6
+
+**Task 6 (Maintain Repo Assist PRs) — main focus this run:**
+- Rebased & fixed 4 repo-assist PRs onto latest `main` (dc03e8dd, "Improve Mermaid setup #1274"), resolving RELEASE_NOTES.md conflicts where needed, build+test verified, pushed via `push_to_pull_request_branch` (repo field required when target='*'):
+  - PR #1264 (seealso XML doc tags): RELEASE_NOTES.md conflict resolved (merged Added+Changed sections). Build 0 err. Tests: FSharp.ApiDocs.Tests 90/90 pass. Pushed OK.
+  - PR #1271 (perf sprintf precode): RELEASE_NOTES.md conflict resolved. Build 0 err. Tests: FSharp.Markdown.Tests 368/368 pass. Pushed OK.
+  - PR #1242 (FSI eval error surfacing): RELEASE_NOTES.md conflict resolved. Build (full solution) 0 err. Tests: FSharp.Literate.Tests 143/143 pass. Pushed OK.
+  - PR #1267 (docs literate doctest): rebased cleanly, NO conflict. Build fsdocs-tool 0 err. Pushed OK.
+- **Used all 4 available push_to_pull_request_branch calls this run** — did NOT get to rebase/check PR #1241 (perf HashSet cultures, blocked), PR #1130 (interactive tooltip, blocked, oldest from April), PR #1275 (front-matter colon-parsing, blocked). These still need rebase/conflict-resolution in a FUTURE run — resume here first next time (push quota resets per-run).
+- IMPORTANT LEARNED FACT: `push_to_pull_request_branch` requires an explicit `"repo":"fsprojects/FSharp.Formatting"` field when workflow target is `'*'` — always include it or the call fails with "requires repo" error.
+- RELEASE_NOTES.md conflict pattern confirmed again: when multiple PRs add Unreleased entries, merge ALL entries into appropriate ### subsections (Added/Changed/Fixed) rather than picking one side. Keep already-released version blocks below untouched.
