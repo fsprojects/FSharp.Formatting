@@ -184,7 +184,7 @@ module internal MarkdownUtils =
                 yield ""
 
             | HorizontalRule(c, _) ->
-                yield String.replicate 3 (string c)
+                yield String.replicate 3 (string<char> c)
                 yield ""
             | CodeBlock(code = code; fence = fence; language = language) ->
                 // Indented code blocks (fence = None) are serialised as fenced blocks so
