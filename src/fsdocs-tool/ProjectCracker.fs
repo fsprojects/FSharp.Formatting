@@ -3,7 +3,6 @@ namespace fsdocs
 open System
 open System.Diagnostics
 open System.IO
-open System.Runtime.InteropServices
 open System.Runtime.Serialization
 open System.Xml
 
@@ -12,83 +11,10 @@ open FSharp.Formatting.Templating
 open FSharp.Formatting.Common
 
 open Ionide.ProjInfo
-open Ionide.ProjInfo.Types
 
 [<AutoOpen>]
 /// General utility helpers shared across the fsdocs tool.
 module Utils =
-
-    /// <c>true</c> when the current OS is Windows.
-    let isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-
-    /// The name of the dotnet host executable for the current OS.
-    let dotnet = if isWindows then "dotnet.exe" else "dotnet"
-
-    /// Returns <c>true</c> when a file exists at the given path, silently returning <c>false</c> on error.
-    let fileExists pathToFile =
-        try
-            File.Exists(pathToFile)
-        with _ ->
-            false
-
-    // Look for global install of dotnet sdk
-    /// Looks for a globally installed dotnet SDK host at the standard Program Files location.
-    let getDotnetGlobalHostPath () =
-        let pf = Environment.GetEnvironmentVariable("ProgramW6432")
-
-        let pf =
-            if String.IsNullOrEmpty(pf) then
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
-            else
-                pf
-
-        let candidate = Path.Combine(pf, "dotnet", dotnet)
-
-        if fileExists candidate then
-            Some candidate
-        else
-            // Can't find it --- give up
-            None
-
-    // from dotnet/fsharp
-    /// Probes for the dotnet host executable, trying (in order) the <c>DOTNET_HOST_PATH</c>
-    /// environment variable, the SDK install location relative to the current assembly,
-    /// and finally the PATH.
-    let getDotnetHostPath () =
-        // How to find dotnet.exe --- woe is me; probing rules make me sad.
-        // Algorithm:
-        // 1. Look for DOTNET_HOST_PATH environment variable
-        //    this is the main user programable override .. provided by user to find a specific dotnet.exe
-        // 2. Probe for are we part of an .NetSDK install
-        //    In an sdk install we are always installed in:   sdk\3.0.100-rc2-014234\FSharp
-        //    dotnet or dotnet.exe will be found in the directory that contains the sdk directory
-        // 3. We are loaded in-process to some other application ... Eg. try .net
-        //    See if the host is dotnet.exe ... from net5.0 on this is fairly unlikely
-        // 4. If it's none of the above we are going to have to rely on the path containing the way to find dotnet.exe
-        // Use the path to search for dotnet.exe
-        let probePathForDotnetHost () =
-            let paths =
-                let p = Environment.GetEnvironmentVariable("PATH")
-
-                if not (isNull p) then p.Split(Path.PathSeparator) else [||]
-
-            paths |> Array.tryFind (fun f -> fileExists (Path.Combine(f, dotnet)))
-
-        match (Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")) with
-        // Value set externally
-        | value when not (String.IsNullOrEmpty(value)) && fileExists value -> Some value
-        | _ ->
-            // Probe for netsdk install, dotnet. and dotnet.exe is a constant offset from the location of System.Int32
-            let candidate =
-                let assemblyLocation = Path.GetDirectoryName(typeof<Int32>.Assembly.Location)
-                Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", "..", dotnet))
-
-            if fileExists candidate then
-                Some candidate
-            else
-                match probePathForDotnetHost () with
-                | Some f -> Some(Path.Combine(f, dotnet))
-                | None -> getDotnetGlobalHostPath ()
 
     /// Creates the directory at <c>path</c> if it does not already exist.
     let ensureDirectory path =
@@ -196,8 +122,9 @@ module DotNetCli =
         ps.ExitCode, output.Result.Trim(), error.Result.Trim()
 
 /// Project-cracking logic: evaluates the fsdocs-specific MSBuild properties of each project
-/// with `dotnet msbuild --getProperty`, and resolves compiler references with Ionide.ProjInfo
-/// only for the projects that take part in the API docs, and only when they are needed.
+/// with `dotnet msbuild --getProperty`, and resolves the compiler references with a design-time
+/// build (`dotnet msbuild -t:...CoreCompile -getItem:FscCommandLineArgs`) only for the projects
+/// that take part in the API docs, and only when they are needed.
 module Crack =
 
     [<return: Struct>]
@@ -477,56 +404,133 @@ module Crack =
                 // subsequent cracking step will fail with a more specific error.
                 logger.Warnf $"could not verify that project '%s{file}' was restored. Proceeding anyway."
 
-    /// The MSBuild tools path, initialised once per process.
-    let private toolsPath =
-        lazy
-            (let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
-             let dotnetExe = getDotnetHostPath () |> Option.map System.IO.FileInfo
-             Init.init cwd dotnetExe)
+    /// The result of the design-time build of one project.
+    type DesignTimeBuild =
+        {
+            /// The compiler options, including the '-r:' references
+            OtherOptions: string list
+            /// The fsdocs properties as they are after the targets ran; properties set by targets
+            /// (such as a version computed from a changelog) are only correct here
+            Properties: (string * string) list
+        }
 
-    /// Resolve the compiler options (references) of the given projects with a design-time build.
-    /// One Ionide.ProjInfo loader handles all projects that share a target framework choice, so
-    /// shared project references are loaded once. Returns the options per project file; projects
-    /// that fail to load are reported and left out.
+    /// The targets of a design-time build: they resolve the references and make CoreCompile emit
+    /// the compiler command line without running the compiler. The list is the one Ionide.ProjInfo
+    /// uses, see https://github.com/dotnet/project-system/blob/main/docs/design-time-builds.md.
+    let private designTimeTargets =
+        [
+            "ResolveAssemblyReferencesDesignTime"
+            "ResolveProjectReferencesDesignTime"
+            "ResolvePackageDependenciesDesignTime"
+            "FindReferenceAssembliesForReferences"
+            "_GenerateCompileDependencyCache"
+            "_ComputeNonExistentFileProperty"
+            "BeforeBuild"
+            "BeforeCompile"
+            "CoreCompile"
+        ]
+
+    /// The global properties of a design-time build: no compiler run, no build of the referenced
+    /// projects, and a non-existent input so that CoreCompile is never skipped as up to date.
+    let private designTimeProperties =
+        [
+            "ProvideCommandLineArgs", "true"
+            "DesignTimeBuild", "true"
+            "SkipCompilerExecution", "true"
+            "GeneratePackageOnBuild", "false"
+            "BuildProjectReferences", "false"
+            "NonExistentFile", Path.Combine("__NonExistentSubDir__", "__NonExistentFile__")
+        ]
+
+    /// Run the design-time build of one project with `dotnet msbuild` and read the compiler command
+    /// line and the fsdocs properties from its output. Unlike an evaluation, the properties reflect
+    /// what the targets set, such as a version computed from a changelog.
+    let private designTimeBuildOf
+        (extraMsbuildProperties: (string * string) list)
+        (projectFile: string)
+        : DesignTimeBuild =
+        let args =
+            [
+                yield sprintf "\"%s\"" projectFile
+                yield "-nologo"
+                yield "-t:" + String.concat ";" designTimeTargets
+                yield "-getItem:FscCommandLineArgs"
+                for p in fsdocsProperties do
+                    yield "-getProperty:" + p
+                for (k, v) in designTimeProperties @ extraMsbuildProperties do
+                    yield sprintf "-p:%s=\"%s\"" k v
+            ]
+            |> String.concat " "
+
+        let exitCode, output, error = DotNetCli.msbuildResult (Path.GetDirectoryName projectFile) args
+
+        if exitCode <> 0 then
+            failwithf "the design-time build of '%s' failed (exit code %d):\n%s\n%s" projectFile exitCode output error
+
+        try
+            use json = System.Text.Json.JsonDocument.Parse output
+
+            let properties =
+                json.RootElement.GetProperty("Properties").EnumerateObject()
+                |> Seq.map (fun p -> p.Name, p.Value.GetString())
+                |> List.ofSeq
+
+            let options =
+                [
+                    for item in json.RootElement.GetProperty("Items").GetProperty("FscCommandLineArgs").EnumerateArray() ->
+                        item.GetProperty("Identity").GetString()
+                ]
+
+            {
+                OtherOptions = options
+                Properties = properties
+            }
+        with ex ->
+            failwithf "could not read the design-time build of '%s' from:\n%s\n%s" projectFile output ex.Message
+
+    /// Run the design-time build of the given projects (in parallel) and return the result per
+    /// project file; projects whose build fails are reported and left out.
     let resolveCompilerOptions
         (extraMsbuildProperties: (string * string) list)
         (projects: (string * string list) list)
-        : Map<string, string list> =
+        : Map<string, DesignTimeBuild> =
         for (projectFile, _) in projects do
             ensureProjectWasRestored projectFile
 
-        // A multi-targeting project needs its target framework as a global property
-        let groups =
-            projects
-            |> List.groupBy (fun (_, targetFrameworks) ->
-                match targetFrameworks with
-                | tfm :: _ -> Some tfm
-                | [] -> None)
-
-        [
-            for (tfm, group) in groups do
+        projects
+        |> List.map (fun (projectFile, targetFrameworks) ->
+            async {
+                // A multi-targeting project needs its target framework as a global property
                 let properties =
-                    match tfm with
-                    | Some tfm -> extraMsbuildProperties @ [ "TargetFramework", tfm ]
-                    | None -> extraMsbuildProperties
+                    match targetFrameworks with
+                    | tfm :: _ -> extraMsbuildProperties @ [ "TargetFramework", tfm ]
+                    | [] -> extraMsbuildProperties
 
-                let loader = WorkspaceLoader.Create(toolsPath.Force(), properties)
+                return
+                    try
+                        Some(projectFile, designTimeBuildOf properties projectFile)
+                    with ex ->
+                        logger.Warnf
+                            "could not resolve the references of '%s': %s"
+                            (Path.GetFileName projectFile)
+                            ex.Message
 
-                use _ =
-                    loader.Notifications.Subscribe(fun msg ->
-                        match msg with
-                        | WorkspaceProjectState.Failed(file, err) ->
-                            logger.Warnf "could not resolve the references of '%s': %O" (Path.GetFileName file) err
-                        | _ -> ())
+                        None
+            })
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> Array.choose id
+        |> Map.ofArray
 
-                let files = group |> List.map fst
-                let wanted = set files
+    /// The project info as the design-time build saw it: the same properties, but with the values
+    /// set by MSBuild targets. The evaluated value is kept where the build reported none.
+    let refineProjectInfo (info: CrackedProjectInfo) (build: DesignTimeBuild) : CrackedProjectInfo =
+        let refined = infoOfProperties info.ProjectFileName (Map.ofList build.Properties)
 
-                for options in loader.LoadProjects(files, [], BinaryLogGeneration.Off) do
-                    if wanted.Contains options.ProjectFileName then
-                        yield options.ProjectFileName, options.OtherOptions
-        ]
-        |> Map.ofList
+        { refined with
+            TargetPath = refined.TargetPath |> Option.orElse info.TargetPath
+            TargetFrameworks = info.TargetFrameworks
+        }
 
     /// Parses a Visual Studio solution file and returns the ordered list of project file paths.
     let getProjectsFromSlnFile (slnPath: string) =
@@ -627,18 +631,10 @@ module Crack =
 
         collectionName, projectFiles
 
-    /// Crack the discovered projects: evaluate their properties, keep the documentable ones and
-    /// compute the site-wide substitutions.
-    let crackProjects
-        (
-            onError,
-            extraMsbuildProperties,
-            userRoot,
-            userParameters,
-            collectionName: string,
-            projectFiles: string list,
-            ignoreProjects
-        ) : string * string * CrackedProject list * string list * (ParamKey * string) list * bool =
+    /// Evaluate the discovered projects and keep the documentable ones. No design-time build.
+    let evaluateProjects
+        (onError, extraMsbuildProperties, projectFiles: string list, ignoreProjects)
+        : CrackedProjectInfo list =
         //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 && (ignoreProjects |> not) then
             logger.Warnf "no project files found, no API docs will be generated"
@@ -700,13 +696,27 @@ module Crack =
         if projectInfos.Length = 0 && projectFiles.Length > 0 then
             logger.Warnf "While cracking project files, no project files succeeded."
 
+        projectInfos
+
+    /// The site-wide settings and the per-project substitutions of the given projects: the root URL,
+    /// the documented projects, the folders holding their DLLs, the substitutions of the content
+    /// pages and whether llms.txt is generated. Missing settings are only reported when 'warnMissing'
+    /// is set, so a recomputation after a design-time build stays quiet.
+    let siteOf
+        (
+            userRoot: string option,
+            userParameters: (ParamKey * string) list,
+            collectionName: string,
+            projectInfos: CrackedProjectInfo list,
+            warnMissing: bool
+        ) : string * CrackedProject list * string list * (ParamKey * string) list * bool =
         let param setting key v =
             match v with
             | Some v -> Some(key, v)
             | None ->
-                match setting with
-                | Some setting -> logger.Warnf "please set '%s' in 'Directory.Build.props'" setting
-                | None -> ()
+                match setting, warnMissing with
+                | Some setting, true -> logger.Warnf "please set '%s' in 'Directory.Build.props'" setting
+                | _ -> ()
 
                 None
 
@@ -884,4 +894,4 @@ module Crack =
             |> List.choose (fun projectInfo -> projectInfo.TargetPath |> Option.map Path.GetDirectoryName)
 
         let docsParameters = parametersForProjectInfo projectInfoForDocs
-        root, collectionName, crackedProjects, paths, docsParameters, projectInfoForDocs.FsDocsGenerateLlmsTxt
+        root, crackedProjects, paths, docsParameters, projectInfoForDocs.FsDocsGenerateLlmsTxt

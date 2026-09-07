@@ -121,9 +121,12 @@ requested when the search dialog is first opened.
 
 Two diagnostic pages are served under the reserved `/.fsdocs/` prefix:
 
-- `/.fsdocs/doctor`: the projects that were cracked, the substitutions and where they come from, the
-  templates that were tried and chosen, the navigation with the source of every title, the routes, the
-  state of every requested page, the recent file events, the collected errors and the recent log lines.
+- `/.fsdocs/doctor`: the projects that were cracked, whether their design-time build ran and which
+  substitutions it changed (properties set by MSBuild targets, such as a version computed from a
+  changelog, are only known after it; a button runs it again), the substitutions and where they come
+  from, the templates that were tried and chosen, the navigation with the source of every title, the
+  routes, the state of every requested page, the recent file events, the collected errors and the
+  recent log lines.
 - `/.fsdocs/doctor.json`: the same as JSON, handy for troubleshooting with an LLM.
 
 Adding a project to the solution, or changing a project's output path, still needs a restart. The same

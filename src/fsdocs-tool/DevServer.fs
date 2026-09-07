@@ -674,8 +674,12 @@ type internal SiteConfig =
         ApiDocsTemplate: string option
         /// Generate the API docs for a (virtual) output folder, None when there are none
         GenerateApi: CrackResult -> string -> ApiDocsPhased option
-        /// Re-crack the projects from disk; called when a project file changes
+        /// Re-crack the projects from disk (an evaluation, no design-time build); called when a
+        /// project file changes
         Crack: unit -> CrackResult
+        /// Run the design-time build of the projects on disk and return the crack result with the
+        /// references and the properties set by targets; 'true' skips the on-disk cache
+        Resolve: bool -> CrackResult
         /// The project files and solution-wide MSBuild files that feed the crack
         ProjectFiles: string list
         WatchScript: string
@@ -1215,12 +1219,49 @@ type internal Site(config: SiteConfig) =
     /// The evaluated projects; recomputed when a project file changes
     let crackState = sortedStamps projects |> Adaptive.mapCached (fun _ -> config.Crack())
 
+    /// The design-time build of the projects, published by 'ensureDesignTime' once it ran. The
+    /// evaluated crack it belongs to is kept, so a re-crack after a project change discards it.
+    let designTime: cval<(CrackResult * CrackResult * DateTime) option> = cval None
+
+    /// The crack result the pages see: the design-time build when it ran for the current projects,
+    /// the plain evaluation before that
+    let resolvedCrack =
+        AVal.map2
+            (fun (crack: CrackResult) designTime ->
+                match designTime with
+                | Some(evaluated, resolved, _) when obj.ReferenceEquals(evaluated, crack) -> resolved
+                | _ -> crack)
+            crackState
+            designTime
+
     /// The site-wide substitutions, from the project files
-    let substitutions = crackState |> Adaptive.mapCached (fun c -> c.Substitutions)
+    let substitutions = resolvedCrack |> Adaptive.mapCached (fun c -> c.Substitutions)
 
     let apiState =
-        AVal.map2 (fun stamps crack -> stamps, crack) (sortedStamps dlls) crackState
+        AVal.map2 (fun stamps crack -> stamps, crack) (sortedStamps dlls) resolvedCrack
         |> Adaptive.mapCached (fun (_, crack) -> buildApi crack)
+
+    /// Run the design-time build for the current projects unless it already ran ('force' runs it
+    /// again, skipping the cache). Called outside adaptive evaluation, under the render lock, before
+    /// anything forces the API docs: they need the references. When the substitutions changed, the
+    /// pages built from the evaluated values are invalidated by the graph and the browsers reload.
+    let ensureDesignTime (force: bool) =
+        let crack = AVal.force crackState
+
+        match designTime.Value with
+        | Some(evaluated, _, _) when obj.ReferenceEquals(evaluated, crack) && not force -> ()
+        | _ ->
+            if not crack.ApiDocInputs.IsEmpty then
+                let stopwatch = Stopwatch.StartNew()
+                let resolved = config.Resolve force
+                logger.Infof "design-time build done in %.1f s" stopwatch.Elapsed.TotalSeconds
+
+                let before = (AVal.force resolvedCrack).Substitutions
+                transact (fun () -> designTime.Value <- Some(crack, resolved, DateTime.Now))
+
+                if resolved.Substitutions <> before then
+                    logger.Infof "the design-time build changed the substitutions, pages are rebuilt"
+                    changedFiles.Trigger "design-time build"
 
     let allPaths =
         files
@@ -1549,6 +1590,9 @@ type internal Site(config: SiteConfig) =
                     let stopwatch = Stopwatch.StartNew()
 
                     try
+                        if wasOutOfDate then
+                            ensureDesignTime false
+
                         let response = AVal.force node
 
                         if wasOutOfDate then
@@ -1606,8 +1650,22 @@ type internal Site(config: SiteConfig) =
     /// The current scan of the input trees.
     member _.Scan = AVal.force scan
 
-    /// The current crack result (re-cracks when a project file changed).
-    member _.CrackResult = AVal.force crackState
+    /// The current crack result (re-cracks when a project file changed), with the design-time
+    /// build when it ran.
+    member _.CrackResult = lock renderLock (fun () -> AVal.force resolvedCrack)
+
+    /// When the design-time build of the current projects ran in this session, if it did.
+    member _.DesignTimeBuiltAt =
+        lock renderLock (fun () ->
+            let crack = AVal.force crackState
+
+            match designTime.Value with
+            | Some(evaluated, _, at) when obj.ReferenceEquals(evaluated, crack) -> Some at
+            | _ -> None)
+
+    /// Run the design-time build of the projects now, skipping the cache.
+    member _.RunDesignTimeBuild() =
+        lock renderLock (fun () -> ensureDesignTime true)
 
     /// The API docs state when it has been built, None when it is not built or being built.
     member _.ApiState =
@@ -1701,6 +1759,7 @@ type internal Site(config: SiteConfig) =
                 Threading.Tasks.Task.Run(fun () ->
                     lock renderLock (fun () ->
                         try
+                            ensureDesignTime false
                             AVal.force apiState |> ignore
                         with ex ->
                             logger.Errorf "API docs failed: %s" ex.Message))
@@ -1734,15 +1793,24 @@ type DoctorSubstitution =
         Source: string
     }
 
+type DoctorSubstitutionChange =
+    {
+        Key: string
+        Before: string
+        After: string
+    }
+
 type DoctorProject =
     {
         ProjectFile: string
         TargetPath: string
         TargetExists: bool
-        /// 'resolved' once the design-time build ran, else 'not resolved yet'
-        ReferencesStatus: string
+        /// 'done' once the design-time build ran, else 'not run yet'
+        DesignTimeBuild: string
         References: string list
         DroppedReferences: string list
+        /// The substitutions whose value the design-time build changed (properties set by targets)
+        ChangedByDesignTimeBuild: DoctorSubstitutionChange list
         OverridingSubstitutions: DoctorSubstitution list
     }
 
@@ -1816,6 +1884,8 @@ type Doctor =
         GenerateLlmsTxt: bool
         IgnoredOptions: IgnoredOption list
         Projects: DoctorProject list
+        /// When the design-time build of the projects ran in this session, None when it did not
+        DesignTimeBuiltAt: DateTime option
         Substitutions: DoctorSubstitution list
         DefaultTemplate: ResolutionDiagnostics
         DefaultMarkdownTemplate: ResolutionDiagnostics
@@ -1855,6 +1925,7 @@ module internal Doctor =
                     | Project -> "project"
                     | Parameters -> "--parameters"
                     | WatchOverride -> "watch override"
+                    | DesignTimeBuild -> "design-time build"
             }
 
         let titleSource (t: TitleSource) =
@@ -1874,6 +1945,7 @@ module internal Doctor =
             CollectionName = d.CollectionName
             GenerateLlmsTxt = d.GenerateLlmsTxt
             IgnoredOptions = d.IgnoredOptions
+            DesignTimeBuiltAt = site.DesignTimeBuiltAt
             Projects =
                 [
                     for p in crack.Projects ->
@@ -1883,15 +1955,27 @@ module internal Doctor =
                             ProjectFile = p.ProjectFile
                             TargetPath = p.TargetPath
                             TargetExists = p.TargetExists
-                            ReferencesStatus =
+                            DesignTimeBuild =
                                 (match references with
-                                 | Some _ -> "resolved"
-                                 | None -> "not resolved")
+                                 | Some _ -> "done"
+                                 | None -> "not run yet")
                             References = references |> Option.map (fun r -> r.References) |> Option.defaultValue []
                             DroppedReferences =
                                 references
                                 |> Option.map (fun r -> r.DroppedReferences)
                                 |> Option.defaultValue []
+                            ChangedByDesignTimeBuild =
+                                [
+                                    for (key, before, after) in
+                                        references
+                                        |> Option.map (fun r -> r.ChangedSubstitutions)
+                                        |> Option.defaultValue [] ->
+                                        {
+                                            Key = key
+                                            Before = before
+                                            After = after
+                                        }
+                                ]
                             OverridingSubstitutions =
                                 [
                                     for (k, v) in p.OverridingSubstitutions ->
@@ -2120,23 +2204,49 @@ module internal Doctor =
         section "Projects"
 
         table
-            [ "Project"; "Target"; "Exists"; "References"; "References dropped"; "Overriding substitutions" ]
+            [
+                "Project"
+                "Target"
+                "Exists"
+                "Design-time build"
+                "References dropped"
+                "Changed by the design-time build"
+                "Overriding substitutions"
+            ]
             [
                 for p in doctor.Projects ->
                     [
                         p.ProjectFile
                         p.TargetPath
                         string<bool> p.TargetExists
-                        (if p.ReferencesStatus = "resolved" then
-                             sprintf "%d resolved" p.References.Length
+                        (if p.DesignTimeBuild = "done" then
+                             sprintf "done, %d references" p.References.Length
                          else
-                             p.ReferencesStatus)
+                             p.DesignTimeBuild)
                         String.concat ", " p.DroppedReferences
+                        p.ChangedByDesignTimeBuild
+                        |> List.map (fun c -> sprintf "%s: '%s' to '%s'" c.Key c.Before c.After)
+                        |> String.concat ", "
                         p.OverridingSubstitutions
                         |> List.map (fun s -> sprintf "%s = %s" s.Key s.Value)
                         |> String.concat ", "
                     ]
             ]
+
+        if not doctor.Projects.IsEmpty then
+            para (
+                "The project settings are evaluated at startup. Properties set by MSBuild targets, such as a version "
+                + "computed from a changelog, are only correct after the design-time build, which runs when the API docs "
+                + "are first needed and is cached in .fsdocs/references."
+                + (match doctor.DesignTimeBuiltAt with
+                   | Some at -> sprintf " It ran at %s." (at.ToString "HH:mm:ss")
+                   | None -> " It has not run yet in this session.")
+            )
+
+            sb.Append(
+                "<form method=\"post\" action=\"/.fsdocs/doctor/design-time\"><button type=\"submit\">Run the design-time build now</button></form>\n"
+            )
+            |> ignore
 
         section "API docs"
 
@@ -2256,6 +2366,21 @@ module internal DevServer =
                                 ctx
             }
 
+        /// Run the design-time build on request (the button of the doctor page), then show the doctor
+        let designTimeBuild (ctx: HttpContext) =
+            async {
+                do! Async.SwitchToThreadPool()
+
+                try
+                    site.RunDesignTimeBuild()
+                    return! Redirection.redirect "/.fsdocs/doctor" ctx
+                with ex ->
+                    return!
+                        (Writers.setMimeType "text/plain; charset=utf-8"
+                         >=> ServerErrors.INTERNAL_ERROR(string<exn> ex))
+                            ctx
+            }
+
         let doctor (render: Doctor -> string) (mime: string) (ctx: HttpContext) =
             async {
                 do! Async.SwitchToThreadPool()
@@ -2280,6 +2405,7 @@ module internal DevServer =
                 path "/.fsdocs/doctor.json"
                 >=> noCache
                 >=> doctor Doctor.toJson "application/json; charset=utf-8"
+                POST >=> path "/.fsdocs/doctor/design-time" >=> designTimeBuild
                 noCache >=> serve
             ]
 

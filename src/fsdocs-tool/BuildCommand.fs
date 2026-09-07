@@ -185,9 +185,6 @@ type CoreBuildOptions(watch) =
             | true, v -> Some v
             | _ -> None
 
-        // See https://github.com/ionide/proj-info/issues/123
-        let prevDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")
-
         let extraMsbuildProperties =
             this.extraMsbuildProperties
             |> Seq.toList
@@ -227,26 +224,18 @@ type CoreBuildOptions(watch) =
              getTime (typeof<CoreBuildOptions>.Assembly.Location),
              (projectFiles @ msbuildFiles |> List.map getTime |> List.toArray))
 
-        let crackProjectsCached () =
+        let evaluateProjectsCached () : Crack.CrackedProjectInfo list =
             let key = crackKey ()
 
             Utils.cacheBinary ".fsdocs/cache" (fun (_, key2) -> key = key2) (fun () ->
-                Crack.crackProjects (
-                    onError,
-                    extraMsbuildProperties,
-                    userRoot,
-                    userParameters,
-                    discoveredCollectionName,
-                    projectFiles,
-                    this.ignoreprojects
-                ),
-                key)
+                Crack.evaluateProjects (onError, extraMsbuildProperties, projectFiles, this.ignoreprojects), key)
             |> fst
 
-        let (root, collectionName, crackedProjects, paths, docsSubstitutions, generateLlmsTxt) = crackProjectsCached ()
+        let evaluatedInfos = evaluateProjectsCached ()
+        let collectionName = discoveredCollectionName
 
-        // See https://github.com/ionide/proj-info/issues/123
-        System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
+        let (root, crackedProjects, _, docsSubstitutions, generateLlmsTxt) =
+            Crack.siteOf (userRoot, userParameters, collectionName, evaluatedInfos, true)
 
         // In watch mode the logo must link to the locally hosted site, even when
         // <FsDocsLogoLink> is set to a production URL for the published site.
@@ -313,49 +302,57 @@ type CoreBuildOptions(watch) =
 
         let apiDocInputs = apiDocInputsOf crackedProjects
 
-        // The '-r:' references of each project, split by whether they exist on disk. They come from
-        // a design-time build, the expensive part of project cracking, so they are resolved only when
-        // the API docs are generated and cached in '.fsdocs/references' with the same key as the projects.
-        let resolveReferences (crackedProjects: Crack.CrackedProject list) : ProjectReferences list =
+        // The design-time build of the projects: the '-r:' references and the properties as set by
+        // the targets. It is the expensive part of project cracking, so it runs only when the API
+        // docs are generated and is cached in '.fsdocs/references' with the same key as the projects.
+        let designTimeBuild (force: bool) (infos: Crack.CrackedProjectInfo list) : Map<string, Crack.DesignTimeBuild> =
             let key = crackKey ()
 
             let resolved, _ =
-                Utils.cacheBinary ".fsdocs/references" (fun (_, key2) -> key = key2) (fun () ->
-                    logger.Infof "resolving the references of %d projects..." crackedProjects.Length
+                Utils.cacheBinary ".fsdocs/references" (fun (_, key2) -> not force && key = key2) (fun () ->
+                    logger.Infof "design-time build of %d projects..." infos.Length
 
-                    let options =
+                    let builds =
                         Crack.resolveCompilerOptions
                             extraMsbuildProperties
-                            [ for project in crackedProjects -> project.ProjectFileName, project.TargetFrameworks ]
+                            [ for info in infos -> info.ProjectFileName, info.TargetFrameworks ]
 
                     [
-                        for project in crackedProjects ->
-                            project.ProjectFileName,
-                            (options.TryFind project.ProjectFileName |> Option.defaultValue [])
+                        for info in infos do
+                            match builds.TryFind info.ProjectFileName with
+                            | Some build -> info.ProjectFileName, build
+                            | None -> ()
                     ],
                     key)
 
-            let optionsByProject = Map.ofList resolved
+            Map.ofList resolved
+
+        /// The references of a project, split by whether they exist on disk.
+        let referencesOf (build: Crack.DesignTimeBuild) =
+            let refs =
+                [
+                    for otherFlag in build.OtherOptions do
+                        if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
+                            otherFlag.[3..]
+                ]
+
+            let kept, dropped = refs |> List.partition File.Exists
+
+            for r in dropped do
+                logger.Warnf "the reference '-r:%s' was not seen on disk, ignoring" r
+
+            kept, dropped
+
+        /// The substitutions whose value differs between two substitution lists: key, before, after.
+        let changedSubstitutions (before: Substitutions) (after: Substitutions) =
+            let old = dict before
 
             [
-                for project in crackedProjects ->
-                    let refs =
-                        [
-                            for otherFlag in optionsByProject.[project.ProjectFileName] do
-                                if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
-                                    otherFlag.[3..]
-                        ]
-
-                    let kept, dropped = refs |> List.partition File.Exists
-
-                    for r in dropped do
-                        logger.Warnf "the reference '-r:%s' was not seen on disk, ignoring" r
-
-                    {
-                        ProjectFile = project.ProjectFileName
-                        References = kept
-                        DroppedReferences = dropped
-                    }
+                for (ParamKey key as pk, value) in after do
+                    match old.TryGetValue pk with
+                    | true, v when v = value -> ()
+                    | true, v -> key, v, value
+                    | _ -> key, "", value
             ]
 
         // Compute the merge of all referenced DLLs across all projects
@@ -390,27 +387,120 @@ type CoreBuildOptions(watch) =
                     }
             ]
 
-        /// Everything derived from the projects, including the references (design-time build).
-        let crackResultOf (crackedProjects: Crack.CrackedProject list, paths: string list, docsSubstitutions) =
-            let references = resolveReferences crackedProjects
+        /// Everything derived from the evaluated projects. With a design-time build, the substitutions
+        /// are recomputed from the properties as the targets set them and the references are known.
+        /// The root URL stays the one chosen at startup.
+        let crackResultOf
+            (infos: Crack.CrackedProjectInfo list)
+            (designTime: Map<string, Crack.DesignTimeBuild> option)
+            : CrackResult =
+            let siteOf infos =
+                let (_, crackedProjects, paths, docsSubstitutions, _) =
+                    Crack.siteOf (Some root, userParameters, collectionName, infos, false)
 
-            {
-                Substitutions = docsSubstitutions
-                SubstitutionDiagnostics = Diagnostics.substitutions docsSubstitutions userParameters watchOverrides
-                ApiDocInputs = apiDocInputsOf crackedProjects
-                ApiDocOtherFlags = apiDocOtherFlagsOf references @ Seq.toList this.fscoptions
-                LibDirs = paths
-                Projects = projectDiagnosticsOf crackedProjects docsSubstitutions
-                References = references
-            }
+                crackedProjects, paths, overrideLogoLinkForWatch docsSubstitutions
 
-        /// The crack result for 'build', resolved once when the API docs are generated
-        let startupCrack = lazy (crackResultOf (crackedProjects, paths, docsSubstitutions))
+            let crackedProjects, paths, docsSubstitutions = siteOf infos
 
-        /// Re-crack the projects from disk (cached), for 'watch' when a project file changes
-        let recrack () =
-            let (_, _, crackedProjects, paths, docsSubstitutions, _) = crackProjectsCached ()
-            crackResultOf (crackedProjects, paths, overrideLogoLinkForWatch docsSubstitutions)
+            match designTime with
+            | None ->
+                {
+                    Substitutions = docsSubstitutions
+                    SubstitutionDiagnostics =
+                        Diagnostics.substitutions docsSubstitutions userParameters watchOverrides []
+                    ApiDocInputs = apiDocInputsOf crackedProjects
+                    ApiDocOtherFlags = Seq.toList this.fscoptions
+                    LibDirs = paths
+                    Projects = projectDiagnosticsOf crackedProjects docsSubstitutions
+                    References = []
+                    DesignTimeBuilt = false
+                }
+            | Some builds ->
+                let refinedInfos =
+                    [
+                        for info in infos ->
+                            match builds.TryFind info.ProjectFileName with
+                            | Some build -> Crack.refineProjectInfo info build
+                            | None -> info
+                    ]
+
+                let refinedProjects, refinedPaths, refinedSubstitutions = siteOf refinedInfos
+                let evaluatedByProject = crackedProjects |> List.map (fun p -> p.ProjectFileName, p) |> Map.ofList
+
+                let references =
+                    [
+                        for project in refinedProjects do
+                            match builds.TryFind project.ProjectFileName with
+                            | Some build ->
+                                let kept, dropped = referencesOf build
+
+                                let before =
+                                    evaluatedByProject.TryFind project.ProjectFileName
+                                    |> Option.map (fun p -> p.Substitutions)
+                                    |> Option.defaultValue []
+
+                                {
+                                    ProjectFile = project.ProjectFileName
+                                    References = kept
+                                    DroppedReferences = dropped
+                                    ChangedSubstitutions = changedSubstitutions before project.Substitutions
+                                }
+                            | None -> ()
+                    ]
+
+                let changed = changedSubstitutions docsSubstitutions refinedSubstitutions
+
+                let projectChanges =
+                    [
+                        for r in references do
+                            for (key, before, after) in r.ChangedSubstitutions ->
+                                Path.GetFileNameWithoutExtension r.ProjectFile, key, before, after
+                    ]
+
+                if not changed.IsEmpty || not projectChanges.IsEmpty then
+                    logger.Infof
+                        "design-time build: %d site-wide and %d project substitutions changed (use --verbosity detailed to list them)"
+                        changed.Length
+                        projectChanges.Length
+
+                    for (key, before, after) in changed do
+                        logger.Debugf "  %s: '%s' --> '%s'" key before after
+
+                    for (project, key, before, after) in projectChanges do
+                        logger.Debugf "  (%s) %s: '%s' --> '%s'" project key before after
+
+                {
+                    Substitutions = refinedSubstitutions
+                    SubstitutionDiagnostics =
+                        Diagnostics.substitutions
+                            refinedSubstitutions
+                            userParameters
+                            watchOverrides
+                            [ for (key, _, _) in changed -> ParamKey key ]
+                    ApiDocInputs = apiDocInputsOf refinedProjects
+                    ApiDocOtherFlags = apiDocOtherFlagsOf references @ Seq.toList this.fscoptions
+                    LibDirs = refinedPaths
+                    Projects = projectDiagnosticsOf refinedProjects refinedSubstitutions
+                    References = references
+                    DesignTimeBuilt = true
+                }
+
+        /// The crack result of the projects on disk (cached), before any design-time build
+        let evaluatedCrack () =
+            crackResultOf (evaluateProjectsCached ()) None
+
+        /// The crack result after the design-time build, which runs now unless cached ('force' skips the cache)
+        let resolvedCrack (force: bool) =
+            let infos = evaluateProjectsCached ()
+            crackResultOf infos (Some(designTimeBuild force infos))
+
+        /// The crack result for 'build': the design-time build runs once, when the API docs need it
+        let startupCrack =
+            lazy
+                (if this.noapidocs || crackedProjects.IsEmpty then
+                     evaluatedCrack ()
+                 else
+                     resolvedCrack false)
 
         // Only used by 'build'; 'watch' keeps no output folder
         let rootOutputFolderAsGiven =
@@ -556,7 +646,7 @@ type CoreBuildOptions(watch) =
                 GenerateLlmsTxt = generateLlmsTxt
                 IgnoredOptions = this.ignoredOptions
                 Projects = projectDiagnosticsOf crackedProjects docsSubstitutions
-                Substitutions = Diagnostics.substitutions docsSubstitutions userParameters watchOverrides
+                Substitutions = Diagnostics.substitutions docsSubstitutions userParameters watchOverrides []
                 DefaultTemplate = defaultTemplateResolution
                 DefaultMarkdownTemplate = defaultMdTemplateResolution
                 ApiDocsTemplate = apiDocsTemplateResolution
@@ -752,7 +842,7 @@ type CoreBuildOptions(watch) =
                         latestDocContentResults,
                         Some this.linenumbers,
                         this.eval,
-                        docsSubstitutions,
+                        startupCrack.Value.Substitutions,
                         saveImages,
                         watch,
                         root,
@@ -890,7 +980,8 @@ type CoreBuildOptions(watch) =
                     ProjectFiles = projectFiles @ msbuildFiles
                     ApiDocsOutputKind = apiDocsOutputKind
                     ApiDocsTemplate = apiDocsTemplate
-                    Crack = recrack
+                    Crack = evaluatedCrack
+                    Resolve = resolvedCrack
                     GenerateApi = (fun crack outputFolder -> generateApiDocs crack outputFolder siteOnError)
                     WatchScript = Serve.generateWatchScript ()
                     Diagnostics = diagnostics
