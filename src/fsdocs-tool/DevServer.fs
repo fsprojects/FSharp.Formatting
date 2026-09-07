@@ -619,8 +619,10 @@ type internal ScanResult =
 type internal ApiState =
     {
         Phased: ApiDocsPhased option
-        Globals: Substitutions
-        CrefResolver: string -> (string * string) option
+        /// The global substitutions for a page with the given relative root
+        GlobalsFor: string -> Substitutions
+        /// The 'cref:' resolver for a page with the given relative root
+        CrefResolver: string -> string -> (string * string) option
         Pages: Map<string, string option -> Substitutions -> string>
         SearchIndex: ApiDocsSearchIndexEntry array
         Error: string option
@@ -661,6 +663,7 @@ type internal SiteConfig =
         ExtraInputs: (string * string) list
         /// The folder holding the default template, watched for changes
         DefaultTemplateFolder: string option
+        /// The absolute URL of the site; the pages use relative roots
         Root: string
         CollectionName: string
         DefaultTemplate: string option
@@ -1166,8 +1169,8 @@ type internal Site(config: SiteConfig) =
     let emptyApi =
         {
             Phased = None
-            Globals = [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
-            CrefResolver = (fun _ -> None)
+            GlobalsFor = (fun _ -> [ ParamKeys.``fsdocs-list-of-namespaces``, "" ])
+            CrefResolver = (fun _ _ -> None)
             Pages = Map.empty
             SearchIndex = [||]
             Error = None
@@ -1184,21 +1187,13 @@ type internal Site(config: SiteConfig) =
                 match config.GenerateApi crack virtualOutput with
                 | None -> emptyApi
                 | Some phased ->
-                    let model = phased.Model
-
-                    // Used to resolve code references in content with respect to the API Docs model
-                    let resolveInlineCodeReference (s: string) =
-                        if s.StartsWith("cref:", StringComparison.Ordinal) then
-                            match model.Resolver.ResolveCref s.[5..] with
-                            | None -> None
-                            | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
-                        else
-                            None
+                    // The namespace list depends on the root of the page; a site has a handful of depths
+                    let globalsByRoot = ConcurrentDictionary<string, Substitutions>()
 
                     {
                         Phased = Some phased
-                        Globals = phased.GlobalSubstitutions
-                        CrefResolver = resolveInlineCodeReference
+                        GlobalsFor = (fun root -> globalsByRoot.GetOrAdd(root, phased.GlobalSubstitutionsFor))
+                        CrefResolver = Content.makeCrefResolver phased.Model
                         Pages =
                             phased.Pages
                             |> List.map (fun (file, render) -> file.Replace("\\", "/"), render)
@@ -1311,9 +1306,7 @@ type internal Site(config: SiteConfig) =
         |> AVal.map (fun _ -> if File.Exists path then File.ReadAllText path else "")
 
     let extraText (name: string) =
-        Path.Combine(inputRoot, name)
-        |> templateText
-        |> AVal.map (SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, config.Root ])
+        Path.Combine(inputRoot, name) |> templateText
 
     let headText = extraText "_head.html"
     let bodyText = extraText "_body.html"
@@ -1352,7 +1345,7 @@ type internal Site(config: SiteConfig) =
             let crefResolver =
                 match api with
                 | Some a -> a.CrefResolver
-                | None -> (fun _ -> None)
+                | None -> (fun _ _ -> None)
 
             let mdlinkResolver =
                 Content.makeMarkdownLinkResolver
@@ -1400,20 +1393,29 @@ type internal Site(config: SiteConfig) =
             with _ ->
                 false
 
-    let globalsFor (api: Substitutions option) (navHtml: string) (head: string) (body: string) : Substitutions =
+    /// The global substitutions of a page with the given relative root
+    let globalsFor
+        (pageRoot: string)
+        (api: (string -> Substitutions) option)
+        (navHtml: string)
+        (head: string)
+        (body: string)
+        : Substitutions =
+        let subst = SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, pageRoot ]
+
         [
             yield ParamKeys.``fsdocs-watch-script``, config.WatchScript
             yield!
                 (match api with
-                 | Some g -> g
+                 | Some g -> g pageRoot
                  | None -> [ ParamKeys.``fsdocs-list-of-namespaces``, "" ])
             yield ParamKeys.``fsdocs-list-of-documents``, navHtml
-            yield ParamKeys.``fsdocs-head-extra``, head
-            yield ParamKeys.``fsdocs-body-extra``, body
+            yield ParamKeys.``fsdocs-head-extra``, subst head
+            yield ParamKeys.``fsdocs-body-extra``, subst body
         ]
 
-    let navHtmlFor (pages: NavPage list) (activePage: string option) =
-        Content.getNavigationEntriesFactory config.Root (config.Input, pages, config.IgnoreUncategorized) activePage
+    let navHtmlFor (pageRoot: string) (pages: NavPage list) (activePage: string option) =
+        Content.getNavigationEntriesFactory (config.Input, pages, config.IgnoreUncategorized) pageRoot activePage
 
     let contentTypeOf (kind: OutputKind) =
         match kind with
@@ -1443,7 +1445,7 @@ type internal Site(config: SiteConfig) =
             templateStamp
             |> AVal.bind (fun _ ->
                 if templateNeedsApi route.Template then
-                    apiState |> AVal.map (fun a -> Some a.Globals)
+                    apiState |> AVal.map Some
                 else
                     AVal.constant None)
 
@@ -1464,7 +1466,9 @@ type internal Site(config: SiteConfig) =
                 else
                     None
 
-            let globals = globalsFor api (navHtmlFor pages activePage) head body
+            let pageRoot = Content.relativeRoot route.OutputFileRelativeToRoot
+            let api = api |> Option.map (fun (a: ApiState) -> a.GlobalsFor)
+            let globals = globalsFor pageRoot api (navHtmlFor pageRoot pages activePage) head body
             let text = Content.renderPage model route.Template globals
             Some(textResponse (contentTypeOf route.OutputKind) text))
 
@@ -1487,7 +1491,8 @@ type internal Site(config: SiteConfig) =
             match api.Pages.TryFind relativeFile with
             | None -> None
             | Some render ->
-                let globals = globalsFor (Some api.Globals) (navHtmlFor pages None) head body
+                let pageRoot = Content.relativeRoot relativeFile
+                let globals = globalsFor pageRoot (Some api.GlobalsFor) (navHtmlFor pageRoot pages None) head body
                 let text = render config.ApiDocsTemplate globals
                 Some(textResponse (contentTypeOf config.ApiDocsOutputKind) text))
 
@@ -1500,8 +1505,7 @@ type internal Site(config: SiteConfig) =
 
     let searchIndexEntries =
         AVal.map2
-            (fun models (api: ApiState) ->
-                Array.append api.SearchIndex (Content.getSearchIndexEntries config.Root models))
+            (fun models (api: ApiState) -> Array.append api.SearchIndex (Content.getSearchIndexEntries models))
             allModels
             apiState
 
@@ -1516,6 +1520,7 @@ type internal Site(config: SiteConfig) =
             // When FsDocsGenerateLlmsTxt is enabled, markdown is always generated alongside HTML
             let docContentUsesMarkdown = true
             let apiDocUsesMarkdown = config.ApiDocsOutputKind = OutputKind.Markdown
+            let index = Content.absoluteSearchIndex config.Root index
             LlmsTxt.buildContent config.CollectionName index docContentUsesMarkdown apiDocUsesMarkdown)
 
     let llmsTxt =
@@ -1539,27 +1544,31 @@ type internal Site(config: SiteConfig) =
     /// production web servers tolerate, so the dev server does too.
     let normalizeUrl (url: string) = Regex.Replace(url, "/{2,}", "/")
 
-    let resolve (url: string) : Route option =
+    let rec resolve (url: string) : Route option =
         let s = AVal.force scan
 
-        match s.Routes.TryFind url with
-        | Some r -> Some r
-        | None ->
-            let apiExtension = "." + config.ApiDocsOutputKind.Extension
+        // A folder URL serves its index page, as static web servers do
+        if url.EndsWith("/", StringComparison.Ordinal) then
+            resolve (url + "index.html")
+        else
+            match s.Routes.TryFind url with
+            | Some r -> Some r
+            | None ->
+                let apiExtension = "." + config.ApiDocsOutputKind.Extension
 
-            if
-                url.StartsWith("/reference/", StringComparison.Ordinal)
-                && url.EndsWith(apiExtension, StringComparison.OrdinalIgnoreCase)
-            then
-                let api = AVal.force apiState
-                let rel = url.TrimStart('/')
+                if
+                    url.StartsWith("/reference/", StringComparison.Ordinal)
+                    && url.EndsWith(apiExtension, StringComparison.OrdinalIgnoreCase)
+                then
+                    let api = AVal.force apiState
+                    let rel = url.TrimStart('/')
 
-                if api.Pages.ContainsKey rel then
-                    Some(ApiPage rel)
+                    if api.Pages.ContainsKey rel then
+                        Some(ApiPage rel)
+                    else
+                        None
                 else
                     None
-            else
-                None
 
     let mimeOf (path: string) =
         match Serve.mimeTypesMap (Path.GetExtension(path).ToLowerInvariant()) with
@@ -1579,6 +1588,21 @@ type internal Site(config: SiteConfig) =
     /// Resolve a URL path (e.g. '/index.html') to what it is served from.
     member _.Resolve(url: string) : Route option =
         lock renderLock (fun () -> resolve (normalizeUrl url))
+
+    /// The URL to redirect a folder URL without its trailing slash to (e.g. '/docs' to '/docs/'), as
+    /// static web servers do. The relative links of the index page only work with the slash.
+    member _.RedirectTo(url: string) : string option =
+        let url = normalizeUrl url
+
+        lock renderLock (fun () ->
+            if
+                not (url.EndsWith("/", StringComparison.Ordinal))
+                && (resolve url).IsNone
+                && (resolve (url + "/index.html")).IsSome
+            then
+                Some(url + "/")
+            else
+                None)
 
     /// Compute (or reuse) the response for a URL path. Static files are read from their source.
     member _.Render(url: string) : RenderResult =
@@ -2217,7 +2241,7 @@ module internal Doctor =
             [
                 [ "command"; doctor.Command ]
                 [ "input"; doctor.Input ]
-                [ "root"; doctor.Root ]
+                [ "site root ({{fsdocs-site-root}}; {{root}} is relative per page)"; doctor.Root ]
                 [ "collection name"; doctor.CollectionName ]
                 [ "llms.txt"; string<bool> doctor.GenerateLlmsTxt ]
                 [ "_head.html"; str doctor.HeadTemplate ]
@@ -2388,7 +2412,10 @@ module internal DevServer =
                 | _ ->
                     match site.Render url with
                     | Rendered r -> return! (Writers.setMimeType r.ContentType >=> Successful.ok r.Body) ctx
-                    | NotFound -> return! RequestErrors.NOT_FOUND (sprintf "fsdocs: nothing is served at %s" url) ctx
+                    | NotFound ->
+                        match site.RedirectTo url with
+                        | Some target -> return! Redirection.redirect target ctx
+                        | None -> return! RequestErrors.NOT_FOUND (sprintf "fsdocs: nothing is served at %s" url) ctx
                     | Failed ex ->
                         return!
                             (Writers.setMimeType "text/html; charset=utf-8"
@@ -2427,7 +2454,6 @@ module internal DevServer =
 
         choose
             [
-                path "/" >=> Redirection.redirect "/index.html"
                 path "/websocket" >=> handShake liveReload.SocketHandler
                 path "/.fsdocs/doctor"
                 >=> noCache

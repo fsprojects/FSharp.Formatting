@@ -64,7 +64,11 @@ type internal ContentOptions =
     {
         LineNumbers: bool option
         Evaluate: bool
+        /// The site-wide substitutions; 'root' and 'fsdocs-site-root' hold the absolute site URL
         Substitutions: Substitutions
+        /// The substitutions that take the page's relative root ('./', '../', ...) instead of the
+        /// site URL: 'root', and in watch mode the logo link too
+        RootKeys: ParamKey list
         OnError: string -> unit
     }
 
@@ -195,6 +199,65 @@ module internal Content =
         not (String.IsNullOrWhiteSpace value)
         && not (value.Contains "://")
         && not (value.StartsWith("data:", StringComparison.Ordinal))
+
+    /// The '{{root}}' of a page: the relative path from the page's folder to the root of the site,
+    /// ending with '/'. 'index.html' gets './', 'sub/c.html' gets '../'. Relative links work
+    /// wherever the site is hosted: a sub path, several host names, or the file system.
+    let relativeRoot (outputFileRelativeToRoot: string) =
+        let segments =
+            outputFileRelativeToRoot.Replace('\\', '/').Split('/')
+            |> Array.filter (fun s -> s <> "" && s <> ".")
+
+        let depth = max 0 (segments.Length - 1)
+
+        if depth = 0 then "./" else String.replicate depth "../"
+
+    /// The root of the API reference pages: they all live in 'reference/' (or 'reference/<collection>/').
+    let apiRoot (qualify: bool) = if qualify then "../../" else "../"
+
+    /// Output kinds whose links are relative to the page. Notebooks, scripts and LaTeX are
+    /// downloaded and used elsewhere, so they keep the absolute site URL.
+    let usesRelativeRoot (outputKind: OutputKind) =
+        match outputKind with
+        | OutputKind.Html
+        | OutputKind.Markdown -> true
+        | _ -> false
+
+    /// The substitutions of a page: the given keys take the page's root instead of their site-wide value.
+    let withPageRoot (keys: ParamKey list) (pageRoot: string) (substitutions: Substitutions) : Substitutions =
+        (substitutions |> List.filter (fun (k, _) -> not (List.contains k keys)))
+        @ [ for k in keys -> k, pageRoot ]
+
+    /// The substitutions of the page written to the given output file.
+    let pageSubstitutions (options: ContentOptions) (outputKind: OutputKind) (outputFileRelativeToRoot: string) =
+        if usesRelativeRoot outputKind then
+            withPageRoot options.RootKeys (relativeRoot outputFileRelativeToRoot) options.Substitutions
+        else
+            options.Substitutions
+
+    /// Resolve 'cref:' code references in content against the API docs model. The links to the
+    /// API pages are rebased from the model's root to the page's root.
+    let makeCrefResolver (model: ApiDocModel) (pageRoot: string) (s: string) =
+        if s.StartsWith("cref:", StringComparison.Ordinal) then
+            match model.Resolver.ResolveCref s.[5..] with
+            | None -> None
+            | Some cref ->
+                let link =
+                    if
+                        cref.IsInternal
+                        && cref.ReferenceLink.StartsWith(model.Root, StringComparison.Ordinal)
+                    then
+                        pageRoot + cref.ReferenceLink.Substring(model.Root.Length)
+                    else
+                        cref.ReferenceLink
+
+                Some(cref.NiceName, link)
+        else
+            None
+
+    /// The search index entries with the site URL in front, for the files read outside the site.
+    let absoluteSearchIndex (siteRoot: string) (entries: ApiDocsSearchIndexEntry array) =
+        entries |> Array.map (fun e -> { e with uri = siteRoot + e.uri })
 
     /// Sort front matter files the way the next/previous page links expect.
     let sortFilesWithFrontMatter (files: FrontMatterFile seq) =
@@ -365,12 +428,14 @@ module internal Content =
         (inputFileFullPath: string)
         (outputKind: OutputKind)
         (outputFileRelativeToRoot: string)
-        (crefResolver: string -> (string * string) option)
+        (crefResolverFor: string -> string -> (string * string) option)
         (mdlinkResolver: string -> string option)
         (filesWithFrontMatter: FrontMatterFile array)
         (imageSaverOpt: (string -> string) option)
         : LiterateDocModel =
         let onError = options.OnError
+        let substitutions = pageSubstitutions options outputKind outputFileRelativeToRoot
+        let crefResolver = crefResolverFor (relativeRoot outputFileRelativeToRoot)
 
         if isFsxFile inputFileFullPath then
             logger.Debugf "generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
@@ -391,7 +456,7 @@ module internal Content =
                     lineNumbers = options.LineNumbers,
                     references = Some false,
                     fsiEvaluator = fsiEvaluator,
-                    substitutions = options.Substitutions,
+                    substitutions = substitutions,
                     generateAnchors = Some true,
                     imageSaver = imageSaverOpt,
                     rootInputFolder = rootInputFolder,
@@ -414,7 +479,7 @@ module internal Content =
                 fscOptions = None,
                 lineNumbers = options.LineNumbers,
                 references = Some false,
-                substitutions = options.Substitutions,
+                substitutions = substitutions,
                 generateAnchors = Some true,
                 imageSaver = imageSaverOpt,
                 rootInputFolder = rootInputFolder,
@@ -440,7 +505,7 @@ module internal Content =
                 fscOptions = None,
                 lineNumbers = options.LineNumbers,
                 references = Some false,
-                substitutions = options.Substitutions,
+                substitutions = substitutions,
                 generateAnchors = Some true,
                 imageSaver = imageSaverOpt,
                 rootInputFolder = rootInputFolder,
@@ -456,8 +521,8 @@ module internal Content =
     let renderPage (model: LiterateDocModel) (template: string option) (globals: Substitutions) =
         SimpleTemplating.RenderWithFileTemplate(globals @ model.Substitutions, template)
 
-    /// The search index entries of the given page models.
-    let getSearchIndexEntries (root: string) (docModels: (string * bool * LiterateDocModel) list) =
+    /// The search index entries of the given page models, with URIs relative to the root of the site.
+    let getSearchIndexEntries (docModels: (string * bool * LiterateDocModel) list) =
         [|
             for (_inputFile, isOtherLang, model) in docModels do
                 if not isOtherLang then
@@ -467,7 +532,7 @@ module internal Content =
                             title = model.Title
                             content = fullContent
                             headings = headings
-                            uri = model.Uri(root)
+                            uri = model.Uri("")
                             ``type`` = "content"
                         }
                     | _ -> ()
@@ -489,10 +554,10 @@ module internal Content =
     /// This avoids O(n²) work when building a site with n pages, since the structure
     /// (grouping, sorting, templating check) is the same for every page.
     /// The pages must be HTML pages outside multi-language folders; 'index' pages are excluded here.
+    /// The render function takes the root of the page the menu is for and the active page.
     let getNavigationEntriesFactory
-        (root: string)
         (input: string, pages: NavPage list, ignoreUncategorized: bool)
-        : string option -> string =
+        : string -> string option -> string =
 
         let baseModels =
             [
@@ -530,7 +595,7 @@ module internal Content =
         let useTemplating = Menu.isTemplatingAvailable input
 
         // Cheap render function: only sets IsActive and generates HTML (no sorting/grouping)
-        fun (currentPagePath: string option) ->
+        fun (root: string) (currentPagePath: string option) ->
             let modelsByCategory =
                 sortedGroups
                 |> List.map (fun (cat, items) ->
@@ -611,8 +676,7 @@ type internal DocContent
         substitutions,
         saveImages,
         watch,
-        root,
-        crefResolver,
+        crefResolverFor,
         onError
     ) =
 
@@ -621,6 +685,7 @@ type internal DocContent
             LineNumbers = lineNumbers
             Evaluate = evaluate
             Substitutions = substitutions
+            RootKeys = [ ParamKeys.root ]
             OnError = onError
         }
 
@@ -801,7 +866,7 @@ type internal DocContent
                                     inputFileFullPath
                                     outputKind
                                     outputFileRelativeToRoot
-                                    crefResolver
+                                    crefResolverFor
                                     mdlinkResolver
                                     filesWithFrontMatter
                                     imageSaverOpt
@@ -993,13 +1058,13 @@ type internal DocContent
         ]
 
     member _.GetSearchIndexEntries(docModels: (string * bool * LiterateDocModel) list) =
-        Content.getSearchIndexEntries root docModels
+        Content.getSearchIndexEntries docModels
 
     /// Pre-computes the navigation structure once, returning a cheap render function that
     /// generates nav HTML for any given current page path.
     member _.GetNavigationEntriesFactory
         (input, docModels: (string * bool * LiterateDocModel) list, ignoreUncategorized: bool)
-        : string option -> string =
+        : string -> string option -> string =
 
         let pages =
             [
@@ -1008,4 +1073,4 @@ type internal DocContent
                         yield Content.navPageOfModel inputFileFullPath model
             ]
 
-        Content.getNavigationEntriesFactory root (input, pages, ignoreUncategorized)
+        Content.getNavigationEntriesFactory (input, pages, ignoreUncategorized)

@@ -23,11 +23,12 @@ function debounce(mainFunction, delay) {
     };
 }
 
+// The relative root of this page ('./', '../', ...); the index holds site-relative URIs
 const root = document.documentElement.getAttribute("data-root");
 if (root && searchBtn) {
     let fuse = null;
     let indexLoading = null;
-    const searchIndexUrl = `${root}/index.json`;
+    const searchIndexUrl = `${root}index.json`;
 
     const searchDialog = document.querySelector("dialog");
     const empty = document.querySelector("dialog .empty");
@@ -114,7 +115,7 @@ if (root && searchBtn) {
                         const item = result.item;
                         const li = document.createElement("li");
                         const a = document.createElement("a");
-                        a.setAttribute("href", item.uri);
+                        a.setAttribute("href", root + item.uri);
                         const icon = document.createElement("iconify-icon");
                         icon.setAttribute("width", "24");
                         icon.setAttribute("height", "24");

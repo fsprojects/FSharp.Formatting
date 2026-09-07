@@ -638,7 +638,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 ]
         ]
 
-    let listOfNamespacesNavAux otherDocs (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesNavAux (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
         [
             // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
             //
@@ -707,9 +707,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     | _ -> ()
         ]
 
-    let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesNavWithRoot (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
         let noTemplatingFallback () =
-            listOfNamespacesNavAux otherDocs nsOpt
+            listOfNamespacesNavAux root otherDocs nsOpt
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
@@ -756,11 +756,18 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                     Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
 
-    /// Get the substitutions relevant to all
-    member _.GlobalSubstitutions: Substitutions =
-        let toc = listOfNamespacesNav true None
+    let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
+        listOfNamespacesNavWithRoot root otherDocs nsOpt
+
+    /// The substitutions relevant to all pages, with the namespace links built for the given root
+    /// (a content page deeper in the site needs a different relative root than the API pages).
+    member _.GlobalSubstitutionsFor(root: string) : Substitutions =
+        let toc = listOfNamespacesNavWithRoot root true None
 
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc); yield ParamKeys.``fsdocs-body-class``, "api-docs" ]
+
+    /// Get the substitutions relevant to all
+    member x.GlobalSubstitutions: Substitutions = x.GlobalSubstitutionsFor root
 
     /// The pages of the API documentation: the output file relative to the output folder
     /// (forward slashes) and a function rendering the page for a template and global substitutions.

@@ -22,7 +22,7 @@ index: 4
 #endif // IPYNB
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
+[![Script](img/badge-script.svg)]({{root}}{{fsdocs-source-basename}}.fsx)
 
 Literate Scripts
 ================

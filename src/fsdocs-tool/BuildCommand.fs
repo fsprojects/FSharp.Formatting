@@ -153,32 +153,42 @@ type CoreBuildOptions(watch) =
 
         let userParametersDict = readOnlyDict userParameters
 
-        // Adjust the user substitutions for 'watch' mode root
+        // Adjust the user substitutions for 'watch' mode site root
+        // The site URL given by the user, if any. '{{root}}' is relative per page, so the user sets
+        // the absolute URL as 'fsdocs-site-root'; a 'root' parameter still works but is meant to
+        // draw attention to the change.
+        let userSiteRoot =
+            match userParametersDict.TryGetValue(ParamKeys.``fsdocs-site-root``) with
+            | true, v -> Some v
+            | _ ->
+                match userParametersDict.TryGetValue(ParamKeys.root) with
+                | true, v ->
+                    logger.Warnf
+                        "the 'root' substitution is now relative per page; '%s' is used as the site URL, pass it as '--parameters fsdocs-site-root %s' instead"
+                        v
+                        v
+
+                    Some v
+                | _ -> None
+
         let userRoot, userParameters =
             if watch then
                 let userRoot =
-                    match this.root_override_option with
+                    match this.site_root_option with
                     | Some r -> r
                     | None -> sprintf "http://localhost:%d/" this.port_option
 
-                if
-                    userParametersDict.ContainsKey(ParamKeys.root)
-                    && this.root_override_option.IsNone
-                then
-                    logger.Warnf "ignoring user-specified root since in watch mode, root = %s" userRoot
+                if userSiteRoot.IsSome && this.site_root_option.IsNone then
+                    logger.Warnf "ignoring the user-specified site root since in watch mode, site root = %s" userRoot
 
                 let userParameters =
                     [ ParamKeys.root, userRoot ]
-                    @ (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.root))
+                    @ (userParameters
+                       |> List.filter (fun (a, _) -> a <> ParamKeys.root && a <> ParamKeys.``fsdocs-site-root``))
 
                 Some userRoot, userParameters
             else
-                let r =
-                    match userParametersDict.TryGetValue(ParamKeys.root) with
-                    | true, v -> Some v
-                    | _ -> None
-
-                r, userParameters
+                userSiteRoot, userParameters
 
         let userCollectionName =
             match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with
@@ -234,6 +244,8 @@ type CoreBuildOptions(watch) =
         let evaluatedInfos = evaluateProjectsCached ()
         let collectionName = discoveredCollectionName
 
+        // 'root' is the absolute site URL here; every page gets its own relative '{{root}}'
+        // (see Content.relativeRoot) and the site URL stays available as '{{fsdocs-site-root}}'.
         let (root, crackedProjects, _, docsSubstitutions, generateLlmsTxt) =
             Crack.siteOf (userRoot, userParameters, collectionName, evaluatedInfos, true)
 
@@ -257,6 +269,22 @@ type CoreBuildOptions(watch) =
                 [ ParamKeys.root; ParamKeys.``fsdocs-logo-link`` ]
             else
                 []
+
+        /// The substitutions that take the page's relative root instead of the site URL: 'root', and
+        /// the logo link when it points at the site root (its default without <FsDocsLogoLink>, and
+        /// always in watch mode)
+        let pageRootKeys =
+            let logoLinksToRoot =
+                docsSubstitutions
+                |> List.exists (fun (k, v) -> k = ParamKeys.``fsdocs-logo-link`` && v = root)
+
+            [
+                yield ParamKeys.root
+                if watch || logoLinksToRoot then
+                    yield ParamKeys.``fsdocs-logo-link``
+            ]
+
+        let apiRoot = Content.apiRoot this.qualify
 
         let apiDocInputsOf (crackedProjects: Crack.CrackedProject list) =
             [
@@ -291,7 +319,13 @@ type CoreBuildOptions(watch) =
                         XmlFile = None
                         SourceRepo = sourceRepo
                         SourceFolder = Some sourceFolder
-                        Substitutions = Some(overrideLogoLinkForWatch project.Substitutions)
+                        // The API pages all live under 'reference/': their root is relative to that folder
+                        Substitutions =
+                            Some(
+                                project.Substitutions
+                                |> overrideLogoLinkForWatch
+                                |> Content.withPageRoot pageRootKeys apiRoot
+                            )
                         MarkdownComments = this.mdcomments || project.UsesMarkdownComments
                         Warn = project.WarnOnMissingDocs
                         PublicOnly = not this.nonpublic
@@ -679,19 +713,23 @@ type CoreBuildOptions(watch) =
 
         // The incremental state (as well as the files written to disk)
         let mutable latestApiDocModel = None
-        let mutable latestApiDocGlobalParameters = []
-        let mutable latestApiDocCodeReferenceResolver = (fun _ -> None)
+
+        let mutable latestApiDocGlobalParametersFor =
+            (fun (_: string) -> [ ParamKeys.``fsdocs-list-of-namespaces``, "" ])
+
+        let mutable latestApiDocCodeReferenceResolver = (fun (_: string) (_: string) -> None)
         let mutable latestApiDocPhase2 = (fun _ -> ())
         let mutable latestApiDocSearchIndexEntries = [||]
         let mutable latestApiDocOutputKind = OutputKind.Html
         let mutable latestDocContentPhase2 = (fun _ -> ())
         let mutable latestDocContentResults = Map.empty
         let mutable latestDocContentSearchIndexEntries = [||]
-        let mutable latestDocContentGlobalParameters = []
+        let mutable latestDocContentGlobalParametersFor = (fun (_: string) -> [])
 
-        // Actions to read out the incremental state
-        let getLatestGlobalParameters () =
-            latestApiDocGlobalParameters @ latestDocContentGlobalParameters
+        // Actions to read out the incremental state; the globals depend on the root of the page
+        let getLatestGlobalParametersFor (pageRoot: string) =
+            latestApiDocGlobalParametersFor pageRoot
+            @ latestDocContentGlobalParametersFor pageRoot
 
         let regenerateSearchIndex () =
             let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
@@ -705,7 +743,10 @@ type CoreBuildOptions(watch) =
 
         let generateLlmsTxt () =
             if generateLlmsTxtEnabled then
-                let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
+                let index =
+                    Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
+                    |> Content.absoluteSearchIndex root
+
                 // When FsDocsGenerateLlmsTxt is enabled, markdown is always generated alongside HTML
                 // (using the bundled default markdown template if the user hasn't provided a _template.md).
                 let docContentUsesMarkdown = true
@@ -750,11 +791,11 @@ type CoreBuildOptions(watch) =
                                 inputs = crack.ApiDocInputs,
                                 output = outputFolder,
                                 collectionName = collectionName,
-                                substitutions = crack.Substitutions,
+                                substitutions = Content.withPageRoot pageRootKeys apiRoot crack.Substitutions,
                                 qualify = this.qualify,
                                 ?template = apiDocsTemplate,
                                 otherFlags = crack.ApiDocOtherFlags,
-                                root = root,
+                                root = apiRoot,
                                 libDirs = crack.LibDirs,
                                 onError = onError,
                                 menuTemplateFolder = this.input
@@ -766,11 +807,11 @@ type CoreBuildOptions(watch) =
                                 inputs = crack.ApiDocInputs,
                                 output = outputFolder,
                                 collectionName = collectionName,
-                                substitutions = crack.Substitutions,
+                                substitutions = Content.withPageRoot pageRootKeys apiRoot crack.Substitutions,
                                 qualify = this.qualify,
                                 ?template = apiDocsTemplate,
                                 otherFlags = crack.ApiDocOtherFlags,
-                                root = root,
+                                root = apiRoot,
                                 libDirs = crack.LibDirs,
                                 onError = onError
                             )
@@ -789,35 +830,24 @@ type CoreBuildOptions(watch) =
 
                 phased
 
-        /// Resolve 'cref:' code references in content with respect to the API Docs model
-        let makeCodeReferenceResolver (model: ApiDocModel) (s: string) =
-            if s.StartsWith("cref:", StringComparison.Ordinal) then
-                let s = s.[5..]
-
-                match model.Resolver.ResolveCref s with
-                | None -> None
-                | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
-            else
-                None
-
         // Incrementally generate API docs (regenerates all api docs, in two phases)
         let runGeneratePhase1 () =
             protect "API doc generation (phase 1)" (fun () ->
                 match generateApiDocs startupCrack.Value rootOutputFolderAsGiven onError with
-                | None -> latestApiDocGlobalParameters <- [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
+                | None -> latestApiDocGlobalParametersFor <- (fun _ -> [ ParamKeys.``fsdocs-list-of-namespaces``, "" ])
                 | Some phased ->
                     latestApiDocOutputKind <- apiDocsOutputKind
                     latestApiDocModel <- Some phased.Model
-                    latestApiDocCodeReferenceResolver <- makeCodeReferenceResolver phased.Model
+                    latestApiDocCodeReferenceResolver <- Content.makeCrefResolver phased.Model
                     latestApiDocSearchIndexEntries <- phased.SearchIndex
-                    latestApiDocGlobalParameters <- phased.GlobalSubstitutions
+                    latestApiDocGlobalParametersFor <- phased.GlobalSubstitutionsFor
                     latestApiDocPhase2 <- phased.Generate)
 
         let runGeneratePhase2 () =
             protect "API doc generation (phase 2)" (fun () ->
                 logger.Debugf "writing the API docs"
 
-                let globals = getLatestWatchScript () @ getLatestGlobalParameters ()
+                let globals = getLatestWatchScript () @ getLatestGlobalParametersFor apiRoot
 
                 latestApiDocPhase2 globals
                 regenerateSearchIndex ())
@@ -845,7 +875,6 @@ type CoreBuildOptions(watch) =
                         startupCrack.Value.Substitutions,
                         saveImages,
                         watch,
-                        root,
                         latestApiDocCodeReferenceResolver,
                         onError
                     )
@@ -883,25 +912,31 @@ type CoreBuildOptions(watch) =
                         ignoreUncategorized = this.ignoreuncategorized
                     )
 
-                let navEntriesWithoutActivePage = getNavEntries None
+                let extraTemplateText (name: string) =
+                    let path = Path.Combine(this.input, name)
+                    if File.Exists path then File.ReadAllText path else ""
 
-                let headTemplateContent =
-                    let headTemplatePath = Path.Combine(this.input, "_head.html")
+                let headTemplateText = extraTemplateText "_head.html"
+                let bodyTemplateText = extraTemplateText "_body.html"
 
-                    if not (File.Exists headTemplatePath) then
-                        ""
-                    else
-                        File.ReadAllText headTemplatePath
-                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
+                // The globals depend on the root of the page; a site has a handful of depths
+                let globalsByRoot = System.Collections.Generic.Dictionary<string, Substitutions>()
 
-                let bodyTemplateContent =
-                    let bodyTemplatePath = Path.Combine(this.input, "_body.html")
+                let globalsFor (pageRoot: string) =
+                    match globalsByRoot.TryGetValue pageRoot with
+                    | true, g -> g
+                    | _ ->
+                        let subst = SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, pageRoot ]
 
-                    if not (File.Exists bodyTemplatePath) then
-                        ""
-                    else
-                        File.ReadAllText bodyTemplatePath
-                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
+                        let g =
+                            [
+                                ParamKeys.``fsdocs-list-of-documents``, getNavEntries pageRoot None
+                                ParamKeys.``fsdocs-head-extra``, subst headTemplateText
+                                ParamKeys.``fsdocs-body-extra``, subst bodyTemplateText
+                            ]
+
+                        globalsByRoot.[pageRoot] <- g
+                        g
 
                 let results =
                     Map.ofList
@@ -915,39 +950,35 @@ type CoreBuildOptions(watch) =
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
 
-                latestDocContentGlobalParameters <-
-                    [
-                        ParamKeys.``fsdocs-list-of-documents``, navEntriesWithoutActivePage
-                        ParamKeys.``fsdocs-head-extra``, headTemplateContent
-                        ParamKeys.``fsdocs-body-extra``, bodyTemplateContent
-                    ]
+                latestDocContentGlobalParametersFor <- globalsFor
 
                 latestDocContentPhase2 <-
-                    (fun globals ->
+                    (fun (globalsFor: string -> Substitutions) ->
                         logger.Debugf "writing the content"
 
                         for (optDocModel, action) in docModels do
-                            let globals =
-                                match optDocModel with
-                                | None -> globals
-                                | Some(currentPagePath, _, _) ->
-                                    // Use the pre-computed factory closure (only sets IsActive, no re-sorting)
-                                    let navEntries = getNavEntries (Some currentPagePath)
+                            match optDocModel with
+                            | None -> action []
+                            | Some(currentPagePath, _, model) ->
+                                let pageRoot = Content.relativeRoot model.OutputPath
 
-                                    globals
+                                // Use the pre-computed factory closure (only sets IsActive, no re-sorting)
+                                let navEntries = getNavEntries pageRoot (Some currentPagePath)
+
+                                let globals =
+                                    globalsFor pageRoot
                                     |> List.map (fun (pk, v) ->
                                         if pk <> ParamKeys.``fsdocs-list-of-documents`` then
                                             pk, v
                                         else
                                             ParamKeys.``fsdocs-list-of-documents``, navEntries)
 
-                            action globals))
+                                action globals))
 
         let runDocContentPhase2 () =
             protect "Content generation (phase 2)" (fun () ->
-                let globals = getLatestWatchScript () @ getLatestGlobalParameters ()
-
-                latestDocContentPhase2 globals)
+                latestDocContentPhase2 (fun pageRoot ->
+                    getLatestWatchScript () @ getLatestGlobalParametersFor pageRoot))
 
         //-----------------------------------------
         // Watch: a lazy site served from memory, no output folder
@@ -974,6 +1005,7 @@ type CoreBuildOptions(watch) =
                             LineNumbers = Some this.linenumbers
                             Evaluate = this.eval
                             Substitutions = docsSubstitutions
+                            RootKeys = pageRootKeys
                             OnError = siteOnError
                         }
                     ApiDllPaths = [ for input in apiDocInputs -> input.Path ]
@@ -1096,8 +1128,8 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
-    abstract root_override_option: string option
-    default x.root_override_option = None
+    abstract site_root_option: string option
+    default x.site_root_option = None
 
 /// Helpers for the <c>fsdocs convert</c> command.
 module private ConvertHelpers =
@@ -1550,11 +1582,15 @@ type WatchCommand() =
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
 
-    override x.root_override_option = if String.IsNullOrEmpty x.root then None else Some x.root
+    override x.site_root_option =
+        if String.IsNullOrEmpty x.siteroot then
+            None
+        else
+            Some x.siteroot
 
-    [<Option("root",
+    [<Option("site-root",
              Required = false,
              Default = "",
              HelpText =
-                 "Override the root URL for generated pages. Useful for reverse proxies or GitHub Codespaces. E.g. --root / or --root https://example.com/docs/. When not set, defaults to http://localhost:<port>/.")>]
-    member val root = "" with get, set
+                 "The absolute URL of the site ({{fsdocs-site-root}}), only used by the links that must be absolute such as Open Graph metadata and llms.txt; page links are relative. When not set, defaults to http://localhost:<port>/.")>]
+    member val siteroot = "" with get, set

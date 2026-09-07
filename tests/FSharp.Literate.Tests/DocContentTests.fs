@@ -32,8 +32,7 @@ let ``Can build doc content`` () =
             substitutions = [],
             saveImages = None,
             watch = false,
-            root = "https://github.com",
-            crefResolver = (fun _ -> None),
+            crefResolverFor = (fun _ _ -> None),
             onError = failwith
         )
 
@@ -136,8 +135,7 @@ let ``Can build doc content using relative input path`` () =
             substitutions = [],
             saveImages = None,
             watch = false,
-            root = "https://github.com",
-            crefResolver = (fun _ -> None),
+            crefResolverFor = (fun _ _ -> None),
             onError = failwith
         )
 
@@ -237,8 +235,7 @@ let ``Parses frontmatter correctly `` () =
             substitutions = [],
             saveImages = None,
             watch = false,
-            root = "https://en.wikipedia.org",
-            crefResolver = (fun _ -> None),
+            crefResolverFor = (fun _ _ -> None),
             onError = failwith
         )
 
@@ -276,8 +273,7 @@ let ``Parses description and keywords from frontmatter `` () =
             substitutions = [],
             saveImages = None,
             watch = false,
-            root = "https://github.com",
-            crefResolver = (fun _ -> None),
+            crefResolverFor = (fun _ _ -> None),
             onError = failwith
         )
 
@@ -322,8 +318,7 @@ let ``ipynb notebook evaluates`` () =
             substitutions = [],
             saveImages = None,
             watch = false,
-            root = "https://github.com",
-            crefResolver = (fun _ -> None),
+            crefResolverFor = (fun _ _ -> None),
             onError = failwith
         )
 
@@ -374,8 +369,7 @@ let private makeDocContentForNav () =
         substitutions = [],
         saveImages = None,
         watch = false,
-        root = "",
-        crefResolver = (fun _ -> None),
+        crefResolverFor = (fun _ _ -> None),
         onError = failwith
     )
 
@@ -388,14 +382,14 @@ let private navInput = __SOURCE_DIRECTORY__
 let ``GetNavigationEntriesFactory - empty docModels produces empty string`` () =
     let dc = makeDocContentForNav ()
     let factory = dc.GetNavigationEntriesFactory(navInput, [], ignoreUncategorized = false)
-    factory None |> shouldEqual ""
+    factory "./" None |> shouldEqual ""
 
 [<Test>]
 let ``GetNavigationEntriesFactory - single uncategorized model renders Documentation header`` () =
     let dc = makeDocContentForNav ()
     let models = [ makeNavDocModel "Getting Started" "/docs/getting-started.md" None None None ]
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    let html = factory None
+    let html = factory "./" None
     html |> shouldContainText "Documentation"
     html |> shouldContainText "getting-started.html"
 
@@ -404,21 +398,21 @@ let ``GetNavigationEntriesFactory - None currentPagePath marks no item as active
     let dc = makeDocContentForNav ()
     let models = [ makeNavDocModel "Page 1" "/docs/page1.md" None None None ]
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    factory None |> shouldNotContainText "active"
+    factory "./" None |> shouldNotContainText "active"
 
 [<Test>]
 let ``GetNavigationEntriesFactory - matching currentPagePath marks item as active`` () =
     let dc = makeDocContentForNav ()
     let models = [ makeNavDocModel "Page 1" "/docs/page1.md" None None None ]
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    factory (Some "/docs/page1.md") |> shouldContainText "active"
+    factory "./" (Some "/docs/page1.md") |> shouldContainText "active"
 
 [<Test>]
 let ``GetNavigationEntriesFactory - non-matching currentPagePath does not mark item as active`` () =
     let dc = makeDocContentForNav ()
     let models = [ makeNavDocModel "Page 1" "/docs/page1.md" None None None ]
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    factory (Some "/docs/other.md") |> shouldNotContainText "active"
+    factory "./" (Some "/docs/other.md") |> shouldNotContainText "active"
 
 [<Test>]
 let ``GetNavigationEntriesFactory - exactly one item is active among multiple pages`` () =
@@ -432,7 +426,7 @@ let ``GetNavigationEntriesFactory - exactly one item is active among multiple pa
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    let html = factory (Some "/docs/page2.md")
+    let html = factory "./" (Some "/docs/page2.md")
     // "nav-item active" should appear exactly once
     let activeCount = html.Split([| "nav-item active" |], System.StringSplitOptions.None).Length - 1
 
@@ -458,7 +452,7 @@ let ``GetNavigationEntriesFactory - excludes isOtherLang models`` () =
          })
 
     let factory = dc.GetNavigationEntriesFactory(navInput, [ otherLangModel ], ignoreUncategorized = false)
-    factory None |> shouldNotContainText "Other Language Page"
+    factory "./" None |> shouldNotContainText "Other Language Page"
 
 [<Test>]
 let ``GetNavigationEntriesFactory - excludes non-HTML output models`` () =
@@ -480,7 +474,7 @@ let ``GetNavigationEntriesFactory - excludes non-HTML output models`` () =
          })
 
     let factory = dc.GetNavigationEntriesFactory(navInput, [ latexModel ], ignoreUncategorized = false)
-    factory None |> shouldNotContainText "LaTeX Report"
+    factory "./" None |> shouldNotContainText "LaTeX Report"
 
 [<Test>]
 let ``GetNavigationEntriesFactory - excludes files named index`` () =
@@ -493,7 +487,7 @@ let ``GetNavigationEntriesFactory - excludes files named index`` () =
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    let html = factory None
+    let html = factory "./" None
     html |> shouldNotContainText "Home"
     html |> shouldContainText "Guide"
 
@@ -508,7 +502,7 @@ let ``GetNavigationEntriesFactory - ignoreUncategorized true excludes uncategori
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = true)
-    let html = factory None
+    let html = factory "./" None
     html |> shouldContainText "Categorized Doc"
     html |> shouldNotContainText "Uncategorized Doc"
 
@@ -523,7 +517,7 @@ let ``GetNavigationEntriesFactory - ignoreUncategorized false includes all model
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    let html = factory None
+    let html = factory "./" None
     html |> shouldContainText "Categorized Doc"
     html |> shouldContainText "Uncategorized Doc"
 
@@ -539,7 +533,7 @@ let ``GetNavigationEntriesFactory - categories are ordered by CategoryIndex`` ()
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    let html = factory None
+    let html = factory "./" None
     let alphaIdx = html.IndexOf("Alpha", System.StringComparison.Ordinal)
     let betaIdx = html.IndexOf("Beta", System.StringComparison.Ordinal)
     Assert.That(alphaIdx, Is.LessThan(betaIdx))
@@ -556,7 +550,7 @@ let ``GetNavigationEntriesFactory - items within a category are ordered by Index
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    let html = factory None
+    let html = factory "./" None
     let firstIdx = html.IndexOf("First Item", System.StringComparison.Ordinal)
     let secondIdx = html.IndexOf("Second Item", System.StringComparison.Ordinal)
     Assert.That(firstIdx, Is.LessThan(secondIdx))
@@ -572,7 +566,7 @@ let ``GetNavigationEntriesFactory - calling factory multiple times returns ident
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    factory None |> shouldEqual (factory None)
+    factory "./" None |> shouldEqual (factory "./" None)
 
 [<Test>]
 let ``GetNavigationEntriesFactory - successive calls with different page paths set correct active state`` () =
@@ -585,8 +579,8 @@ let ``GetNavigationEntriesFactory - successive calls with different page paths s
         ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
-    let htmlPage1 = factory (Some "/docs/page1.md")
-    let htmlPage2 = factory (Some "/docs/page2.md")
+    let htmlPage1 = factory "./" (Some "/docs/page1.md")
+    let htmlPage2 = factory "./" (Some "/docs/page2.md")
 
     // The two views differ
     htmlPage1 |> shouldNotEqual htmlPage2

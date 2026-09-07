@@ -23,6 +23,7 @@ let internal options: ContentOptions =
         LineNumbers = None
         Evaluate = false
         Substitutions = []
+        RootKeys = [ FSharp.Formatting.Templating.ParamKeys.root ]
         OnError = ignore
     }
 
@@ -39,7 +40,7 @@ let internal titleFromModel (inputFile: string) =
             inputFile
             OutputKind.Html
             (Path.GetFileNameWithoutExtension inputFile + ".html")
-            (fun _ -> None)
+            (fun _ _ -> None)
             (fun _ -> None)
             [||]
             None
@@ -232,8 +233,9 @@ let ``navigation factory excludes index pages and marks the active page`` () =
     let pages =
         [ page "/docs/index.md" "Home" "Docs" 1; page "/docs/b.md" "B & co" "Docs" 2; page "/docs/a.md" "A" "Docs" 1 ]
 
-    let render = Content.getNavigationEntriesFactory "/" (tempDir, pages, false)
-    let html = render (Some "/docs/b.md")
+    let render = Content.getNavigationEntriesFactory (tempDir, pages, false)
+    let html = render "../" (Some "/docs/b.md")
+    html |> shouldContainText "href=\"../a.html\""
     html |> shouldNotContainText "Home"
     html |> shouldContainText "B &amp; co"
     html |> shouldContainText "nav-item active"
