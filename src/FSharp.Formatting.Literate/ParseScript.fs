@@ -312,10 +312,12 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                     "cell" + string<int> count.Value
 
             let opts =
-                { Evaluate = getEvaluate noEval cmds
-                  ExecutionCount = None
-                  OutputName = outputName
-                  Visibility = getVisibility cmds }
+                {
+                    Evaluate = getEvaluate noEval cmds
+                    ExecutionCount = None
+                    OutputName = outputName
+                    Visibility = getVisibility cmds
+                }
 
             let popts = getParaOptions cmds
 
@@ -337,10 +339,12 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                 "cell" + string<int> count.Value
 
             let opts =
-                { Evaluate = not noEval
-                  ExecutionCount = None
-                  OutputName = id
-                  Visibility = LiterateCodeVisibility.VisibleCode }
+                {
+                    Evaluate = not noEval
+                    ExecutionCount = None
+                    OutputName = id
+                    Visibility = LiterateCodeVisibility.VisibleCode
+                }
 
             let popts = { Condition = None }
 
@@ -368,8 +372,10 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | [], _ ->
             // Union all link definitions & return Markdown doc
             let allDefs =
-                [ for def in defs do
-                      for (KeyValue(k, v)) in def -> k, v ]
+                [
+                    for def in defs do
+                        for (KeyValue(k, v)) in def -> k, v
+                ]
                 |> dict
 
             List.rev acc, allDefs
@@ -406,11 +412,13 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             ctx.OnError(sprintf "errors found in '%s'" filePath)
 
         let parsedBlocks =
-            [ for Snippet(name, lines) in sourceSnippets do
-                  if not (isNull name) then
-                      yield BlockComment("## " + name)
+            [
+                for Snippet(name, lines) in sourceSnippets do
+                    if not (isNull name) then
+                        yield BlockComment("## " + name)
 
-                  yield! parseScriptFile (lines) ]
+                    yield! parseScriptFile (lines)
+            ]
 
         let paragraphs, defs = transformBlocks true None (ref 0) false [] [] (List.ofSeq parsedBlocks)
 
@@ -435,7 +443,8 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                     fileName,
                     sourceText,
                     { FSharpParsingOptions.Default with
-                        SourceFiles = [| fileName |] }
+                        SourceFiles = [| fileName |]
+                    }
                 )
                 |> Async.RunSynchronously
 

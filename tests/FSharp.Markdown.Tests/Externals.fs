@@ -34,18 +34,20 @@ let removeWhitespace (s: string) =
 
 let failingTests =
     set
-        [ "Auto_links.text"
-          "Inline_HTML_comments.text"
-          "Ordered_and_unordered_lists.text"
-          "markdown-readme.text"
-          "nested-emphasis.text"
-          "Email auto links.text"
-          "Emphasis.text"
-          "Inline HTML (Span).text"
-          "Ins & del.text"
-          "Links, inline style.text"
-          "Nesting.text"
-          "Parens in URL.text" ]
+        [
+            "Auto_links.text"
+            "Inline_HTML_comments.text"
+            "Ordered_and_unordered_lists.text"
+            "markdown-readme.text"
+            "nested-emphasis.text"
+            "Email auto links.text"
+            "Emphasis.text"
+            "Inline HTML (Span).text"
+            "Ins & del.text"
+            "Links, inline style.text"
+            "Nesting.text"
+            "Parens in URL.text"
+        ]
 
 let rec genTestCases (dir: string) =
     seq {

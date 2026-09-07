@@ -11,7 +11,8 @@ module internal Log =
     let ConsoleListener () =
         { new TraceListener() with
             override __.WriteLine(s: string) = System.Console.WriteLine(s)
-            override __.Write(s: string) = System.Console.Write(s) }
+            override __.Write(s: string) = System.Console.Write(s)
+        }
 
     /// Creates a TraceListener that writes to a file
     let TextListener (file: string) = new TextWriterTraceListener(file)
