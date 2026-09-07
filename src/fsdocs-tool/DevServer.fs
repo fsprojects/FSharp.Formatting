@@ -26,35 +26,16 @@ open Suave.Filters
 
 module Serve =
 
+    /// The live-reload/scroll-restore script, embedded from watch.js (no per-page interpolation).
+    let watchScriptSource =
+        lazy
+            (let asm = Reflection.Assembly.GetExecutingAssembly()
+             use stream = asm.GetManifestResourceStream("fsdocs.watch.js")
+             use reader = new StreamReader(stream)
+             reader.ReadToEnd())
+
     let generateWatchScript () =
-        """
-<script type="text/javascript">
-    var wsUri = "ws://" + window.location.host + "/websocket";
-    function init()
-    {
-        websocket = new WebSocket(wsUri);
-        websocket.onmessage = function(evt) {
-            const data = evt.data;
-            if (data.endsWith(".css")) {
-                console.log(`Trying to reload ${data}`);
-                const link = document.querySelector(`link[href*='${data}']`);
-                if (link) {
-                    const href = new URL(link.href);
-                    const ticks = new Date().getTime();
-                    href.searchParams.set("v", ticks);
-                    link.href = href.toString();
-                }
-            }
-            else {
-                console.log('closing');
-                websocket.close();
-                document.location.reload();
-            }
-        }
-    }
-    window.addEventListener("load", init, false);
-</script>
-"""
+        """<script src="/.fsdocs/watch.js"></script>"""
 
     /// The mime types served for static files
     let mimeTypesMap ext =
@@ -2423,6 +2404,9 @@ module internal DevServer =
         choose
             [
                 path "/websocket" >=> handShake liveReload.SocketHandler
+                path "/.fsdocs/watch.js"
+                >=> Writers.setMimeType "text/javascript; charset=utf-8"
+                >=> Successful.OK Serve.watchScriptSource.Value
                 path "/.fsdocs/doctor"
                 >=> noCache
                 >=> doctor Doctor.toHtml "text/html; charset=utf-8"

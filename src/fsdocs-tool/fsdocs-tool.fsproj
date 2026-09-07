@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="..\..\docs\_template.html" LogicalName="fsdocs._template.html" />
+    <EmbeddedResource Include="watch.js" LogicalName="fsdocs.watch.js" />
   </ItemGroup>
 
   <ItemGroup>
