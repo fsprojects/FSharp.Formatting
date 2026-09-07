@@ -25,6 +25,8 @@ type internal SubstitutionSource =
     | Project
     | Parameters
     | WatchOverride
+    /// A project property whose value was set by an MSBuild target, known since the design-time build
+    | DesignTimeBuild
 
 type internal SubstitutionDiagnostics =
     {
@@ -49,6 +51,9 @@ type internal ProjectReferences =
         References: string list
         /// References dropped because they were not on disk
         DroppedReferences: string list
+        /// The substitutions of the project whose value changed with the design-time build:
+        /// key, the evaluated value and the value after the targets ran
+        ChangedSubstitutions: (string * string * string) list
     }
 
 /// Everything derived from the project files: the site-wide substitutions, the inputs of the API
@@ -64,7 +69,11 @@ type internal CrackResult =
         /// Folders where referenced DLLs are found
         LibDirs: string list
         Projects: ProjectDiagnostics list
+        /// One entry per project once the design-time build ran, empty before
         References: ProjectReferences list
+        /// Whether the design-time build ran: until it did, the references are unknown and the
+        /// substitutions come from a plain evaluation, which misses properties set by targets
+        DesignTimeBuilt: bool
     }
 
 /// Everything known about a build or watch session before any page is generated.
@@ -142,6 +151,7 @@ module internal Diagnostics =
         (docsSubstitutions: Substitutions)
         (userParameters: Substitutions)
         (watchOverrides: ParamKey list)
+        (designTimeKeys: ParamKey list)
         : SubstitutionDiagnostics list =
         let user = set userParameters
 
@@ -150,6 +160,7 @@ module internal Diagnostics =
                 let source =
                     if List.contains pk watchOverrides then WatchOverride
                     elif user.Contains(pk, value) then Parameters
+                    elif List.contains pk designTimeKeys then DesignTimeBuild
                     else Project
 
                 {

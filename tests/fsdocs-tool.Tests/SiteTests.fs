@@ -73,6 +73,7 @@ type internal Fixture() =
                 LibDirs = []
                 Projects = []
                 References = []
+                DesignTimeBuilt = false
             }
 
         {
@@ -97,6 +98,7 @@ type internal Fixture() =
             ApiDocsTemplate = None
             GenerateApi = (fun _ _ -> None)
             Crack = crack
+            Resolve = (fun _ -> { crack () with DesignTimeBuilt = true })
             ProjectFiles = [ project ]
             WatchScript = ""
             Diagnostics =
