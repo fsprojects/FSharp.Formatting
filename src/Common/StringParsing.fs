@@ -147,7 +147,8 @@ module StringPosition =
         (trimmed,
          { n with
              StartColumn = n.StartColumn + text.Length - trimmedStart.Length
-             EndColumn = n.EndColumn - trimmedStart.Length + trimmed.Length })
+             EndColumn = n.EndColumn - trimmedStart.Length + trimmed.Length
+         })
 
     /// Returns a string trimmed from the end
     let (|TrimEnd|) (text: string, n: MarkdownRange) =
@@ -155,7 +156,8 @@ module StringPosition =
 
         (trimmed,
          { n with
-             EndColumn = n.EndColumn - text.Length + trimmed.Length })
+             EndColumn = n.EndColumn - text.Length + trimmed.Length
+         })
 
     /// Returns a string trimmed from the start
     let (|TrimStart|) (text: string, n: MarkdownRange) =
@@ -163,7 +165,8 @@ module StringPosition =
 
         (trimmed,
          { n with
-             StartColumn = n.StartColumn + text.Length - trimmed.Length })
+             StartColumn = n.StartColumn + text.Length - trimmed.Length
+         })
 
     /// Returns a string trimmed from the end using characters given as a parameter
     let (|TrimEndUsing|) chars (text: string, n: MarkdownRange) =
@@ -171,7 +174,8 @@ module StringPosition =
 
         (trimmed,
          { n with
-             EndColumn = n.EndColumn - text.Length + trimmed.Length })
+             EndColumn = n.EndColumn - text.Length + trimmed.Length
+         })
 
     /// Returns a string trimmed from the start together with
     /// the number of skipped whitespace characters
@@ -183,7 +187,8 @@ module StringPosition =
         text.Substring(0, len).Replace("\t", "    ").Length,
         (trimmed,
          { n with
-             StartColumn = n.StartColumn + text.Length - trimmed.Length })
+             StartColumn = n.StartColumn + text.Length - trimmed.Length
+         })
 
     /// Matches when a string starts with any of the specified sub-strings
     [<return: Struct>]
@@ -199,7 +204,8 @@ module StringPosition =
             Some(
                 text.Substring(start.Length),
                 { n with
-                    StartColumn = n.StartColumn + text.Length - start.Length }
+                    StartColumn = n.StartColumn + text.Length - start.Length
+                }
             )
         else
             None
@@ -211,7 +217,8 @@ module StringPosition =
             Some(
                 text.Substring(start.Length).Trim(),
                 { n with
-                    StartColumn = n.StartColumn + text.Length - start.Length }
+                    StartColumn = n.StartColumn + text.Length - start.Length
+                }
             )
         else
             None
@@ -253,7 +260,8 @@ module StringPosition =
                 s.Substring(starts.Length, s.Length - starts.Length - ends.Length),
                 { n with
                     StartColumn = n.StartColumn + s.Length - starts.Length
-                    EndColumn = n.EndColumn - s.Length + ends.Length }
+                    EndColumn = n.EndColumn - s.Length + ends.Length
+                }
             )
         else
             None
@@ -301,7 +309,8 @@ module StringPosition =
                     wrapped,
                     (rest,
                      { n with
-                         StartColumn = id + ends.Length })
+                         StartColumn = id + ends.Length
+                     })
                 )
             else
                 None
@@ -425,7 +434,8 @@ module Lines =
 
             (trimmed,
              { n with
-                 EndColumn = n.EndColumn - s.Length + trimmed.Length }))
+                 EndColumn = n.EndColumn - s.Length + trimmed.Length
+             }))
 
 /// Parameterized pattern that assigns the specified value to the
 /// first component of a tuple. Usage:
@@ -443,13 +453,15 @@ open System.Collections.Generic
 /// characters in it - otherwise, the parsing fails.
 let (|ParseCommands|_|) (str: string) =
     let kvs =
-        [ for cmd in str.Split(',') do
-              let kv = cmd.Split([| '='; ':' |])
+        [
+            for cmd in str.Split(',') do
+                let kv = cmd.Split([| '='; ':' |])
 
-              if kv.Length = 2 then
-                  yield kv.[0].Trim(), kv.[1].Trim()
-              elif kv.Length = 1 then
-                  yield kv.[0].Trim(), "" ]
+                if kv.Length = 2 then
+                    yield kv.[0].Trim(), kv.[1].Trim()
+                elif kv.Length = 1 then
+                    yield kv.[0].Trim(), ""
+        ]
 
     let allKeysValid =
         kvs

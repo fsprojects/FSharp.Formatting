@@ -28,10 +28,12 @@ type OutputData =
 
 /// A cell output record (e.g. display_data or execute_result) containing MIME data and metadata.
 type Output =
-    { data: OutputData
-      execution_count: int option
-      metadata: string
-      output_type: string }
+    {
+        data: OutputData
+        execution_count: int option
+        metadata: string
+        output_type: string
+    }
 
     override this.ToString() =
         sprintf
@@ -51,17 +53,20 @@ type Output =
 
 /// A notebook cell with its type ("code", "markdown", or "raw"), source lines, and outputs.
 type Cell =
-    { cell_type: string
-      execution_count: int option
-      metadata: string
-      outputs: Output array
-      source: string array }
+    {
+        cell_type: string
+        execution_count: int option
+        metadata: string
+        outputs: Output array
+        source: string array
+    }
 
     static member Default =
-        { cell_type = "code"
-          execution_count = None
-          metadata =
-            """
+        {
+            cell_type = "code"
+            execution_count = None
+            metadata =
+                """
     "dotnet_interactive": {
      "language": "fsharp"
     },
@@ -69,8 +74,9 @@ type Cell =
      "kernelName": "fsharp"
     }
    """
-          outputs = [||]
-          source = [||] }
+            outputs = [||]
+            source = [||]
+        }
 
     override this.ToString() =
         sprintf
@@ -101,14 +107,18 @@ type Cell =
 
 /// Kernel specification metadata embedded in the notebook (identifies the .NET F# kernel).
 type Kernelspec =
-    { display_name: string
-      language: string
-      name: string }
+    {
+        display_name: string
+        language: string
+        name: string
+    }
 
     static member Default =
-        { display_name = ".NET (F#)"
-          language = "F#"
-          name = ".net-fsharp" }
+        {
+            display_name = ".NET (F#)"
+            language = "F#"
+            name = ".net-fsharp"
+        }
 
     override this.ToString() =
         sprintf
@@ -123,16 +133,20 @@ type Kernelspec =
 
 /// Language info metadata describing the F# language for syntax highlighting and MIME types.
 type LanguageInfo =
-    { file_extension: string
-      mimetype: string
-      name: string
-      pygments_lexer: string }
+    {
+        file_extension: string
+        mimetype: string
+        name: string
+        pygments_lexer: string
+    }
 
     static member Default =
-        { file_extension = ".fs"
-          mimetype = "text/x-fsharp"
-          name = "polyglot-notebook"
-          pygments_lexer = "fsharp" }
+        {
+            file_extension = ".fs"
+            mimetype = "text/x-fsharp"
+            name = "polyglot-notebook"
+            pygments_lexer = "fsharp"
+        }
 
     override this.ToString() =
         sprintf
@@ -149,14 +163,18 @@ type LanguageInfo =
 
 /// Polyglot Notebook kernel info block (used by .NET Interactive).
 type DefaultKernelInfo =
-    { defaultKernelName: string
-      languageName: string
-      name: string }
+    {
+        defaultKernelName: string
+        languageName: string
+        name: string
+    }
 
     static member Default =
-        { defaultKernelName = "fsharp"
-          languageName = "fsharp"
-          name = "fsharp" }
+        {
+            defaultKernelName = "fsharp"
+            languageName = "fsharp"
+            name = "fsharp"
+        }
 
     override this.ToString() =
         sprintf
@@ -178,14 +196,18 @@ type DefaultKernelInfo =
 
 /// Top-level notebook metadata aggregating kernel spec, language info, and polyglot info.
 type Metadata =
-    { kernelspec: Kernelspec
-      language_info: LanguageInfo
-      defaultKernelInfo: DefaultKernelInfo }
+    {
+        kernelspec: Kernelspec
+        language_info: LanguageInfo
+        defaultKernelInfo: DefaultKernelInfo
+    }
 
     static member Default =
-        { kernelspec = Kernelspec.Default
-          language_info = LanguageInfo.Default
-          defaultKernelInfo = DefaultKernelInfo.Default }
+        {
+            kernelspec = Kernelspec.Default
+            language_info = LanguageInfo.Default
+            defaultKernelInfo = DefaultKernelInfo.Default
+        }
 
     override this.ToString() =
         sprintf
@@ -200,16 +222,20 @@ type Metadata =
 
 /// A complete Jupyter Notebook document (nbformat 4) with cells and metadata.
 type Notebook =
-    { nbformat: int
-      nbformat_minor: int
-      metadata: Metadata
-      cells: Cell array }
+    {
+        nbformat: int
+        nbformat_minor: int
+        metadata: Metadata
+        cells: Cell array
+    }
 
     static member Default =
-        { nbformat = 4
-          nbformat_minor = 2
-          metadata = Metadata.Default
-          cells = [||] }
+        {
+            nbformat = 4
+            nbformat_minor = 2
+            metadata = Metadata.Default
+            cells = [||]
+        }
 
     override this.ToString() =
         sprintf
@@ -239,7 +265,8 @@ let codeCell (lines: string array) executionCount outputs =
             execution_count = executionCount
             cell_type = "code"
             source = lines
-            outputs = outputs }
+            outputs = outputs
+        }
 
     cell
 
@@ -247,7 +274,8 @@ let codeCell (lines: string array) executionCount outputs =
 let rawCell (s: string) =
     { Cell.Default with
         cell_type = "raw"
-        source = splitLines s }
+        source = splitLines s
+    }
 
 /// Creates a markdown cell from the given source lines.
 let markdownCell (lines: string array) =
@@ -256,4 +284,5 @@ let markdownCell (lines: string array) =
     { Cell.Default with
         cell_type = "markdown"
         metadata = ""
-        source = lines }
+        source = lines
+    }

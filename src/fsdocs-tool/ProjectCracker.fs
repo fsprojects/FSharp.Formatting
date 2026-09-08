@@ -235,85 +235,89 @@ module Crack =
     /// All fsdocs-relevant MSBuild properties and Ionide project options for a single project,
     /// obtained after cracking the project file.
     type CrackedProjectInfo =
-        { ProjectFileName: string
-          ProjectOptions: ProjectOptions option
-          TargetPath: string option
-          IsTestProject: bool
-          IsLibrary: bool
-          IsPackable: bool
-          RepositoryUrl: string option
-          RepositoryType: string option
-          RepositoryBranch: string option
-          UsesMarkdownComments: bool
-          FsDocsLicenseLink: string option
-          FsDocsLogoLink: string option
-          FsDocsLogoSource: string option
-          FsDocsLogoAlt: string option
-          FsDocsReleaseNotesLink: string option
-          FsDocsSourceFolder: string option
-          FsDocsSourceRepository: string option
-          FsDocsFaviconSource: string option
-          FsDocsTheme: string option
-          FsDocsWarnOnMissingDocs: bool
-          FsDocsGenerateLlmsTxt: bool
-          FsDocsAllowExecutableProject: bool
-          FsDocsNoInheritedMembers: bool
-          FsDocsTypeConstraints: FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode
-          PackageProjectUrl: string option
-          Authors: string option
-          GenerateDocumentationFile: bool
-          //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-          //Description : string option
-          PackageLicenseExpression: string option
-          PackageTags: string option
-          Copyright: string option
-          PackageVersion: string option
-          PackageIconUrl: string option
-          //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-          //PackageReleaseNotes : string option
-          RepositoryCommit: string option }
+        {
+            ProjectFileName: string
+            ProjectOptions: ProjectOptions option
+            TargetPath: string option
+            IsTestProject: bool
+            IsLibrary: bool
+            IsPackable: bool
+            RepositoryUrl: string option
+            RepositoryType: string option
+            RepositoryBranch: string option
+            UsesMarkdownComments: bool
+            FsDocsLicenseLink: string option
+            FsDocsLogoLink: string option
+            FsDocsLogoSource: string option
+            FsDocsLogoAlt: string option
+            FsDocsReleaseNotesLink: string option
+            FsDocsSourceFolder: string option
+            FsDocsSourceRepository: string option
+            FsDocsFaviconSource: string option
+            FsDocsTheme: string option
+            FsDocsWarnOnMissingDocs: bool
+            FsDocsGenerateLlmsTxt: bool
+            FsDocsAllowExecutableProject: bool
+            FsDocsNoInheritedMembers: bool
+            FsDocsTypeConstraints: FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode
+            PackageProjectUrl: string option
+            Authors: string option
+            GenerateDocumentationFile: bool
+            //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+            //Description : string option
+            PackageLicenseExpression: string option
+            PackageTags: string option
+            Copyright: string option
+            PackageVersion: string option
+            PackageIconUrl: string option
+            //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+            //PackageReleaseNotes : string option
+            RepositoryCommit: string option
+        }
 
     /// Uses Ionide.ProjInfo to load the MSBuild project options and custom fsdocs properties
     /// for a single project file, returning the target-framework list alongside the cracked info.
     let private crackProjectFileAndIncludeTargetFrameworks _slnDir extraMsbuildProperties (projectFile: string) =
         let additionalInfo =
-            [ "OutputType"
-              "IsTestProject"
-              "IsPackable"
-              "RepositoryUrl"
-              "UsesMarkdownComments"
-              "FsDocsCollectionNameLink"
-              "FsDocsLogoSource"
-              "FsDocsLogoAlt"
-              "FsDocsFaviconSource"
-              "FsDocsTheme"
-              "FsDocsLogoLink"
-              "FsDocsLicenseLink"
-              "FsDocsReleaseNotesLink"
-              "FsDocsSourceFolder"
-              "FsDocsSourceRepository"
-              "FsDocsWarnOnMissingDocs"
-              "FsDocsGenerateLlmsTxt"
-              "FsDocsAllowExecutableProject"
-              "FsDocsNoInheritedMembers"
-              "FsDocsTypeConstraints"
-              "RepositoryType"
-              "RepositoryBranch"
-              "PackageProjectUrl"
-              "Authors"
-              "GenerateDocumentationFile"
-              //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-              //"Description"
-              "PackageLicenseExpression"
-              "PackageTags"
-              "Copyright"
-              "PackageVersion"
-              "PackageIconUrl"
-              //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-              //"PackageReleaseNotes"
-              "RepositoryCommit"
-              "TargetFrameworks"
-              "RunArguments" ]
+            [
+                "OutputType"
+                "IsTestProject"
+                "IsPackable"
+                "RepositoryUrl"
+                "UsesMarkdownComments"
+                "FsDocsCollectionNameLink"
+                "FsDocsLogoSource"
+                "FsDocsLogoAlt"
+                "FsDocsFaviconSource"
+                "FsDocsTheme"
+                "FsDocsLogoLink"
+                "FsDocsLicenseLink"
+                "FsDocsReleaseNotesLink"
+                "FsDocsSourceFolder"
+                "FsDocsSourceRepository"
+                "FsDocsWarnOnMissingDocs"
+                "FsDocsGenerateLlmsTxt"
+                "FsDocsAllowExecutableProject"
+                "FsDocsNoInheritedMembers"
+                "FsDocsTypeConstraints"
+                "RepositoryType"
+                "RepositoryBranch"
+                "PackageProjectUrl"
+                "Authors"
+                "GenerateDocumentationFile"
+                //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+                //"Description"
+                "PackageLicenseExpression"
+                "PackageTags"
+                "Copyright"
+                "PackageVersion"
+                "PackageIconUrl"
+                //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+                //"PackageReleaseNotes"
+                "RepositoryCommit"
+                "TargetFrameworks"
+                "RunArguments"
+            ]
 
         let customProperties = ("TargetPath" :: additionalInfo)
 
@@ -376,51 +380,53 @@ module Crack =
 
             let projOptions2 =
 
-                { ProjectFileName = projectFile
-                  ProjectOptions = Some projOptions
-                  TargetPath = msbuildPropString "TargetPath"
-                  IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
-                  IsLibrary =
-                    msbuildPropString "OutputType"
-                    |> Option.map (fun s -> s.ToLowerInvariant())
-                    |> ((=) (Some "library"))
-                  IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
-                  RepositoryUrl = msbuildPropString "RepositoryUrl"
-                  RepositoryType = msbuildPropString "RepositoryType"
-                  RepositoryBranch = msbuildPropString "RepositoryBranch"
-                  FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
-                  FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
-                  FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
-                  FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
-                  FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
-                  FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
-                  FsDocsLogoAlt = msbuildPropString "FsDocsLogoAlt"
-                  FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
-                  FsDocsTheme = msbuildPropString "FsDocsTheme"
-                  FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
-                  FsDocsGenerateLlmsTxt = msbuildPropBool "FsDocsGenerateLlmsTxt" |> Option.defaultValue true
-                  FsDocsAllowExecutableProject =
-                    msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
-                  FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
-                  FsDocsTypeConstraints =
-                    msbuildPropString "FsDocsTypeConstraints"
-                    |> Option.bind (fun s ->
-                        match s.Trim() with
-                        | "None" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.None
-                        | "Short" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
-                        | "Full" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Full
-                        | _ -> None)
-                    |> Option.defaultValue FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
-                  UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
-                  PackageProjectUrl = msbuildPropString "PackageProjectUrl"
-                  Authors = msbuildPropString "Authors"
-                  GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
-                  PackageLicenseExpression = msbuildPropString "PackageLicenseExpression"
-                  PackageTags = msbuildPropString "PackageTags"
-                  Copyright = msbuildPropString "Copyright"
-                  PackageVersion = msbuildPropString "PackageVersion"
-                  PackageIconUrl = msbuildPropString "PackageIconUrl"
-                  RepositoryCommit = msbuildPropString "RepositoryCommit" }
+                {
+                    ProjectFileName = projectFile
+                    ProjectOptions = Some projOptions
+                    TargetPath = msbuildPropString "TargetPath"
+                    IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
+                    IsLibrary =
+                        msbuildPropString "OutputType"
+                        |> Option.map (fun s -> s.ToLowerInvariant())
+                        |> ((=) (Some "library"))
+                    IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
+                    RepositoryUrl = msbuildPropString "RepositoryUrl"
+                    RepositoryType = msbuildPropString "RepositoryType"
+                    RepositoryBranch = msbuildPropString "RepositoryBranch"
+                    FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
+                    FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
+                    FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
+                    FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
+                    FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
+                    FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
+                    FsDocsLogoAlt = msbuildPropString "FsDocsLogoAlt"
+                    FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
+                    FsDocsTheme = msbuildPropString "FsDocsTheme"
+                    FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
+                    FsDocsGenerateLlmsTxt = msbuildPropBool "FsDocsGenerateLlmsTxt" |> Option.defaultValue true
+                    FsDocsAllowExecutableProject =
+                        msbuildPropBool "FsDocsAllowExecutableProject" |> Option.defaultValue false
+                    FsDocsNoInheritedMembers = msbuildPropBool "FsDocsNoInheritedMembers" |> Option.defaultValue false
+                    FsDocsTypeConstraints =
+                        msbuildPropString "FsDocsTypeConstraints"
+                        |> Option.bind (fun s ->
+                            match s.Trim() with
+                            | "None" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.None
+                            | "Short" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
+                            | "Full" -> Some FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Full
+                            | _ -> None)
+                        |> Option.defaultValue FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
+                    UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
+                    PackageProjectUrl = msbuildPropString "PackageProjectUrl"
+                    Authors = msbuildPropString "Authors"
+                    GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
+                    PackageLicenseExpression = msbuildPropString "PackageLicenseExpression"
+                    PackageTags = msbuildPropString "PackageTags"
+                    Copyright = msbuildPropString "Copyright"
+                    PackageVersion = msbuildPropString "PackageVersion"
+                    PackageIconUrl = msbuildPropString "PackageIconUrl"
+                    RepositoryCommit = msbuildPropString "RepositoryCommit"
+                }
 
             Ok(Some(targetFrameworks, projOptions2))
         | Error err -> GetProjectOptionsErrors(err, msgs) |> Result.Error
@@ -523,12 +529,14 @@ module Crack =
                     collectionName, getProjectsFromSlnFile sln
                 | _ ->
                     let projectFiles =
-                        [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
-                          for d in Directory.EnumerateDirectories(slnDir) do
-                              yield! Directory.EnumerateFiles(d, "*.fsproj")
+                        [
+                            yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
+                            for d in Directory.EnumerateDirectories(slnDir) do
+                                yield! Directory.EnumerateFiles(d, "*.fsproj")
 
-                              for d2 in Directory.EnumerateDirectories(d) do
-                                  yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
+                                for d2 in Directory.EnumerateDirectories(d) do
+                                    yield! Directory.EnumerateFiles(d2, "*.fsproj")
+                        ]
 
                     let collectionName =
                         match projectFiles with
@@ -642,73 +650,75 @@ module Crack =
 
         // For the 'docs' directory we use the best info we can find from across all projects
         let projectInfoForDocs =
-            { ProjectFileName = ""
-              ProjectOptions = None
-              TargetPath = None
-              IsTestProject = false
-              IsLibrary = true
-              IsPackable = true
-              RepositoryUrl =
-                projectInfos
-                |> List.tryPick (fun info -> info.RepositoryUrl)
-                |> fallbackFromDirectoryProps "//RepositoryUrl"
-                |> Option.map ensureTrailingSlash
-              RepositoryType = projectInfos |> List.tryPick (fun info -> info.RepositoryType)
-              RepositoryBranch = projectInfos |> List.tryPick (fun info -> info.RepositoryBranch)
-              FsDocsLicenseLink =
-                projectInfos
-                |> List.tryPick (fun info -> info.FsDocsLicenseLink)
-                |> fallbackFromDirectoryProps "//FsDocsLicenseLink"
-              FsDocsReleaseNotesLink =
-                projectInfos
-                |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
-                |> fallbackFromDirectoryProps "//FsDocsReleaseNotesLink"
-              FsDocsLogoLink =
-                projectInfos
-                |> List.tryPick (fun info -> info.FsDocsLogoLink)
-                |> fallbackFromDirectoryProps "//FsDocsLogoLink"
-              FsDocsLogoSource =
-                projectInfos
-                |> List.tryPick (fun info -> info.FsDocsLogoSource)
-                |> fallbackFromDirectoryProps "//FsDocsLogoSource"
-              FsDocsLogoAlt =
-                projectInfos
-                |> List.tryPick (fun info -> info.FsDocsLogoAlt)
-                |> fallbackFromDirectoryProps "//FsDocsLogoAlt"
-              FsDocsFaviconSource =
-                projectInfos
-                |> List.tryPick (fun info -> info.FsDocsFaviconSource)
-                |> fallbackFromDirectoryProps "//FsDocsFaviconSource"
-              FsDocsSourceFolder = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceFolder)
-              FsDocsSourceRepository =
-                projectInfos
-                |> List.tryPick (fun info -> info.FsDocsSourceRepository)
-                |> fallbackFromDirectoryProps "//RepositoryUrl"
-              FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
-              FsDocsWarnOnMissingDocs = false
-              FsDocsGenerateLlmsTxt = projectInfos |> List.forall (fun i -> i.FsDocsGenerateLlmsTxt)
-              FsDocsAllowExecutableProject = false
-              FsDocsNoInheritedMembers = false
-              FsDocsTypeConstraints = FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
-              PackageProjectUrl =
-                projectInfos
-                |> List.tryPick (fun info -> info.PackageProjectUrl)
-                |> Option.map ensureTrailingSlash
-              Authors =
-                projectInfos
-                |> List.tryPick (fun info -> info.Authors)
-                |> fallbackFromDirectoryProps "//Authors"
-              GenerateDocumentationFile = true
-              PackageLicenseExpression = projectInfos |> List.tryPick (fun info -> info.PackageLicenseExpression)
-              PackageTags = projectInfos |> List.tryPick (fun info -> info.PackageTags)
-              UsesMarkdownComments = false
-              Copyright = projectInfos |> List.tryPick (fun info -> info.Copyright)
-              PackageVersion =
-                projectInfos
-                |> List.tryPick (fun info -> info.PackageVersion)
-                |> fallbackFromDirectoryProps "//Version"
-              PackageIconUrl = projectInfos |> List.tryPick (fun info -> info.PackageIconUrl)
-              RepositoryCommit = projectInfos |> List.tryPick (fun info -> info.RepositoryCommit) }
+            {
+                ProjectFileName = ""
+                ProjectOptions = None
+                TargetPath = None
+                IsTestProject = false
+                IsLibrary = true
+                IsPackable = true
+                RepositoryUrl =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.RepositoryUrl)
+                    |> fallbackFromDirectoryProps "//RepositoryUrl"
+                    |> Option.map ensureTrailingSlash
+                RepositoryType = projectInfos |> List.tryPick (fun info -> info.RepositoryType)
+                RepositoryBranch = projectInfos |> List.tryPick (fun info -> info.RepositoryBranch)
+                FsDocsLicenseLink =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.FsDocsLicenseLink)
+                    |> fallbackFromDirectoryProps "//FsDocsLicenseLink"
+                FsDocsReleaseNotesLink =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
+                    |> fallbackFromDirectoryProps "//FsDocsReleaseNotesLink"
+                FsDocsLogoLink =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.FsDocsLogoLink)
+                    |> fallbackFromDirectoryProps "//FsDocsLogoLink"
+                FsDocsLogoSource =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.FsDocsLogoSource)
+                    |> fallbackFromDirectoryProps "//FsDocsLogoSource"
+                FsDocsLogoAlt =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.FsDocsLogoAlt)
+                    |> fallbackFromDirectoryProps "//FsDocsLogoAlt"
+                FsDocsFaviconSource =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.FsDocsFaviconSource)
+                    |> fallbackFromDirectoryProps "//FsDocsFaviconSource"
+                FsDocsSourceFolder = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceFolder)
+                FsDocsSourceRepository =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.FsDocsSourceRepository)
+                    |> fallbackFromDirectoryProps "//RepositoryUrl"
+                FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
+                FsDocsWarnOnMissingDocs = false
+                FsDocsGenerateLlmsTxt = projectInfos |> List.forall (fun i -> i.FsDocsGenerateLlmsTxt)
+                FsDocsAllowExecutableProject = false
+                FsDocsNoInheritedMembers = false
+                FsDocsTypeConstraints = FSharp.Formatting.ApiDocs.TypeConstraintDisplayMode.Short
+                PackageProjectUrl =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.PackageProjectUrl)
+                    |> Option.map ensureTrailingSlash
+                Authors =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.Authors)
+                    |> fallbackFromDirectoryProps "//Authors"
+                GenerateDocumentationFile = true
+                PackageLicenseExpression = projectInfos |> List.tryPick (fun info -> info.PackageLicenseExpression)
+                PackageTags = projectInfos |> List.tryPick (fun info -> info.PackageTags)
+                UsesMarkdownComments = false
+                Copyright = projectInfos |> List.tryPick (fun info -> info.Copyright)
+                PackageVersion =
+                    projectInfos
+                    |> List.tryPick (fun info -> info.PackageVersion)
+                    |> fallbackFromDirectoryProps "//Version"
+                PackageIconUrl = projectInfos |> List.tryPick (fun info -> info.PackageIconUrl)
+                RepositoryCommit = projectInfos |> List.tryPick (fun info -> info.RepositoryCommit)
+            }
 
         let root =
             let projectUrl = projectInfoForDocs.PackageProjectUrl |> Option.map ensureTrailingSlash
@@ -725,45 +735,47 @@ module Crack =
 
             List.choose
                 id
-                [ param None ParamKeys.root (Some root)
-                  param None ParamKeys.``fsdocs-authors`` (Some(info.Authors |> Option.defaultValue ""))
-                  param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
-                  param None ParamKeys.``fsdocs-copyright`` info.Copyright
-                  param
-                      (Some "<FsDocsLogoSource>")
-                      ParamKeys.``fsdocs-logo-src``
-                      (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
-                  param
-                      (Some "<FsDocsLogoAlt>")
-                      ParamKeys.``fsdocs-logo-alt``
-                      (Some(defaultArg info.FsDocsLogoAlt "Logo"))
-                  param
-                      (Some "<FsDocsFaviconSource>")
-                      ParamKeys.``fsdocs-favicon-src``
-                      (Some(defaultArg info.FsDocsFaviconSource "img/favicon.ico"))
-                  param None ParamKeys.``fsdocs-theme`` (Some(defaultArg info.FsDocsTheme "default"))
-                  param
-                      (Some "<FsDocsLogoLink>")
-                      ParamKeys.``fsdocs-logo-link``
-                      (Some(info.FsDocsLogoLink |> Option.defaultValue projectUrl))
-                  param
-                      (Some "<FsDocsLicenseLink>")
-                      ParamKeys.``fsdocs-license-link``
-                      (info.FsDocsLicenseLink
-                       |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") repoUrl))
-                  param
-                      (Some "<FsDocsReleaseNotesLink>")
-                      ParamKeys.``fsdocs-release-notes-link``
-                      (info.FsDocsReleaseNotesLink
-                       |> Option.orElse (Option.map (sprintf "%sblob/master/RELEASE_NOTES.md") repoUrl))
-                  param None ParamKeys.``fsdocs-package-project-url`` (Some projectUrl)
-                  param None ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
-                  param None ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
-                  param None ParamKeys.``fsdocs-package-tags`` (Some(info.PackageTags |> Option.defaultValue ""))
-                  param (Some "<Version>") ParamKeys.``fsdocs-package-version`` info.PackageVersion
-                  param (Some "<RepositoryUrl>") ParamKeys.``fsdocs-repository-link`` repoUrl
-                  param None ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
-                  param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit ]
+                [
+                    param None ParamKeys.root (Some root)
+                    param None ParamKeys.``fsdocs-authors`` (Some(info.Authors |> Option.defaultValue ""))
+                    param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
+                    param None ParamKeys.``fsdocs-copyright`` info.Copyright
+                    param
+                        (Some "<FsDocsLogoSource>")
+                        ParamKeys.``fsdocs-logo-src``
+                        (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
+                    param
+                        (Some "<FsDocsLogoAlt>")
+                        ParamKeys.``fsdocs-logo-alt``
+                        (Some(defaultArg info.FsDocsLogoAlt "Logo"))
+                    param
+                        (Some "<FsDocsFaviconSource>")
+                        ParamKeys.``fsdocs-favicon-src``
+                        (Some(defaultArg info.FsDocsFaviconSource "img/favicon.ico"))
+                    param None ParamKeys.``fsdocs-theme`` (Some(defaultArg info.FsDocsTheme "default"))
+                    param
+                        (Some "<FsDocsLogoLink>")
+                        ParamKeys.``fsdocs-logo-link``
+                        (Some(info.FsDocsLogoLink |> Option.defaultValue projectUrl))
+                    param
+                        (Some "<FsDocsLicenseLink>")
+                        ParamKeys.``fsdocs-license-link``
+                        (info.FsDocsLicenseLink
+                         |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") repoUrl))
+                    param
+                        (Some "<FsDocsReleaseNotesLink>")
+                        ParamKeys.``fsdocs-release-notes-link``
+                        (info.FsDocsReleaseNotesLink
+                         |> Option.orElse (Option.map (sprintf "%sblob/master/RELEASE_NOTES.md") repoUrl))
+                    param None ParamKeys.``fsdocs-package-project-url`` (Some projectUrl)
+                    param None ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
+                    param None ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
+                    param None ParamKeys.``fsdocs-package-tags`` (Some(info.PackageTags |> Option.defaultValue ""))
+                    param (Some "<Version>") ParamKeys.``fsdocs-package-version`` info.PackageVersion
+                    param (Some "<RepositoryUrl>") ParamKeys.``fsdocs-repository-link`` repoUrl
+                    param None ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
+                    param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
+                ]
             @ userParameters
 
         let crackedProjects =
