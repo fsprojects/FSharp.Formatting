@@ -92,10 +92,12 @@ module internal Transformations =
                         Some(EmbedParagraphs(LanguageTaggedCode(lang, code, popts), range))
                     else
                         let opts =
-                            { Evaluate = false
-                              ExecutionCount = None
-                              OutputName = code
-                              Visibility = LiterateCodeVisibility.VisibleCode }
+                            {
+                                Evaluate = false
+                                ExecutionCount = None
+                                OutputName = code
+                                Visibility = LiterateCodeVisibility.VisibleCode
+                            }
 
                         let popts = { Condition = None }
                         Some(EmbedParagraphs(LiterateCode(codeLookup.[code], opts, popts), range))
@@ -212,16 +214,23 @@ module internal Transformations =
         let rec replaceSpans =
             function
             | IndirectLink(body, original, key, r) ->
-                [ yield IndirectLink(body, original, key, r)
-                  match refIndex.TryGetValue(key) with
-                  | true, i ->
-                      yield Literal("&#160;[", r)
+                [
+                    yield IndirectLink(body, original, key, r)
+                    match refIndex.TryGetValue(key) with
+                    | true, i ->
+                        yield Literal("&#160;[", r)
 
-                      yield
-                          DirectLink([ Literal(string<int> i, r) ], "#rf" + DateTime.Now.ToString("yyMMddhh"), None, r)
+                        yield
+                            DirectLink(
+                                [ Literal(string<int> i, r) ],
+                                "#rf" + DateTime.Now.ToString("yyMMddhh"),
+                                None,
+                                r
+                            )
 
-                      yield Literal("]", r)
-                  | _ -> () ]
+                        yield Literal("]", r)
+                    | _ -> ()
+                ]
             | MarkdownPatterns.SpanLeaf(sl) -> [ MarkdownPatterns.SpanLeaf(sl) ]
             | MarkdownPatterns.SpanNode(nd, spans) -> [ MarkdownPatterns.SpanNode(nd, List.collect replaceSpans spans) ]
         // Given a paragraph, process it recursively and transform all spans
@@ -254,45 +263,57 @@ module internal Transformations =
 
         // Generate Markdown blocks paragraphs representing Reference <li> items
         let refList =
-            [ for i, (_ref, link, title) in refs do
-                  let colon = title.IndexOf(':')
+            [
+                for i, (_ref, link, title) in refs do
+                    let colon = title.IndexOf(':')
 
-                  if colon > 0 then
-                      let auth = title.Substring(0, colon)
+                    if colon > 0 then
+                        let auth = title.Substring(0, colon)
 
-                      let name = title.Substring(colon + 1, title.Length - 1 - colon)
+                        let name = title.Substring(colon + 1, title.Length - 1 - colon)
 
-                      yield
-                          [ Span(
-                                [ Literal(sprintf "[%d] " i, MarkdownRange.zero)
-                                  DirectLink(
-                                      [ Literal(name.Trim(), MarkdownRange.zero) ],
-                                      link,
-                                      Some title,
-                                      MarkdownRange.zero
-                                  )
-                                  Literal(" - " + auth, MarkdownRange.zero) ],
-                                MarkdownRange.zero
-                            ) ]
-                  else
-                      yield
-                          [ Span(
-                                [ Literal(sprintf "[%d] " i, MarkdownRange.zero)
-                                  DirectLink(
-                                      [ Literal(title, MarkdownRange.zero) ],
-                                      link,
-                                      Some title,
-                                      MarkdownRange.zero
-                                  ) ],
-                                MarkdownRange.zero
-                            ) ] ]
+                        yield
+                            [
+                                Span(
+                                    [
+                                        Literal(sprintf "[%d] " i, MarkdownRange.zero)
+                                        DirectLink(
+                                            [ Literal(name.Trim(), MarkdownRange.zero) ],
+                                            link,
+                                            Some title,
+                                            MarkdownRange.zero
+                                        )
+                                        Literal(" - " + auth, MarkdownRange.zero)
+                                    ],
+                                    MarkdownRange.zero
+                                )
+                            ]
+                    else
+                        yield
+                            [
+                                Span(
+                                    [
+                                        Literal(sprintf "[%d] " i, MarkdownRange.zero)
+                                        DirectLink(
+                                            [ Literal(title, MarkdownRange.zero) ],
+                                            link,
+                                            Some title,
+                                            MarkdownRange.zero
+                                        )
+                                    ],
+                                    MarkdownRange.zero
+                                )
+                            ]
+            ]
 
         // Return the document together with dictionary for looking up indices
         let id = DateTime.Now.ToString("yyMMddhh")
 
-        [ Paragraph([ AnchorLink(id, MarkdownRange.zero) ], MarkdownRange.zero)
-          Heading(3, [ Literal("References", MarkdownRange.zero) ], MarkdownRange.zero)
-          ListBlock(MarkdownListKind.Unordered, refList, MarkdownRange.zero) ],
+        [
+            Paragraph([ AnchorLink(id, MarkdownRange.zero) ], MarkdownRange.zero)
+            Heading(3, [ Literal("References", MarkdownRange.zero) ], MarkdownRange.zero)
+            ListBlock(MarkdownListKind.Unordered, refList, MarkdownRange.zero)
+        ],
         refLookup
 
     /// Turn all indirect links into a references
@@ -425,7 +446,8 @@ module internal Transformations =
 
                 let opts =
                     { opts with
-                        ExecutionCount = Some executionCount }
+                        ExecutionCount = Some executionCount
+                    }
 
                 [ EmbedParagraphs(LiterateCode(lines, opts, popts), MarkdownRange.zero) ]
             | _ -> [ EmbedParagraphs(special, MarkdownRange.zero) ]
@@ -456,22 +478,27 @@ module internal Transformations =
     /// The resulting dictionary has Choice as the key, so that we can distinguish
     /// between moved snippets and ordinary snippets
     let rec collectLiterateCode par =
-        [ match par with
-          | MarkdownPatterns.LiterateParagraph(para) ->
-              //// Remove "condition: ipynb" etc. from output unless the condition is satisfied
-              //match para.ParagraphOptions with
-              //| { Condition=Some define } when define <> "prepare" -> ()
-              //| _ ->
-              match para with
-              | LiterateCode(lines, ({ Visibility = LiterateCodeVisibility.NamedCode id } as opts), _popts) ->
-                  yield Choice2Of2(id), (lines, opts.ExecutionCount)
-              | LiterateCode(lines, opts, _popts) -> yield Choice1Of2(lines), (lines, opts.ExecutionCount)
-              | _ -> ()
-          | MarkdownPatterns.ParagraphNested(_pn, nested) ->
-              for ps in nested do
-                  for p in ps do
-                      yield! collectLiterateCode p
-          | _ -> () ]
+        [
+            match par with
+            | MarkdownPatterns.LiterateParagraph(para) ->
+                //// Remove "condition: ipynb" etc. from output unless the condition is satisfied
+                //match para.ParagraphOptions with
+                //| { Condition=Some define } when define <> "prepare" -> ()
+                //| _ ->
+                match para with
+                | LiterateCode(lines,
+                               ({
+                                    Visibility = LiterateCodeVisibility.NamedCode id
+                                } as opts),
+                               _popts) -> yield Choice2Of2(id), (lines, opts.ExecutionCount)
+                | LiterateCode(lines, opts, _popts) -> yield Choice1Of2(lines), (lines, opts.ExecutionCount)
+                | _ -> ()
+            | MarkdownPatterns.ParagraphNested(_pn, nested) ->
+                for ps in nested do
+                    for p in ps do
+                        yield! collectLiterateCode p
+            | _ -> ()
+        ]
 
 
     /// Format a non-F# language-tagged code block as an HTML table with optional line numbers,
@@ -520,11 +547,19 @@ module internal Transformations =
             | _ ->
                 // Remove "(** hide ***)" from output unless the condition is satisfied
                 match special with
-                | LiterateCode(_, { Visibility = LiterateCodeVisibility.HiddenCode }, _) -> None
+                | LiterateCode(_,
+                               {
+                                   Visibility = LiterateCodeVisibility.HiddenCode
+                               },
+                               _) -> None
                 | _ ->
                     // Remove "(** define: name ***)" from output, they should be referenced elsewhere
                     match special with
-                    | LiterateCode(_, { Visibility = LiterateCodeVisibility.NamedCode _ }, _) -> None
+                    | LiterateCode(_,
+                                   {
+                                       Visibility = LiterateCodeVisibility.NamedCode _
+                                   },
+                                   _) -> None
                     | _ ->
                         match special with
                         | RawBlock(lines, _) -> Some(InlineHtmlBlock(unparse lines, None, MarkdownRange.zero))
@@ -609,24 +644,26 @@ module internal Transformations =
             | OutputKind.Markdown -> CodeFormat.FormatFsx(snippets)
 
         let lookup =
-            [ for (key, (_, executionCount)), fmtd in Seq.zip codes formatted.Snippets ->
-                  let block =
-                      match ctx.OutputKind with
-                      | OutputKind.Html -> InlineHtmlBlock(fmtd.Content, executionCount, MarkdownRange.zero)
-                      | OutputKind.Fsx
-                      | OutputKind.Markdown
-                      | OutputKind.Latex
-                      | OutputKind.Pynb ->
-                          CodeBlock(
-                              code = fmtd.Content,
-                              executionCount = executionCount,
-                              fence = Some "```",
-                              language = "fsharp",
-                              ignoredLine = "",
-                              range = MarkdownRange.zero
-                          )
+            [
+                for (key, (_, executionCount)), fmtd in Seq.zip codes formatted.Snippets ->
+                    let block =
+                        match ctx.OutputKind with
+                        | OutputKind.Html -> InlineHtmlBlock(fmtd.Content, executionCount, MarkdownRange.zero)
+                        | OutputKind.Fsx
+                        | OutputKind.Markdown
+                        | OutputKind.Latex
+                        | OutputKind.Pynb ->
+                            CodeBlock(
+                                code = fmtd.Content,
+                                executionCount = executionCount,
+                                fence = Some "```",
+                                language = "fsharp",
+                                ignoredLine = "",
+                                range = MarkdownRange.zero
+                            )
 
-                  key, block ]
+                    key, block
+            ]
             |> dict
 
         // Replace original snippets with formatted HTML/Latex and return document

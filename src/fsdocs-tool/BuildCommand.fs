@@ -136,44 +136,48 @@ type internal DocContent
     /// Prepare the map of input file to output file. This map is used to make substitutions through markdown
     /// source such A.md --> A.html or A.fsx --> A.html.  The substitutions depend on the output kind.
     let prepFile (inputFileFullPath: string) (outputKind: OutputKind) outputFolderRelativeToRoot =
-        [ let inputFileName = Path.GetFileName(inputFileFullPath)
+        [
+            let inputFileName = Path.GetFileName(inputFileFullPath)
 
-          if
-              not (inputFileName.StartsWith('.'))
-              && not (inputFileName.StartsWith("_template", StringComparison.Ordinal))
-              && not (
-                  inputFileName.StartsWith("_menu", StringComparison.Ordinal)
-                  && inputFileName.EndsWith("_template.html", StringComparison.Ordinal)
-              )
-          then
-              let inputFileFullPath = Path.GetFullPath(inputFileFullPath)
+            if
+                not (inputFileName.StartsWith('.'))
+                && not (inputFileName.StartsWith("_template", StringComparison.Ordinal))
+                && not (
+                    inputFileName.StartsWith("_menu", StringComparison.Ordinal)
+                    && inputFileName.EndsWith("_template.html", StringComparison.Ordinal)
+                )
+            then
+                let inputFileFullPath = Path.GetFullPath(inputFileFullPath)
 
-              let _relativeOutputFile, outputFileFullPath =
-                  getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
+                let _relativeOutputFile, outputFileFullPath =
+                    getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
 
-              yield ((inputFileFullPath, outputKind), outputFileFullPath) ]
+                yield ((inputFileFullPath, outputKind), outputFileFullPath)
+        ]
 
     /// Likewise prepare the map of input files to output files
     let rec prepFolder (inputFolderAsGiven: string) outputFolderRelativeToRoot =
-        [ let inputs = Directory.GetFiles(inputFolderAsGiven, "*")
+        [
+            let inputs = Directory.GetFiles(inputFolderAsGiven, "*")
 
-          for input in inputs do
-              yield! prepFile input OutputKind.Html outputFolderRelativeToRoot
-              yield! prepFile input OutputKind.Latex outputFolderRelativeToRoot
-              yield! prepFile input OutputKind.Pynb outputFolderRelativeToRoot
-              yield! prepFile input OutputKind.Fsx outputFolderRelativeToRoot
-              yield! prepFile input OutputKind.Markdown outputFolderRelativeToRoot
+            for input in inputs do
+                yield! prepFile input OutputKind.Html outputFolderRelativeToRoot
+                yield! prepFile input OutputKind.Latex outputFolderRelativeToRoot
+                yield! prepFile input OutputKind.Pynb outputFolderRelativeToRoot
+                yield! prepFile input OutputKind.Fsx outputFolderRelativeToRoot
+                yield! prepFile input OutputKind.Markdown outputFolderRelativeToRoot
 
-          for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
-              let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-              let subFolderIsSkipped = subInputFolderName.StartsWith '.'
-              let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
+            for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
+                let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
+                let subFolderIsSkipped = subInputFolderName.StartsWith '.'
+                let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
-              if not subFolderIsOutput && not subFolderIsSkipped then
-                  yield!
-                      prepFolder
-                          (Path.Combine(inputFolderAsGiven, subInputFolderName))
-                          (Path.Combine(outputFolderRelativeToRoot, subInputFolderName)) ]
+                if not subFolderIsOutput && not subFolderIsSkipped then
+                    yield!
+                        prepFolder
+                            (Path.Combine(inputFolderAsGiven, subInputFolderName))
+                            (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
+        ]
 
     let processFile
         rootInputFolder
@@ -186,295 +190,299 @@ type internal DocContent
         mdlinkResolver
         (filesWithFrontMatter: FrontMatterFile array)
         =
-        [ let name = Path.GetFileName(inputFileFullPath)
+        [
+            let name = Path.GetFileName(inputFileFullPath)
 
-          if name.StartsWith('.') then
-              printfn "skipping file %s" inputFileFullPath
-          elif
-              not (name.StartsWith("_template", StringComparison.Ordinal))
-              && not (
-                  name.StartsWith("_menu", StringComparison.Ordinal)
-                  && name.EndsWith("_template.html", StringComparison.Ordinal)
-              )
-          then
-              let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
+            if name.StartsWith('.') then
+                printfn "skipping file %s" inputFileFullPath
+            elif
+                not (name.StartsWith("_template", StringComparison.Ordinal))
+                && not (
+                    name.StartsWith("_menu", StringComparison.Ordinal)
+                    && name.EndsWith("_template.html", StringComparison.Ordinal)
+                )
+            then
+                let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
 
-              let isMd = inputFileFullPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
+                let isMd = inputFileFullPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
 
-              let isPynb = inputFileFullPath.EndsWith(".ipynb", StringComparison.OrdinalIgnoreCase)
+                let isPynb = inputFileFullPath.EndsWith(".ipynb", StringComparison.OrdinalIgnoreCase)
 
-              // A _template.tex or _template.pynb is needed to generate those files
-              match outputKind, template with
-              | OutputKind.Pynb, None -> ()
-              | OutputKind.Latex, None -> ()
-              | OutputKind.Fsx, None -> ()
-              | OutputKind.Markdown, None -> ()
-              | _ ->
+                // A _template.tex or _template.pynb is needed to generate those files
+                match outputKind, template with
+                | OutputKind.Pynb, None -> ()
+                | OutputKind.Latex, None -> ()
+                | OutputKind.Fsx, None -> ()
+                | OutputKind.Markdown, None -> ()
+                | _ ->
 
-                  let imageSaverOpt =
-                      match outputKind with
-                      | OutputKind.Pynb when saveImages <> Some false -> Some imageSaver
-                      | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
-                      | OutputKind.Fsx when saveImages = Some true -> Some imageSaver
-                      | OutputKind.Html when saveImages = Some true -> Some imageSaver
-                      | OutputKind.Markdown when saveImages = Some true -> Some imageSaver
-                      | _ -> None
+                    let imageSaverOpt =
+                        match outputKind with
+                        | OutputKind.Pynb when saveImages <> Some false -> Some imageSaver
+                        | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
+                        | OutputKind.Fsx when saveImages = Some true -> Some imageSaver
+                        | OutputKind.Html when saveImages = Some true -> Some imageSaver
+                        | OutputKind.Markdown when saveImages = Some true -> Some imageSaver
+                        | _ -> None
 
-                  let outputFileRelativeToRoot, outputFileFullPath =
-                      getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
+                    let outputFileRelativeToRoot, outputFileFullPath =
+                        getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
 
-                  // Update only when needed - template or file or tool has changed
+                    // Update only when needed - template or file or tool has changed
 
-                  let changed =
-                      let fileChangeTime =
-                          try
-                              File.GetLastWriteTime(inputFileFullPath)
-                          with _ ->
-                              DateTime.MaxValue
+                    let changed =
+                        let fileChangeTime =
+                            try
+                                File.GetLastWriteTime(inputFileFullPath)
+                            with _ ->
+                                DateTime.MaxValue
 
-                      let templateChangeTime =
-                          match template with
-                          | Some t when isFsx || isMd || isPynb ->
-                              try
-                                  let fi = FileInfo(t)
-                                  let input = fi.Directory.Name
-                                  let headPath = Path.Combine(input, "_head.html")
-                                  let bodyPath = Path.Combine(input, "_body.html")
+                        let templateChangeTime =
+                            match template with
+                            | Some t when isFsx || isMd || isPynb ->
+                                try
+                                    let fi = FileInfo(t)
+                                    let input = fi.Directory.Name
+                                    let headPath = Path.Combine(input, "_head.html")
+                                    let bodyPath = Path.Combine(input, "_body.html")
 
-                                  [ yield File.GetLastWriteTime(t)
-                                    if Menu.isTemplatingAvailable input then
-                                        yield! Menu.getLastWriteTimes input
-                                    if File.Exists headPath then
-                                        yield File.GetLastWriteTime headPath
-                                    if File.Exists bodyPath then
-                                        yield File.GetLastWriteTime bodyPath ]
-                                  |> List.max
-                              with _ ->
-                                  DateTime.MaxValue
-                          | _ -> DateTime.MinValue
+                                    [
+                                        yield File.GetLastWriteTime(t)
+                                        if Menu.isTemplatingAvailable input then
+                                            yield! Menu.getLastWriteTimes input
+                                        if File.Exists headPath then
+                                            yield File.GetLastWriteTime headPath
+                                        if File.Exists bodyPath then
+                                            yield File.GetLastWriteTime bodyPath
+                                    ]
+                                    |> List.max
+                                with _ ->
+                                    DateTime.MaxValue
+                            | _ -> DateTime.MinValue
 
-                      let toolChangeTime =
-                          try
-                              File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location)
-                          with _ ->
-                              DateTime.MaxValue
+                        let toolChangeTime =
+                            try
+                                File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location)
+                            with _ ->
+                                DateTime.MaxValue
 
-                      let changeTime = fileChangeTime |> max templateChangeTime |> max toolChangeTime
+                        let changeTime = fileChangeTime |> max templateChangeTime |> max toolChangeTime
 
-                      let generateTime =
-                          try
-                              File.GetLastWriteTime(outputFileFullPath)
-                          with _ ->
-                              System.DateTime.MinValue
+                        let generateTime =
+                            try
+                                File.GetLastWriteTime(outputFileFullPath)
+                            with _ ->
+                                System.DateTime.MinValue
 
-                      changeTime > generateTime
+                        changeTime > generateTime
 
-                  // If it's changed or we don't know anything about it
-                  // we have to compute the model to get the global substitutions right
-                  let mainRun = (outputKind = OutputKind.Html)
-                  let haveModel = previous.TryFind inputFileFullPath
+                    // If it's changed or we don't know anything about it
+                    // we have to compute the model to get the global substitutions right
+                    let mainRun = (outputKind = OutputKind.Html)
+                    let haveModel = previous.TryFind inputFileFullPath
 
-                  if changed || (watch && mainRun && haveModel.IsNone) then
-                      if isFsx then
-                          printfn "  generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                    if changed || (watch && mainRun && haveModel.IsNone) then
+                        if isFsx then
+                            printfn "  generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
-                          let fsiEvaluator =
-                              (if evaluate then
-                                   Some(
-                                       new FsiEvaluator(onError = onError, options = [| "--multiemit-" |])
-                                       :> IFsiEvaluator
-                                   )
-                               else
-                                   None)
+                            let fsiEvaluator =
+                                (if evaluate then
+                                     Some(
+                                         new FsiEvaluator(onError = onError, options = [| "--multiemit-" |])
+                                         :> IFsiEvaluator
+                                     )
+                                 else
+                                     None)
 
-                          let model =
-                              try
-                                  Literate.ParseAndTransformScriptFile(
-                                      inputFileFullPath,
-                                      output = outputFileRelativeToRoot,
-                                      outputKind = outputKind,
-                                      prefix = None,
-                                      fscOptions = None,
-                                      lineNumbers = lineNumbers,
-                                      references = Some false,
-                                      fsiEvaluator = fsiEvaluator,
-                                      substitutions = substitutions,
-                                      generateAnchors = Some true,
-                                      imageSaver = imageSaverOpt,
-                                      rootInputFolder = rootInputFolder,
-                                      crefResolver = crefResolver,
-                                      mdlinkResolver = mdlinkResolver,
-                                      onError = Some onError,
-                                      filesWithFrontMatter = filesWithFrontMatter
-                                  )
-                              finally
-                                  fsiEvaluator |> Option.iter (fun e -> e.Dispose())
+                            let model =
+                                try
+                                    Literate.ParseAndTransformScriptFile(
+                                        inputFileFullPath,
+                                        output = outputFileRelativeToRoot,
+                                        outputKind = outputKind,
+                                        prefix = None,
+                                        fscOptions = None,
+                                        lineNumbers = lineNumbers,
+                                        references = Some false,
+                                        fsiEvaluator = fsiEvaluator,
+                                        substitutions = substitutions,
+                                        generateAnchors = Some true,
+                                        imageSaver = imageSaverOpt,
+                                        rootInputFolder = rootInputFolder,
+                                        crefResolver = crefResolver,
+                                        mdlinkResolver = mdlinkResolver,
+                                        onError = Some onError,
+                                        filesWithFrontMatter = filesWithFrontMatter
+                                    )
+                                finally
+                                    fsiEvaluator |> Option.iter (fun e -> e.Dispose())
 
-                          yield
-                              ((if mainRun then
-                                    Some(inputFileFullPath, isOtherLang, model)
-                                else
-                                    None),
-                               (fun p ->
-                                   printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                   ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
+                            yield
+                                ((if mainRun then
+                                      Some(inputFileFullPath, isOtherLang, model)
+                                  else
+                                      None),
+                                 (fun p ->
+                                     printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
 
-                                   SimpleTemplating.UseFileAsSimpleTemplate(
-                                       p @ model.Substitutions,
-                                       template,
-                                       outputFileFullPath
-                                   )))
+                                     SimpleTemplating.UseFileAsSimpleTemplate(
+                                         p @ model.Substitutions,
+                                         template,
+                                         outputFileFullPath
+                                     )))
 
-                      elif isMd then
-                          printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                        elif isMd then
+                            printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
-                          let model =
-                              Literate.ParseAndTransformMarkdownFile(
-                                  inputFileFullPath,
-                                  output = outputFileRelativeToRoot,
-                                  outputKind = outputKind,
-                                  prefix = None,
-                                  fscOptions = None,
-                                  lineNumbers = lineNumbers,
-                                  references = Some false,
-                                  substitutions = substitutions,
-                                  generateAnchors = Some true,
-                                  imageSaver = imageSaverOpt,
-                                  rootInputFolder = rootInputFolder,
-                                  crefResolver = crefResolver,
-                                  mdlinkResolver = mdlinkResolver,
-                                  parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
-                                  onError = Some onError,
-                                  filesWithFrontMatter = filesWithFrontMatter
-                              )
+                            let model =
+                                Literate.ParseAndTransformMarkdownFile(
+                                    inputFileFullPath,
+                                    output = outputFileRelativeToRoot,
+                                    outputKind = outputKind,
+                                    prefix = None,
+                                    fscOptions = None,
+                                    lineNumbers = lineNumbers,
+                                    references = Some false,
+                                    substitutions = substitutions,
+                                    generateAnchors = Some true,
+                                    imageSaver = imageSaverOpt,
+                                    rootInputFolder = rootInputFolder,
+                                    crefResolver = crefResolver,
+                                    mdlinkResolver = mdlinkResolver,
+                                    parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
+                                    onError = Some onError,
+                                    filesWithFrontMatter = filesWithFrontMatter
+                                )
 
-                          yield
-                              ((if mainRun then
-                                    Some(inputFileFullPath, isOtherLang, model)
-                                else
-                                    None),
-                               (fun p ->
-                                   printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                   ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
+                            yield
+                                ((if mainRun then
+                                      Some(inputFileFullPath, isOtherLang, model)
+                                  else
+                                      None),
+                                 (fun p ->
+                                     printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
 
-                                   SimpleTemplating.UseFileAsSimpleTemplate(
-                                       p @ model.Substitutions,
-                                       template,
-                                       outputFileFullPath
-                                   )))
-                      elif isPynb then
-                          printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                     SimpleTemplating.UseFileAsSimpleTemplate(
+                                         p @ model.Substitutions,
+                                         template,
+                                         outputFileFullPath
+                                     )))
+                        elif isPynb then
+                            printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
-                          let evaluateNotebook ipynbFile =
-                              let args =
-                                  $"repl --run %s{ipynbFile} --default-kernel fsharp --exit-after-run --output-path %s{ipynbFile}"
+                            let evaluateNotebook ipynbFile =
+                                let args =
+                                    $"repl --run %s{ipynbFile} --default-kernel fsharp --exit-after-run --output-path %s{ipynbFile}"
 
-                              let psi =
-                                  ProcessStartInfo(
-                                      fileName = "dotnet",
-                                      arguments = args,
-                                      UseShellExecute = false,
-                                      CreateNoWindow = true
-                                  )
+                                let psi =
+                                    ProcessStartInfo(
+                                        fileName = "dotnet",
+                                        arguments = args,
+                                        UseShellExecute = false,
+                                        CreateNoWindow = true
+                                    )
 
-                              try
-                                  let p = Process.Start(psi)
-                                  p.WaitForExit()
-                              with _ ->
-                                  let msg =
-                                      $"Failed to evaluate notebook %s{ipynbFile} using dotnet-repl\n"
-                                      + $"""try running "%s{args}" at the command line and inspect the error"""
+                                try
+                                    let p = Process.Start(psi)
+                                    p.WaitForExit()
+                                with _ ->
+                                    let msg =
+                                        $"Failed to evaluate notebook %s{ipynbFile} using dotnet-repl\n"
+                                        + $"""try running "%s{args}" at the command line and inspect the error"""
 
-                                  failwith msg
+                                    failwith msg
 
-                          let checkDotnetReplInstall () =
-                              let failmsg =
-                                  "'dotnet-repl' is not installed. Please install it using 'dotnet tool install dotnet-repl'"
+                            let checkDotnetReplInstall () =
+                                let failmsg =
+                                    "'dotnet-repl' is not installed. Please install it using 'dotnet tool install dotnet-repl'"
 
-                              try
-                                  let psi =
-                                      ProcessStartInfo(
-                                          fileName = "dotnet",
-                                          arguments = "tool list --local",
-                                          UseShellExecute = false,
-                                          CreateNoWindow = true,
-                                          RedirectStandardOutput = true
-                                      )
+                                try
+                                    let psi =
+                                        ProcessStartInfo(
+                                            fileName = "dotnet",
+                                            arguments = "tool list --local",
+                                            UseShellExecute = false,
+                                            CreateNoWindow = true,
+                                            RedirectStandardOutput = true
+                                        )
 
-                                  let p = Process.Start(psi)
-                                  let ol = p.StandardOutput.ReadToEnd()
-                                  p.WaitForExit()
-                                  psi.Arguments <- "tool list --global"
-                                  p.Start() |> ignore
-                                  let og = p.StandardOutput.ReadToEnd()
-                                  let output = $"%s{ol}\n%s{og}"
+                                    let p = Process.Start(psi)
+                                    let ol = p.StandardOutput.ReadToEnd()
+                                    p.WaitForExit()
+                                    psi.Arguments <- "tool list --global"
+                                    p.Start() |> ignore
+                                    let og = p.StandardOutput.ReadToEnd()
+                                    let output = $"%s{ol}\n%s{og}"
 
-                                  if not (output.Contains("dotnet-repl")) then
-                                      failwith failmsg
+                                    if not (output.Contains("dotnet-repl")) then
+                                        failwith failmsg
 
-                                  p.WaitForExit()
-                              with _ ->
-                                  failwith failmsg
+                                    p.WaitForExit()
+                                with _ ->
+                                    failwith failmsg
 
-                          if evaluate then
-                              checkDotnetReplInstall ()
-                              printfn $"  evaluating %s{inputFileFullPath} with dotnet-repl"
-                              evaluateNotebook inputFileFullPath
+                            if evaluate then
+                                checkDotnetReplInstall ()
+                                printfn $"  evaluating %s{inputFileFullPath} with dotnet-repl"
+                                evaluateNotebook inputFileFullPath
 
 
-                          let model =
-                              Literate.ParseAndTransformPynbFile(
-                                  inputFileFullPath,
-                                  output = outputFileRelativeToRoot,
-                                  outputKind = outputKind,
-                                  prefix = None,
-                                  fscOptions = None,
-                                  lineNumbers = lineNumbers,
-                                  references = Some false,
-                                  substitutions = substitutions,
-                                  generateAnchors = Some true,
-                                  imageSaver = imageSaverOpt,
-                                  rootInputFolder = rootInputFolder,
-                                  crefResolver = crefResolver,
-                                  mdlinkResolver = mdlinkResolver,
-                                  onError = Some onError,
-                                  filesWithFrontMatter = filesWithFrontMatter
-                              )
+                            let model =
+                                Literate.ParseAndTransformPynbFile(
+                                    inputFileFullPath,
+                                    output = outputFileRelativeToRoot,
+                                    outputKind = outputKind,
+                                    prefix = None,
+                                    fscOptions = None,
+                                    lineNumbers = lineNumbers,
+                                    references = Some false,
+                                    substitutions = substitutions,
+                                    generateAnchors = Some true,
+                                    imageSaver = imageSaverOpt,
+                                    rootInputFolder = rootInputFolder,
+                                    crefResolver = crefResolver,
+                                    mdlinkResolver = mdlinkResolver,
+                                    onError = Some onError,
+                                    filesWithFrontMatter = filesWithFrontMatter
+                                )
 
-                          yield
-                              ((if mainRun then
-                                    Some(inputFileFullPath, isOtherLang, model)
-                                else
-                                    None),
-                               (fun p ->
-                                   printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                   ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
+                            yield
+                                ((if mainRun then
+                                      Some(inputFileFullPath, isOtherLang, model)
+                                  else
+                                      None),
+                                 (fun p ->
+                                     printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
 
-                                   SimpleTemplating.UseFileAsSimpleTemplate(
-                                       p @ model.Substitutions,
-                                       template,
-                                       outputFileFullPath
-                                   )))
+                                     SimpleTemplating.UseFileAsSimpleTemplate(
+                                         p @ model.Substitutions,
+                                         template,
+                                         outputFileFullPath
+                                     )))
 
-                      else if mainRun then
-                          yield
-                              (None,
-                               (fun _p ->
-                                   printfn "  copying %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                   ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
-                                   // check the file still exists for the incremental case
-                                   if (File.Exists inputFileFullPath) then
-                                       // ignore errors in watch mode
-                                       try
-                                           File.Copy(inputFileFullPath, outputFileFullPath, true)
-                                           File.SetLastWriteTime(outputFileFullPath, DateTime.Now)
-                                       with _ when watch ->
-                                           ()))
-                  //printfn "skipping unchanged file %s" inputFileFullPath
-                  else if mainRun && watch then
-                      match haveModel with
-                      | None -> ()
-                      | Some haveModel -> yield (Some(inputFileFullPath, isOtherLang, haveModel), (fun _ -> ())) ]
+                        else if mainRun then
+                            yield
+                                (None,
+                                 (fun _p ->
+                                     printfn "  copying %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
+                                     // check the file still exists for the incremental case
+                                     if (File.Exists inputFileFullPath) then
+                                         // ignore errors in watch mode
+                                         try
+                                             File.Copy(inputFileFullPath, outputFileFullPath, true)
+                                             File.SetLastWriteTime(outputFileFullPath, DateTime.Now)
+                                         with _ when watch ->
+                                             ()))
+                    //printfn "skipping unchanged file %s" inputFileFullPath
+                    else if mainRun && watch then
+                        match haveModel with
+                        | None -> ()
+                        | Some haveModel -> yield (Some(inputFileFullPath, isOtherLang, haveModel), (fun _ -> ()))
+        ]
 
     let rec processFolder
         (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang, rootInputFolder, fullPathFileMap)
@@ -483,169 +491,170 @@ type internal DocContent
         (filesWithFrontMatter: FrontMatterFile array)
         =
         [
-          // Look for the presence of the _template.* files to activate the
-          // generation of the content.
-          let indirName = Path.GetFileName(inputFolderAsGiven).ToLower()
+            // Look for the presence of the _template.* files to activate the
+            // generation of the content.
+            let indirName = Path.GetFileName(inputFolderAsGiven).ToLower()
 
-          // Two-letter directory names (e.g. 'ja') with 'docs' count as multi-language and are suppressed from table-of-content
-          // generation and site search index
-          let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures |> Array.contains indirName)
+            // Two-letter directory names (e.g. 'ja') with 'docs' count as multi-language and are suppressed from table-of-content
+            // generation and site search index
+            let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures |> Array.contains indirName)
 
-          let possibleNewHtmlTemplate = Path.Combine(inputFolderAsGiven, "_template.html")
+            let possibleNewHtmlTemplate = Path.Combine(inputFolderAsGiven, "_template.html")
 
-          let htmlTemplate =
-              if File.Exists(possibleNewHtmlTemplate) then
-                  Some possibleNewHtmlTemplate
-              else
-                  htmlTemplate
+            let htmlTemplate =
+                if File.Exists(possibleNewHtmlTemplate) then
+                    Some possibleNewHtmlTemplate
+                else
+                    htmlTemplate
 
-          let possibleNewPynbTemplate = Path.Combine(inputFolderAsGiven, "_template.ipynb")
+            let possibleNewPynbTemplate = Path.Combine(inputFolderAsGiven, "_template.ipynb")
 
-          let pynbTemplate =
-              if File.Exists(possibleNewPynbTemplate) then
-                  Some possibleNewPynbTemplate
-              else
-                  pynbTemplate
+            let pynbTemplate =
+                if File.Exists(possibleNewPynbTemplate) then
+                    Some possibleNewPynbTemplate
+                else
+                    pynbTemplate
 
-          let possibleNewFsxTemplate = Path.Combine(inputFolderAsGiven, "_template.fsx")
+            let possibleNewFsxTemplate = Path.Combine(inputFolderAsGiven, "_template.fsx")
 
-          let fsxTemplate =
-              if File.Exists(possibleNewFsxTemplate) then
-                  Some possibleNewFsxTemplate
-              else
-                  fsxTemplate
+            let fsxTemplate =
+                if File.Exists(possibleNewFsxTemplate) then
+                    Some possibleNewFsxTemplate
+                else
+                    fsxTemplate
 
-          let possibleNewMdTemplate = Path.Combine(inputFolderAsGiven, "_template.md")
+            let possibleNewMdTemplate = Path.Combine(inputFolderAsGiven, "_template.md")
 
-          let mdTemplate =
-              if File.Exists(possibleNewMdTemplate) then
-                  Some possibleNewMdTemplate
-              else
-                  mdTemplate
+            let mdTemplate =
+                if File.Exists(possibleNewMdTemplate) then
+                    Some possibleNewMdTemplate
+                else
+                    mdTemplate
 
-          let possibleNewLatexTemplate = Path.Combine(inputFolderAsGiven, "_template.tex")
+            let possibleNewLatexTemplate = Path.Combine(inputFolderAsGiven, "_template.tex")
 
-          let texTemplate =
-              if File.Exists(possibleNewLatexTemplate) then
-                  Some possibleNewLatexTemplate
-              else
-                  texTemplate
+            let texTemplate =
+                if File.Exists(possibleNewLatexTemplate) then
+                    Some possibleNewLatexTemplate
+                else
+                    texTemplate
 
-          ensureDirectory (Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
+            ensureDirectory (Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
 
-          let inputs = Directory.GetFiles(inputFolderAsGiven, "*")
+            let inputs = Directory.GetFiles(inputFolderAsGiven, "*")
 
-          let imageSaver = createImageSaver (Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
+            let imageSaver = createImageSaver (Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
 
-          // Look for the four different kinds of content
-          for input in inputs do
-              yield!
-                  processFile
-                      rootInputFolder
-                      isOtherLang
-                      input
-                      OutputKind.Html
-                      htmlTemplate
-                      outputFolderRelativeToRoot
-                      imageSaver
-                      (makeMarkdownLinkResolver (
-                          inputFolderAsGiven,
-                          outputFolderRelativeToRoot,
-                          fullPathFileMap,
-                          OutputKind.Html
-                      ))
-                      filesWithFrontMatter
+            // Look for the four different kinds of content
+            for input in inputs do
+                yield!
+                    processFile
+                        rootInputFolder
+                        isOtherLang
+                        input
+                        OutputKind.Html
+                        htmlTemplate
+                        outputFolderRelativeToRoot
+                        imageSaver
+                        (makeMarkdownLinkResolver (
+                            inputFolderAsGiven,
+                            outputFolderRelativeToRoot,
+                            fullPathFileMap,
+                            OutputKind.Html
+                        ))
+                        filesWithFrontMatter
 
-              yield!
-                  processFile
-                      rootInputFolder
-                      isOtherLang
-                      input
-                      OutputKind.Latex
-                      texTemplate
-                      outputFolderRelativeToRoot
-                      imageSaver
-                      (makeMarkdownLinkResolver (
-                          inputFolderAsGiven,
-                          outputFolderRelativeToRoot,
-                          fullPathFileMap,
-                          OutputKind.Latex
-                      ))
-                      filesWithFrontMatter
+                yield!
+                    processFile
+                        rootInputFolder
+                        isOtherLang
+                        input
+                        OutputKind.Latex
+                        texTemplate
+                        outputFolderRelativeToRoot
+                        imageSaver
+                        (makeMarkdownLinkResolver (
+                            inputFolderAsGiven,
+                            outputFolderRelativeToRoot,
+                            fullPathFileMap,
+                            OutputKind.Latex
+                        ))
+                        filesWithFrontMatter
 
-              yield!
-                  processFile
-                      rootInputFolder
-                      isOtherLang
-                      input
-                      OutputKind.Pynb
-                      pynbTemplate
-                      outputFolderRelativeToRoot
-                      imageSaver
-                      (makeMarkdownLinkResolver (
-                          inputFolderAsGiven,
-                          outputFolderRelativeToRoot,
-                          fullPathFileMap,
-                          OutputKind.Pynb
-                      ))
-                      filesWithFrontMatter
+                yield!
+                    processFile
+                        rootInputFolder
+                        isOtherLang
+                        input
+                        OutputKind.Pynb
+                        pynbTemplate
+                        outputFolderRelativeToRoot
+                        imageSaver
+                        (makeMarkdownLinkResolver (
+                            inputFolderAsGiven,
+                            outputFolderRelativeToRoot,
+                            fullPathFileMap,
+                            OutputKind.Pynb
+                        ))
+                        filesWithFrontMatter
 
-              yield!
-                  processFile
-                      rootInputFolder
-                      isOtherLang
-                      input
-                      OutputKind.Fsx
-                      fsxTemplate
-                      outputFolderRelativeToRoot
-                      imageSaver
-                      (makeMarkdownLinkResolver (
-                          inputFolderAsGiven,
-                          outputFolderRelativeToRoot,
-                          fullPathFileMap,
-                          OutputKind.Fsx
-                      ))
-                      filesWithFrontMatter
+                yield!
+                    processFile
+                        rootInputFolder
+                        isOtherLang
+                        input
+                        OutputKind.Fsx
+                        fsxTemplate
+                        outputFolderRelativeToRoot
+                        imageSaver
+                        (makeMarkdownLinkResolver (
+                            inputFolderAsGiven,
+                            outputFolderRelativeToRoot,
+                            fullPathFileMap,
+                            OutputKind.Fsx
+                        ))
+                        filesWithFrontMatter
 
-              yield!
-                  processFile
-                      rootInputFolder
-                      isOtherLang
-                      input
-                      OutputKind.Markdown
-                      mdTemplate
-                      outputFolderRelativeToRoot
-                      imageSaver
-                      (makeMarkdownLinkResolver (
-                          inputFolderAsGiven,
-                          outputFolderRelativeToRoot,
-                          fullPathFileMap,
-                          OutputKind.Markdown
-                      ))
-                      filesWithFrontMatter
+                yield!
+                    processFile
+                        rootInputFolder
+                        isOtherLang
+                        input
+                        OutputKind.Markdown
+                        mdTemplate
+                        outputFolderRelativeToRoot
+                        imageSaver
+                        (makeMarkdownLinkResolver (
+                            inputFolderAsGiven,
+                            outputFolderRelativeToRoot,
+                            fullPathFileMap,
+                            OutputKind.Markdown
+                        ))
+                        filesWithFrontMatter
 
-          for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
-              let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-              let subFolderIsSkipped = subInputFolderName.StartsWith '.'
-              let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
+            for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
+                let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
+                let subFolderIsSkipped = subInputFolderName.StartsWith '.'
+                let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
-              if subFolderIsOutput || subFolderIsSkipped then
+                if subFolderIsOutput || subFolderIsSkipped then
 
-                  printfn "  skipping directory %s" subInputFolderFullPath
-              else
-                  yield!
-                      processFolder
-                          (htmlTemplate,
-                           texTemplate,
-                           pynbTemplate,
-                           fsxTemplate,
-                           mdTemplate,
-                           isOtherLang,
-                           rootInputFolder,
-                           fullPathFileMap)
-                          (Path.Combine(inputFolderAsGiven, subInputFolderName))
-                          (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
-                          filesWithFrontMatter ]
+                    printfn "  skipping directory %s" subInputFolderFullPath
+                else
+                    yield!
+                        processFolder
+                            (htmlTemplate,
+                             texTemplate,
+                             pynbTemplate,
+                             fsxTemplate,
+                             mdTemplate,
+                             isOtherLang,
+                             rootInputFolder,
+                             fullPathFileMap)
+                            (Path.Combine(inputFolderAsGiven, subInputFolderName))
+                            (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
+                            filesWithFrontMatter
+        ]
 
     member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs, ?defaultMdTemplate: string) =
 
@@ -653,8 +662,10 @@ type internal DocContent
 
         // Maps full input paths to full output paths
         let fullPathFileMap =
-            [ for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
-                  yield! prepFolder rootInputFolderAsGiven outputFolderRelativeToRoot ]
+            [
+                for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
+                    yield! prepFolder rootInputFolderAsGiven outputFolderRelativeToRoot
+            ]
             |> Map.ofList
 
         // In order to create {{next-page-url}} and {{previous-page-url}}
@@ -678,32 +689,38 @@ type internal DocContent
             |> Seq.sortBy (fun { Index = idx; CategoryIndex = cIdx } -> cIdx, idx)
             |> Seq.toArray
 
-        [ for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
-              yield!
-                  processFolder
-                      (htmlTemplate,
-                       None,
-                       None,
-                       None,
-                       defaultMdTemplate,
-                       false,
-                       Some rootInputFolderAsGiven,
-                       fullPathFileMap)
-                      rootInputFolderAsGiven
-                      outputFolderRelativeToRoot
-                      filesWithFrontMatter ]
+        [
+            for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
+                yield!
+                    processFolder
+                        (htmlTemplate,
+                         None,
+                         None,
+                         None,
+                         defaultMdTemplate,
+                         false,
+                         Some rootInputFolderAsGiven,
+                         fullPathFileMap)
+                        rootInputFolderAsGiven
+                        outputFolderRelativeToRoot
+                        filesWithFrontMatter
+        ]
 
     member _.GetSearchIndexEntries(docModels: (string * bool * LiterateDocModel) list) =
-        [| for (_inputFile, isOtherLang, model) in docModels do
-               if not isOtherLang then
-                   match model.IndexText with
-                   | Some(IndexText(fullContent, headings)) ->
-                       { title = model.Title
-                         content = fullContent
-                         headings = headings
-                         uri = model.Uri(root)
-                         ``type`` = "content" }
-                   | _ -> () |]
+        [|
+            for (_inputFile, isOtherLang, model) in docModels do
+                if not isOtherLang then
+                    match model.IndexText with
+                    | Some(IndexText(fullContent, headings)) ->
+                        {
+                            title = model.Title
+                            content = fullContent
+                            headings = headings
+                            uri = model.Uri(root)
+                            ``type`` = "content"
+                        }
+                    | _ -> ()
+        |]
 
     /// Pre-computes the expensive navigation structure (filter/group/sort) once, returning a
     /// cheap render function that generates nav HTML for any given current page path.
@@ -715,13 +732,15 @@ type internal DocContent
 
         // Pre-compute: filter eligible models, keeping paths for active-page detection
         let baseModels =
-            [ for (inputFileFullPath, isOtherLang, model) in docModels do
-                  if
-                      not isOtherLang
-                      && model.OutputKind = OutputKind.Html
-                      && Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index"
-                  then
-                      yield (inputFileFullPath, model) ]
+            [
+                for (inputFileFullPath, isOtherLang, model) in docModels do
+                    if
+                        not isOtherLang
+                        && model.OutputKind = OutputKind.Html
+                        && Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index"
+                    then
+                        yield (inputFileFullPath, model)
+            ]
 
         let filteredBase =
             if ignoreUncategorized then
@@ -763,7 +782,8 @@ type internal DocContent
                             IsActive =
                                 match currentPagePath with
                                 | None -> false
-                                | Some cp -> cp = path }))
+                                | Some cp -> cp = path
+                        }))
 
             if useTemplating then
                 let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
@@ -773,9 +793,11 @@ type internal DocContent
                             let link = model.Uri(root)
                             let title = System.Web.HttpUtility.HtmlEncode model.Title
 
-                            { Menu.MenuItem.Link = link
-                              Menu.MenuItem.Content = title
-                              Menu.MenuItem.IsActive = model.IsActive })
+                            {
+                                Menu.MenuItem.Link = link
+                                Menu.MenuItem.Content = title
+                                Menu.MenuItem.IsActive = model.IsActive
+                            })
 
                     Menu.createMenu input isCategoryActive header menuItems
 
@@ -790,35 +812,37 @@ type internal DocContent
                         createGroup isActive header items)
                     |> String.concat "\n"
             else
-                [ if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                      li [ Class "nav-header" ] [ !!"Documentation" ]
+                [
+                    if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                        li [ Class "nav-header" ] [ !!"Documentation" ]
 
-                      for model in snd modelsByCategory.[0] do
-                          let link = model.Uri(root)
-                          let activeClass = if model.IsActive then "active" else ""
+                        for model in snd modelsByCategory.[0] do
+                            let link = model.Uri(root)
+                            let activeClass = if model.IsActive then "active" else ""
 
-                          li
-                              [ Class $"nav-item %s{activeClass}" ]
-                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-                  else
-                      for (cat, modelsInCategory) in modelsByCategory do
-                          let categoryActiveClass =
-                              if modelsInCategory |> List.exists (fun m -> m.IsActive) then
-                                  "active"
-                              else
-                                  ""
+                            li
+                                [ Class $"nav-item %s{activeClass}" ]
+                                [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                    else
+                        for (cat, modelsInCategory) in modelsByCategory do
+                            let categoryActiveClass =
+                                if modelsInCategory |> List.exists (fun m -> m.IsActive) then
+                                    "active"
+                                else
+                                    ""
 
-                          match cat with
-                          | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
-                          | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
+                            match cat with
+                            | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
+                            | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
 
-                          for model in modelsInCategory do
-                              let link = model.Uri(root)
-                              let activeClass = if model.IsActive then "active" else ""
+                            for model in modelsInCategory do
+                                let link = model.Uri(root)
+                                let activeClass = if model.IsActive then "active" else ""
 
-                              li
-                                  [ Class $"nav-item %s{activeClass}" ]
-                                  [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                                li
+                                    [ Class $"nav-item %s{activeClass}" ]
+                                    [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                ]
                 |> List.map (fun html -> html.ToString())
                 |> String.concat "             \n"
 
@@ -1312,24 +1336,31 @@ module Serve =
 
         let withPort =
             { defaultBinding.socketBinding with
-                port = uint16 localPort }
+                port = uint16 localPort
+            }
 
         let serverConfig =
             { defaultConfig with
                 bindings =
-                    [ { defaultBinding with
-                          socketBinding = withPort } ]
+                    [
+                        { defaultBinding with
+                            socketBinding = withPort
+                        }
+                    ]
                 homeFolder = Some rootOutputFolderAsGiven
-                mimeTypesMap = mimeTypesMap }
+                mimeTypesMap = mimeTypesMap
+            }
 
         let app =
             choose
-                [ path "/" >=> Redirection.redirect "/index.html"
-                  path "/websocket" >=> handShake socketHandler
-                  Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
-                  >=> Writers.setHeader "Pragma" "no-cache"
-                  >=> Writers.setHeader "Expires" "0"
-                  >=> Files.browseHome ]
+                [
+                    path "/" >=> Redirection.redirect "/index.html"
+                    path "/websocket" >=> handShake socketHandler
+                    Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
+                    >=> Writers.setHeader "Pragma" "no-cache"
+                    >=> Writers.setHeader "Expires" "0"
+                    >=> Files.browseHome
+                ]
 
         // In Suave 3.x the server part of the tuple is a hot Task, no explicit start needed.
         startWebServerAsync serverConfig app |> snd |> ignore
@@ -1371,11 +1402,7 @@ module internal LlmsTxt =
 
     /// Decode HTML entities and remove --eval noise from content.
     let private cleanContent (s: string) =
-        s
-        |> decodeHtml
-        |> stripEvalWarnings
-        |> collapseBlankLines
-        |> fun t -> t.Trim()
+        s |> decodeHtml |> stripEvalWarnings |> collapseBlankLines |> fun t -> t.Trim()
 
     /// Build a section of llms.txt from a set of search index entries.
     /// When <c>withContent</c> is true, entry content is appended under a heading per entry.
@@ -1719,53 +1746,57 @@ type CoreBuildOptions(watch) =
                         printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
 
         let apiDocInputs =
-            [ for (dllFile,
-                   _,
-                   repoUrlOption,
-                   repoBranchOption,
-                   repoTypeOption,
-                   projectMarkdownComments,
-                   projectWarn,
-                   projectSourceFolder,
-                   projectSourceRepo,
-                   projectNoInheritedMembers,
-                   projectShowTypeConstraints,
-                   projectParameters) in crackedProjects ->
-                  let sourceRepo =
-                      match projectSourceRepo with
-                      | Some s -> Some s
-                      | None ->
-                          match evalString this.sourceRepo with
-                          | Some v -> Some v
-                          | None ->
-                              //printfn "repoBranchOption = %A" repoBranchOption
-                              match repoUrlOption, repoBranchOption, repoTypeOption with
-                              | Some url, Some branch, Some "git" when not (String.IsNullOrWhiteSpace branch) ->
-                                  url + "/" + "tree/" + branch |> Some
-                              | Some url, _, Some "git" -> url + "/" + "tree/" + "master" |> Some
-                              | Some url, _, None -> Some url
-                              | _ -> None
+            [
+                for (dllFile,
+                     _,
+                     repoUrlOption,
+                     repoBranchOption,
+                     repoTypeOption,
+                     projectMarkdownComments,
+                     projectWarn,
+                     projectSourceFolder,
+                     projectSourceRepo,
+                     projectNoInheritedMembers,
+                     projectShowTypeConstraints,
+                     projectParameters) in crackedProjects ->
+                    let sourceRepo =
+                        match projectSourceRepo with
+                        | Some s -> Some s
+                        | None ->
+                            match evalString this.sourceRepo with
+                            | Some v -> Some v
+                            | None ->
+                                //printfn "repoBranchOption = %A" repoBranchOption
+                                match repoUrlOption, repoBranchOption, repoTypeOption with
+                                | Some url, Some branch, Some "git" when not (String.IsNullOrWhiteSpace branch) ->
+                                    url + "/" + "tree/" + branch |> Some
+                                | Some url, _, Some "git" -> url + "/" + "tree/" + "master" |> Some
+                                | Some url, _, None -> Some url
+                                | _ -> None
 
-                  let sourceFolder =
-                      match projectSourceFolder with
-                      | Some s -> s
-                      | None ->
-                          match evalString this.sourceFolder with
-                          | None -> Environment.CurrentDirectory
-                          | Some v -> v
+                    let sourceFolder =
+                        match projectSourceFolder with
+                        | Some s -> s
+                        | None ->
+                            match evalString this.sourceFolder with
+                            | None -> Environment.CurrentDirectory
+                            | Some v -> v
 
-                  //printfn "sourceFolder = '%s'" sourceFolder
-                  //printfn "sourceRepo = '%A'" sourceRepo
-                  { Path = dllFile
-                    XmlFile = None
-                    SourceRepo = sourceRepo
-                    SourceFolder = Some sourceFolder
-                    Substitutions = Some(overrideLogoLinkForWatch projectParameters)
-                    MarkdownComments = this.mdcomments || projectMarkdownComments
-                    Warn = projectWarn
-                    PublicOnly = not this.nonpublic
-                    ShowInheritedMembers = not projectNoInheritedMembers
-                    TypeConstraintDisplayMode = projectShowTypeConstraints } ]
+                    //printfn "sourceFolder = '%s'" sourceFolder
+                    //printfn "sourceRepo = '%A'" sourceRepo
+                    {
+                        Path = dllFile
+                        XmlFile = None
+                        SourceRepo = sourceRepo
+                        SourceFolder = Some sourceFolder
+                        Substitutions = Some(overrideLogoLinkForWatch projectParameters)
+                        MarkdownComments = this.mdcomments || projectMarkdownComments
+                        Warn = projectWarn
+                        PublicOnly = not this.nonpublic
+                        ShowInheritedMembers = not projectNoInheritedMembers
+                        TypeConstraintDisplayMode = projectShowTypeConstraints
+                    }
+            ]
 
         // Compute the merge of all referenced DLLs across all projects
         // so they can be resolved during API doc generation.
@@ -1773,13 +1804,15 @@ type CoreBuildOptions(watch) =
         // TODO: This is inaccurate: the different projects might not be referencing the same DLLs.
         // We should do doc generation for each output of each proejct separately
         let apiDocOtherFlags =
-            [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
-                  for otherFlag in otherFlags do
-                      if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
-                          if File.Exists(otherFlag.[3..]) then
-                              yield otherFlag
-                          else
-                              printfn "NOTE: the reference '%s' was not seen on disk, ignoring" otherFlag ]
+            [
+                for (_dllFile, otherFlags, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
+                    for otherFlag in otherFlags do
+                        if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
+                            if File.Exists(otherFlag.[3..]) then
+                                yield otherFlag
+                            else
+                                printfn "NOTE: the reference '%s' was not seen on disk, ignoring" otherFlag
+            ]
             // TODO: This 'distinctBy' is merging references that may be inconsistent across the project set
             |> List.distinctBy (fun ref -> Path.GetFileName(ref.[3..]))
 
@@ -1850,37 +1883,39 @@ type CoreBuildOptions(watch) =
                 None
 
         let extraInputs =
-            [ if not this.nodefaultcontent then
-                  // The "extras" content goes in "."
-                  //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
-                  //   to .nuget\packages\fsdocs-tool\7.1.7\extras
-                  let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+            [
+                if not this.nodefaultcontent then
+                    // The "extras" content goes in "."
+                    //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
+                    //   to .nuget\packages\fsdocs-tool\7.1.7\extras
+                    let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
 
-                  if
-                      (try
-                          Directory.Exists(attempt1)
-                       with _ ->
-                           false)
-                  then
-                      printfn "using extra content from %s" attempt1
-                      (attempt1, ".")
-                  else
-                      // This is for in-repo use only, assuming we are executing directly from
-                      //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
-                      //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
-                      let attempt2 =
-                          Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
+                    if
+                        (try
+                            Directory.Exists(attempt1)
+                         with _ ->
+                             false)
+                    then
+                        printfn "using extra content from %s" attempt1
+                        (attempt1, ".")
+                    else
+                        // This is for in-repo use only, assuming we are executing directly from
+                        //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
+                        //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
+                        let attempt2 =
+                            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
 
-                      if
-                          (try
-                              Directory.Exists(attempt2)
-                           with _ ->
-                               false)
-                      then
-                          printfn "using extra content from %s" attempt2
-                          (attempt2, "content")
-                      else
-                          printfn "no extra content found at %s or %s" attempt1 attempt2 ]
+                        if
+                            (try
+                                Directory.Exists(attempt2)
+                             with _ ->
+                                 false)
+                        then
+                            printfn "using extra content from %s" attempt2
+                            (attempt2, "content")
+                        else
+                            printfn "no extra content found at %s or %s" attempt1 attempt2
+            ]
 
         // The incremental state (as well as the files written to disk)
         let mutable latestApiDocModel = None
@@ -1940,10 +1975,12 @@ type CoreBuildOptions(watch) =
                 elif crackedProjects.Length > 0 then
                     let (outputKind, initialTemplate2) =
                         let templates =
-                            [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                              OutputKind.Html, Path.Combine(this.input, "_template.html")
-                              OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                              OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
+                            [
+                                OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                                OutputKind.Html, Path.Combine(this.input, "_template.html")
+                                OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                                OutputKind.Markdown, Path.Combine(this.input, "_template.md")
+                            ]
 
                         match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
                         | Some(kind, path) -> kind, Some path
@@ -2112,18 +2149,22 @@ type CoreBuildOptions(watch) =
 
                 let results =
                     Map.ofList
-                        [ for (thing, _action) in docModels do
-                              match thing with
-                              | Some(file, _isOtherLang, model) -> (file, model)
-                              | None -> () ]
+                        [
+                            for (thing, _action) in docModels do
+                                match thing with
+                                | Some(file, _isOtherLang, model) -> (file, model)
+                                | None -> ()
+                        ]
 
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
 
                 latestDocContentGlobalParameters <-
-                    [ ParamKeys.``fsdocs-list-of-documents``, navEntriesWithoutActivePage
-                      ParamKeys.``fsdocs-head-extra``, headTemplateContent
-                      ParamKeys.``fsdocs-body-extra``, bodyTemplateContent ]
+                    [
+                        ParamKeys.``fsdocs-list-of-documents``, navEntriesWithoutActivePage
+                        ParamKeys.``fsdocs-head-extra``, headTemplateContent
+                        ParamKeys.``fsdocs-body-extra``, bodyTemplateContent
+                    ]
 
                 latestDocContentPhase2 <-
                     (fun globals ->
@@ -2223,12 +2264,15 @@ type CoreBuildOptions(watch) =
         if watch then
 
             let docsWatchers =
-                [ if Directory.Exists(this.input) then
-                      yield new FileSystemWatcher(this.input)
-                  match defaultTemplate with
-                  | Some defaultTemplate ->
-                      yield new FileSystemWatcher(Path.GetDirectoryName(defaultTemplate), IncludeSubdirectories = true)
-                  | None -> () ]
+                [
+                    if Directory.Exists(this.input) then
+                        yield new FileSystemWatcher(this.input)
+                    match defaultTemplate with
+                    | Some defaultTemplate ->
+                        yield
+                            new FileSystemWatcher(Path.GetDirectoryName(defaultTemplate), IncludeSubdirectories = true)
+                    | None -> ()
+                ]
 
             let templateWatchers =
                 if Directory.Exists(this.input) then
@@ -2237,11 +2281,13 @@ type CoreBuildOptions(watch) =
                     []
 
             let projectOutputWatchers =
-                [ for input in apiDocInputs do
-                      let dir = Path.GetDirectoryName(input.Path)
+                [
+                    for input in apiDocInputs do
+                        let dir = Path.GetDirectoryName(input.Path)
 
-                      if Directory.Exists(dir) then
-                          new FileSystemWatcher(dir), input.Path ]
+                        if Directory.Exists(dir) then
+                            new FileSystemWatcher(dir), input.Path
+                ]
 
             use _holder =
                 { new IDisposable with
@@ -2253,7 +2299,8 @@ type CoreBuildOptions(watch) =
                             p.Dispose()
 
                         for (p, _) in projectOutputWatchers do
-                            p.Dispose() }
+                            p.Dispose()
+                }
 
             // Only one update at a time
             let monitor = obj ()
@@ -2405,33 +2452,35 @@ module private ConvertHelpers =
     let findContentSearchDirs (outputFile: string) (templateFile: string option) =
         let dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 
-        [ yield Path.GetDirectoryName(Path.GetFullPath(outputFile))
+        [
+            yield Path.GetDirectoryName(Path.GetFullPath(outputFile))
 
-          match templateFile with
-          | Some t when not (String.IsNullOrWhiteSpace t) -> yield Path.GetDirectoryName(Path.GetFullPath(t))
-          | _ -> ()
+            match templateFile with
+            | Some t when not (String.IsNullOrWhiteSpace t) -> yield Path.GetDirectoryName(Path.GetFullPath(t))
+            | _ -> ()
 
-          // NuGet package layout: <package-root>/extras contains a "content" sub-directory.
-          let nugetExtras = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+            // NuGet package layout: <package-root>/extras contains a "content" sub-directory.
+            let nugetExtras = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
 
-          if
-              (try
-                  Directory.Exists(nugetExtras)
-               with _ ->
-                   false)
-          then
-              yield nugetExtras
+            if
+                (try
+                    Directory.Exists(nugetExtras)
+                 with _ ->
+                     false)
+            then
+                yield nugetExtras
 
-          // In-repo development layout: src/fsdocs-tool/bin/…/fsdocs.exe → docs/
-          let repoDocs = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs"))
+            // In-repo development layout: src/fsdocs-tool/bin/…/fsdocs.exe → docs/
+            let repoDocs = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs"))
 
-          if
-              (try
-                  Directory.Exists(repoDocs)
-               with _ ->
-                   false)
-          then
-              yield repoDocs ]
+            if
+                (try
+                    Directory.Exists(repoDocs)
+                 with _ ->
+                     false)
+            then
+                yield repoDocs
+        ]
 
     /// Inline local CSS, JS, and image resources that are referenced in the generated HTML file.
     /// Remote URLs (http/https) and data-URIs are left untouched.
@@ -2648,40 +2697,42 @@ type ConvertCommand() =
                     let pageTitle = Path.GetFileNameWithoutExtension(inputFile)
 
                     let defaults =
-                        [ ParamKeys.root, (if embedResources then "" else "")
-                          ParamKeys.``fsdocs-page-title``, pageTitle
-                          ParamKeys.``fsdocs-source-basename``, pageTitle
-                          ParamKeys.``fsdocs-source-filename``, Path.GetFileName(inputFile)
-                          ParamKeys.``fsdocs-collection-name``, pageTitle
-                          ParamKeys.``fsdocs-authors``, ""
-                          ParamKeys.``fsdocs-body-class``, "content"
-                          ParamKeys.``fsdocs-body-extra``, ""
-                          ParamKeys.``fsdocs-copyright``, ""
-                          ParamKeys.``fsdocs-favicon-src``, ""
-                          ParamKeys.``fsdocs-head-extra``, ""
-                          ParamKeys.``fsdocs-license-link``, "#"
-                          ParamKeys.``fsdocs-list-of-documents``, ""
-                          ParamKeys.``fsdocs-list-of-namespaces``, ""
-                          ParamKeys.``fsdocs-logo-alt``, pageTitle
-                          ParamKeys.``fsdocs-logo-link``, "#"
-                          ParamKeys.``fsdocs-logo-src``, ""
-                          ParamKeys.``fsdocs-meta-tags``, ""
-                          ParamKeys.``fsdocs-page-content-list``, ""
-                          ParamKeys.``fsdocs-package-license-expression``, ""
-                          ParamKeys.``fsdocs-package-project-url``, ""
-                          ParamKeys.``fsdocs-package-tags``, ""
-                          ParamKeys.``fsdocs-package-version``, ""
-                          ParamKeys.``fsdocs-package-icon-url``, ""
-                          ParamKeys.``fsdocs-release-notes-link``, "#"
-                          ParamKeys.``fsdocs-repository-link``, "#"
-                          ParamKeys.``fsdocs-repository-branch``, ""
-                          ParamKeys.``fsdocs-repository-commit``, ""
-                          ParamKeys.``fsdocs-source``, ""
-                          ParamKeys.``fsdocs-theme``, ""
-                          ParamKeys.``fsdocs-tooltips``, ""
-                          ParamKeys.``fsdocs-watch-script``, ""
-                          ParamKeys.``fsdocs-collection-name-link``, "#"
-                          ParamKeys.``fsdocs-page-source``, "" ]
+                        [
+                            ParamKeys.root, (if embedResources then "" else "")
+                            ParamKeys.``fsdocs-page-title``, pageTitle
+                            ParamKeys.``fsdocs-source-basename``, pageTitle
+                            ParamKeys.``fsdocs-source-filename``, Path.GetFileName(inputFile)
+                            ParamKeys.``fsdocs-collection-name``, pageTitle
+                            ParamKeys.``fsdocs-authors``, ""
+                            ParamKeys.``fsdocs-body-class``, "content"
+                            ParamKeys.``fsdocs-body-extra``, ""
+                            ParamKeys.``fsdocs-copyright``, ""
+                            ParamKeys.``fsdocs-favicon-src``, ""
+                            ParamKeys.``fsdocs-head-extra``, ""
+                            ParamKeys.``fsdocs-license-link``, "#"
+                            ParamKeys.``fsdocs-list-of-documents``, ""
+                            ParamKeys.``fsdocs-list-of-namespaces``, ""
+                            ParamKeys.``fsdocs-logo-alt``, pageTitle
+                            ParamKeys.``fsdocs-logo-link``, "#"
+                            ParamKeys.``fsdocs-logo-src``, ""
+                            ParamKeys.``fsdocs-meta-tags``, ""
+                            ParamKeys.``fsdocs-page-content-list``, ""
+                            ParamKeys.``fsdocs-package-license-expression``, ""
+                            ParamKeys.``fsdocs-package-project-url``, ""
+                            ParamKeys.``fsdocs-package-tags``, ""
+                            ParamKeys.``fsdocs-package-version``, ""
+                            ParamKeys.``fsdocs-package-icon-url``, ""
+                            ParamKeys.``fsdocs-release-notes-link``, "#"
+                            ParamKeys.``fsdocs-repository-link``, "#"
+                            ParamKeys.``fsdocs-repository-branch``, ""
+                            ParamKeys.``fsdocs-repository-commit``, ""
+                            ParamKeys.``fsdocs-source``, ""
+                            ParamKeys.``fsdocs-theme``, ""
+                            ParamKeys.``fsdocs-tooltips``, ""
+                            ParamKeys.``fsdocs-watch-script``, ""
+                            ParamKeys.``fsdocs-collection-name-link``, "#"
+                            ParamKeys.``fsdocs-page-source``, ""
+                        ]
 
                     // User-supplied values override defaults.
                     let userKeys = userSubstitutions |> List.map fst |> set

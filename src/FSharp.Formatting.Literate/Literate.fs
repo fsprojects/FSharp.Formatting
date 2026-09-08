@@ -32,15 +32,17 @@ type Literate private () =
         =
         let defines = [ outputKind.Extension; outputKind.Extension.ToUpperInvariant() ]
 
-        { Substitutions = substitutions
-          GenerateLineNumbers = defaultArg lineNumbers true
-          Prefix = defaultArg prefix "fs"
-          ConditionalDefines = defines
-          OutputKind = outputKind
-          GenerateHeaderAnchors = defaultArg generateAnchors false
-          MarkdownDirectLinkResolver = mdlinkResolver
-          CodeReferenceResolver = crefResolver
-          TokenKindToCss = tokenKindToCss }
+        {
+            Substitutions = substitutions
+            GenerateLineNumbers = defaultArg lineNumbers true
+            Prefix = defaultArg prefix "fs"
+            ConditionalDefines = defines
+            OutputKind = outputKind
+            GenerateHeaderAnchors = defaultArg generateAnchors false
+            MarkdownDirectLinkResolver = mdlinkResolver
+            CodeReferenceResolver = crefResolver
+            TokenKindToCss = tokenKindToCss
+        }
 
     /// Lookup a specified key in a dictionary, possibly
     /// ignoring newlines or spaces in the key.
@@ -75,14 +77,17 @@ type Literate private () =
 
         let extraDefines =
             [ // When formatting for tooltips or executing snippets we always include the 'prepare' define.
-              // This allows (*** condition: prepare ***) for code elements that are only active
-              // when formatting or executing.
-              "prepare" ]
+                // This allows (*** condition: prepare ***) for code elements that are only active
+                // when formatting or executing.
+                "prepare"
+            ]
 
-        { CompilerOptions = fscOptions
-          Evaluator = evaluator
-          ConditionalDefines = (definedSymbols @ extraDefines)
-          OnError = onError }
+        {
+            CompilerOptions = fscOptions
+            Evaluator = evaluator
+            ConditionalDefines = (definedSymbols @ extraDefines)
+            OnError = onError
+        }
 
     /// Get default output file name, given various information
     static let defaultOutput outputPath input (outputKind: OutputKind) =

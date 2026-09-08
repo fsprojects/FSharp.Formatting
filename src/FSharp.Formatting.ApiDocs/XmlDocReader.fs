@@ -22,11 +22,13 @@ module internal XmlDocReader =
         use reader = new StringReader(comment)
 
         let lines =
-            [ let mutable line = ""
+            [
+                let mutable line = ""
 
-              while (line <- reader.ReadLine()
-                     not (isNull line)) do
-                  yield line ]
+                while (line <- reader.ReadLine()
+                       not (isNull line)) do
+                    yield line
+            ]
 
         String.removeSpaces lines
 
@@ -283,12 +285,14 @@ module internal XmlDocReader =
         let paramNodes = doc.Elements(XName.Get "param") |> Seq.toList
 
         let parameters =
-            [ for e in paramNodes do
-                  let paramName = e.Attribute(XName.Get "name").Value
-                  let phtml = new StringBuilder()
-                  readXmlElementAsHtml true urlMap cmds phtml e
-                  let paramHtml = ApiDocHtml(phtml.ToString(), None)
-                  paramName, paramHtml ]
+            [
+                for e in paramNodes do
+                    let paramName = e.Attribute(XName.Get "name").Value
+                    let phtml = new StringBuilder()
+                    readXmlElementAsHtml true urlMap cmds phtml e
+                    let paramHtml = ApiDocHtml(phtml.ToString(), None)
+                    paramName, paramHtml
+            ]
 
         for e in doc.Elements(XName.Get "exclude") do
             cmds.["exclude"] <- e.Value
@@ -338,96 +342,104 @@ module internal XmlDocReader =
         let exceptions =
             let exceptionNodes = doc.Elements(XName.Get "exception") |> Seq.toList
 
-            [ for e in exceptionNodes do
-                  let cref = e.Attribute(XName.Get "cref")
+            [
+                for e in exceptionNodes do
+                    let cref = e.Attribute(XName.Get "cref")
 
-                  if not (isNull cref) then
-                      if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-                          printfn "Warning: Invalid cref specified in: %A" doc
+                    if not (isNull cref) then
+                        if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+                            printfn "Warning: Invalid cref specified in: %A" doc
 
-                      else
-                          // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
-                          let cname = cref.Value
+                        else
+                            // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
+                            let cname = cref.Value
 
-                          let cname =
-                              if cname.StartsWith("T:", StringComparison.Ordinal) then
-                                  cname
-                              else
-                                  "T:" + cname // FSharp.Core exception listings don't start with "T:"
+                            let cname =
+                                if cname.StartsWith("T:", StringComparison.Ordinal) then
+                                    cname
+                                else
+                                    "T:" + cname // FSharp.Core exception listings don't start with "T:"
 
-                          match urlMap.ResolveCref cname with
-                          | Some reference ->
-                              let html = new StringBuilder()
-                              let referenceLinkId = "exception-" + reference.NiceName
-                              rawData.[referenceLinkId] <- reference.ReferenceLink
-                              readXmlElementAsHtml true urlMap cmds html e
-                              reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString(), None)
-                          | _ ->
-                              let html = new StringBuilder()
-                              readXmlElementAsHtml true urlMap cmds html e
-                              cname, None, ApiDocHtml(html.ToString(), None) ]
+                            match urlMap.ResolveCref cname with
+                            | Some reference ->
+                                let html = new StringBuilder()
+                                let referenceLinkId = "exception-" + reference.NiceName
+                                rawData.[referenceLinkId] <- reference.ReferenceLink
+                                readXmlElementAsHtml true urlMap cmds html e
+                                reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString(), None)
+                            | _ ->
+                                let html = new StringBuilder()
+                                readXmlElementAsHtml true urlMap cmds html e
+                                cname, None, ApiDocHtml(html.ToString(), None)
+            ]
 
         let seeAlso =
             // Only top-level <seealso> elements (direct children of the doc comment), per the
             // xmldoc recommended-tags convention: <seealso> is a section, <see> is an inline link.
             let seeAlsoNodes = doc.Elements(XName.Get "seealso") |> Seq.toList
 
-            [ for e in seeAlsoNodes do
-                  let cref = e.Attribute(XName.Get "cref")
+            [
+                for e in seeAlsoNodes do
+                    let cref = e.Attribute(XName.Get "cref")
 
-                  if not (isNull cref) then
-                      if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-                          printfn "Warning: Invalid cref specified in: %A" doc
-                      else
-                          // Older FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
-                          let cname = cref.Value
-                          let cname = if cname.Contains(":") then cname else "T:" + cname
+                    if not (isNull cref) then
+                        if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+                            printfn "Warning: Invalid cref specified in: %A" doc
+                        else
+                            // Older FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
+                            let cname = cref.Value
+                            let cname = if cname.Contains(":") then cname else "T:" + cname
 
-                          match urlMap.ResolveCref cname with
-                          | Some reference ->
-                              let html = new StringBuilder()
-                              readXmlElementAsHtml true urlMap cmds html e
-                              reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString(), None)
-                          | _ ->
-                              let html = new StringBuilder()
-                              readXmlElementAsHtml true urlMap cmds html e
-                              cname, None, ApiDocHtml(html.ToString(), None)
-                  else
-                      // no cref: render the element's own content (e.g. <seealso href="...">text</seealso>)
-                      let html = new StringBuilder()
-                      readXmlElementAsHtml true urlMap cmds html e
-                      let href = e.Attribute(XName.Get "href")
+                            match urlMap.ResolveCref cname with
+                            | Some reference ->
+                                let html = new StringBuilder()
+                                readXmlElementAsHtml true urlMap cmds html e
+                                reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString(), None)
+                            | _ ->
+                                let html = new StringBuilder()
+                                readXmlElementAsHtml true urlMap cmds html e
+                                cname, None, ApiDocHtml(html.ToString(), None)
+                    else
+                        // no cref: render the element's own content (e.g. <seealso href="...">text</seealso>)
+                        let html = new StringBuilder()
+                        readXmlElementAsHtml true urlMap cmds html e
+                        let href = e.Attribute(XName.Get "href")
 
-                      let link = if isNull href then None else Some href.Value
+                        let link = if isNull href then None else Some href.Value
 
-                      (if isNull href then "" else href.Value), link, ApiDocHtml(html.ToString(), None) ]
+                        (if isNull href then "" else href.Value), link, ApiDocHtml(html.ToString(), None)
+            ]
 
         let examples =
             let exampleNodes = doc.Elements(XName.Get "example") |> Seq.toList
 
-            [ for (id, e) in List.indexed exampleNodes do
-                  let html = new StringBuilder()
+            [
+                for (id, e) in List.indexed exampleNodes do
+                    let html = new StringBuilder()
 
-                  let exampleId =
-                      match e.TryAttr "id" with
-                      | None -> if id = 0 then "example" else "example-" + string<int> id
-                      | Some attrId -> attrId
+                    let exampleId =
+                        match e.TryAttr "id" with
+                        | None -> if id = 0 then "example" else "example-" + string<int> id
+                        | Some attrId -> attrId
 
-                  rawData.[exampleId] <- e.Value
-                  readXmlElementAsHtml true urlMap cmds html e
-                  ApiDocHtml(html.ToString(), Some exampleId) ]
+                    rawData.[exampleId] <- e.Value
+                    readXmlElementAsHtml true urlMap cmds html e
+                    ApiDocHtml(html.ToString(), Some exampleId)
+            ]
 
         let notes =
             let noteNodes = doc.Elements(XName.Get "note") |> Seq.toList
             // 'note' is not part of the XML doc standard but is supported by Sandcastle and other tools
-            [ for (id, e) in List.indexed noteNodes do
-                  let html = new StringBuilder()
+            [
+                for (id, e) in List.indexed noteNodes do
+                    let html = new StringBuilder()
 
-                  let n = if id = 0 then "note" else "note-" + string<int> id
+                    let n = if id = 0 then "note" else "note-" + string<int> id
 
-                  rawData.[n] <- e.Value
-                  readXmlElementAsHtml true urlMap cmds html e
-                  ApiDocHtml(html.ToString(), None) ]
+                    rawData.[n] <- e.Value
+                    readXmlElementAsHtml true urlMap cmds html e
+                    ApiDocHtml(html.ToString(), None)
+            ]
 
         // put the non-xmldoc sections into rawData
         doc.Descendants()

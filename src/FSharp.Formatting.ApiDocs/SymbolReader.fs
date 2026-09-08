@@ -33,19 +33,21 @@ module internal SymbolReader =
     /// per-assembly settings and services such as XML doc maps, URL resolvers,
     /// and source-folder configuration.
     type ReadingContext =
-        { PublicOnly: bool
-          Assembly: AssemblyName
-          XmlMemberMap: IDictionary<string, XElement>
-          UrlMap: CrossReferenceResolver
-          WarnOnMissingDocs: bool
-          MarkdownComments: bool
-          UrlRangeHighlight: Uri -> int -> int -> string
-          SourceFolderRepository: (string * string) option
-          AssemblyPath: string
-          CompilerOptions: string
-          Substitutions: Substitutions
-          ShowInheritedMembers: bool
-          TypeConstraintDisplayMode: TypeConstraintDisplayMode }
+        {
+            PublicOnly: bool
+            Assembly: AssemblyName
+            XmlMemberMap: IDictionary<string, XElement>
+            UrlMap: CrossReferenceResolver
+            WarnOnMissingDocs: bool
+            MarkdownComments: bool
+            UrlRangeHighlight: Uri -> int -> int -> string
+            SourceFolderRepository: (string * string) option
+            AssemblyPath: string
+            CompilerOptions: string
+            Substitutions: Substitutions
+            ShowInheritedMembers: bool
+            TypeConstraintDisplayMode: TypeConstraintDisplayMode
+        }
 
         /// Looks up an XML documentation element by its member-signature key.
         member x.XmlMemberLookup(key) =
@@ -71,19 +73,21 @@ module internal SymbolReader =
                 typeConstraintDisplayMode
             ) =
 
-            { PublicOnly = publicOnly
-              Assembly = assembly
-              XmlMemberMap = map
-              MarkdownComments = mdcomments
-              WarnOnMissingDocs = warn
-              UrlMap = urlMap
-              UrlRangeHighlight = urlRangeHighlight
-              SourceFolderRepository = sourceFolderRepo
-              AssemblyPath = assemblyPath
-              CompilerOptions = fscOptions
-              Substitutions = substitutions
-              ShowInheritedMembers = showInheritedMembers
-              TypeConstraintDisplayMode = typeConstraintDisplayMode }
+            {
+                PublicOnly = publicOnly
+                Assembly = assembly
+                XmlMemberMap = map
+                MarkdownComments = mdcomments
+                WarnOnMissingDocs = warn
+                UrlMap = urlMap
+                UrlRangeHighlight = urlRangeHighlight
+                SourceFolderRepository = sourceFolderRepo
+                AssemblyPath = assemblyPath
+                CompilerOptions = fscOptions
+                Substitutions = substitutions
+                ShowInheritedMembers = showInheritedMembers
+                TypeConstraintDisplayMode = typeConstraintDisplayMode
+            }
 
     /// Returns the compiled name of a symbol if it differs from the display name,
     /// e.g. for operators or property getters that have mangled names.
@@ -174,10 +178,12 @@ module internal SymbolReader =
             | _, _, ".ctor", _, _ ->
                 span
                     []
-                    [ match v.ApparentEnclosingEntity with
-                      | None -> ()
-                      | Some aee -> !!aee.DisplayName
-                      fullArgUsage ]
+                    [
+                        match v.ApparentEnclosingEntity with
+                        | None -> ()
+                        | Some aee -> !!aee.DisplayName
+                        fullArgUsage
+                    ]
 
             // Indexers
             | _, true, _, "Item", _ -> span [] [ !!"this["; fullArgUsage; !!"]" ]
@@ -186,10 +192,12 @@ module internal SymbolReader =
             | _, _, _, _, Some name ->
                 span
                     []
-                    [ !!name
-                      if preferNoParens then
-                          !!"&#32;"
-                          fullArgUsage ]
+                    [
+                        !!name
+                        if preferNoParens then
+                            !!"&#32;"
+                            fullArgUsage
+                    ]
 
             // op_XYZ operators
             | _, false, _, name, _ when PrettyNaming.IsLogicalOpName v.CompiledName ->
@@ -216,58 +224,69 @@ module internal SymbolReader =
                 | _ ->
                     span
                         []
-                        [ !!name
-                          if preferNoParens then
-                              !!"&#32;"
-                              fullArgUsage ]
+                        [
+                            !!name
+                            if preferNoParens then
+                                !!"&#32;"
+                                fullArgUsage
+                        ]
 
             // Ordinary instance members
             | _, true, _, name, _ ->
                 span
                     []
-                    [ !!"this."
-                      !!name
-                      if preferNoParens then
-                          !!"&#32;"
-                          fullArgUsage ]
+                    [
+                        !!"this."
+                        !!name
+                        if preferNoParens then
+                            !!"&#32;"
+                            fullArgUsage
+                    ]
 
             // A hack for Array.Parallel.map in FSharp.Core. TODO: generalise this
             | _, false, _, name, _ when specialCase1 ->
                 span
                     []
-                    [ !!("Array.Parallel." + name)
-                      if preferNoParens then
-                          !!"&#32;"
-                          fullArgUsage ]
+                    [
+                        !!("Array.Parallel." + name)
+                        if preferNoParens then
+                            !!"&#32;"
+                            fullArgUsage
+                    ]
 
             // Ordinary functions or values
             | false, _, _, name, _ when not requireQualifiedAccess ->
                 span
                     []
-                    [ !!name
-                      if preferNoParens then
-                          !!"&#32;"
-                          fullArgUsage ]
+                    [
+                        !!name
+                        if preferNoParens then
+                            !!"&#32;"
+                            fullArgUsage
+                    ]
 
             // Ordinary static members or things (?) that require fully qualified access
             | _, false, _, name, _ ->
                 span
                     []
-                    [ match v.ApparentEnclosingEntity with
-                      | None -> !!name
-                      | Some aee -> !!(aee.DisplayName + "." + name)
-                      if preferNoParens then
-                          !!"&#32;"
-                      fullArgUsage ]
+                    [
+                        match v.ApparentEnclosingEntity with
+                        | None -> !!name
+                        | Some aee -> !!(aee.DisplayName + "." + name)
+                        if preferNoParens then
+                            !!"&#32;"
+                        fullArgUsage
+                    ]
 
         let usageHtml = codeHtml usageHtml
 
         let modifiers =
             [ // TODO: v.Accessibility does not contain anything
-              if v.InlineAnnotation = FSharpInlineAnnotation.AlwaysInline then
-                  yield "inline"
-              if v.IsDispatchSlot then
-                  yield "abstract" ]
+                if v.InlineAnnotation = FSharpInlineAnnotation.AlwaysInline then
+                    yield "inline"
+                if v.IsDispatchSlot then
+                    yield "abstract"
+            ]
 
         let retType = retInfo.Type
 
@@ -431,10 +450,12 @@ module internal SymbolReader =
         let usageHtml = !!field.Name |> codeHtml
 
         let modifiers =
-            [ if field.IsMutable then
-                  yield "mutable"
-              if field.IsStatic then
-                  yield "static" ]
+            [
+                if field.IsMutable then
+                    yield "mutable"
+                if field.IsStatic then
+                    yield "static"
+            ]
 
         let typeParams = List.empty
         //let signatureTooltip = formatTypeAsText field.FieldType
@@ -485,13 +506,15 @@ module internal SymbolReader =
         let usageHtml =
             span
                 []
-                [ !!staticParam.Name
-                  !!":&#32;"
-                  formatTypeAsHtml ctx.UrlMap staticParam.Kind
-                  !!(if staticParam.IsOptional then
-                         sprintf " (optional, default = %A)" staticParam.DefaultValue
-                     else
-                         "") ]
+                [
+                    !!staticParam.Name
+                    !!":&#32;"
+                    formatTypeAsHtml ctx.UrlMap staticParam.Kind
+                    !!(if staticParam.IsOptional then
+                           sprintf " (optional, default = %A)" staticParam.DefaultValue
+                       else
+                           "")
+                ]
             |> codeHtml
 
         let modifiers = List.empty
@@ -992,70 +1015,74 @@ module internal SymbolReader =
             let entityUrl = ctx.UrlMap.ResolveUrlBaseNameForEntity typ
 
             let rec getMembers (typ: FSharpEntity) =
-                [ yield! typ.MembersFunctionsAndValues
-                  match typ.BaseType with
-                  | Some baseType ->
-                      let loc = typ.DeclarationLocation
+                [
+                    yield! typ.MembersFunctionsAndValues
+                    match typ.BaseType with
+                    | Some baseType ->
+                        let loc = typ.DeclarationLocation
 
-                      let cmds, _comment, _ =
-                          readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition) (Some loc)
+                        let cmds, _comment, _ =
+                            readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition) (Some loc)
 
-                      match cmds with
-                      | Command "exclude" _
-                      | Command "omit" _ -> yield! getMembers baseType.TypeDefinition
-                      | _ -> ()
-                  | None -> () ]
+                        match cmds with
+                        | Command "exclude" _
+                        | Command "omit" _ -> yield! getMembers baseType.TypeDefinition
+                        | _ -> ()
+                    | None -> ()
+                ]
 
             // Collect members inherited from non-excluded base types that are in the same docs set
             let rec getInheritedMemberGroups (typ: FSharpEntity) =
-                [ match typ.BaseType with
-                  | Some baseType ->
-                      let bdef = baseType.TypeDefinition
-                      let loc = typ.DeclarationLocation
+                [
+                    match typ.BaseType with
+                    | Some baseType ->
+                        let bdef = baseType.TypeDefinition
+                        let loc = typ.DeclarationLocation
 
-                      let cmds, _comment, _ = readCommentAndCommands ctx (getXmlDocSigForType bdef) (Some loc)
+                        let cmds, _comment, _ = readCommentAndCommands ctx (getXmlDocSigForType bdef) (Some loc)
 
-                      match cmds with
-                      | Command "exclude" _
-                      | Command "omit" _ ->
-                          // Base is excluded/omitted – its members are already folded in; recurse further
-                          yield! getInheritedMemberGroups bdef
-                      | _ ->
-                          match ctx.UrlMap.TryResolveUrlBaseNameForEntity bdef with
-                          | Some baseEntityUrl ->
-                              let baseMembers =
-                                  bdef.MembersFunctionsAndValues
-                                  |> Seq.filter (fun v ->
-                                      checkAccess ctx v.Accessibility
-                                      && not v.IsCompilerGenerated
-                                      && not v.IsOverrideOrExplicitInterfaceImplementation
-                                      && not v.IsEventAddMethod
-                                      && not v.IsEventRemoveMethod
-                                      && not v.IsPropertyGetterMethod
-                                      && not v.IsPropertySetterMethod
-                                      && v.CompiledName <> ".ctor")
-                                  |> Seq.choose (fun v ->
-                                      let kind =
-                                          if v.IsInstanceMember then
-                                              ApiDocMemberKind.InstanceMember
-                                          else
-                                              ApiDocMemberKind.StaticMember
+                        match cmds with
+                        | Command "exclude" _
+                        | Command "omit" _ ->
+                            // Base is excluded/omitted – its members are already folded in; recurse further
+                            yield! getInheritedMemberGroups bdef
+                        | _ ->
+                            match ctx.UrlMap.TryResolveUrlBaseNameForEntity bdef with
+                            | Some baseEntityUrl ->
+                                let baseMembers =
+                                    bdef.MembersFunctionsAndValues
+                                    |> Seq.filter (fun v ->
+                                        checkAccess ctx v.Accessibility
+                                        && not v.IsCompilerGenerated
+                                        && not v.IsOverrideOrExplicitInterfaceImplementation
+                                        && not v.IsEventAddMethod
+                                        && not v.IsEventRemoveMethod
+                                        && not v.IsPropertyGetterMethod
+                                        && not v.IsPropertySetterMethod
+                                        && v.CompiledName <> ".ctor")
+                                    |> Seq.choose (fun v ->
+                                        let kind =
+                                            if v.IsInstanceMember then
+                                                ApiDocMemberKind.InstanceMember
+                                            else
+                                                ApiDocMemberKind.StaticMember
 
-                                      match tryReadMember ctx baseEntityUrl kind v with
-                                      | Some(m, _) when not m.Exclude -> Some m
-                                      | _ -> None)
-                                  |> List.ofSeq
+                                        match tryReadMember ctx baseEntityUrl kind v with
+                                        | Some(m, _) when not m.Exclude -> Some m
+                                        | _ -> None)
+                                    |> List.ofSeq
 
-                              let baseTypeHtml = baseType |> formatTypeAsHtml ctx.UrlMap |> codeHtml
+                                let baseTypeHtml = baseType |> formatTypeAsHtml ctx.UrlMap |> codeHtml
 
-                              if not (List.isEmpty baseMembers) then
-                                  yield (baseTypeHtml, baseMembers)
+                                if not (List.isEmpty baseMembers) then
+                                    yield (baseTypeHtml, baseMembers)
 
-                              yield! getInheritedMemberGroups bdef
-                          | None ->
-                              // Base type not in this docs set – skip but keep walking the chain
-                              yield! getInheritedMemberGroups bdef
-                  | None -> () ]
+                                yield! getInheritedMemberGroups bdef
+                            | None ->
+                                // Base type not in this docs set – skip but keep walking the chain
+                                yield! getInheritedMemberGroups bdef
+                    | None -> ()
+                ]
 
             let ivals, svals =
                 getMembers typ
@@ -1281,11 +1308,13 @@ module internal SymbolReader =
         let xmlMemberMap = Dictionary()
 
         for key, value in
-            [ for e in doc.Descendants(XName.Get "member") do
-                  let attr = e.Attribute(XName.Get "name")
+            [
+                for e in doc.Descendants(XName.Get "member") do
+                    let attr = e.Attribute(XName.Get "name")
 
-                  if (not (isNull attr)) && not (String.IsNullOrEmpty(attr.Value)) then
-                      yield attr.Value, e ] do
+                    if (not (isNull attr)) && not (String.IsNullOrEmpty(attr.Value)) then
+                        yield attr.Value, e
+            ] do
             // NOTE: We completely ignore duplicate keys and I don't see
             // an easy way to detect where "value" is coming from, because the entries
             // are completely identical.

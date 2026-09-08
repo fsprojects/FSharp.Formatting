@@ -85,11 +85,13 @@ let docTemplate (format: OutputFormat) =
     root </> (sprintf "../../docs/_template.%s" format.Extension)
 
 let substitutions =
-    [ ParamKeys.``fsdocs-collection-name``, "F# TestProject"
-      ParamKeys.``fsdocs-authors``, "Your Name"
-      ParamKeys.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
-      ParamKeys.root, "/root/"
-      ParamKeys.``fsdocs-favicon-src``, "img/favicon.ico" ]
+    [
+        ParamKeys.``fsdocs-collection-name``, "F# TestProject"
+        ParamKeys.``fsdocs-authors``, "Your Name"
+        ParamKeys.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
+        ParamKeys.root, "/root/"
+        ParamKeys.``fsdocs-favicon-src``, "img/favicon.ico"
+    ]
 
 let generateApiDocs (libraries: string list) (format: OutputFormat) useMdComments uniq =
     try
@@ -537,9 +539,12 @@ let ``ApiDocs ShowInheritedMembers false suppresses InheritedMembers on model (i
     let libraries = [ testBin </> "FsLib2.dll" ]
 
     let inputs =
-        [ for lib in libraries ->
-              { ApiDocInput.FromFile(lib, mdcomments = false) with
-                  ShowInheritedMembers = false } ]
+        [
+            for lib in libraries ->
+                { ApiDocInput.FromFile(lib, mdcomments = false) with
+                    ShowInheritedMembers = false
+                }
+        ]
 
     let model =
         ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
@@ -560,8 +565,11 @@ let ``ApiDocs ShowInheritedMembers false suppresses inherited section in output 
     let output = getOutputDir format "FsLib2_no_inherited"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              ShowInheritedMembers = false } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                ShowInheritedMembers = false
+            }
+        ]
 
     let _metadata =
         DocsGenerator(format)
@@ -590,8 +598,11 @@ let ``ApiDocs TypeConstraintDisplayMode None hides constraints on model`` () =
     let library = testBin </> "FsLib2.dll"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              TypeConstraintDisplayMode = TypeConstraintDisplayMode.None } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                TypeConstraintDisplayMode = TypeConstraintDisplayMode.None
+            }
+        ]
 
     let model =
         ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
@@ -615,8 +626,11 @@ let ``ApiDocs TypeConstraintDisplayMode Short shows constraints inline (default)
     let library = testBin </> "FsLib2.dll"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short
+            }
+        ]
 
     let model =
         ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
@@ -666,8 +680,11 @@ let ``ApiDocs TypeConstraintDisplayMode Short FormatShortTypeConstraints abbrevi
     let library = testBin </> "FsLib2.dll"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short
+            }
+        ]
 
     let model =
         ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
@@ -722,8 +739,11 @@ let ``ApiDocs TypeConstraintDisplayMode Full shows constraints in separate secti
     let library = testBin </> "FsLib2.dll"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full
+            }
+        ]
 
     let model =
         ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
@@ -787,8 +807,11 @@ let ``ApiDocs TypeConstraintDisplayMode Short renders 'requires' form inline in 
     let output = getOutputDir format "FsLib2_constraints_short"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                TypeConstraintDisplayMode = TypeConstraintDisplayMode.Short
+            }
+        ]
 
     let _metadata =
         DocsGenerator(format)
@@ -826,8 +849,11 @@ let ``ApiDocs TypeConstraintDisplayMode Full renders separate Constraints sectio
     let output = getOutputDir format "FsLib2_constraints_full"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                TypeConstraintDisplayMode = TypeConstraintDisplayMode.Full
+            }
+        ]
 
     let _metadata =
         DocsGenerator(format)
@@ -862,8 +888,11 @@ let ``ApiDocs TypeConstraintDisplayMode None renders no constraint information i
     let output = getOutputDir format "FsLib2_constraints_none"
 
     let inputs =
-        [ { ApiDocInput.FromFile(library, mdcomments = false) with
-              TypeConstraintDisplayMode = TypeConstraintDisplayMode.None } ]
+        [
+            { ApiDocInput.FromFile(library, mdcomments = false) with
+                TypeConstraintDisplayMode = TypeConstraintDisplayMode.None
+            }
+        ]
 
     let _metadata =
         DocsGenerator(format)
@@ -893,13 +922,15 @@ let ``ApiDocs TypeConstraintDisplayMode None renders no constraint information i
     let libraries = [ testBin </> "FsLib1.dll"; testBin </> "FsLib2.dll" ] |> fullpaths
 
     let inputs =
-        [ for lib in libraries ->
-              ApiDocInput.FromFile(
-                  lib,
-                  mdcomments = true,
-                  sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-                  sourceFolder = (root </> "../..")
-              ) ]
+        [
+            for lib in libraries ->
+                ApiDocInput.FromFile(
+                    lib,
+                    mdcomments = true,
+                    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+                    sourceFolder = (root </> "../..")
+                )
+        ]
 
     let output = getOutputDir format "FsLib12_SourceLinks"
 
@@ -950,23 +981,27 @@ let ``ApiDocs TypeConstraintDisplayMode None renders no constraint information i
 [<TestCaseSource("formats")>]
 let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
     let libraries =
-        [ testBin </> "crefLib1.dll"
-          testBin </> "crefLib2.dll"
-          testBin </> "crefLib3.dll"
-          testBin </> "crefLib4.dll" ]
+        [
+            testBin </> "crefLib1.dll"
+            testBin </> "crefLib2.dll"
+            testBin </> "crefLib3.dll"
+            testBin </> "crefLib4.dll"
+        ]
         |> fullpaths
 
     let output = getOutputDir format "crefLibs"
     printfn "Output: %s" output
 
     let inputs =
-        [ for lib in libraries ->
-              ApiDocInput.FromFile(
-                  lib,
-                  sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-                  sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-                  mdcomments = false
-              ) ]
+        [
+            for lib in libraries ->
+                ApiDocInput.FromFile(
+                    lib,
+                    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+                    sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+                    mdcomments = false
+                )
+        ]
 
     let _model, _searchIndex =
         DocsGenerator(format)
@@ -1158,13 +1193,15 @@ let ``Math in XML generated ok`` (format: OutputFormat) =
     printfn "Output: %s" output
 
     let inputs =
-        [ for lib in libraries ->
-              ApiDocInput.FromFile(
-                  lib,
-                  sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-                  sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-                  mdcomments = false
-              ) ]
+        [
+            for lib in libraries ->
+                ApiDocInput.FromFile(
+                    lib,
+                    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+                    sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+                    mdcomments = false
+                )
+        ]
 
     let _model, _searchIndex =
         DocsGenerator(format)
@@ -1204,14 +1241,16 @@ let ``ApiDocs test that csharp (publiconly) support works`` (format: OutputForma
     printfn "Output: %s" output
 
     let inputs =
-        [ for lib in libraries ->
-              ApiDocInput.FromFile(
-                  lib,
-                  sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-                  sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-                  publicOnly = true,
-                  mdcomments = false
-              ) ]
+        [
+            for lib in libraries ->
+                ApiDocInput.FromFile(
+                    lib,
+                    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+                    sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+                    publicOnly = true,
+                    mdcomments = false
+                )
+        ]
 
     let _model, _searchIndex =
         DocsGenerator(format)
@@ -1313,14 +1352,16 @@ let ``ApiDocs test that csharp support works`` (format: OutputFormat) =
     printfn "Output: %s" output
 
     let inputs =
-        [ for lib in libraries ->
-              ApiDocInput.FromFile(
-                  lib,
-                  sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-                  sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-                  publicOnly = false,
-                  mdcomments = false
-              ) ]
+        [
+            for lib in libraries ->
+                ApiDocInput.FromFile(
+                    lib,
+                    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+                    sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+                    publicOnly = false,
+                    mdcomments = false
+                )
+        ]
 
     let _model, _searchIndex =
         DocsGenerator(format)

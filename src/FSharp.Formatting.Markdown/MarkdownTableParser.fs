@@ -147,10 +147,12 @@ let (|EmacsTableLine|_|)
             [ 1..n ]
             |> List.map (fun i ->
                 let rng =
-                    { StartLine = n
-                      StartColumn = 0
-                      EndLine = n
-                      EndColumn = p.[i] - p.[i - 1] - 1 }
+                    {
+                        StartLine = n
+                        StartColumn = 0
+                        EndLine = n
+                        EndColumn = p.[i] - p.[i - 1] - 1
+                    }
 
                 line.Substring(p.[i - 1] + 1, p.[i] - p.[i - 1] - 1), rng)
 

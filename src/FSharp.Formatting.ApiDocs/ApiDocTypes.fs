@@ -37,10 +37,10 @@ module internal Utils =
         attrib.AttributeType.CompiledName = typeof<'T>.Name
 
     let hasAttrib<'T> (attribs: IList<FSharpAttribute>) =
-        attribs |> Seq.exists (fun a -> isAttrib<'T> (a))
+        attribs |> Seq.exists (fun a -> isAttrib<'T>(a))
 
     let tryFindAttrib<'T> (attribs: IList<FSharpAttribute>) =
-        attribs |> Seq.tryFind (fun a -> isAttrib<'T> (a))
+        attribs |> Seq.tryFind (fun a -> isAttrib<'T>(a))
 
     let (|MeasureProd|_|) (typ: FSharpType) =
         if
@@ -93,9 +93,11 @@ module internal Utils =
             match xs with
             | [] -> []
             | _ ->
-                [ for x in xs do
-                      yield sep
-                      yield x ]
+                [
+                    for x in xs do
+                        yield sep
+                        yield x
+                ]
                 |> List.tail
 
     module Html =
@@ -370,13 +372,15 @@ type ApiDocMember
     // merge the parameter docs and parameter types
     let parameters =
         let paramTypes =
-            [ for (psym, _pnameText, _pty) in paramTypes ->
-                  let pnm =
-                      match psym with
-                      | Choice1Of2 p -> p.Name
-                      | Choice2Of2 f -> Some f.Name
+            [
+                for (psym, _pnameText, _pty) in paramTypes ->
+                    let pnm =
+                        match psym with
+                        | Choice1Of2 p -> p.Name
+                        | Choice2Of2 f -> Some f.Name
 
-                  (psym, pnm, _pnameText, _pty) ]
+                    (psym, pnm, _pnameText, _pty)
+            ]
 
         let tnames = Set.ofList [ for (_psym, pnm, _pnameText, _pty) in paramTypes -> pnm ]
 
@@ -414,11 +418,15 @@ type ApiDocMember
                             m.StartColumn
                             nm
 
-        [ for (psym, pnm, pn, pty) in paramTypes ->
-              { ParameterSymbol = psym
-                ParameterNameText = pn
-                ParameterType = pty
-                ParameterDocs = tdocs.TryFind pnm } ]
+        [
+            for (psym, pnm, pn, pty) in paramTypes ->
+                {
+                    ParameterSymbol = psym
+                    ParameterNameText = pn
+                    ParameterType = pty
+                    ParameterDocs = tdocs.TryFind pnm
+                }
+        ]
 
     do
         let knownExampleIds = comment.Examples |> List.choose (fun x -> x.Id) |> List.countBy id
@@ -470,8 +478,10 @@ type ApiDocMember
 
     /// The return section in a typical tooltip
     member x.ReturnInfo =
-        { ReturnDocs = comment.Returns
-          ReturnType = returnType }
+        {
+            ReturnDocs = comment.Returns
+            ReturnType = returnType
+        }
 
     //    /// The full signature section in a typical tooltip
     //  member x.SignatureTooltip : ApiDocHtml = signatureTooltip

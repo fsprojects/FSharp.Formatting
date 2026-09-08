@@ -81,7 +81,8 @@ let rec mergeComments (line: SnippetLine) (cmt: Token option) (acc: SnippetLine)
     | (str, tok) :: line, Some(scmt, cmt) when tok.TokenName = "COMMENT" || tok.TokenName = "LINE_COMMENT" ->
         let ncmt =
             { cmt with
-                RightColumn = tok.RightColumn }
+                RightColumn = tok.RightColumn
+            }
 
         mergeComments line (Some(scmt + str, ncmt)) acc
     | (str, tok) :: line, None -> mergeComments line None ((str, tok) :: acc)
@@ -113,7 +114,8 @@ let rec shrinkLine line (content: SnippetLine) (source: Snippet) =
 
         (body,
          { tok with
-             TokenName = "OMIT" + (text.ToString()) })
+             TokenName = "OMIT" + (text.ToString())
+         })
         :: line,
         source
     | (String.StartsWithTrim "//" (String.StartsAndEndsWith ("[fsi:", "]") fsi), (tok: FSharpTokenInfo)) :: rest ->
@@ -126,10 +128,12 @@ let rec shrinkLine line (content: SnippetLine) (source: Snippet) =
 /// Process the whole source file and shrink all blocks marked using
 /// special 'omit' meta-comments (see the two functions above)
 let rec shrinkOmittedParts (source: Snippet) : Snippet =
-    [ match source with
-      | [] -> ()
-      | (line, content) :: source ->
-          let content, source = shrinkLine line (mergeComments content None []) source
+    [
+        match source with
+        | [] -> ()
+        | (line, content) :: source ->
+            let content, source = shrinkLine line (mergeComments content None []) source
 
-          yield line, content
-          yield! shrinkOmittedParts source ]
+            yield line, content
+            yield! shrinkOmittedParts source
+    ]
