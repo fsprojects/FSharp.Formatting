@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Changed
+* Bump `FSharp.Data` from 8.1.14 to 8.2.0, `G-Research.FSharp.Analyzers` from 0.22.0 to 0.23.0, and the `fsharp-analyzers` tool from 0.36.0 to 0.37.2.
 * Rewrote the Mermaid documentation recipe as `docs/mermaid.md` (moved from the oddly-named `docs/sidebyside/sidemermaid.md`) to follow the approach used by the fantomas docs: diagrams are written as plain ```mermaid fenced code blocks, which GitHub renders natively, and an `_body.html` script promotes those blocks into `<div class="mermaid">` elements on fsdocs pages. The FSharp.Formatting docs now ship that script (`docs/_body.html`), so the recipe page actually demonstrates working diagrams.
 
 ## [22.2.0] - 2026-08-31
