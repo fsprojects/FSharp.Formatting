@@ -319,11 +319,13 @@ let (|HtmlEntity|_|) input =
 
 /// Defines a context for the main `parseParagraphs` function
 type ParsingContext =
-    { Links: Dictionary<string, string * string option>
-      Newline: string
-      IsFirst: bool
-      CurrentRange: MarkdownRange
-      ParseOptions: MarkdownParseOptions }
+    {
+        Links: Dictionary<string, string * string option>
+        Newline: string
+        IsFirst: bool
+        CurrentRange: MarkdownRange
+        ParseOptions: MarkdownParseOptions
+    }
 
     member x.ParseCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseCodeAsOther) <> enum 0
 
@@ -336,12 +338,15 @@ let private advanceCtxBy n ctx =
     { ctx with
         CurrentRange =
             { ctx.CurrentRange with
-                StartColumn = ctx.CurrentRange.StartColumn + n } }
+                StartColumn = ctx.CurrentRange.StartColumn + n
+            }
+    }
 
 /// Computes a span range starting at ctx.StartColumn and spanning n characters.
 let private spanRange n ctx =
     { ctx.CurrentRange with
-        EndColumn = ctx.CurrentRange.StartColumn + n }
+        EndColumn = ctx.CurrentRange.StartColumn + n
+    }
 
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx: ParsingContext) =
@@ -355,13 +360,16 @@ let rec parseChars acc input (ctx: ParsingContext) =
                 else
                     let range =
                         { ctx.CurrentRange with
-                            EndColumn = ctx.CurrentRange.StartColumn + acc.Length }
+                            EndColumn = ctx.CurrentRange.StartColumn + acc.Length
+                        }
 
                     let ctx =
                         { ctx with
                             CurrentRange =
                                 { ctx.CurrentRange with
-                                    StartColumn = ctx.CurrentRange.StartColumn + acc.Length } }
+                                    StartColumn = ctx.CurrentRange.StartColumn + acc.Length
+                                }
+                        }
 
                     let text = String(List.rev acc |> Array.ofList)
                     ([ Literal(text, range) ], ctx))
@@ -396,7 +404,8 @@ let rec parseChars acc input (ctx: ParsingContext) =
             let rng =
                 { ctx.CurrentRange with
                     StartColumn = ctx.CurrentRange.StartColumn + s
-                    EndColumn = ctx.CurrentRange.StartColumn + s + body.Length }
+                    EndColumn = ctx.CurrentRange.StartColumn + s + body.Length
+                }
 
             yield InlineCode(String(Array.ofList body).Trim(), rng)
             yield! parseChars [] rest (advanceCtxBy (s + body.Length + e) ctx)
@@ -416,7 +425,9 @@ let rec parseChars acc input (ctx: ParsingContext) =
                 { ctx with
                     CurrentRange =
                         { ctx.CurrentRange with
-                            StartColumn = ctx.CurrentRange.StartColumn + 1 } }
+                            StartColumn = ctx.CurrentRange.StartColumn + 1
+                        }
+                }
 
             yield! value
             let code = String(Array.ofList body).Trim()
@@ -425,7 +436,8 @@ let rec parseChars acc input (ctx: ParsingContext) =
                 LatexInlineMath(
                     code,
                     { ctx.CurrentRange with
-                        EndColumn = ctx.CurrentRange.StartColumn + code.Length }
+                        EndColumn = ctx.CurrentRange.StartColumn + code.Length
+                    }
                 )
 
             yield! parseChars [] rest ctx

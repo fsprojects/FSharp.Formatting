@@ -14,12 +14,14 @@ let rec formatParagraphs ctx (paragraphs: MarkdownParagraph list) =
 /// Formats a full Markdown document as a Markdown string
 let formatAsMarkdown links replacements newline crefResolver mdlinkResolver paragraphs =
     let ctx =
-        { Links = links
-          Substitutions = replacements
-          Newline = newline
-          CodeReferenceResolver = crefResolver
-          MarkdownDirectLinkResolver = mdlinkResolver
-          DefineSymbol = "MD" }
+        {
+            Links = links
+            Substitutions = replacements
+            Newline = newline
+            CodeReferenceResolver = crefResolver
+            MarkdownDirectLinkResolver = mdlinkResolver
+            DefineSymbol = "MD"
+        }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
 

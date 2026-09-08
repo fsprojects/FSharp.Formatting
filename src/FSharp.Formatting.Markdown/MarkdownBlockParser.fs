@@ -81,7 +81,8 @@ let (|Heading|_|) lines =
             let headerLn =
                 { ln1 with
                     StartColumn = headerStart
-                    EndColumn = headerStart + header.Length }
+                    EndColumn = headerStart + header.Length
+                }
 
             Some(n, (header, headerLn), [ line1 ], rest)
     | _rest -> None
@@ -255,7 +256,8 @@ let (|ListStart|_|) =
         let li =
             ((fst item).Substring(2),
              { range with
-                 StartColumn = range.StartColumn + 2 })
+                 StartColumn = range.StartColumn + 2
+             })
 
         let (StringPosition.TrimStartAndCount(startIndent2, _spaces2, _)) = li
 
@@ -367,16 +369,19 @@ let (|ListItem|_|) prevSimple lines =
                 | _, _ -> false
 
         let lines =
-            [ yield item
-              for (line, n) in continued do
-                  yield (line.Trim(), n)
-              for (line, n) in more do
-                  let trimmed = trimSpaces endIndent line
+            [
+                yield item
+                for (line, n) in continued do
+                    yield (line.Trim(), n)
+                for (line, n) in more do
+                    let trimmed = trimSpaces endIndent line
 
-                  yield
-                      (trimmed,
-                       { n with
-                           StartColumn = n.StartColumn + line.Length - trimmed.Length }) ]
+                    yield
+                        (trimmed,
+                         { n with
+                             StartColumn = n.StartColumn + line.Length - trimmed.Length
+                         })
+            ]
         //let trimmed = line.TrimStart()
         //if trimmed.Length >= line.Length - endIndent then yield trimmed
         //else yield line.Substring(endIndent) ]
@@ -415,7 +420,8 @@ let (|BlockquoteStart|_|) (line: string, n: MarkdownRange) =
             group.Value,
             { n with
                 StartColumn = n.StartColumn + group.Index
-                EndColumn = n.StartColumn + group.Index + group.Length }
+                EndColumn = n.StartColumn + group.Index + group.Length
+            }
         )
     else
         None
@@ -552,7 +558,8 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
     seq {
         let ctx =
             { ctx with
-                CurrentRange = updateCurrentRange lines }
+                CurrentRange = updateCurrentRange lines
+            }
 
         let frontMatter, (Lines.TrimBlankStart(_, moreLines)) =
             if ctx.IsFirst && ctx.AllowYamlFrontMatter then
@@ -568,7 +575,8 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
         let ctx =
             { ctx with
-                CurrentRange = updateCurrentRange moreLines }
+                CurrentRange = updateCurrentRange moreLines
+            }
 
         let ctx = { ctx with IsFirst = false }
 
@@ -675,20 +683,24 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                         | _ -> Unordered
 
                     let items =
-                        [ for (Node((simple, _, body), nested)) in nodes ->
-                              [ let rng = body |> List.map snd |> MarkdownRange.mergeRanges
+                        [
+                            for (Node((simple, _, body), nested)) in nodes ->
+                                [
+                                    let rng = body |> List.map snd |> MarkdownRange.mergeRanges
 
-                                if not simple then
-                                    yield! parseParagraphs ctx body
-                                else
-                                    yield
-                                        MarkdownParagraph.Span(
-                                            parseSpans (body |> List.map fst |> String.concat ctx.Newline, rng) ctx,
-                                            ctx.CurrentRange
-                                        )
+                                    if not simple then
+                                        yield! parseParagraphs ctx body
+                                    else
+                                        yield
+                                            MarkdownParagraph.Span(
+                                                parseSpans (body |> List.map fst |> String.concat ctx.Newline, rng) ctx,
+                                                ctx.CurrentRange
+                                            )
 
-                                if nested <> [] then
-                                    yield formatTree nested ] ]
+                                    if nested <> [] then
+                                        yield formatTree nested
+                                ]
+                        ]
 
                     ListBlock(kind, items, ctx.CurrentRange)
 

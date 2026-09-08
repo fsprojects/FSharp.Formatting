@@ -41,7 +41,8 @@ Hiding code
 
 If you want to include some code in the source code,
 but omit it from the output, you can use the `hide`
-command.
+command. Note: `hide` is the keyword used in `(*** hide ***)`;
+the name `hidden` below is just a regular F# identifier, not a keyword.
 *)
 
 (*** hide ***)

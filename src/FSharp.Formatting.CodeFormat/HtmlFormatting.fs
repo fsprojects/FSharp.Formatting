@@ -47,15 +47,17 @@ type ToolTipFormatter(prefix) =
 
 /// Represents context used by the formatter
 type FormattingContext =
-    { GenerateLineNumbers: bool
-      GenerateErrors: bool
-      Writer: TextWriter
-      OpenTag: string
-      CloseTag: string
-      OpenLinesTag: string
-      CloseLinesTag: string
-      FormatTip: ToolTipSpans -> (ToolTipSpans -> string) -> string
-      TokenKindToCss: (TokenKind -> string) }
+    {
+        GenerateLineNumbers: bool
+        GenerateErrors: bool
+        Writer: TextWriter
+        OpenTag: string
+        CloseTag: string
+        OpenLinesTag: string
+        CloseLinesTag: string
+        FormatTip: ToolTipSpans -> (ToolTipSpans -> string) -> string
+        TokenKindToCss: (TokenKind -> string)
+    }
 
 // --------------------------------------------------------------------------------------
 // Formats various types from 'SourceCode.fs' as HTML
@@ -137,65 +139,68 @@ let rec formatTokenSpans (ctx: FormattingContext) =
 
 /// Generate HTML with the specified snippets
 let formatSnippets (ctx: FormattingContext) (snippets: Snippet array) =
-    [| for (Snippet(key, lines)) in snippets do
-           // Skip empty lines at the beginning and at the end
-           let skipEmptyLines = Seq.skipWhile (fun (Line(_, spans)) -> List.isEmpty spans) >> List.ofSeq
+    [|
+        for (Snippet(key, lines)) in snippets do
+            // Skip empty lines at the beginning and at the end
+            let skipEmptyLines = Seq.skipWhile (fun (Line(_, spans)) -> List.isEmpty spans) >> List.ofSeq
 
-           let lines = lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
+            let lines = lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
 
-           // Generate snippet to a local StringBuilder
-           let mainStr = StringBuilder()
+            // Generate snippet to a local StringBuilder
+            let mainStr = StringBuilder()
 
-           let ctx =
-               { ctx with
-                   Writer = new StringWriter(mainStr) }
+            let ctx =
+                { ctx with
+                    Writer = new StringWriter(mainStr)
+                }
 
-           let numberLength = lines.Length.ToString().Length
-           let linesLength = lines.Length
+            let numberLength = lines.Length.ToString().Length
+            let linesLength = lines.Length
 
-           let emitTag tag =
-               if String.IsNullOrEmpty(tag) |> not then
-                   ctx.Writer.Write(tag)
+            let emitTag tag =
+                if String.IsNullOrEmpty(tag) |> not then
+                    ctx.Writer.Write(tag)
 
-           // If we're adding lines, then generate two column table
-           // (so that the body can be easily copied)
-           if ctx.GenerateLineNumbers then
-               ctx.Writer.Write("<table class=\"pre\">")
-               ctx.Writer.Write("<tr>")
-               ctx.Writer.Write("<td class=\"lines\">")
+            // If we're adding lines, then generate two column table
+            // (so that the body can be easily copied)
+            if ctx.GenerateLineNumbers then
+                ctx.Writer.Write("<table class=\"pre\">")
+                ctx.Writer.Write("<tr>")
+                ctx.Writer.Write("<td class=\"lines\">")
 
-               // Generate <pre> tag for the snippet
-               emitTag ctx.OpenLinesTag
-               // Print all line numbers of the snippet
-               for index in 0 .. linesLength - 1 do
-                   // Add line number to the beginning
-                   let lineStr = (index + 1).ToString().PadLeft(numberLength)
+                // Generate <pre> tag for the snippet
+                emitTag ctx.OpenLinesTag
+                // Print all line numbers of the snippet
+                for index in 0 .. linesLength - 1 do
+                    // Add line number to the beginning
+                    let lineStr = (index + 1).ToString().PadLeft(numberLength)
 
-                   ctx.Writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
+                    ctx.Writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
 
-               emitTag ctx.CloseLinesTag
-               ctx.Writer.WriteLine("</td>")
-               ctx.Writer.Write("<td class=\"snippet\">")
+                emitTag ctx.CloseLinesTag
+                ctx.Writer.WriteLine("</td>")
+                ctx.Writer.Write("<td class=\"snippet\">")
 
 
-           // Print all lines of the snippet inside <pre>..</pre>
-           emitTag ctx.OpenTag
+            // Print all lines of the snippet inside <pre>..</pre>
+            emitTag ctx.OpenTag
 
-           lines
-           |> List.iter (fun (Line(_originalLine, spans)) ->
-               formatTokenSpans ctx spans
-               ctx.Writer.WriteLine())
+            lines
+            |> List.iter (fun (Line(_originalLine, spans)) ->
+                formatTokenSpans ctx spans
+                ctx.Writer.WriteLine())
 
-           emitTag ctx.CloseTag
+            emitTag ctx.CloseTag
 
-           if ctx.GenerateLineNumbers then
-               // Close the table if we are adding lines
-               ctx.Writer.WriteLine("</td>")
-               ctx.Writer.WriteLine("</tr>")
-               ctx.Writer.Write("</table>")
+            if ctx.GenerateLineNumbers then
+                // Close the table if we are adding lines
+                ctx.Writer.WriteLine("</td>")
+                ctx.Writer.WriteLine("</tr>")
+                ctx.Writer.Write("</table>")
 
-           ctx.Writer.Close()
-           yield key, mainStr.ToString() |]
+            ctx.Writer.Close()
+            yield key, mainStr.ToString()
+    |]
 
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
@@ -213,15 +218,17 @@ let formatSnippetsAsHtml
     let tipf = ToolTipFormatter prefix
 
     let ctx =
-        { GenerateLineNumbers = lineNumbers
-          GenerateErrors = addErrors
-          Writer = null
-          FormatTip = tipf.FormatTip
-          OpenLinesTag = openLinesTag
-          CloseLinesTag = closeLinesTag
-          OpenTag = openTag
-          CloseTag = closeTag
-          TokenKindToCss = tokenKindToCss }
+        {
+            GenerateLineNumbers = lineNumbers
+            GenerateErrors = addErrors
+            Writer = null
+            FormatTip = tipf.FormatTip
+            OpenLinesTag = openLinesTag
+            CloseLinesTag = closeLinesTag
+            OpenTag = openTag
+            CloseTag = closeTag
+            TokenKindToCss = tokenKindToCss
+        }
     // Generate main HTML for snippets
     let snippets = formatSnippets ctx snippets
     // Generate HTML with ToolTip tags

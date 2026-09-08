@@ -130,9 +130,11 @@ module internal CrossReferences =
 
 /// A resolved cross-reference containing the target URL and display name.
 type internal CrefReference =
-    { IsInternal: bool
-      ReferenceLink: string
-      NiceName: string }
+    {
+        IsInternal: bool
+        ReferenceLink: string
+        NiceName: string
+    }
 
 /// Resolves XML doc <c>cref</c> references to documentation URLs for both internal
 /// (this collection) and external (.NET / FSharp.Core) symbols. Call
@@ -343,9 +345,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 | "ListModule" -> "List"
                 | _ -> simple
 
-            { IsInternal = false
-              ReferenceLink = link
-              NiceName = niceName }
+            {
+                IsInternal = false
+                ReferenceLink = link
+                NiceName = niceName
+            }
         else
             let noParen = removeParen fullName
 
@@ -353,9 +357,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
             let link = sprintf "https://learn.microsoft.com/dotnet/api/%s" docs
 
-            { IsInternal = false
-              ReferenceLink = link
-              NiceName = simple }
+            {
+                IsInternal = false
+                ReferenceLink = link
+                NiceName = simple
+            }
 
     /// Returns the URL for a registered entity within this documentation collection.
     let internalCrossReference urlBaseName =
@@ -373,9 +379,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
             let urlBaseName = getUrlBaseNameForRegisteredEntity entity
 
             Some
-                { IsInternal = true
-                  ReferenceLink = internalCrossReference urlBaseName
-                  NiceName = entity.LogicalName }
+                {
+                    IsInternal = true
+                    ReferenceLink = internalCrossReference urlBaseName
+                    NiceName = entity.LogicalName
+                }
         | _ ->
             match entity.TryFullName with
             | None -> None
@@ -390,9 +398,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         | true, (:? FSharpEntity as entity) ->
             let urlBaseName = getUrlBaseNameForRegisteredEntity entity
 
-            { IsInternal = true
-              ReferenceLink = internalCrossReference urlBaseName
-              NiceName = entity.DisplayName }
+            {
+                IsInternal = true
+                ReferenceLink = internalCrossReference urlBaseName
+                NiceName = entity.DisplayName
+            }
         | _ ->
             let typeName = typeXmlSig.Substring(2)
 
@@ -402,9 +412,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 | entity :: _rest ->
                     let urlBaseName = getUrlBaseNameForRegisteredEntity entity
 
-                    { IsInternal = true
-                      ReferenceLink = internalCrossReference urlBaseName
-                      NiceName = entity.DisplayName }
+                    {
+                        IsInternal = true
+                        ReferenceLink = internalCrossReference urlBaseName
+                        NiceName = entity.DisplayName
+                    }
                 | _ -> failwith "unreachable"
             | _ ->
                 // The cref might be a member reference of form "Type.Member" that was
@@ -435,13 +447,17 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                         |> Seq.tryFind (fun mfv -> mfv.DisplayName = memberPart)
                         |> function
                             | Some mfv ->
-                                { IsInternal = true
-                                  ReferenceLink = internalCrossReferenceForMember urlBaseName mfv
-                                  NiceName = displayTypeName + "." + memberPart }
+                                {
+                                    IsInternal = true
+                                    ReferenceLink = internalCrossReferenceForMember urlBaseName mfv
+                                    NiceName = displayTypeName + "." + memberPart
+                                }
                             | None ->
-                                { IsInternal = true
-                                  ReferenceLink = internalCrossReference urlBaseName
-                                  NiceName = displayTypeName + "." + memberPart }
+                                {
+                                    IsInternal = true
+                                    ReferenceLink = internalCrossReference urlBaseName
+                                    NiceName = displayTypeName + "." + memberPart
+                                }
                     | None ->
                         // A reference to something external, currently assumed to be in .NET
                         let simple = getMemberName 1 false typeName
@@ -459,9 +475,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         | Some declaringEntity ->
             let entityUrlBaseName = getUrlBaseNameForRegisteredEntity declaringEntity
 
-            { IsInternal = true
-              ReferenceLink = internalCrossReferenceForMember entityUrlBaseName mfv
-              NiceName = declaringEntity.DisplayName + "." + mfv.DisplayName }
+            {
+                IsInternal = true
+                ReferenceLink = internalCrossReferenceForMember entityUrlBaseName mfv
+                NiceName = declaringEntity.DisplayName + "." + mfv.DisplayName
+            }
 
     /// Tries to resolve a cross-reference for a member given its XML doc signature
     /// (must start with <c>"M:"</c>, <c>"P:"</c>, <c>"F:"</c>, or <c>"E:"</c>).
@@ -495,9 +513,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                         | Some mb -> Some(mfvToCref mb)
                         | None ->
                             Some
-                                { IsInternal = true
-                                  ReferenceLink = internalCrossReference urlBaseName
-                                  NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
+                                {
+                                    IsInternal = true
+                                    ReferenceLink = internalCrossReference urlBaseName
+                                    NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName
+                                }
 
                 | _ ->
                     // The full XML sig lookup failed; try niceNameEntityLookup with the simple type name
@@ -534,9 +554,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                             | Some mb -> Some(mfvToCref mb)
                             | None ->
                                 Some
-                                    { IsInternal = true
-                                      ReferenceLink = internalCrossReference urlBaseName
-                                      NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
+                                    {
+                                        IsInternal = true
+                                        ReferenceLink = internalCrossReference urlBaseName
+                                        NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName
+                                    }
                     | None ->
                         // A reference to something external, currently assumed to be in .NET
                         let simple = getMemberName 2 false memberName
@@ -570,9 +592,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                         | None ->
                             // Fall back to linking to the type page
                             Some
-                                { IsInternal = true
-                                  ReferenceLink = internalCrossReference urlBaseName
-                                  NiceName = typePart + "." + memberPart }
+                                {
+                                    IsInternal = true
+                                    ReferenceLink = internalCrossReference urlBaseName
+                                    NiceName = typePart + "." + memberPart
+                                }
                 | _ -> None
             | _ -> None
         else
@@ -584,9 +608,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                     let urlBaseName = getUrlBaseNameForRegisteredEntity entity
 
                     Some
-                        { IsInternal = true
-                          ReferenceLink = internalCrossReference urlBaseName
-                          NiceName = entity.DisplayName }
+                        {
+                            IsInternal = true
+                            ReferenceLink = internalCrossReference urlBaseName
+                            NiceName = entity.DisplayName
+                        }
                 | _ -> None
             | _ -> None
 

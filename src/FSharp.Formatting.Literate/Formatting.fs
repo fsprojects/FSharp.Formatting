@@ -89,22 +89,26 @@ module internal Formatting =
             let mutable count = 0
 
             let paragraphs =
-                [ for Snippet(name, lines) in snippets do
-                      if snippets.Length > 1 then
-                          yield Heading(3, [ Literal(name, MarkdownRange.zero) ], MarkdownRange.zero)
+                [
+                    for Snippet(name, lines) in snippets do
+                        if snippets.Length > 1 then
+                            yield Heading(3, [ Literal(name, MarkdownRange.zero) ], MarkdownRange.zero)
 
-                      let id =
-                          count <- count + 1
-                          "cell" + string<int> count
+                        let id =
+                            count <- count + 1
+                            "cell" + string<int> count
 
-                      let opts =
-                          { Evaluate = true
-                            ExecutionCount = None
-                            OutputName = id
-                            Visibility = LiterateCodeVisibility.VisibleCode }
+                        let opts =
+                            {
+                                Evaluate = true
+                                ExecutionCount = None
+                                OutputName = id
+                                Visibility = LiterateCodeVisibility.VisibleCode
+                            }
 
-                      let popts = { Condition = None }
-                      yield EmbedParagraphs(LiterateCode(lines, opts, popts), MarkdownRange.zero) ]
+                        let popts = { Condition = None }
+                        yield EmbedParagraphs(LiterateCode(lines, opts, popts), MarkdownRange.zero)
+                ]
 
             doc.With(paragraphs = paragraphs)
 
@@ -113,9 +117,11 @@ module internal Formatting =
         match doc.Source with
         | LiterateSource.Markdown text -> text
         | LiterateSource.Script snippets ->
-            [ for Snippet(_name, lines) in snippets do
-                  for Line(line, _) in lines do
-                      yield line ]
+            [
+                for Snippet(_name, lines) in snippets do
+                    for Line(line, _) in lines do
+                        yield line
+            ]
             |> String.concat "\n"
 
     /// Formats a literate document and produces the full set of template substitutions for the output page.
@@ -177,9 +183,11 @@ module internal Formatting =
             let source =
                 format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind [] (fun _ -> None) (fun _ -> None)
 
-            [ ParamKeys.``fsdocs-source-filename``, relativeSourceFileName
-              ParamKeys.``fsdocs-source-basename``, relativeSourceFileBaseName
-              ParamKeys.``fsdocs-source``, source ]
+            [
+                ParamKeys.``fsdocs-source-filename``, relativeSourceFileName
+                ParamKeys.``fsdocs-source-basename``, relativeSourceFileBaseName
+                ParamKeys.``fsdocs-source``, source
+            ]
 
         // Get page title (either heading or file name)
         let pageTitle =
@@ -259,13 +267,15 @@ module internal Formatting =
             | None, None -> String.Empty
 
         let substitutions0 =
-            [ yield ParamKeys.``fsdocs-page-title``, pageTitle
-              yield ParamKeys.``fsdocs-page-source``, doc.SourceFile
-              yield ParamKeys.``fsdocs-body-class``, "content"
-              yield ParamKeys.``fsdocs-meta-tags``, meta
-              yield! ctx.Substitutions
-              yield! sourceSubstitutions
-              yield! nextPreviousPageSubstitutions ]
+            [
+                yield ParamKeys.``fsdocs-page-title``, pageTitle
+                yield ParamKeys.``fsdocs-page-source``, doc.SourceFile
+                yield ParamKeys.``fsdocs-body-class``, "content"
+                yield ParamKeys.``fsdocs-meta-tags``, meta
+                yield! ctx.Substitutions
+                yield! sourceSubstitutions
+                yield! nextPreviousPageSubstitutions
+            ]
 
 
 
@@ -285,9 +295,11 @@ module internal Formatting =
         // Construct new Markdown document and write it
         let substitutions =
             substitutions0
-            @ [ ParamKeys.``fsdocs-content``, formattedDocument
+            @ [
+                ParamKeys.``fsdocs-content``, formattedDocument
                 ParamKeys.``fsdocs-tooltips``, tipsHtml
-                ParamKeys.``fsdocs-page-content-list``, pageHeaders ]
+                ParamKeys.``fsdocs-page-content-list``, pageHeaders
+            ]
 
         let indexText =
             (match ctx.OutputKind with
@@ -297,14 +309,16 @@ module internal Formatting =
                  Some(IndexText(fullText, headingTexts))
              | _ -> None)
 
-        { OutputPath = outputPath
-          OutputKind = ctx.OutputKind
-          Title = pageTitle
-          Category = category
-          CategoryIndex = categoryIndex
-          Index = index
-          IndexText = indexText
-          Substitutions = substitutions
-          // No don't know this until later.
-          // See DocContent.GetNavigationEntries
-          IsActive = false }
+        {
+            OutputPath = outputPath
+            OutputKind = ctx.OutputKind
+            Title = pageTitle
+            Category = category
+            CategoryIndex = categoryIndex
+            Index = index
+            IndexText = indexText
+            Substitutions = substitutions
+            // No don't know this until later.
+            // See DocContent.GetNavigationEntries
+            IsActive = false
+        }
