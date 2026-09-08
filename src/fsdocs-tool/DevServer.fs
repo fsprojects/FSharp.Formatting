@@ -1710,6 +1710,22 @@ type internal Site(config: SiteConfig) =
 
     member _.Config = config
 
+    /// Warn when the logo or the favicon of the site is not served: the value comes from the cracked
+    /// projects (or the default), which need not match the input folder when the tool runs elsewhere.
+    member _.CheckAssets() =
+        for (key, setting) in Content.assetSubstitutions do
+            match AVal.force substitutions |> List.tryFind (fst >> (=) key) with
+            | Some(_, value) when Content.isSiteRelative value ->
+                let url = "/" + value.TrimStart('/')
+
+                if (lock renderLock (fun () -> resolve url)).IsNone then
+                    logger.Warnf
+                        "%s is '%s' but no input file is served at %s (the value comes from the cracked projects, see /.fsdocs/doctor)"
+                        setting
+                        value
+                        url
+            | _ -> ()
+
     /// Start the file watchers, the reconciler and the background API docs build.
     member this.Start() =
         // File system events are hints to refresh a path now
