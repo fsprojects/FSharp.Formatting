@@ -37,6 +37,14 @@ module Serve =
     let generateWatchScript () =
         """<script src="/.fsdocs/watch.js"></script>"""
 
+    /// The stylesheet of the doctor page, embedded from doctor.css.
+    let doctorStyleSource =
+        lazy
+            (let asm = Reflection.Assembly.GetExecutingAssembly()
+             use stream = asm.GetManifestResourceStream("fsdocs.doctor.css")
+             use reader = new StreamReader(stream)
+             reader.ReadToEnd())
+
     /// The mime types served for static files
     let mimeTypesMap ext =
         match ext with
@@ -2135,17 +2143,38 @@ module internal Doctor =
         let time (t: DateTime option) =
             t |> Option.map (fun t -> t.ToString("HH:mm:ss")) |> str
 
+        let anchor (title: string) =
+            title.ToLowerInvariant().Replace(' ', '-')
+
+        let sections =
+            [
+                "Session"
+                "Errors"
+                "Projects"
+                "API docs"
+                "Substitutions"
+                "Templates and extras"
+                "Navigation"
+                "Requested pages"
+                "Computed page models"
+                "Recent file events"
+                "Routes"
+                "Skipped files"
+                "Recent log"
+            ]
+
         let section (title: string) =
-            sb.AppendFormat("<h2>{0}</h2>\n", encode title) |> ignore
+            sb.AppendFormat("<h2 id=\"{0}\">{1}</h2>\n", anchor title, encode title)
+            |> ignore
 
         let para (text: string) =
             sb.AppendFormat("<p>{0}</p>\n", encode text) |> ignore
 
-        let table (headers: string list) (rows: string list list) =
+        let tableWith (cls: string) (headers: string list) (rows: string list list) =
             if rows.IsEmpty then
-                para "none"
+                sb.Append("<p class=\"none\">none</p>\n") |> ignore
             else
-                sb.Append("<table><thead><tr>") |> ignore
+                sb.AppendFormat("<div class=\"table {0}\"><table><thead><tr>", cls) |> ignore
 
                 for h in headers do
                     sb.AppendFormat("<th>{0}</th>", encode h) |> ignore
@@ -2160,17 +2189,19 @@ module internal Doctor =
 
                     sb.Append("</tr>\n") |> ignore
 
-                sb.Append("</tbody></table>\n") |> ignore
+                sb.Append("</tbody></table></div>\n") |> ignore
+
+        let table headers rows = tableWith "" headers rows
 
         let resolution (name: string) (r: ResolutionDiagnostics) =
             [ name; str r.Chosen; String.concat ", " r.Tried; str r.Note ]
 
         sb.Append(
-            "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>fsdocs doctor</title><style>"
-            + "body{font-family:system-ui,sans-serif;margin:2rem;color:#222}table{border-collapse:collapse;margin:.5rem 0 1rem;font-size:.9rem}"
-            + "th,td{border:1px solid #ccc;padding:.2rem .5rem;text-align:left;vertical-align:top;word-break:break-all}th{background:#eee}"
-            + "h2{margin-top:2rem;border-bottom:1px solid #ccc}code{background:#f4f4f4;padding:0 .2rem}.err{color:#b00}"
-            + "</style></head><body>\n"
+            "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
+            + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+            + "<title>fsdocs doctor</title>"
+            + "<link rel=\"stylesheet\" href=\"/.fsdocs/doctor.css\">"
+            + "</head><body>\n"
         )
         |> ignore
 
@@ -2183,6 +2214,13 @@ module internal Doctor =
 
         sb.Append("Machine readable: <a href=\"/.fsdocs/doctor.json\">/.fsdocs/doctor.json</a></p>\n")
         |> ignore
+
+        sb.Append("<nav>") |> ignore
+
+        for s in sections do
+            sb.AppendFormat("<a href=\"#{0}\">{1}</a>", anchor s, encode s) |> ignore
+
+        sb.Append("</nav>\n") |> ignore
 
         section "Session"
 
@@ -2329,19 +2367,43 @@ module internal Doctor =
         section "Skipped files"
         table [ "Path"; "Reason" ] [ for s in doctor.Skipped -> [ s.Path; s.Reason ] ]
 
+        section "Recent log"
+
+        tableWith
+            "log"
+            [ "Time"; "Level"; "Category"; "Message" ]
+            [ for l in doctor.Log -> [ l.Time.ToString("HH:mm:ss"); l.Level; l.Category; l.Message ] ]
+
         sb.Append("</body></html>\n") |> ignore
         sb.ToString()
 
 module internal DevServer =
 
-    let errorPage (url: string) (ex: exn) =
-        let encode (s: string) = System.Web.HttpUtility.HtmlEncode s
+    let private encode (s: string) = System.Web.HttpUtility.HtmlEncode s
 
+    /// A small page in the style of the doctor, with the live reload script so it refreshes when
+    /// the page is fixed or the file appears.
+    let private page (title: string) (body: string) =
         sprintf
-            "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>fsdocs: error</title></head><body style=\"font-family: sans-serif\"><h1>fsdocs could not build %s</h1><pre style=\"white-space: pre-wrap\">%s</pre><p>Fix the file and reload. See <a href=\"/.fsdocs/doctor\">/.fsdocs/doctor</a>.</p>%s</body></html>"
-            (encode url)
-            (encode (string<exn> ex))
+            "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>fsdocs: %s</title><link rel=\"stylesheet\" href=\"/.fsdocs/doctor.css\"></head><body>%s<p><a href=\"/\">Home</a> &middot; <a href=\"/.fsdocs/doctor\">Doctor</a></p>%s</body></html>"
+            (encode title)
+            body
             (Serve.generateWatchScript ())
+
+    let errorPage (url: string) (ex: exn) =
+        page
+            "error"
+            (sprintf
+                "<h1>fsdocs could not build <code>%s</code></h1><pre class=\"err\">%s</pre><p>Fix the file and reload; the doctor shows the errors and the state of every page.</p>"
+                (encode url)
+                (encode (string<exn> ex)))
+
+    let notFoundPage (url: string) =
+        page
+            "not found"
+            (sprintf
+                "<h1>Nothing is served at <code>%s</code></h1><p>No content file, static file or API page maps to this URL. The doctor lists every route the site serves.</p>"
+                (encode url))
 
     let app (site: Site) (liveReload: LiveReload) : WebPart =
         let noCache =
@@ -2364,7 +2426,11 @@ module internal DevServer =
                     | NotFound ->
                         match site.RedirectTo url with
                         | Some target -> return! Redirection.redirect target ctx
-                        | None -> return! RequestErrors.NOT_FOUND (sprintf "fsdocs: nothing is served at %s" url) ctx
+                        | None ->
+                            return!
+                                (Writers.setMimeType "text/html; charset=utf-8"
+                                 >=> RequestErrors.NOT_FOUND(notFoundPage url))
+                                    ctx
                     | Failed ex ->
                         return!
                             (Writers.setMimeType "text/html; charset=utf-8"
@@ -2407,6 +2473,9 @@ module internal DevServer =
                 path "/.fsdocs/watch.js"
                 >=> Writers.setMimeType "text/javascript; charset=utf-8"
                 >=> Successful.OK Serve.watchScriptSource.Value
+                path "/.fsdocs/doctor.css"
+                >=> Writers.setMimeType "text/css; charset=utf-8"
+                >=> Successful.OK Serve.doctorStyleSource.Value
                 path "/.fsdocs/doctor"
                 >=> noCache
                 >=> doctor Doctor.toHtml "text/html; charset=utf-8"

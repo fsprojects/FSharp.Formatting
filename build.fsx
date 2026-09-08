@@ -117,8 +117,20 @@ pipeline "Verify" {
 
 // Start the documentation site in watch mode with the locally built fsdocs tool.
 // Runs until interrupted (Ctrl+C); the site is served on http://localhost:8901.
+// Every argument after the pipeline name is passed on to `fsdocs watch`, for example
+// `./build.fsx -p Docs --nolaunch --port 8080`.
 pipeline "Docs" {
-    stage "WatchDocs" { run "dotnet run --project src/fsdocs-tool -- watch" }
+    stage "WatchDocs" {
+        run (fun _ ->
+            let extraArgs =
+                fsi.CommandLineArgs
+                |> Array.skipWhile (fun arg -> arg <> "Docs")
+                |> Array.skip 1
+                |> String.concat " "
+
+            $"dotnet run --project src/fsdocs-tool -- watch {extraArgs}")
+    }
+
     runIfOnlySpecified true
 }
 
