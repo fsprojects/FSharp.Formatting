@@ -114,6 +114,7 @@ module internal Utils =
 
 /// Controls how type constraints on generic members are displayed in generated API docs.
 [<RequireQualifiedAccess>]
+[<Struct>]
 type TypeConstraintDisplayMode =
     /// Do not display type constraints.
     | None

@@ -67,7 +67,10 @@ let (|Heading|_|) lines =
                 if content.EndsWith('#') then
                     let noHash = content.TrimEnd([| '#' |])
 
-                    if noHash = "" || (noHash.Length > 0 && noHash.[noHash.Length - 1] = ' ') then
+                    if
+                        String.IsNullOrEmpty noHash
+                        || (noHash.Length > 0 && noHash.[noHash.Length - 1] = ' ')
+                    then
                         noHash.Trim()
                     else
                         content.Trim()

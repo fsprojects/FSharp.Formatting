@@ -10,6 +10,7 @@
 
 ### Changed
 * Bump `Ionide.ProjInfo` from 0.74.2 to 0.75.0 and `NUnit3TestAdapter` from 6.2.0 to 6.3.0. Both are routine, non-breaking updates.
+* `TypeConstraintDisplayMode` is a struct discriminated union, as the Ionide analyzers suggest. Source compatible, but the compiled representation changes, so a consumer needs to recompile.
 * Rewrote the Mermaid documentation recipe as `docs/mermaid.md` (moved from the oddly-named `docs/sidebyside/sidemermaid.md`) to follow the approach used by the fantomas docs: diagrams are written as plain ```mermaid fenced code blocks, which GitHub renders natively, and an `_body.html` script promotes those blocks into `<div class="mermaid">` elements on fsdocs pages. The FSharp.Formatting docs now ship that script (`docs/_body.html`), so the recipe page actually demonstrates working diagrams.
 * Replace `sprintf "<pre><code>"` (a format string with no format arguments) with the plain string literal `"<pre><code>"` in `HtmlFormatting.fs`. This is on the hot path invoked once per rendered code/output block, and avoids the unnecessary printf-format parsing overhead for a string with no substitutions.
 

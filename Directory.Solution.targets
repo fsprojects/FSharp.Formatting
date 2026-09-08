@@ -14,13 +14,14 @@
         <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --exclude-analyzers PartialAppAnalyzer ReturnStructPartialActivePatternAnalyzer -c Release</FSharpAnalyzersOtherFlags>
         <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --code-root $(CodeRoot)</FSharpAnalyzersOtherFlags>
         <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --report &quot;$(CodeRoot)/analysis.sarif&quot;</FSharpAnalyzersOtherFlags>
+        <!-- These analyzers report at severity Info by default: easy to miss in the console output,
+             and the tool only exits non-zero for errors, so they never failed anything. -->
+        <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --treat-as-error IONIDE-002 IONIDE-010 IONIDE-012</FSharpAnalyzersOtherFlags>
     </PropertyGroup>
   <Delete Files="$(SolutionDir)/analysis.sarif" Condition="Exists('$(SolutionDir)/analysis.sarif')" />
 
     <!-- Execute fsharp-analyzers with all projects in a single process -->
     <Exec
-      Command="dotnet fsharp-analyzers $(FSharpAnalyzersOtherFlags) @(ProjectsToAnalyze->'--project &quot;%(FullPath)&quot;', ' ')"
-      ContinueOnError="true"
-    />
+      Command="dotnet fsharp-analyzers $(FSharpAnalyzersOtherFlags) @(ProjectsToAnalyze->'--project &quot;%(FullPath)&quot;', ' ')" />
   </Target>
 </Project>
