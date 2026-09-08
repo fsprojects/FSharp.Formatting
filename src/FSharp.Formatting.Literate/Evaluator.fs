@@ -367,12 +367,14 @@ module __FsiSettings =
             match res with
             | Ok _v -> ()
             | Error exn ->
-                printfn "Error establishing FSI:"
-                printfn "%s" outputs.Output.FsiOutput
-                printfn "%s" outputs.Output.ScriptOutput
-                printfn "%s" outputs.Error.FsiOutput
-                printfn "%s" outputs.Error.ScriptOutput
-                printfn "Exception: %A" exn
+                FSharp.Formatting.Literate.Log.logger.Errorf
+                    "Error establishing FSI:\n%s\n%s\n%s\n%s\nException: %A"
+                    outputs.Output.FsiOutput
+                    outputs.Output.ScriptOutput
+                    outputs.Error.FsiOutput
+                    outputs.Error.ScriptOutput
+                    exn
+
                 raise exn
 
 

@@ -27,7 +27,7 @@ index: 7
 let root = "C:\\"
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
+[![Script](img/badge-script.svg)]({{root}}{{fsdocs-source-basename}}.fsx)
 
 API Documentation Generation
 ====================================
@@ -424,13 +424,12 @@ ApiDocs.GenerateHtml(
 (**
 ## Rebasing Links
 
-The `root` parameter is used for the base of page and image links in the generated documentation. By default, it is derived from the project's `<PackageProjectUrl>` property.
+The `root` parameter of the API is used for the base of page and image links in the generated documentation.
 
-In some instances, you may wish to override the value for `root` (perhaps for local testing). To do this, you can use the command-line argument `--parameters root <base>`.
-
-For example:
-
-    [lang=text]
-    dotnet fsdocs build --output public/docs --parameters root ../
+`fsdocs` generates relative links: each page gets a `root` that points from the page to the root of the
+site (`./`, `../`, ...), so the output works from any host name, sub path or the file system.
+The absolute URL of the site, derived from the project's `<PackageProjectUrl>` property, is available as
+`fsdocs-site-root` for the links that must be absolute (Open Graph metadata, `llms.txt`); override it with
+`--parameters fsdocs-site-root <url>`.
 
 *)

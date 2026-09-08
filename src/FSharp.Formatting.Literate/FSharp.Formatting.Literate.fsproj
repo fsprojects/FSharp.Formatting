@@ -11,6 +11,7 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
+    <Compile Include="Log.fs" />
     <Compile Include="Document.fs" />
     <Compile Include="Evaluator.fs" />
     <Compile Include="Contexts.fs" />
@@ -38,6 +39,8 @@
   <ItemGroup>
     <PackageReference Include="FSharp.Core" />
     <PackageReference Include="FSharp.Compiler.Service" />
-    <PackageReference Include="System.Text.Json" />
+    <!-- Needed for the netstandard2.1 target; NU1510 is a false positive for
+         downstream net10.0+ consumers where this ships in the shared framework. -->
+    <PackageReference Include="System.Text.Json" NoWarn="NU1510" />
   </ItemGroup>
 </Project>

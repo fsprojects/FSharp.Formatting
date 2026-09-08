@@ -1,7 +1,25 @@
 namespace FSharp.Formatting.ApiDocs
 
+open FSharp.Formatting.Templating
+
 [<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("fsdocs")>]
+[<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("fsdocs-tool.Tests")>]
 do ()
+
+/// The result of a phased API documentation generation: the model, the substitutions shared by
+/// all pages, the search index, the pages (relative output file and render function) and a
+/// function writing all pages to the output folder.
+type internal ApiDocsPhased =
+    {
+        Model: ApiDocModel
+        GlobalSubstitutions: Substitutions
+        /// The global substitutions with the namespace links built for the given root
+        GlobalSubstitutionsFor: string -> Substitutions
+        /// The search index with URIs relative to the root of the site
+        SearchIndex: ApiDocsSearchIndexEntry array
+        Pages: (string * (string option -> Substitutions -> string)) list
+        Generate: Substitutions -> unit
+    }
 
 /// <summary>
 ///  This type exposes the functionality for producing documentation model from `dll` files with associated `xml` files
@@ -11,7 +29,6 @@ do ()
 /// <namespacedoc>
 ///   <summary>Functionality relating to generating API documentation</summary>
 /// </namespacedoc>
-
 type ApiDocs =
 
     /// <summary>
@@ -109,12 +126,16 @@ type ApiDocs =
 
         let renderer = GenerateHtml.HtmlRender(model, ?menuTemplateFolder = menuTemplateFolder)
 
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model
+        let index = GenerateSearchIndex.searchIndexEntriesForModelWithRoot "" model
 
-        model,
-        renderer.GlobalSubstitutions,
-        index,
-        (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))
+        {
+            Model = model
+            GlobalSubstitutions = renderer.GlobalSubstitutions
+            GlobalSubstitutionsFor = renderer.GlobalSubstitutionsFor
+            SearchIndex = index
+            Pages = renderer.Pages(collectionName)
+            Generate = (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))
+        }
 
     /// <summary>
     /// Generates default HTML pages for the assemblies specified by the `inputs` parameter
@@ -209,12 +230,16 @@ type ApiDocs =
 
         let renderer = GenerateMarkdown.MarkdownRender(model, ?menuTemplateFolder = menuTemplateFolder)
 
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model
+        let index = GenerateSearchIndex.searchIndexEntriesForModelWithRoot "" model
 
-        model,
-        renderer.GlobalSubstitutions,
-        index,
-        (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))
+        {
+            Model = model
+            GlobalSubstitutions = renderer.GlobalSubstitutions
+            GlobalSubstitutionsFor = renderer.GlobalSubstitutionsFor
+            SearchIndex = index
+            Pages = renderer.Pages(collectionName)
+            Generate = (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))
+        }
 
     /// <summary>
     /// Generates default Markdown pages for the assemblies specified by the `inputs` parameter

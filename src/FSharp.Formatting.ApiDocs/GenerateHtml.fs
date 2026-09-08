@@ -284,6 +284,18 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                                             p [ Class "fsdocs-note" ] [ embed e ]
 
+                                        if not m.Comment.SeeAlso.IsEmpty then
+                                            h5 [ Class "fsdocs-seealso-header" ] [ !!"See also" ]
+
+                                            ul [ Class "fsdocs-seealso-list" ] [
+                                                for (nm, link, html) in m.Comment.SeeAlso do
+                                                    li [] [
+                                                        match link with
+                                                        | Some href -> a [ Href href ] [ !!nm ]
+                                                        | None -> embed html
+                                                    ]
+                                            ]
+
                                         for e in m.Comment.Examples do
                                             h5 [ Class "fsdocs-example-header" ] [ !!"Example" ]
 
@@ -467,6 +479,18 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                     p [ Class "fsdocs-note" ] [ embed note ]
 
+                if not entity.Comment.SeeAlso.IsEmpty then
+                    h5 [ Class "fsdocs-seealso-header" ] [ !!"See also" ]
+
+                    ul [ Class "fsdocs-seealso-list" ] [
+                        for (nm, link, html) in entity.Comment.SeeAlso do
+                            li [] [
+                                match link with
+                                | Some href -> a [ Href href ] [ !!nm ]
+                                | None -> embed html
+                            ]
+                    ]
+
                 for example in entity.Comment.Examples do
                     h5 [ Class "fsdocs-example-header" ] [ !!"Example" ]
 
@@ -614,7 +638,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 ]
         ]
 
-    let listOfNamespacesNavAux otherDocs (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesNavAux (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
         [
             // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
             //
@@ -683,9 +707,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     | _ -> ()
         ]
 
-    let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesNavWithRoot (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
         let noTemplatingFallback () =
-            listOfNamespacesNavAux otherDocs nsOpt
+            listOfNamespacesNavAux root otherDocs nsOpt
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
@@ -732,15 +756,25 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                     Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
 
-    /// Get the substitutions relevant to all
-    member _.GlobalSubstitutions: Substitutions =
-        let toc = listOfNamespacesNav true None
+    let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
+        listOfNamespacesNavWithRoot root otherDocs nsOpt
+
+    /// The substitutions relevant to all pages, with the namespace links built for the given root
+    /// (a content page deeper in the site needs a different relative root than the API pages).
+    member _.GlobalSubstitutionsFor(root: string) : Substitutions =
+        let toc = listOfNamespacesNavWithRoot root true None
 
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc); yield ParamKeys.``fsdocs-body-class``, "api-docs" ]
 
-    member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
+    /// Get the substitutions relevant to all
+    member x.GlobalSubstitutions: Substitutions = x.GlobalSubstitutionsFor root
 
-        let getSubstitutons parameters toc (content: HtmlElement) pageTitle =
+    /// The pages of the API documentation: the output file relative to the output folder
+    /// (forward slashes) and a function rendering the page for a template and global substitutions.
+    /// Nothing is rendered until the function is called.
+    member _.Pages(collectionName: string) : (string * (string option -> Substitutions -> string)) list =
+
+        let getSubstitutons parameters toc (content: HtmlElement) pageTitle globalParameters =
             [|
                 yield! parameters
                 yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
@@ -753,61 +787,68 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 yield! globalParameters
             |]
 
+        let page outFile parameters toc (content: unit -> HtmlElement) pageTitle =
+            let render (templateOpt: string option) (globalParameters: Substitutions) =
+                let substitutions = getSubstitutons parameters toc (content ()) pageTitle globalParameters
+
+                SimpleTemplating.RenderWithFileTemplate(substitutions, templateOpt)
+
+            outFile, render
+
         let collection = model.Collection
 
-        (let content =
-            div [] [
-                h1 [] [ !!"API Reference" ]
-                h2 [] [ !!"Available Namespaces:" ]
-                table [ Class "table outer-list fsdocs-member-list" ] [
-                    thead [] [
-                        tr [] [
-                            td [ Class "fsdocs-member-list-header" ] [ !!"Namespace" ]
-                            td [ Class "fsdocs-member-list-header" ] [ !!"Description" ]
+        [
+            (let content () =
+                div [] [
+                    h1 [] [ !!"API Reference" ]
+                    h2 [] [ !!"Available Namespaces:" ]
+                    table [ Class "table outer-list fsdocs-member-list" ] [
+                        thead [] [
+                            tr [] [
+                                td [ Class "fsdocs-member-list-header" ] [ !!"Namespace" ]
+                                td [ Class "fsdocs-member-list-header" ] [ !!"Description" ]
+                            ]
                         ]
+                        tbody [] (tableOfNamespacesAux ())
                     ]
-                    tbody [] (tableOfNamespacesAux ())
                 ]
-            ]
 
-         let pageTitle = sprintf "%s (API Reference)" collectionName
+             let pageTitle = sprintf "%s (API Reference)" collectionName
 
-         let toc = listOfNamespacesNav false None
+             let toc = listOfNamespacesNav false None
 
-         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
+             let outFile = model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
 
-         let outFile =
-             Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
+             page outFile model.Substitutions toc content pageTitle)
 
-         printfn "  Generating %s" outFile
-         SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile))
+            //printfn "Namespaces = %A" [ for ns in collection.Namespaces -> ns.Name ]
 
-        //printfn "Namespaces = %A" [ for ns in collection.Namespaces -> ns.Name ]
+            for (nsIndex, ns) in Seq.indexed collection.Namespaces do
+                let content () = div [] (namespaceContent (nsIndex, ns))
+                let pageTitle = ns.Name
+                let toc = listOfNamespacesNav false (Some ns)
 
-        for (nsIndex, ns) in Seq.indexed collection.Namespaces do
-            let content = div [] (namespaceContent (nsIndex, ns))
-            let pageTitle = ns.Name
-            let toc = listOfNamespacesNav false (Some ns)
+                let outFile = ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
 
-            let substitutions = getSubstitutons model.Substitutions toc content pageTitle
+                page outFile model.Substitutions toc content pageTitle
 
-            let outFile =
-                Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
+            for info in model.EntityInfos do
+                let content () = div [] (entityContent info)
 
-            printfn "  Generating %s" outFile
-            SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
+                let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
 
-        for info in model.EntityInfos do
-            let content = div [] (entityContent info)
+                let toc = listOfNamespacesNav false (Some info.Namespace)
 
-            let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
+                let outFile = info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile)
 
-            let toc = listOfNamespacesNav false (Some info.Namespace)
+                page outFile info.Entity.Substitutions toc content pageTitle
+        ]
 
-            let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
-
-            let outFile =
-                Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
-
-            printfn "  Generating %s" outFile
-            SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
+    /// Writes all API documentation HTML files (index, one per namespace, one per entity)
+    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
+    member x.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
+        for (relativeFile, render) in x.Pages(collectionName) do
+            let outFile = Path.Combine(outDir, relativeFile)
+            let outputText = render templateOpt globalParameters
+            logger.Debugf "  Generating %s" outFile
+            SimpleTemplating.WriteOutputFile(outFile, outputText)

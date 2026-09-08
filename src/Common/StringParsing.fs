@@ -14,6 +14,8 @@ open FSharp.Formatting.Markdown
 // --------------------------------------------------------------------------------------
 
 module String =
+    let private logger = FSharp.Formatting.Common.CategoryLogger "FSharp.Formatting"
+
     /// Matches when a string is a whitespace or null
     [<return: Struct>]
     let (|WhiteSpace|_|) (s) =
@@ -93,12 +95,10 @@ module String =
         let skipped = text.Substring(0, text.Length - result.Length)
 
         if not <| String.IsNullOrWhiteSpace(skipped) then
-            FSharp.Formatting.Common.Log.warnf "skipped '%s' which contains non-whitespace character!" skipped
+            logger.Warnf "skipped '%s' which contains non-whitespace character!" skipped
 
         if result = text then
-            FSharp.Formatting.Common.Log.warnf
-                "could not skip a line of %s, because no line-ending character was found!"
-                text
+            logger.Warnf "could not skip a line of %s, because no line-ending character was found!" text
 
         result
 

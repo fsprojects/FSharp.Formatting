@@ -347,7 +347,7 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
                 // Print debug information
 
                 if trace then
-                    printfn "\n\n\n%A" lines
+                    logger.Tracef "%A" lines
                 // Count the minimal number of spaces at the beginning of lines
                 // (so that we can remove spaces for indented text)
                 let spaces =
