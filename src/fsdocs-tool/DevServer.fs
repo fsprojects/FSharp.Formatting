@@ -1535,6 +1535,10 @@ type internal Site(config: SiteConfig) =
         | LlmsTxt -> Some llmsTxt
         | LlmsFullTxt -> Some llmsFullTxt
 
+    /// Collapse repeated slashes: '{{root}}/images/x.png' in content yields '//images/x.png', which
+    /// production web servers tolerate, so the dev server does too.
+    let normalizeUrl (url: string) = Regex.Replace(url, "/{2,}", "/")
+
     let resolve (url: string) : Route option =
         let s = AVal.force scan
 
@@ -1573,10 +1577,13 @@ type internal Site(config: SiteConfig) =
     member _.MimeOf(path: string) = mimeOf path
 
     /// Resolve a URL path (e.g. '/index.html') to what it is served from.
-    member _.Resolve(url: string) : Route option = lock renderLock (fun () -> resolve url)
+    member _.Resolve(url: string) : Route option =
+        lock renderLock (fun () -> resolve (normalizeUrl url))
 
     /// Compute (or reuse) the response for a URL path. Static files are read from their source.
     member _.Render(url: string) : RenderResult =
+        let url = normalizeUrl url
+
         lock renderLock (fun () ->
             match resolve url with
             | None -> NotFound
