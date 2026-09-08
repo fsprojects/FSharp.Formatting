@@ -2,10 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed
+* Surface FSI evaluation failures to stderr by default in `FsiEvaluator`. Previously, when a code snippet failed during `--eval`, the error was silently discarded unless the caller subscribed to `EvaluationFailed` or provided an `onError` callback. Now a concise error message (file name + stderr output) is always written to stderr, making failures visible in `fsdocs` output.
+
 ### Added
 * Support top-level `<seealso cref="..."/>` XML doc tags in API documentation generation. Per the [xmldoc recommended tags](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/recommended-tags#seealso), `<seealso>` is a top-level section (unlike the inline `<see>` tag) and is now rendered as a "See also" list in both HTML and Markdown API doc output, for both members and entities. [#1256](https://github.com/fsprojects/FSharp.Formatting/issues/1256)
 
 ### Changed
+* Bump `Ionide.ProjInfo` from 0.74.2 to 0.75.0 and `NUnit3TestAdapter` from 6.2.0 to 6.3.0. Both are routine, non-breaking updates.
 * Rewrote the Mermaid documentation recipe as `docs/mermaid.md` (moved from the oddly-named `docs/sidebyside/sidemermaid.md`) to follow the approach used by the fantomas docs: diagrams are written as plain ```mermaid fenced code blocks, which GitHub renders natively, and an `_body.html` script promotes those blocks into `<div class="mermaid">` elements on fsdocs pages. The FSharp.Formatting docs now ship that script (`docs/_body.html`), so the recipe page actually demonstrates working diagrams.
 
 ## [22.2.0] - 2026-08-31
