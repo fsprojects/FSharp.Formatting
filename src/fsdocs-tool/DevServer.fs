@@ -1042,6 +1042,8 @@ type internal Site(config: SiteConfig) =
         let fileMap = ResizeArray<(string * OutputKind) * string>()
         let navPages = ResizeArray<NavPage>()
         let titleSources = ResizeArray<string * TitleSource>()
+        // The content files of the input trees; 'metas' also covers the default template folder
+        let contentInputs = System.Collections.Generic.HashSet<string>()
 
         for (root, rootAsGiven, outputRoot) in trees do
             for path in paths do
@@ -1070,6 +1072,7 @@ type internal Site(config: SiteConfig) =
                             fileMap.Add((path, kind), fullOut)
 
                         if Content.isContentFile path then
+                            contentInputs.Add path |> ignore
                             let otherLang = isOtherLang root folder
 
                             for kind in allKinds do
@@ -1149,7 +1152,11 @@ type internal Site(config: SiteConfig) =
             FilesWithFrontMatter =
                 metas
                 |> Map.toSeq
-                |> Seq.choose (fun (_, m) -> m.FrontMatterFile)
+                |> Seq.choose (fun (path, m) ->
+                    if contentInputs.Contains path then
+                        m.FrontMatterFile
+                    else
+                        None)
                 |> Content.sortFilesWithFrontMatter
             NavPages = List.ofSeq navPages
             TitleSources = Map.ofSeq titleSources

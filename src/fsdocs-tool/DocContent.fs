@@ -147,7 +147,14 @@ module internal Content =
         | None -> None
         | Some markdownReferenceFullInputPath ->
             match fullPathFileMap.TryFind(markdownReferenceFullInputPath, outputKind) with
-            | None -> None
+            | None ->
+                logger.Tracef
+                    "markdown reference '%s' is not an input file (%s, %A)"
+                    markdownReference
+                    markdownReferenceFullInputPath
+                    outputKind
+
+                None
             | Some markdownReferenceFullOutputPath ->
                 try
                     let outputFolderFullPath =

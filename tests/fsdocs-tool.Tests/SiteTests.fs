@@ -375,3 +375,29 @@ let ``a project file change re-cracks and recomputes the pages`` () =
     File.SetLastWriteTimeUtc(fx.Project, writtenAt)
     site.Refresh fx.Project |> shouldEqual true
     body (site.Render "/index.html") |> shouldContainText "Collection v3"
+
+[<Test>]
+let ``next and previous page links only come from the content trees`` () =
+    let fx = Fixture()
+    // the default template folder shipped with the tool holds pages of its own; they are watched
+    // for template changes but must not take part in the page order
+    let templateFolder = Path.GetDirectoryName fx.Input </> "template"
+    Directory.CreateDirectory templateFolder |> ignore
+    File.WriteAllText(templateFolder </> "_template.html", "<html>{{fsdocs-content}}</html>")
+
+    File.WriteAllText(templateFolder </> "z.md", "---\ncategory: Docs\ncategoryindex: 0\nindex: 0\n---\n\n# Z\n")
+
+    File.WriteAllText(fx.Input </> "index.md", "# Home\n\n<a href=\"{{fsdocs-next-page-link}}\">Next</a>\n")
+
+    use site =
+        new Site(
+            { fx.Config with
+                DefaultTemplateFolder = Some templateFolder
+            }
+        )
+
+    site.Scan.FilesWithFrontMatter
+    |> Array.map (fun f -> Path.GetFileName f.FileName)
+    |> shouldEqual [| "a.md"; "b.fsx" |]
+
+    body (site.Render "/index.html") |> shouldContainText "href=\"a.html\""
