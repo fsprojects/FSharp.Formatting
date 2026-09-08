@@ -199,6 +199,10 @@ let ``routes follow the build rules`` () =
     site.Resolve "/style.css"
     |> shouldEqual (Some(StaticFile(fx.Input </> "style.css")))
 
+    // '{{root}}/style.css' in content gives a double slash; served like production web servers do
+    site.Resolve "//style.css"
+    |> shouldEqual (Some(StaticFile(fx.Input </> "style.css")))
+
     site.Resolve "/index.json" |> shouldEqual (Some SearchIndex)
     // no markdown template and llms.txt is off: no markdown routes, no llms routes
     site.Resolve "/a.md" |> shouldEqual None
