@@ -1,1494 +1,19 @@
 namespace fsdocs
 
-open System.Collections.Concurrent
-open System.Collections.Generic
 open CommandLine
 
 open System
 open System.Diagnostics
 open System.IO
-open System.Globalization
-open System.Net
-open System.Net.Http
 open System.Reflection
-open System.Text
 
 open FSharp.Formatting.Common
-open FSharp.Formatting.HtmlModel
-open FSharp.Formatting.HtmlModel.Html
 open FSharp.Formatting.Literate
 open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Literate.Evaluation
 open fsdocs.Common
 open FSharp.Formatting.Templating
-
-open Suave
-open Suave.Sockets
-open Suave.Sockets.Control
-open Suave.WebSocket
-open Suave.Operators
-open Suave.Filters
-open FSharp.Formatting.Markdown
-
-
-/// Convert markdown, script and other content into a static site
-type internal DocContent
-    (
-        rootOutputFolderAsGiven,
-        previous: Map<_, _>,
-        lineNumbers,
-        evaluate,
-        substitutions,
-        saveImages,
-        watch,
-        root,
-        crefResolver,
-        onError
-    ) =
-
-    let createImageSaver (rootOutputFolderAsGiven) =
-        // Download images so that they can be embedded
-        let http = new HttpClient()
-        let mutable counter = 0
-
-        fun (url: string) ->
-            if
-                url.StartsWith("http", StringComparison.Ordinal)
-                || url.StartsWith("https", StringComparison.Ordinal)
-            then
-                counter <- counter + 1
-                let ext = Path.GetExtension(url)
-
-                let url2 = sprintf "savedimages/saved%d%s" counter ext
-
-                let fn = sprintf "%s/%s" rootOutputFolderAsGiven url2
-
-                ensureDirectory (sprintf "%s/savedimages" rootOutputFolderAsGiven)
-                printfn "downloading %s --> %s" url fn
-                let bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult()
-                File.WriteAllBytes(fn, bytes)
-                url2
-            else
-                url
-
-    let getOutputFileNames (inputFileFullPath: string) (outputKind: OutputKind) outputFolderRelativeToRoot =
-        let inputFileName = Path.GetFileName(inputFileFullPath)
-        let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
-        let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
-        let isPynb = inputFileFullPath.EndsWith(".ipynb", true, CultureInfo.InvariantCulture)
-        let ext = outputKind.Extension
-
-        let outputFileRelativeToRoot =
-            if isFsx || isMd || isPynb then
-                let basename = Path.GetFileNameWithoutExtension(inputFileFullPath)
-
-                Path.Combine(outputFolderRelativeToRoot, sprintf "%s.%s" basename ext)
-            else
-                Path.Combine(outputFolderRelativeToRoot, inputFileName)
-
-        let outputFileFullPath = Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFileRelativeToRoot))
-        outputFileRelativeToRoot, outputFileFullPath
-
-    // Check if a sub-folder is actually the output directory
-    let subFolderIsOutput subInputFolderFullPath =
-        let subFolderFullPath = Path.GetFullPath(subInputFolderFullPath)
-        let rootOutputFolderFullPath = Path.GetFullPath(rootOutputFolderAsGiven)
-        (subFolderFullPath = rootOutputFolderFullPath)
-
-    let allCultures =
-        CultureInfo.GetCultures(CultureTypes.AllCultures)
-        |> Array.choose (fun x ->
-            if x.TwoLetterISOLanguageName.Length <> 2 then
-                None
-            else
-                Some x.TwoLetterISOLanguageName)
-        |> HashSet<string>
-
-    let makeMarkdownLinkResolver
-        (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap: Map<(string * OutputKind), string>, outputKind)
-        (markdownReference: string)
-        =
-        let markdownReferenceAsFullInputPathOpt =
-            try
-                Path.GetFullPath(Path.Combine(inputFolderAsGiven, markdownReference)) |> Some
-            with _ ->
-                None
-
-        match markdownReferenceAsFullInputPathOpt with
-        | None -> None
-        | Some markdownReferenceFullInputPath ->
-            match fullPathFileMap.TryFind(markdownReferenceFullInputPath, outputKind) with
-            | None -> None
-            | Some markdownReferenceFullOutputPath ->
-                try
-                    let outputFolderFullPath =
-                        Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
-
-                    let uri =
-                        Uri(outputFolderFullPath + "/").MakeRelativeUri(Uri(markdownReferenceFullOutputPath)).ToString()
-
-                    Some uri
-                with _ ->
-                    printfn
-                        $"Couldn't map markdown reference %s{markdownReference} that seemed to correspond to an input file"
-
-                    None
-
-    /// Prepare the map of input file to output file. This map is used to make substitutions through markdown
-    /// source such A.md --> A.html or A.fsx --> A.html.  The substitutions depend on the output kind.
-    let prepFile (inputFileFullPath: string) (outputKind: OutputKind) outputFolderRelativeToRoot =
-        [
-            let inputFileName = Path.GetFileName(inputFileFullPath)
-
-            if
-                not (inputFileName.StartsWith('.'))
-                && not (inputFileName.StartsWith("_template", StringComparison.Ordinal))
-                && not (
-                    inputFileName.StartsWith("_menu", StringComparison.Ordinal)
-                    && inputFileName.EndsWith("_template.html", StringComparison.Ordinal)
-                )
-            then
-                let inputFileFullPath = Path.GetFullPath(inputFileFullPath)
-
-                let _relativeOutputFile, outputFileFullPath =
-                    getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
-
-                yield ((inputFileFullPath, outputKind), outputFileFullPath)
-        ]
-
-    /// Likewise prepare the map of input files to output files
-    let rec prepFolder (inputFolderAsGiven: string) outputFolderRelativeToRoot =
-        [
-            let inputs = Directory.GetFiles(inputFolderAsGiven, "*")
-
-            for input in inputs do
-                yield! prepFile input OutputKind.Html outputFolderRelativeToRoot
-                yield! prepFile input OutputKind.Latex outputFolderRelativeToRoot
-                yield! prepFile input OutputKind.Pynb outputFolderRelativeToRoot
-                yield! prepFile input OutputKind.Fsx outputFolderRelativeToRoot
-                yield! prepFile input OutputKind.Markdown outputFolderRelativeToRoot
-
-            for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
-                let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-                let subFolderIsSkipped = subInputFolderName.StartsWith '.'
-                let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
-
-                if not subFolderIsOutput && not subFolderIsSkipped then
-                    yield!
-                        prepFolder
-                            (Path.Combine(inputFolderAsGiven, subInputFolderName))
-                            (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
-        ]
-
-    let processFile
-        rootInputFolder
-        (isOtherLang: bool)
-        (inputFileFullPath: string)
-        outputKind
-        template
-        outputFolderRelativeToRoot
-        imageSaver
-        mdlinkResolver
-        (filesWithFrontMatter: FrontMatterFile array)
-        =
-        [
-            let name = Path.GetFileName(inputFileFullPath)
-
-            if name.StartsWith('.') then
-                printfn "skipping file %s" inputFileFullPath
-            elif
-                not (name.StartsWith("_template", StringComparison.Ordinal))
-                && not (
-                    name.StartsWith("_menu", StringComparison.Ordinal)
-                    && name.EndsWith("_template.html", StringComparison.Ordinal)
-                )
-            then
-                let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
-
-                let isMd = inputFileFullPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
-
-                let isPynb = inputFileFullPath.EndsWith(".ipynb", StringComparison.OrdinalIgnoreCase)
-
-                // A _template.tex or _template.pynb is needed to generate those files
-                match outputKind, template with
-                | OutputKind.Pynb, None -> ()
-                | OutputKind.Latex, None -> ()
-                | OutputKind.Fsx, None -> ()
-                | OutputKind.Markdown, None -> ()
-                | _ ->
-
-                    let imageSaverOpt =
-                        match outputKind with
-                        | OutputKind.Pynb when saveImages <> Some false -> Some imageSaver
-                        | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
-                        | OutputKind.Fsx when saveImages = Some true -> Some imageSaver
-                        | OutputKind.Html when saveImages = Some true -> Some imageSaver
-                        | OutputKind.Markdown when saveImages = Some true -> Some imageSaver
-                        | _ -> None
-
-                    let outputFileRelativeToRoot, outputFileFullPath =
-                        getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
-
-                    // Update only when needed - template or file or tool has changed
-
-                    let changed =
-                        let fileChangeTime =
-                            try
-                                File.GetLastWriteTime(inputFileFullPath)
-                            with _ ->
-                                DateTime.MaxValue
-
-                        let templateChangeTime =
-                            match template with
-                            | Some t when isFsx || isMd || isPynb ->
-                                try
-                                    let fi = FileInfo(t)
-                                    let input = fi.Directory.Name
-                                    let headPath = Path.Combine(input, "_head.html")
-                                    let bodyPath = Path.Combine(input, "_body.html")
-
-                                    [
-                                        yield File.GetLastWriteTime(t)
-                                        if Menu.isTemplatingAvailable input then
-                                            yield! Menu.getLastWriteTimes input
-                                        if File.Exists headPath then
-                                            yield File.GetLastWriteTime headPath
-                                        if File.Exists bodyPath then
-                                            yield File.GetLastWriteTime bodyPath
-                                    ]
-                                    |> List.max
-                                with _ ->
-                                    DateTime.MaxValue
-                            | _ -> DateTime.MinValue
-
-                        let toolChangeTime =
-                            try
-                                File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location)
-                            with _ ->
-                                DateTime.MaxValue
-
-                        let changeTime = fileChangeTime |> max templateChangeTime |> max toolChangeTime
-
-                        let generateTime =
-                            try
-                                File.GetLastWriteTime(outputFileFullPath)
-                            with _ ->
-                                System.DateTime.MinValue
-
-                        changeTime > generateTime
-
-                    // If it's changed or we don't know anything about it
-                    // we have to compute the model to get the global substitutions right
-                    let mainRun = (outputKind = OutputKind.Html)
-                    let haveModel = previous.TryFind inputFileFullPath
-
-                    if changed || (watch && mainRun && haveModel.IsNone) then
-                        if isFsx then
-                            printfn "  generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
-
-                            let fsiEvaluator =
-                                (if evaluate then
-                                     Some(
-                                         new FsiEvaluator(onError = onError, options = [| "--multiemit-" |])
-                                         :> IFsiEvaluator
-                                     )
-                                 else
-                                     None)
-
-                            let model =
-                                try
-                                    Literate.ParseAndTransformScriptFile(
-                                        inputFileFullPath,
-                                        output = outputFileRelativeToRoot,
-                                        outputKind = outputKind,
-                                        prefix = None,
-                                        fscOptions = None,
-                                        lineNumbers = lineNumbers,
-                                        references = Some false,
-                                        fsiEvaluator = fsiEvaluator,
-                                        substitutions = substitutions,
-                                        generateAnchors = Some true,
-                                        imageSaver = imageSaverOpt,
-                                        rootInputFolder = rootInputFolder,
-                                        crefResolver = crefResolver,
-                                        mdlinkResolver = mdlinkResolver,
-                                        onError = Some onError,
-                                        filesWithFrontMatter = filesWithFrontMatter
-                                    )
-                                finally
-                                    fsiEvaluator |> Option.iter (fun e -> e.Dispose())
-
-                            yield
-                                ((if mainRun then
-                                      Some(inputFileFullPath, isOtherLang, model)
-                                  else
-                                      None),
-                                 (fun p ->
-                                     printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
-
-                                     SimpleTemplating.UseFileAsSimpleTemplate(
-                                         p @ model.Substitutions,
-                                         template,
-                                         outputFileFullPath
-                                     )))
-
-                        elif isMd then
-                            printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-
-                            let model =
-                                Literate.ParseAndTransformMarkdownFile(
-                                    inputFileFullPath,
-                                    output = outputFileRelativeToRoot,
-                                    outputKind = outputKind,
-                                    prefix = None,
-                                    fscOptions = None,
-                                    lineNumbers = lineNumbers,
-                                    references = Some false,
-                                    substitutions = substitutions,
-                                    generateAnchors = Some true,
-                                    imageSaver = imageSaverOpt,
-                                    rootInputFolder = rootInputFolder,
-                                    crefResolver = crefResolver,
-                                    mdlinkResolver = mdlinkResolver,
-                                    parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
-                                    onError = Some onError,
-                                    filesWithFrontMatter = filesWithFrontMatter
-                                )
-
-                            yield
-                                ((if mainRun then
-                                      Some(inputFileFullPath, isOtherLang, model)
-                                  else
-                                      None),
-                                 (fun p ->
-                                     printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
-
-                                     SimpleTemplating.UseFileAsSimpleTemplate(
-                                         p @ model.Substitutions,
-                                         template,
-                                         outputFileFullPath
-                                     )))
-                        elif isPynb then
-                            printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-
-                            let evaluateNotebook ipynbFile =
-                                let args =
-                                    $"repl --run %s{ipynbFile} --default-kernel fsharp --exit-after-run --output-path %s{ipynbFile}"
-
-                                let psi =
-                                    ProcessStartInfo(
-                                        fileName = "dotnet",
-                                        arguments = args,
-                                        UseShellExecute = false,
-                                        CreateNoWindow = true
-                                    )
-
-                                try
-                                    let p = Process.Start(psi)
-                                    p.WaitForExit()
-                                with _ ->
-                                    let msg =
-                                        $"Failed to evaluate notebook %s{ipynbFile} using dotnet-repl\n"
-                                        + $"""try running "%s{args}" at the command line and inspect the error"""
-
-                                    failwith msg
-
-                            let checkDotnetReplInstall () =
-                                let failmsg =
-                                    "'dotnet-repl' is not installed. Please install it using 'dotnet tool install dotnet-repl'"
-
-                                try
-                                    let psi =
-                                        ProcessStartInfo(
-                                            fileName = "dotnet",
-                                            arguments = "tool list --local",
-                                            UseShellExecute = false,
-                                            CreateNoWindow = true,
-                                            RedirectStandardOutput = true
-                                        )
-
-                                    let p = Process.Start(psi)
-                                    let ol = p.StandardOutput.ReadToEnd()
-                                    p.WaitForExit()
-                                    psi.Arguments <- "tool list --global"
-                                    p.Start() |> ignore
-                                    let og = p.StandardOutput.ReadToEnd()
-                                    let output = $"%s{ol}\n%s{og}"
-
-                                    if not (output.Contains("dotnet-repl")) then
-                                        failwith failmsg
-
-                                    p.WaitForExit()
-                                with _ ->
-                                    failwith failmsg
-
-                            if evaluate then
-                                checkDotnetReplInstall ()
-                                printfn $"  evaluating %s{inputFileFullPath} with dotnet-repl"
-                                evaluateNotebook inputFileFullPath
-
-
-                            let model =
-                                Literate.ParseAndTransformPynbFile(
-                                    inputFileFullPath,
-                                    output = outputFileRelativeToRoot,
-                                    outputKind = outputKind,
-                                    prefix = None,
-                                    fscOptions = None,
-                                    lineNumbers = lineNumbers,
-                                    references = Some false,
-                                    substitutions = substitutions,
-                                    generateAnchors = Some true,
-                                    imageSaver = imageSaverOpt,
-                                    rootInputFolder = rootInputFolder,
-                                    crefResolver = crefResolver,
-                                    mdlinkResolver = mdlinkResolver,
-                                    onError = Some onError,
-                                    filesWithFrontMatter = filesWithFrontMatter
-                                )
-
-                            yield
-                                ((if mainRun then
-                                      Some(inputFileFullPath, isOtherLang, model)
-                                  else
-                                      None),
-                                 (fun p ->
-                                     printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
-
-                                     SimpleTemplating.UseFileAsSimpleTemplate(
-                                         p @ model.Substitutions,
-                                         template,
-                                         outputFileFullPath
-                                     )))
-
-                        else if mainRun then
-                            yield
-                                (None,
-                                 (fun _p ->
-                                     printfn "  copying %s --> %s" inputFileFullPath outputFileRelativeToRoot
-                                     ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
-                                     // check the file still exists for the incremental case
-                                     if (File.Exists inputFileFullPath) then
-                                         // ignore errors in watch mode
-                                         try
-                                             File.Copy(inputFileFullPath, outputFileFullPath, true)
-                                             File.SetLastWriteTime(outputFileFullPath, DateTime.Now)
-                                         with _ when watch ->
-                                             ()))
-                    //printfn "skipping unchanged file %s" inputFileFullPath
-                    else if mainRun && watch then
-                        match haveModel with
-                        | None -> ()
-                        | Some haveModel -> yield (Some(inputFileFullPath, isOtherLang, haveModel), (fun _ -> ()))
-        ]
-
-    let rec processFolder
-        (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang, rootInputFolder, fullPathFileMap)
-        (inputFolderAsGiven: string)
-        outputFolderRelativeToRoot
-        (filesWithFrontMatter: FrontMatterFile array)
-        =
-        [
-            // Look for the presence of the _template.* files to activate the
-            // generation of the content.
-            let indirName = Path.GetFileName(inputFolderAsGiven).ToLower()
-
-            // Two-letter directory names (e.g. 'ja') with 'docs' count as multi-language and are suppressed from table-of-content
-            // generation and site search index
-            let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures.Contains indirName)
-
-            let possibleNewHtmlTemplate = Path.Combine(inputFolderAsGiven, "_template.html")
-
-            let htmlTemplate =
-                if File.Exists(possibleNewHtmlTemplate) then
-                    Some possibleNewHtmlTemplate
-                else
-                    htmlTemplate
-
-            let possibleNewPynbTemplate = Path.Combine(inputFolderAsGiven, "_template.ipynb")
-
-            let pynbTemplate =
-                if File.Exists(possibleNewPynbTemplate) then
-                    Some possibleNewPynbTemplate
-                else
-                    pynbTemplate
-
-            let possibleNewFsxTemplate = Path.Combine(inputFolderAsGiven, "_template.fsx")
-
-            let fsxTemplate =
-                if File.Exists(possibleNewFsxTemplate) then
-                    Some possibleNewFsxTemplate
-                else
-                    fsxTemplate
-
-            let possibleNewMdTemplate = Path.Combine(inputFolderAsGiven, "_template.md")
-
-            let mdTemplate =
-                if File.Exists(possibleNewMdTemplate) then
-                    Some possibleNewMdTemplate
-                else
-                    mdTemplate
-
-            let possibleNewLatexTemplate = Path.Combine(inputFolderAsGiven, "_template.tex")
-
-            let texTemplate =
-                if File.Exists(possibleNewLatexTemplate) then
-                    Some possibleNewLatexTemplate
-                else
-                    texTemplate
-
-            ensureDirectory (Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
-
-            let inputs = Directory.GetFiles(inputFolderAsGiven, "*")
-
-            let imageSaver = createImageSaver (Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
-
-            // Look for the four different kinds of content
-            for input in inputs do
-                yield!
-                    processFile
-                        rootInputFolder
-                        isOtherLang
-                        input
-                        OutputKind.Html
-                        htmlTemplate
-                        outputFolderRelativeToRoot
-                        imageSaver
-                        (makeMarkdownLinkResolver (
-                            inputFolderAsGiven,
-                            outputFolderRelativeToRoot,
-                            fullPathFileMap,
-                            OutputKind.Html
-                        ))
-                        filesWithFrontMatter
-
-                yield!
-                    processFile
-                        rootInputFolder
-                        isOtherLang
-                        input
-                        OutputKind.Latex
-                        texTemplate
-                        outputFolderRelativeToRoot
-                        imageSaver
-                        (makeMarkdownLinkResolver (
-                            inputFolderAsGiven,
-                            outputFolderRelativeToRoot,
-                            fullPathFileMap,
-                            OutputKind.Latex
-                        ))
-                        filesWithFrontMatter
-
-                yield!
-                    processFile
-                        rootInputFolder
-                        isOtherLang
-                        input
-                        OutputKind.Pynb
-                        pynbTemplate
-                        outputFolderRelativeToRoot
-                        imageSaver
-                        (makeMarkdownLinkResolver (
-                            inputFolderAsGiven,
-                            outputFolderRelativeToRoot,
-                            fullPathFileMap,
-                            OutputKind.Pynb
-                        ))
-                        filesWithFrontMatter
-
-                yield!
-                    processFile
-                        rootInputFolder
-                        isOtherLang
-                        input
-                        OutputKind.Fsx
-                        fsxTemplate
-                        outputFolderRelativeToRoot
-                        imageSaver
-                        (makeMarkdownLinkResolver (
-                            inputFolderAsGiven,
-                            outputFolderRelativeToRoot,
-                            fullPathFileMap,
-                            OutputKind.Fsx
-                        ))
-                        filesWithFrontMatter
-
-                yield!
-                    processFile
-                        rootInputFolder
-                        isOtherLang
-                        input
-                        OutputKind.Markdown
-                        mdTemplate
-                        outputFolderRelativeToRoot
-                        imageSaver
-                        (makeMarkdownLinkResolver (
-                            inputFolderAsGiven,
-                            outputFolderRelativeToRoot,
-                            fullPathFileMap,
-                            OutputKind.Markdown
-                        ))
-                        filesWithFrontMatter
-
-            for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
-                let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-                let subFolderIsSkipped = subInputFolderName.StartsWith '.'
-                let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
-
-                if subFolderIsOutput || subFolderIsSkipped then
-
-                    printfn "  skipping directory %s" subInputFolderFullPath
-                else
-                    yield!
-                        processFolder
-                            (htmlTemplate,
-                             texTemplate,
-                             pynbTemplate,
-                             fsxTemplate,
-                             mdTemplate,
-                             isOtherLang,
-                             rootInputFolder,
-                             fullPathFileMap)
-                            (Path.Combine(inputFolderAsGiven, subInputFolderName))
-                            (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
-                            filesWithFrontMatter
-        ]
-
-    member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs, ?defaultMdTemplate: string) =
-
-        let inputDirectories = extraInputs @ [ (rootInputFolderAsGiven, ".") ]
-
-        // Maps full input paths to full output paths
-        let fullPathFileMap =
-            [
-                for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
-                    yield! prepFolder rootInputFolderAsGiven outputFolderRelativeToRoot
-            ]
-            |> Map.ofList
-
-        // In order to create {{next-page-url}} and {{previous-page-url}}
-        // We need to scan all *.fsx and *.md files for their frontmatter.
-        let filesWithFrontMatter =
-            fullPathFileMap
-            |> Map.keys
-            |> Seq.map fst
-            |> Seq.distinct
-            |> Seq.choose (fun fileName ->
-                let ext = Path.GetExtension fileName
-
-                if ext = ".fsx" then
-                    ParseScript.ParseFrontMatter(fileName)
-                elif ext = ".md" then
-                    File.ReadLines fileName |> FrontMatterFile.ParseFromLines fileName
-                elif ext = ".ipynb" then
-                    ParsePynb.parseFrontMatter fileName
-                else
-                    None)
-            |> Seq.sortBy (fun { Index = idx; CategoryIndex = cIdx } -> cIdx, idx)
-            |> Seq.toArray
-
-        [
-            for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
-                yield!
-                    processFolder
-                        (htmlTemplate,
-                         None,
-                         None,
-                         None,
-                         defaultMdTemplate,
-                         false,
-                         Some rootInputFolderAsGiven,
-                         fullPathFileMap)
-                        rootInputFolderAsGiven
-                        outputFolderRelativeToRoot
-                        filesWithFrontMatter
-        ]
-
-    member _.GetSearchIndexEntries(docModels: (string * bool * LiterateDocModel) list) =
-        [|
-            for (_inputFile, isOtherLang, model) in docModels do
-                if not isOtherLang then
-                    match model.IndexText with
-                    | Some(IndexText(fullContent, headings)) ->
-                        {
-                            title = model.Title
-                            content = fullContent
-                            headings = headings
-                            uri = model.Uri(root)
-                            ``type`` = "content"
-                        }
-                    | _ -> ()
-        |]
-
-    /// Pre-computes the expensive navigation structure (filter/group/sort) once, returning a
-    /// cheap render function that generates nav HTML for any given current page path.
-    /// This avoids O(n²) work when building a site with n pages, since the structure
-    /// (grouping, sorting, templating check) is the same for every page.
-    member _.GetNavigationEntriesFactory
-        (input, docModels: (string * bool * LiterateDocModel) list, ignoreUncategorized: bool)
-        : string option -> string =
-
-        // Pre-compute: filter eligible models, keeping paths for active-page detection
-        let baseModels =
-            [
-                for (inputFileFullPath, isOtherLang, model) in docModels do
-                    if
-                        not isOtherLang
-                        && model.OutputKind = OutputKind.Html
-                        && Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index"
-                    then
-                        yield (inputFileFullPath, model)
-            ]
-
-        let filteredBase =
-            if ignoreUncategorized then
-                baseModels |> List.filter (fun (_, model) -> model.Category.IsSome)
-            else
-                baseModels
-
-        // Pre-sort items within each category (independent of active page)
-        let orderGroup items =
-            items
-            |> List.sortBy (fun (_, model: LiterateDocModel) -> Option.defaultValue Int32.MaxValue model.Index)
-
-        // Pre-compute: group by category, sort categories, sort items within each group
-        let sortedGroups =
-            filteredBase
-            |> List.groupBy (fun (_, model) -> model.Category)
-            |> List.sortBy (fun (_, items) ->
-                match (snd items.[0]).CategoryIndex with
-                | Some s ->
-                    (try
-                        int32 s
-                     with _ ->
-                         Int32.MaxValue)
-                | None -> Int32.MaxValue)
-            |> List.map (fun (cat, items) -> cat, orderGroup items)
-
-        // Cache filesystem check — same result for all pages in a build
-        let useTemplating = Menu.isTemplatingAvailable input
-
-        // Cheap render function: only sets IsActive and generates HTML (no sorting/grouping)
-        fun (currentPagePath: string option) ->
-            let modelsByCategory =
-                sortedGroups
-                |> List.map (fun (cat, items) ->
-                    cat,
-                    items
-                    |> List.map (fun (path, model) ->
-                        { model with
-                            IsActive =
-                                match currentPagePath with
-                                | None -> false
-                                | Some cp -> cp = path
-                        }))
-
-            if useTemplating then
-                let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
-                    let menuItems =
-                        items
-                        |> List.map (fun (model: LiterateDocModel) ->
-                            let link = model.Uri(root)
-                            let title = System.Web.HttpUtility.HtmlEncode model.Title
-
-                            {
-                                Menu.MenuItem.Link = link
-                                Menu.MenuItem.Content = title
-                                Menu.MenuItem.IsActive = model.IsActive
-                            })
-
-                    Menu.createMenu input isCategoryActive header menuItems
-
-                if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                    let _, items = modelsByCategory.[0]
-                    createGroup false "Documentation" items
-                else
-                    modelsByCategory
-                    |> List.map (fun (header, items) ->
-                        let header = Option.defaultValue "Other" header
-                        let isActive = items |> List.exists (fun m -> m.IsActive)
-                        createGroup isActive header items)
-                    |> String.concat "\n"
-            else
-                [
-                    if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                        li [ Class "nav-header" ] [ !!"Documentation" ]
-
-                        for model in snd modelsByCategory.[0] do
-                            let link = model.Uri(root)
-                            let activeClass = if model.IsActive then "active" else ""
-
-                            li
-                                [ Class $"nav-item %s{activeClass}" ]
-                                [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-                    else
-                        for (cat, modelsInCategory) in modelsByCategory do
-                            let categoryActiveClass =
-                                if modelsInCategory |> List.exists (fun m -> m.IsActive) then
-                                    "active"
-                                else
-                                    ""
-
-                            match cat with
-                            | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
-                            | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
-
-                            for model in modelsInCategory do
-                                let link = model.Uri(root)
-                                let activeClass = if model.IsActive then "active" else ""
-
-                                li
-                                    [ Class $"nav-item %s{activeClass}" ]
-                                    [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-                ]
-                |> List.map (fun html -> html.ToString())
-                |> String.concat "             \n"
-
-/// Processes and runs Suave server to host them on localhost
-module Serve =
-    let refreshEvent = FSharp.Control.Event<string>()
-
-    /// generate the script to inject into html to enable hot reload during development
-    let generateWatchScript () =
-        """
-<script type="text/javascript">
-    var wsUri = "ws://" + window.location.host + "/websocket";
-    function init()
-    {
-        websocket = new WebSocket(wsUri);
-        websocket.onmessage = function(evt) {
-            const data = evt.data;
-            if (data.endsWith(".css")) {
-                console.log(`Trying to reload ${data}`);
-                const link = document.querySelector(`link[href*='${data}']`);
-                if (link) {
-                    const href = new URL(link.href);
-                    const ticks = new Date().getTime();
-                    href.searchParams.set("v", ticks);
-                    link.href = href.toString();
-                }
-            }
-            else {
-                console.log('closing');
-                websocket.close();
-                document.location.reload();
-            }
-        }
-    }
-    window.addEventListener("load", init, false);
-</script>
-"""
-
-    let connectedClients = ConcurrentDictionary<WebSocket, unit>()
-
-    let socketHandler (webSocket: WebSocket) (_context: HttpContext) : SocketOp<unit> =
-        connectedClients.TryAdd(webSocket, ()) |> ignore
-
-        Threading.Tasks.ValueTask<Result<unit, Sockets.Error>>(
-            task {
-                try
-                    // Block until the client sends a message or disconnects.
-                    let! msg = (webSocket.read ()).AsTask()
-
-                    match msg with
-                    | Ok(Close, _, _) ->
-                        let emptyResponse = [||] |> ByteSegment
-                        let! _ = (webSocket.send Close emptyResponse true).AsTask()
-                        ()
-                    | _ -> ()
-                with _ ->
-                    ()
-
-                // Deregister the client however the connection ended, so reload
-                // broadcasts never touch a dead (and possibly recycled) socket.
-                connectedClients.TryRemove webSocket |> ignore
-
-                // Return Ok even when the client vanished without a close handshake,
-                // otherwise Suave writes a "WebSocket disconnected" line to the console.
-                return Ok()
-            }
-        )
-
-    let broadCastReload (msg: string) =
-        let msg = msg |> Encoding.UTF8.GetBytes |> ByteSegment
-
-        connectedClients.Keys
-        |> Seq.map (fun client ->
-            async {
-                try
-                    let! result = (client.send Text msg true).AsTask() |> Async.AwaitTask
-
-                    match result with
-                    | Ok() -> ()
-                    | Result.Error _ -> connectedClients.TryRemove client |> ignore
-                with _ ->
-                    // Suave 3 throws (e.g. ObjectDisposedException) when the client
-                    // disconnected without a close handshake; drop the stale client.
-                    connectedClients.TryRemove client |> ignore
-            })
-        |> Async.Parallel
-        |> Async.Ignore
-        |> Async.RunSynchronously
-
-    refreshEvent.Publish
-    |> Event.add (fun fileName ->
-        if Path.HasExtension fileName then
-            let fileName = fileName.Replace("\\", "/").TrimEnd('~')
-            broadCastReload fileName)
-
-    let startWebServer rootOutputFolderAsGiven localPort =
-        let mimeTypesMap ext =
-            match ext with
-            | ".323" -> Writers.createMimeType "text/h323" false
-            | ".3g2" -> Writers.createMimeType "video/3gpp2" false
-            | ".3gp2" -> Writers.createMimeType "video/3gpp2" false
-            | ".3gp" -> Writers.createMimeType "video/3gpp" false
-            | ".3gpp" -> Writers.createMimeType "video/3gpp" false
-            | ".aac" -> Writers.createMimeType "audio/aac" false
-            | ".aaf" -> Writers.createMimeType "application/octet-stream" false
-            | ".aca" -> Writers.createMimeType "application/octet-stream" false
-            | ".accdb" -> Writers.createMimeType "application/msaccess" false
-            | ".accde" -> Writers.createMimeType "application/msaccess" false
-            | ".accdt" -> Writers.createMimeType "application/msaccess" false
-            | ".acx" -> Writers.createMimeType "application/internet-property-stream" false
-            | ".adt" -> Writers.createMimeType "audio/vnd.dlna.adts" false
-            | ".adts" -> Writers.createMimeType "audio/vnd.dlna.adts" false
-            | ".afm" -> Writers.createMimeType "application/octet-stream" false
-            | ".ai" -> Writers.createMimeType "application/postscript" false
-            | ".aif" -> Writers.createMimeType "audio/x-aiff" false
-            | ".aifc" -> Writers.createMimeType "audio/aiff" false
-            | ".aiff" -> Writers.createMimeType "audio/aiff" false
-            | ".appcache" -> Writers.createMimeType "text/cache-manifest" false
-            | ".application" -> Writers.createMimeType "application/x-ms-application" false
-            | ".art" -> Writers.createMimeType "image/x-jg" false
-            | ".asd" -> Writers.createMimeType "application/octet-stream" false
-            | ".asf" -> Writers.createMimeType "video/x-ms-asf" false
-            | ".asi" -> Writers.createMimeType "application/octet-stream" false
-            | ".asm" -> Writers.createMimeType "text/plain" false
-            | ".asr" -> Writers.createMimeType "video/x-ms-asf" false
-            | ".asx" -> Writers.createMimeType "video/x-ms-asf" false
-            | ".atom" -> Writers.createMimeType "application/atom+xml" false
-            | ".au" -> Writers.createMimeType "audio/basic" false
-            | ".avi" -> Writers.createMimeType "video/x-msvideo" false
-            | ".axs" -> Writers.createMimeType "application/olescript" false
-            | ".bas" -> Writers.createMimeType "text/plain" false
-            | ".bcpio" -> Writers.createMimeType "application/x-bcpio" false
-            | ".bin" -> Writers.createMimeType "application/octet-stream" false
-            | ".bmp" -> Writers.createMimeType "image/bmp" false
-            | ".c" -> Writers.createMimeType "text/plain" false
-            | ".cab" -> Writers.createMimeType "application/vnd.ms-cab-compressed" false
-            | ".calx" -> Writers.createMimeType "application/vnd.ms-office.calx" false
-            | ".cat" -> Writers.createMimeType "application/vnd.ms-pki.seccat" false
-            | ".cdf" -> Writers.createMimeType "application/x-cdf" false
-            | ".chm" -> Writers.createMimeType "application/octet-stream" false
-            | ".class" -> Writers.createMimeType "application/x-java-applet" false
-            | ".clp" -> Writers.createMimeType "application/x-msclip" false
-            | ".cmx" -> Writers.createMimeType "image/x-cmx" false
-            | ".cnf" -> Writers.createMimeType "text/plain" false
-            | ".cod" -> Writers.createMimeType "image/cis-cod" false
-            | ".cpio" -> Writers.createMimeType "application/x-cpio" false
-            | ".cpp" -> Writers.createMimeType "text/plain" false
-            | ".crd" -> Writers.createMimeType "application/x-mscardfile" false
-            | ".crl" -> Writers.createMimeType "application/pkix-crl" false
-            | ".crt" -> Writers.createMimeType "application/x-x509-ca-cert" false
-            | ".csh" -> Writers.createMimeType "application/x-csh" false
-            | ".css" -> Writers.createMimeType "text/css" false
-            | ".csv" -> Writers.createMimeType "text/csv" false
-            | ".cur" -> Writers.createMimeType "application/octet-stream" false
-            | ".dcr" -> Writers.createMimeType "application/x-director" false
-            | ".deploy" -> Writers.createMimeType "application/octet-stream" false
-            | ".der" -> Writers.createMimeType "application/x-x509-ca-cert" false
-            | ".dib" -> Writers.createMimeType "image/bmp" false
-            | ".dir" -> Writers.createMimeType "application/x-director" false
-            | ".disco" -> Writers.createMimeType "text/xml" false
-            | ".dlm" -> Writers.createMimeType "text/dlm" false
-            | ".doc" -> Writers.createMimeType "application/msword" false
-            | ".docm" -> Writers.createMimeType "application/vnd.ms-word.document.macroEnabled.12" false
-            | ".docx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.wordprocessingml.document" false
-            | ".dot" -> Writers.createMimeType "application/msword" false
-            | ".dotm" -> Writers.createMimeType "application/vnd.ms-word.template.macroEnabled.12" false
-            | ".dotx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.wordprocessingml.template" false
-            | ".dsp" -> Writers.createMimeType "application/octet-stream" false
-            | ".dtd" -> Writers.createMimeType "text/xml" false
-            | ".dvi" -> Writers.createMimeType "application/x-dvi" false
-            | ".dvr-ms" -> Writers.createMimeType "video/x-ms-dvr" false
-            | ".dwf" -> Writers.createMimeType "drawing/x-dwf" false
-            | ".dwp" -> Writers.createMimeType "application/octet-stream" false
-            | ".dxr" -> Writers.createMimeType "application/x-director" false
-            | ".eml" -> Writers.createMimeType "message/rfc822" false
-            | ".emz" -> Writers.createMimeType "application/octet-stream" false
-            | ".eot" -> Writers.createMimeType "application/vnd.ms-fontobject" false
-            | ".eps" -> Writers.createMimeType "application/postscript" false
-            | ".etx" -> Writers.createMimeType "text/x-setext" false
-            | ".evy" -> Writers.createMimeType "application/envoy" false
-            | ".exe" -> Writers.createMimeType "application/vnd.microsoft.portable-executable" false
-            | ".fdf" -> Writers.createMimeType "application/vnd.fdf" false
-            | ".fif" -> Writers.createMimeType "application/fractals" false
-            | ".fla" -> Writers.createMimeType "application/octet-stream" false
-            | ".flr" -> Writers.createMimeType "x-world/x-vrml" false
-            | ".flv" -> Writers.createMimeType "video/x-flv" false
-            | ".gif" -> Writers.createMimeType "image/gif" false
-            | ".gtar" -> Writers.createMimeType "application/x-gtar" false
-            | ".gz" -> Writers.createMimeType "application/x-gzip" false
-            | ".h" -> Writers.createMimeType "text/plain" false
-            | ".hdf" -> Writers.createMimeType "application/x-hdf" false
-            | ".hdml" -> Writers.createMimeType "text/x-hdml" false
-            | ".hhc" -> Writers.createMimeType "application/x-oleobject" false
-            | ".hhk" -> Writers.createMimeType "application/octet-stream" false
-            | ".hhp" -> Writers.createMimeType "application/octet-stream" false
-            | ".hlp" -> Writers.createMimeType "application/winhlp" false
-            | ".hqx" -> Writers.createMimeType "application/mac-binhex40" false
-            | ".hta" -> Writers.createMimeType "application/hta" false
-            | ".htc" -> Writers.createMimeType "text/x-component" false
-            | ".htm" -> Writers.createMimeType "text/html" false
-            | ".html" -> Writers.createMimeType "text/html" false
-            | ".htt" -> Writers.createMimeType "text/webviewhtml" false
-            | ".hxt" -> Writers.createMimeType "text/html" false
-            | ".ical" -> Writers.createMimeType "text/calendar" false
-            | ".icalendar" -> Writers.createMimeType "text/calendar" false
-            | ".ico" -> Writers.createMimeType "image/x-icon" false
-            | ".ics" -> Writers.createMimeType "text/calendar" false
-            | ".ief" -> Writers.createMimeType "image/ief" false
-            | ".ifb" -> Writers.createMimeType "text/calendar" false
-            | ".iii" -> Writers.createMimeType "application/x-iphone" false
-            | ".inf" -> Writers.createMimeType "application/octet-stream" false
-            | ".ins" -> Writers.createMimeType "application/x-internet-signup" false
-            | ".isp" -> Writers.createMimeType "application/x-internet-signup" false
-            | ".IVF" -> Writers.createMimeType "video/x-ivf" false
-            | ".jar" -> Writers.createMimeType "application/java-archive" false
-            | ".java" -> Writers.createMimeType "application/octet-stream" false
-            | ".jck" -> Writers.createMimeType "application/liquidmotion" false
-            | ".jcz" -> Writers.createMimeType "application/liquidmotion" false
-            | ".jfif" -> Writers.createMimeType "image/pjpeg" false
-            | ".jpb" -> Writers.createMimeType "application/octet-stream" false
-            | ".jpe" -> Writers.createMimeType "image/jpeg" false
-            | ".jpeg" -> Writers.createMimeType "image/jpeg" false
-            | ".jpg" -> Writers.createMimeType "image/jpeg" false
-            | ".js" -> Writers.createMimeType "text/javascript" false
-            | ".json" -> Writers.createMimeType "application/json" false
-            | ".jsx" -> Writers.createMimeType "text/jscript" false
-            | ".latex" -> Writers.createMimeType "application/x-latex" false
-            | ".lit" -> Writers.createMimeType "application/x-ms-reader" false
-            | ".lpk" -> Writers.createMimeType "application/octet-stream" false
-            | ".lsf" -> Writers.createMimeType "video/x-la-asf" false
-            | ".lsx" -> Writers.createMimeType "video/x-la-asf" false
-            | ".lzh" -> Writers.createMimeType "application/octet-stream" false
-            | ".m13" -> Writers.createMimeType "application/x-msmediaview" false
-            | ".m14" -> Writers.createMimeType "application/x-msmediaview" false
-            | ".m1v" -> Writers.createMimeType "video/mpeg" false
-            | ".m2ts" -> Writers.createMimeType "video/vnd.dlna.mpeg-tts" false
-            | ".m3u" -> Writers.createMimeType "audio/x-mpegurl" false
-            | ".m4a" -> Writers.createMimeType "audio/mp4" false
-            | ".m4v" -> Writers.createMimeType "video/mp4" false
-            | ".man" -> Writers.createMimeType "application/x-troff-man" false
-            | ".manifest" -> Writers.createMimeType "application/x-ms-manifest" false
-            | ".map" -> Writers.createMimeType "text/plain" false
-            | ".markdown" -> Writers.createMimeType "text/markdown" false
-            | ".md" -> Writers.createMimeType "text/markdown" false
-            | ".mdb" -> Writers.createMimeType "application/x-msaccess" false
-            | ".mdp" -> Writers.createMimeType "application/octet-stream" false
-            | ".me" -> Writers.createMimeType "application/x-troff-me" false
-            | ".mht" -> Writers.createMimeType "message/rfc822" false
-            | ".mhtml" -> Writers.createMimeType "message/rfc822" false
-            | ".mid" -> Writers.createMimeType "audio/mid" false
-            | ".midi" -> Writers.createMimeType "audio/mid" false
-            | ".mix" -> Writers.createMimeType "application/octet-stream" false
-            | ".mjs" -> Writers.createMimeType "text/javascript" false
-            | ".mmf" -> Writers.createMimeType "application/x-smaf" false
-            | ".mno" -> Writers.createMimeType "text/xml" false
-            | ".mny" -> Writers.createMimeType "application/x-msmoney" false
-            | ".mov" -> Writers.createMimeType "video/quicktime" false
-            | ".movie" -> Writers.createMimeType "video/x-sgi-movie" false
-            | ".mp2" -> Writers.createMimeType "video/mpeg" false
-            | ".mp3" -> Writers.createMimeType "audio/mpeg" false
-            | ".mp4" -> Writers.createMimeType "video/mp4" false
-            | ".mp4v" -> Writers.createMimeType "video/mp4" false
-            | ".mpa" -> Writers.createMimeType "video/mpeg" false
-            | ".mpe" -> Writers.createMimeType "video/mpeg" false
-            | ".mpeg" -> Writers.createMimeType "video/mpeg" false
-            | ".mpg" -> Writers.createMimeType "video/mpeg" false
-            | ".mpp" -> Writers.createMimeType "application/vnd.ms-project" false
-            | ".mpv2" -> Writers.createMimeType "video/mpeg" false
-            | ".ms" -> Writers.createMimeType "application/x-troff-ms" false
-            | ".msi" -> Writers.createMimeType "application/octet-stream" false
-            | ".mso" -> Writers.createMimeType "application/octet-stream" false
-            | ".mvb" -> Writers.createMimeType "application/x-msmediaview" false
-            | ".mvc" -> Writers.createMimeType "application/x-miva-compiled" false
-            | ".nc" -> Writers.createMimeType "application/x-netcdf" false
-            | ".nsc" -> Writers.createMimeType "video/x-ms-asf" false
-            | ".nws" -> Writers.createMimeType "message/rfc822" false
-            | ".ocx" -> Writers.createMimeType "application/octet-stream" false
-            | ".oda" -> Writers.createMimeType "application/oda" false
-            | ".odc" -> Writers.createMimeType "text/x-ms-odc" false
-            | ".ods" -> Writers.createMimeType "application/oleobject" false
-            | ".oga" -> Writers.createMimeType "audio/ogg" false
-            | ".ogg" -> Writers.createMimeType "video/ogg" false
-            | ".ogv" -> Writers.createMimeType "video/ogg" false
-            | ".ogx" -> Writers.createMimeType "application/ogg" false
-            | ".one" -> Writers.createMimeType "application/onenote" false
-            | ".onea" -> Writers.createMimeType "application/onenote" false
-            | ".onetoc" -> Writers.createMimeType "application/onenote" false
-            | ".onetoc2" -> Writers.createMimeType "application/onenote" false
-            | ".onetmp" -> Writers.createMimeType "application/onenote" false
-            | ".onepkg" -> Writers.createMimeType "application/onenote" false
-            | ".osdx" -> Writers.createMimeType "application/opensearchdescription+xml" false
-            | ".otf" -> Writers.createMimeType "font/otf" false
-            | ".p10" -> Writers.createMimeType "application/pkcs10" false
-            | ".p12" -> Writers.createMimeType "application/x-pkcs12" false
-            | ".p7b" -> Writers.createMimeType "application/x-pkcs7-certificates" false
-            | ".p7c" -> Writers.createMimeType "application/pkcs7-mime" false
-            | ".p7m" -> Writers.createMimeType "application/pkcs7-mime" false
-            | ".p7r" -> Writers.createMimeType "application/x-pkcs7-certreqresp" false
-            | ".p7s" -> Writers.createMimeType "application/pkcs7-signature" false
-            | ".pbm" -> Writers.createMimeType "image/x-portable-bitmap" false
-            | ".pcx" -> Writers.createMimeType "application/octet-stream" false
-            | ".pcz" -> Writers.createMimeType "application/octet-stream" false
-            | ".pdf" -> Writers.createMimeType "application/pdf" false
-            | ".pfb" -> Writers.createMimeType "application/octet-stream" false
-            | ".pfm" -> Writers.createMimeType "application/octet-stream" false
-            | ".pfx" -> Writers.createMimeType "application/x-pkcs12" false
-            | ".pgm" -> Writers.createMimeType "image/x-portable-graymap" false
-            | ".pko" -> Writers.createMimeType "application/vnd.ms-pki.pko" false
-            | ".pma" -> Writers.createMimeType "application/x-perfmon" false
-            | ".pmc" -> Writers.createMimeType "application/x-perfmon" false
-            | ".pml" -> Writers.createMimeType "application/x-perfmon" false
-            | ".pmr" -> Writers.createMimeType "application/x-perfmon" false
-            | ".pmw" -> Writers.createMimeType "application/x-perfmon" false
-            | ".png" -> Writers.createMimeType "image/png" false
-            | ".pnm" -> Writers.createMimeType "image/x-portable-anymap" false
-            | ".pnz" -> Writers.createMimeType "image/png" false
-            | ".pot" -> Writers.createMimeType "application/vnd.ms-powerpoint" false
-            | ".potm" -> Writers.createMimeType "application/vnd.ms-powerpoint.template.macroEnabled.12" false
-            | ".potx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.presentationml.template" false
-            | ".ppam" -> Writers.createMimeType "application/vnd.ms-powerpoint.addin.macroEnabled.12" false
-            | ".ppm" -> Writers.createMimeType "image/x-portable-pixmap" false
-            | ".pps" -> Writers.createMimeType "application/vnd.ms-powerpoint" false
-            | ".ppsm" -> Writers.createMimeType "application/vnd.ms-powerpoint.slideshow.macroEnabled.12" false
-            | ".ppsx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.presentationml.slideshow" false
-            | ".ppt" -> Writers.createMimeType "application/vnd.ms-powerpoint" false
-            | ".pptm" -> Writers.createMimeType "application/vnd.ms-powerpoint.presentation.macroEnabled.12" false
-            | ".pptx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.presentationml.presentation" false
-            | ".prf" -> Writers.createMimeType "application/pics-rules" false
-            | ".prm" -> Writers.createMimeType "application/octet-stream" false
-            | ".prx" -> Writers.createMimeType "application/octet-stream" false
-            | ".ps" -> Writers.createMimeType "application/postscript" false
-            | ".psd" -> Writers.createMimeType "application/octet-stream" false
-            | ".psm" -> Writers.createMimeType "application/octet-stream" false
-            | ".psp" -> Writers.createMimeType "application/octet-stream" false
-            | ".pub" -> Writers.createMimeType "application/x-mspublisher" false
-            | ".qt" -> Writers.createMimeType "video/quicktime" false
-            | ".qtl" -> Writers.createMimeType "application/x-quicktimeplayer" false
-            | ".qxd" -> Writers.createMimeType "application/octet-stream" false
-            | ".ra" -> Writers.createMimeType "audio/x-pn-realaudio" false
-            | ".ram" -> Writers.createMimeType "audio/x-pn-realaudio" false
-            | ".rar" -> Writers.createMimeType "application/octet-stream" false
-            | ".ras" -> Writers.createMimeType "image/x-cmu-raster" false
-            | ".rf" -> Writers.createMimeType "image/vnd.rn-realflash" false
-            | ".rgb" -> Writers.createMimeType "image/x-rgb" false
-            | ".rm" -> Writers.createMimeType "application/vnd.rn-realmedia" false
-            | ".rmi" -> Writers.createMimeType "audio/mid" false
-            | ".roff" -> Writers.createMimeType "application/x-troff" false
-            | ".rpm" -> Writers.createMimeType "audio/x-pn-realaudio-plugin" false
-            | ".rtf" -> Writers.createMimeType "application/rtf" false
-            | ".rtx" -> Writers.createMimeType "text/richtext" false
-            | ".scd" -> Writers.createMimeType "application/x-msschedule" false
-            | ".sct" -> Writers.createMimeType "text/scriptlet" false
-            | ".sea" -> Writers.createMimeType "application/octet-stream" false
-            | ".setpay" -> Writers.createMimeType "application/set-payment-initiation" false
-            | ".setreg" -> Writers.createMimeType "application/set-registration-initiation" false
-            | ".sgml" -> Writers.createMimeType "text/sgml" false
-            | ".sh" -> Writers.createMimeType "application/x-sh" false
-            | ".shar" -> Writers.createMimeType "application/x-shar" false
-            | ".sit" -> Writers.createMimeType "application/x-stuffit" false
-            | ".sldm" -> Writers.createMimeType "application/vnd.ms-powerpoint.slide.macroEnabled.12" false
-            | ".sldx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.presentationml.slide" false
-            | ".smd" -> Writers.createMimeType "audio/x-smd" false
-            | ".smi" -> Writers.createMimeType "application/octet-stream" false
-            | ".smx" -> Writers.createMimeType "audio/x-smd" false
-            | ".smz" -> Writers.createMimeType "audio/x-smd" false
-            | ".snd" -> Writers.createMimeType "audio/basic" false
-            | ".snp" -> Writers.createMimeType "application/octet-stream" false
-            | ".spc" -> Writers.createMimeType "application/x-pkcs7-certificates" false
-            | ".spl" -> Writers.createMimeType "application/futuresplash" false
-            | ".spx" -> Writers.createMimeType "audio/ogg" false
-            | ".src" -> Writers.createMimeType "application/x-wais-source" false
-            | ".ssm" -> Writers.createMimeType "application/streamingmedia" false
-            | ".sst" -> Writers.createMimeType "application/vnd.ms-pki.certstore" false
-            | ".stl" -> Writers.createMimeType "application/vnd.ms-pki.stl" false
-            | ".sv4cpio" -> Writers.createMimeType "application/x-sv4cpio" false
-            | ".sv4crc" -> Writers.createMimeType "application/x-sv4crc" false
-            | ".svg" -> Writers.createMimeType "image/svg+xml" false
-            | ".svgz" -> Writers.createMimeType "image/svg+xml" false
-            | ".swf" -> Writers.createMimeType "application/x-shockwave-flash" false
-            | ".t" -> Writers.createMimeType "application/x-troff" false
-            | ".tar" -> Writers.createMimeType "application/x-tar" false
-            | ".tcl" -> Writers.createMimeType "application/x-tcl" false
-            | ".tex" -> Writers.createMimeType "application/x-tex" false
-            | ".texi" -> Writers.createMimeType "application/x-texinfo" false
-            | ".texinfo" -> Writers.createMimeType "application/x-texinfo" false
-            | ".tgz" -> Writers.createMimeType "application/x-compressed" false
-            | ".thmx" -> Writers.createMimeType "application/vnd.ms-officetheme" false
-            | ".thn" -> Writers.createMimeType "application/octet-stream" false
-            | ".tif" -> Writers.createMimeType "image/tiff" false
-            | ".tiff" -> Writers.createMimeType "image/tiff" false
-            | ".toc" -> Writers.createMimeType "application/octet-stream" false
-            | ".tr" -> Writers.createMimeType "application/x-troff" false
-            | ".trm" -> Writers.createMimeType "application/x-msterminal" false
-            | ".ts" -> Writers.createMimeType "video/vnd.dlna.mpeg-tts" false
-            | ".tsv" -> Writers.createMimeType "text/tab-separated-values" false
-            | ".ttc" -> Writers.createMimeType "application/x-font-ttf" false
-            | ".ttf" -> Writers.createMimeType "application/x-font-ttf" false
-            | ".tts" -> Writers.createMimeType "video/vnd.dlna.mpeg-tts" false
-            | ".txt" -> Writers.createMimeType "text/plain" false
-            | ".u32" -> Writers.createMimeType "application/octet-stream" false
-            | ".uls" -> Writers.createMimeType "text/iuls" false
-            | ".ustar" -> Writers.createMimeType "application/x-ustar" false
-            | ".vbs" -> Writers.createMimeType "text/vbscript" false
-            | ".vcf" -> Writers.createMimeType "text/x-vcard" false
-            | ".vcs" -> Writers.createMimeType "text/plain" false
-            | ".vdx" -> Writers.createMimeType "application/vnd.ms-visio.viewer" false
-            | ".vml" -> Writers.createMimeType "text/xml" false
-            | ".vsd" -> Writers.createMimeType "application/vnd.visio" false
-            | ".vss" -> Writers.createMimeType "application/vnd.visio" false
-            | ".vst" -> Writers.createMimeType "application/vnd.visio" false
-            | ".vsto" -> Writers.createMimeType "application/x-ms-vsto" false
-            | ".vsw" -> Writers.createMimeType "application/vnd.visio" false
-            | ".vsx" -> Writers.createMimeType "application/vnd.visio" false
-            | ".vtx" -> Writers.createMimeType "application/vnd.visio" false
-            | ".wasm" -> Writers.createMimeType "application/wasm" false
-            | ".wav" -> Writers.createMimeType "audio/wav" false
-            | ".wax" -> Writers.createMimeType "audio/x-ms-wax" false
-            | ".wbmp" -> Writers.createMimeType "image/vnd.wap.wbmp" false
-            | ".wcm" -> Writers.createMimeType "application/vnd.ms-works" false
-            | ".wdb" -> Writers.createMimeType "application/vnd.ms-works" false
-            | ".webm" -> Writers.createMimeType "video/webm" false
-            | ".webmanifest" -> Writers.createMimeType "application/manifest+json" false
-            | ".webp" -> Writers.createMimeType "image/webp" false
-            | ".wks" -> Writers.createMimeType "application/vnd.ms-works" false
-            | ".wm" -> Writers.createMimeType "video/x-ms-wm" false
-            | ".wma" -> Writers.createMimeType "audio/x-ms-wma" false
-            | ".wmd" -> Writers.createMimeType "application/x-ms-wmd" false
-            | ".wmf" -> Writers.createMimeType "application/x-msmetafile" false
-            | ".wml" -> Writers.createMimeType "text/vnd.wap.wml" false
-            | ".wmlc" -> Writers.createMimeType "application/vnd.wap.wmlc" false
-            | ".wmls" -> Writers.createMimeType "text/vnd.wap.wmlscript" false
-            | ".wmlsc" -> Writers.createMimeType "application/vnd.wap.wmlscriptc" false
-            | ".wmp" -> Writers.createMimeType "video/x-ms-wmp" false
-            | ".wmv" -> Writers.createMimeType "video/x-ms-wmv" false
-            | ".wmx" -> Writers.createMimeType "video/x-ms-wmx" false
-            | ".wmz" -> Writers.createMimeType "application/x-ms-wmz" false
-            | ".woff" -> Writers.createMimeType "application/font-woff" false
-            | ".woff2" -> Writers.createMimeType "font/woff2" false
-            | ".wps" -> Writers.createMimeType "application/vnd.ms-works" false
-            | ".wri" -> Writers.createMimeType "application/x-mswrite" false
-            | ".wrl" -> Writers.createMimeType "x-world/x-vrml" false
-            | ".wrz" -> Writers.createMimeType "x-world/x-vrml" false
-            | ".wsdl" -> Writers.createMimeType "text/xml" false
-            | ".wtv" -> Writers.createMimeType "video/x-ms-wtv" false
-            | ".wvx" -> Writers.createMimeType "video/x-ms-wvx" false
-            | ".x" -> Writers.createMimeType "application/directx" false
-            | ".xaf" -> Writers.createMimeType "x-world/x-vrml" false
-            | ".xaml" -> Writers.createMimeType "application/xaml+xml" false
-            | ".xap" -> Writers.createMimeType "application/x-silverlight-app" false
-            | ".xbap" -> Writers.createMimeType "application/x-ms-xbap" false
-            | ".xbm" -> Writers.createMimeType "image/x-xbitmap" false
-            | ".xdr" -> Writers.createMimeType "text/plain" false
-            | ".xht" -> Writers.createMimeType "application/xhtml+xml" false
-            | ".xhtml" -> Writers.createMimeType "application/xhtml+xml" false
-            | ".xla" -> Writers.createMimeType "application/vnd.ms-excel" false
-            | ".xlam" -> Writers.createMimeType "application/vnd.ms-excel.addin.macroEnabled.12" false
-            | ".xlc" -> Writers.createMimeType "application/vnd.ms-excel" false
-            | ".xlm" -> Writers.createMimeType "application/vnd.ms-excel" false
-            | ".xls" -> Writers.createMimeType "application/vnd.ms-excel" false
-            | ".xlsb" -> Writers.createMimeType "application/vnd.ms-excel.sheet.binary.macroEnabled.12" false
-            | ".xlsm" -> Writers.createMimeType "application/vnd.ms-excel.sheet.macroEnabled.12" false
-            | ".xlsx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" false
-            | ".xlt" -> Writers.createMimeType "application/vnd.ms-excel" false
-            | ".xltm" -> Writers.createMimeType "application/vnd.ms-excel.template.macroEnabled.12" false
-            | ".xltx" ->
-                Writers.createMimeType "application/vnd.openxmlformats-officedocument.spreadsheetml.template" false
-            | ".xlw" -> Writers.createMimeType "application/vnd.ms-excel" false
-            | ".xml" -> Writers.createMimeType "text/xml" false
-            | ".xof" -> Writers.createMimeType "x-world/x-vrml" false
-            | ".xpm" -> Writers.createMimeType "image/x-xpixmap" false
-            | ".xps" -> Writers.createMimeType "application/vnd.ms-xpsdocument" false
-            | ".xsd" -> Writers.createMimeType "text/xml" false
-            | ".xsf" -> Writers.createMimeType "text/xml" false
-            | ".xsl" -> Writers.createMimeType "text/xml" false
-            | ".xslt" -> Writers.createMimeType "text/xml" false
-            | ".xsn" -> Writers.createMimeType "application/octet-stream" false
-            | ".xtp" -> Writers.createMimeType "application/octet-stream" false
-            | ".xwd" -> Writers.createMimeType "image/x-xwindowdump" false
-            | ".z" -> Writers.createMimeType "application/x-compress" false
-            | ".zip" -> Writers.createMimeType "application/x-zip-compressed" false
-            | _ -> None
-
-        let defaultBinding = defaultConfig.bindings.[0]
-
-        let withPort =
-            { defaultBinding.socketBinding with
-                port = uint16 localPort
-            }
-
-        let serverConfig =
-            { defaultConfig with
-                bindings =
-                    [
-                        { defaultBinding with
-                            socketBinding = withPort
-                        }
-                    ]
-                homeFolder = Some rootOutputFolderAsGiven
-                mimeTypesMap = mimeTypesMap
-            }
-
-        let app =
-            choose
-                [
-                    path "/" >=> Redirection.redirect "/index.html"
-                    path "/websocket" >=> handShake socketHandler
-                    Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
-                    >=> Writers.setHeader "Pragma" "no-cache"
-                    >=> Writers.setHeader "Expires" "0"
-                    >=> Files.browseHome
-                ]
-
-        // In Suave 3.x the server part of the tuple is a hot Task, no explicit start needed.
-        startWebServerAsync serverConfig app |> snd |> ignore
-
-/// Helpers for generating llms.txt and llms-full.txt content.
-module internal LlmsTxt =
-
-    // Compiled once at module load; reused across all llms.txt page entries.
-    let private multipleNewlinesRegex =
-        System.Text.RegularExpressions.Regex(@"\n{3,}", System.Text.RegularExpressions.RegexOptions.Compiled)
-
-    let private whitespaceRunRegex =
-        System.Text.RegularExpressions.Regex(@"\s+", System.Text.RegularExpressions.RegexOptions.Compiled)
-
-    /// Decode HTML entities (e.g. &quot; → ", &gt; → >) in a string.
-    let private decodeHtml (s: string) = System.Net.WebUtility.HtmlDecode(s)
-
-    /// Strip FSharp.Formatting --eval warning lines from content.
-    let private stripEvalWarnings (s: string) =
-        s.Split('\n')
-        |> Array.filter (fun line ->
-            not (
-                line
-                    .TrimStart()
-                    .StartsWith(
-                        "Warning: Output, it-value and value references require --eval",
-                        System.StringComparison.Ordinal
-                    )
-            ))
-        |> String.concat "\n"
-
-    /// Collapse three or more consecutive newlines into at most two.
-    let private collapseBlankLines (s: string) =
-        multipleNewlinesRegex.Replace(s, "\n\n")
-
-    /// Normalise a title: trim and collapse internal whitespace/newlines to a single space.
-    let private normaliseTitle (s: string) =
-        whitespaceRunRegex.Replace(s.Trim(), " ")
-
-    /// Decode HTML entities and remove --eval noise from content.
-    let private cleanContent (s: string) =
-        s |> decodeHtml |> stripEvalWarnings |> collapseBlankLines |> fun t -> t.Trim()
-
-    /// Build a section of llms.txt from a set of search index entries.
-    /// When <c>withContent</c> is true, entry content is appended under a heading per entry.
-    /// When false, entries are listed as bullet-point links (index format).
-    /// <c>uriTransform</c> is applied to each entry's URI before rendering.
-    let buildSection
-        sectionTitle
-        (entries: ApiDocsSearchIndexEntry array)
-        withContent
-        (uriTransform: string -> string)
-        =
-        if entries.Length = 0 then
-            ""
-        else
-            let sb = System.Text.StringBuilder()
-            sb.Append(sprintf "## %s\n\n" sectionTitle) |> ignore
-
-            for e in entries do
-                let title = normaliseTitle e.title
-                let uri = uriTransform e.uri
-
-                if withContent then
-                    sb.Append(sprintf "### [%s](%s)\n\n" title uri) |> ignore
-
-                    if not (System.String.IsNullOrWhiteSpace(e.content)) then
-                        sb.Append(cleanContent e.content) |> ignore
-                        sb.Append("\n\n") |> ignore
-                else
-                    sb.Append(sprintf "- [%s](%s)\n" title uri) |> ignore
-
-            sb.ToString()
-
-    /// Returns a URI transformer that rewrites links to use .md when markdown output is available.
-    /// <c>docContentUsesMarkdown</c> – doc pages were generated with a _template.md.
-    /// <c>apiDocUsesMarkdown</c> – API reference was generated with GenerateMarkdownPhased
-    ///   (URIs have no file extension; .md must be appended).
-    let buildUriTransform (docContentUsesMarkdown: bool) (apiDocUsesMarkdown: bool) (entryType: string) =
-        fun (uri: string) ->
-            match entryType with
-            | "content" when docContentUsesMarkdown ->
-                if uri.EndsWith(".html", System.StringComparison.OrdinalIgnoreCase) then
-                    uri.[.. uri.Length - 6] + ".md"
-                else
-                    uri
-            | "apiDocs" when apiDocUsesMarkdown ->
-                // In markdown mode InUrl="" so URIs have no extension; append .md.
-                // Strip any #anchor before appending, then re-attach it.
-                let hashIdx = uri.IndexOf('#')
-
-                if hashIdx >= 0 then
-                    uri.[.. hashIdx - 1] + ".md" + uri.[hashIdx..]
-                else
-                    uri + ".md"
-            | _ -> uri
-
-    /// Generate the text content of llms.txt (index) and llms-full.txt (with content).
-    /// Returns a tuple of (llms.txt content, llms-full.txt content).
-    /// When <c>docContentUsesMarkdown</c> is true, doc page links use .md extensions.
-    /// When <c>apiDocUsesMarkdown</c> is true, API reference links use .md extensions.
-    let buildContent
-        (collectionName: string)
-        (entries: ApiDocsSearchIndexEntry array)
-        (docContentUsesMarkdown: bool)
-        (apiDocUsesMarkdown: bool)
-        =
-        let contentEntries = entries |> Array.filter (fun e -> e.``type`` = "content")
-        let apiEntries = entries |> Array.filter (fun e -> e.``type`` = "apiDocs")
-        // For the index, exclude per-member entries (identified by a '#' anchor in the URI).
-        let apiIndexEntries = apiEntries |> Array.filter (fun e -> not (e.uri.Contains("#")))
-        let header = sprintf "# %s\n\n" collectionName
-
-        let contentTransform = buildUriTransform docContentUsesMarkdown apiDocUsesMarkdown "content"
-        let apiDocTransform = buildUriTransform docContentUsesMarkdown apiDocUsesMarkdown "apiDocs"
-
-        let llmsTxt =
-            header
-            + buildSection "Docs" contentEntries false contentTransform
-            + buildSection "API Reference" apiIndexEntries false apiDocTransform
-
-        let llmsFullTxt =
-            header
-            + buildSection "Docs" contentEntries true contentTransform
-            + buildSection "API Reference" apiEntries true apiDocTransform
-
-        llmsTxt, llmsFullTxt
+open Microsoft.Extensions.Logging
 
 type CoreBuildOptions(watch) =
 
@@ -1502,7 +27,7 @@ type CoreBuildOptions(watch) =
 
     [<Option("output",
              Required = false,
-             HelpText = "Output Folder (default 'output' for 'build' and 'tmp/watch' for 'watch'.")>]
+             HelpText = "Output Folder (default 'output'). Ignored by 'watch', which keeps no output folder.")>]
     member val output = "" with get, set
 
     [<Option("noapidocs", Default = false, Required = false, HelpText = "Disable generation of API docs.")>]
@@ -1588,11 +113,21 @@ type CoreBuildOptions(watch) =
     [<Option("clean", Required = false, Default = false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
+    [<Option('v',
+             "verbosity",
+             Required = false,
+             Default = "normal",
+             HelpText = "How much to log: quiet, minimal, normal, detailed or diagnostic.")>]
+    member val verbosity = "normal" with get, set
+
     member this.Execute() =
+
+        if not (Verbosity.configure this.verbosity) then
+            exit 1
 
         let onError msg =
             if this.strict then
-                printfn "%s" msg
+                logger.Errorf "%s" msg
                 exit 1
 
         let protect phase f =
@@ -1600,7 +135,7 @@ type CoreBuildOptions(watch) =
                 f ()
                 true
             with ex ->
-                printfn "Error : \n%O" ex
+                logger.Errorf "%s failed:\n%O" phase ex
 
                 onError (sprintf "%s failed, and --strict is on : \n%O" phase ex)
                 false
@@ -1610,7 +145,7 @@ type CoreBuildOptions(watch) =
             let parameters = Array.ofSeq this.parameters
 
             if parameters.Length % 2 = 1 then
-                printfn "The --parameters option's arguments' count has to be an even number"
+                logger.Errorf "The --parameters option's arguments' count has to be an even number"
                 exit 1
 
             evalPairwiseStringsNoOption parameters
@@ -1618,83 +153,121 @@ type CoreBuildOptions(watch) =
 
         let userParametersDict = readOnlyDict userParameters
 
-        // Adjust the user substitutions for 'watch' mode root
+        // The address the watch server is announced on. Page links are relative, so the site works
+        // from any address the server is reachable on; the site URL only feeds the absolute links
+        // (Open Graph metadata, llms.txt).
+        let publicHost =
+            match this.host_option.Trim() with
+            | h when String.IsNullOrEmpty h || h = "0.0.0.0" || h = "*" || h = "+" -> "localhost"
+            | host -> host
+
+        // The port to actually serve on: resolved once, up front, so the site's own default root URL
+        // (below) and the server started later agree even when the requested port was taken.
+        let port =
+            if watch then
+                try
+                    Serve.resolvePort this.host_option this.port_option
+                with ex ->
+                    logger.Errorf "%s" ex.Message
+                    exit 1
+            else
+                this.port_option
+
+        // Adjust the user substitutions for 'watch' mode site root
+        // The site URL given by the user, if any. '{{root}}' is relative per page, so the user sets
+        // the absolute URL as 'fsdocs-site-root'; a 'root' parameter still works but is meant to
+        // draw attention to the change.
+        let userSiteRoot =
+            match userParametersDict.TryGetValue(ParamKeys.``fsdocs-site-root``) with
+            | true, v -> Some v
+            | _ ->
+                match userParametersDict.TryGetValue(ParamKeys.root) with
+                | true, v ->
+                    logger.Warnf
+                        "the 'root' substitution is now relative per page; '%s' is used as the site URL, pass it as '--parameters fsdocs-site-root %s' instead"
+                        v
+                        v
+
+                    Some v
+                | _ -> None
+
         let userRoot, userParameters =
             if watch then
                 let userRoot =
-                    match this.root_override_option with
+                    match this.site_root_option with
                     | Some r -> r
-                    | None -> sprintf "http://localhost:%d/" this.port_option
+                    | None -> sprintf "http://%s:%d/" publicHost port
 
-                if
-                    userParametersDict.ContainsKey(ParamKeys.root)
-                    && this.root_override_option.IsNone
-                then
-                    printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
+                if userSiteRoot.IsSome && this.site_root_option.IsNone then
+                    logger.Warnf "ignoring the user-specified site root since in watch mode, site root = %s" userRoot
 
                 let userParameters =
                     [ ParamKeys.root, userRoot ]
-                    @ (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.root))
+                    @ (userParameters
+                       |> List.filter (fun (a, _) -> a <> ParamKeys.root && a <> ParamKeys.``fsdocs-site-root``))
 
                 Some userRoot, userParameters
             else
-                let r =
-                    match userParametersDict.TryGetValue(ParamKeys.root) with
-                    | true, v -> Some v
-                    | _ -> None
-
-                r, userParameters
+                userSiteRoot, userParameters
 
         let userCollectionName =
             match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with
             | true, v -> Some v
             | _ -> None
 
-        // See https://github.com/ionide/proj-info/issues/123
-        let prevDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")
+        let extraMsbuildProperties =
+            this.extraMsbuildProperties
+            |> Seq.toList
+            |> List.map (fun s ->
+                let arr = s.Split("=")
 
-        let (root, collectionName, crackedProjects, paths, docsSubstitutions, generateLlmsTxt), _key =
-            let projects = Seq.toList this.projects
-            let cacheFile = ".fsdocs/cache"
+                if arr.Length > 1 then
+                    arr.[0], String.concat "=" arr.[1..]
+                else
+                    failwith "properties must be of the form 'PropName=PropValue'")
 
-            let getTime (p: string) =
-                try
-                    File.GetLastWriteTimeUtc(p)
-                with _ ->
-                    DateTime.Now
+        let getTime (p: string) =
+            try
+                File.GetLastWriteTimeUtc(p)
+            with _ ->
+                DateTime.Now
 
-            let key1 =
-                (userRoot,
-                 this.parameters,
-                 projects,
-                 getTime (typeof<CoreBuildOptions>.Assembly.Location),
-                 (projects |> List.map getTime |> List.toArray))
+        let discoveredCollectionName, projectFiles =
+            Crack.discoverProjects userCollectionName (Seq.toList this.projects) this.ignoreprojects
 
-            Utils.cacheBinary cacheFile (fun (_, key2) -> key1 = key2) (fun () ->
-                let props =
-                    this.extraMsbuildProperties
-                    |> Seq.toList
-                    |> List.map (fun s ->
-                        let arr = s.Split("=")
+        let msbuildFiles =
+            [ "Directory.Build.props"; "Directory.Build.targets"; "Directory.Packages.props"; "global.json" ]
+            |> List.choose (fun file ->
+                if File.Exists file then
+                    Some(Path.GetFullPath file)
+                else
+                    None)
 
-                        if arr.Length > 1 then
-                            arr.[0], String.concat "=" arr.[1..]
-                        else
-                            failwith "properties must be of the form 'PropName=PropValue'")
+        // The cracked projects are cached in '.fsdocs/cache' until a project file, one of the
+        // solution-wide MSBuild files, the options or the tool change. The key is computed on
+        // every call so that a re-crack in watch mode sees the current file times.
+        let crackKey () =
+            (userRoot,
+             Seq.toList this.parameters,
+             extraMsbuildProperties,
+             projectFiles,
+             getTime (typeof<CoreBuildOptions>.Assembly.Location),
+             (projectFiles @ msbuildFiles |> List.map getTime |> List.toArray))
 
-                Crack.crackProjects (
-                    onError,
-                    props,
-                    userRoot,
-                    userCollectionName,
-                    userParameters,
-                    projects,
-                    this.ignoreprojects
-                ),
-                key1)
+        let evaluateProjectsCached () : Crack.CrackedProjectInfo list =
+            let key = crackKey ()
 
-        // See https://github.com/ionide/proj-info/issues/123
-        System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
+            Utils.cacheBinary ".fsdocs/cache" (fun (_, key2) -> key = key2) (fun () ->
+                Crack.evaluateProjects (onError, extraMsbuildProperties, projectFiles, this.ignoreprojects), key)
+            |> fst
+
+        let evaluatedInfos = evaluateProjectsCached ()
+        let collectionName = discoveredCollectionName
+
+        // 'root' is the absolute site URL here; every page gets its own relative '{{root}}'
+        // (see Content.relativeRoot) and the site URL stays available as '{{fsdocs-site-root}}'.
+        let (root, crackedProjects, _, docsSubstitutions, generateLlmsTxt) =
+            Crack.siteOf (userRoot, userParameters, collectionName, evaluatedInfos, true)
 
         // In watch mode the logo must link to the locally hosted site, even when
         // <FsDocsLogoLink> is set to a production URL for the published site.
@@ -1711,64 +284,40 @@ type CoreBuildOptions(watch) =
 
         let docsSubstitutions = overrideLogoLinkForWatch docsSubstitutions
 
-        if crackedProjects.Length > 0 then
-            printfn ""
-            printfn "Inputs for API Docs:"
+        let watchOverrides =
+            if watch then
+                [ ParamKeys.root; ParamKeys.``fsdocs-logo-link`` ]
+            else
+                []
 
-            for (dllFile, _, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
-                printfn "    %s" dllFile
+        /// The substitutions that take the page's relative root instead of the site URL: 'root', and
+        /// the logo link when it points at the site root (its default without <FsDocsLogoLink>, and
+        /// always in watch mode)
+        let pageRootKeys =
+            let logoLinksToRoot =
+                docsSubstitutions
+                |> List.exists (fun (k, v) -> k = ParamKeys.``fsdocs-logo-link`` && v = root)
 
-        //printfn "Comand lines for API Docs:"
-        //for (_, runArguments, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
-        //    printfn "    %O" runArguments
-
-        for (dllFile, _, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
-            if not (File.Exists dllFile) then
-                let msg =
-                    sprintf
-                        "*** %s does not exist, has it been built? You may need to provide --properties Configuration=Release."
-                        dllFile
-
-                if this.strict then failwith msg else printfn "%s" msg
-
-        if crackedProjects.Length > 0 then
-            printfn ""
-            printfn "Substitutions/parameters:"
-            // Print the substitutions
-            for (ParamKey pk, p) in docsSubstitutions do
-                printfn "  %s --> %s" pk p
-
-            // The substitutions may differ for some projects due to different settings in the project files, if so show that
-            let pd = dict docsSubstitutions
-
-            for (dllFile, _, _, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
-                for (((ParamKey pkv2) as pk2), p2) in projectParameters do
-                    if pd.ContainsKey pk2 && pd.[pk2] <> p2 then
-                        printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
-
-        let apiDocInputs =
             [
-                for (dllFile,
-                     _,
-                     repoUrlOption,
-                     repoBranchOption,
-                     repoTypeOption,
-                     projectMarkdownComments,
-                     projectWarn,
-                     projectSourceFolder,
-                     projectSourceRepo,
-                     projectNoInheritedMembers,
-                     projectShowTypeConstraints,
-                     projectParameters) in crackedProjects ->
+                yield ParamKeys.root
+                if watch || logoLinksToRoot then
+                    yield ParamKeys.``fsdocs-logo-link``
+            ]
+
+        let apiRoot = Content.apiRoot this.qualify
+
+        let apiDocInputsOf (crackedProjects: Crack.CrackedProject list) =
+            [
+                for project in crackedProjects ->
                     let sourceRepo =
-                        match projectSourceRepo with
+                        match project.SourceRepository with
                         | Some s -> Some s
                         | None ->
                             match evalString this.sourceRepo with
                             | Some v -> Some v
                             | None ->
                                 //printfn "repoBranchOption = %A" repoBranchOption
-                                match repoUrlOption, repoBranchOption, repoTypeOption with
+                                match project.RepositoryUrl, project.RepositoryBranch, project.RepositoryType with
                                 | Some url, Some branch, Some "git" when not (String.IsNullOrWhiteSpace branch) ->
                                     url + "/" + "tree/" + branch |> Some
                                 | Some url, _, Some "git" -> url + "/" + "tree/" + "master" |> Some
@@ -1776,7 +325,7 @@ type CoreBuildOptions(watch) =
                                 | _ -> None
 
                     let sourceFolder =
-                        match projectSourceFolder with
+                        match project.SourceFolder with
                         | Some s -> s
                         | None ->
                             match evalString this.sourceFolder with
@@ -1786,17 +335,78 @@ type CoreBuildOptions(watch) =
                     //printfn "sourceFolder = '%s'" sourceFolder
                     //printfn "sourceRepo = '%A'" sourceRepo
                     {
-                        Path = dllFile
+                        Path = project.TargetPath
                         XmlFile = None
                         SourceRepo = sourceRepo
                         SourceFolder = Some sourceFolder
-                        Substitutions = Some(overrideLogoLinkForWatch projectParameters)
-                        MarkdownComments = this.mdcomments || projectMarkdownComments
-                        Warn = projectWarn
+                        // The API pages all live under 'reference/': their root is relative to that folder
+                        Substitutions =
+                            Some(
+                                project.Substitutions
+                                |> overrideLogoLinkForWatch
+                                |> Content.withPageRoot pageRootKeys apiRoot
+                            )
+                        MarkdownComments = this.mdcomments || project.UsesMarkdownComments
+                        Warn = project.WarnOnMissingDocs
                         PublicOnly = not this.nonpublic
-                        ShowInheritedMembers = not projectNoInheritedMembers
-                        TypeConstraintDisplayMode = projectShowTypeConstraints
+                        ShowInheritedMembers = not project.NoInheritedMembers
+                        TypeConstraintDisplayMode = project.TypeConstraints
                     }
+            ]
+
+        let apiDocInputs = apiDocInputsOf crackedProjects
+
+        // The design-time build of the projects: the '-r:' references and the properties as set by
+        // the targets. It is the expensive part of project cracking, so it runs only when the API
+        // docs are generated and is cached in '.fsdocs/references' with the same key as the projects.
+        let designTimeBuild (force: bool) (infos: Crack.CrackedProjectInfo list) : Map<string, Crack.DesignTimeBuild> =
+            let key = crackKey ()
+
+            let resolved, _ =
+                Utils.cacheBinary ".fsdocs/references" (fun (_, key2) -> not force && key = key2) (fun () ->
+                    logger.Infof "design-time build of %d projects..." infos.Length
+
+                    let builds =
+                        Crack.resolveCompilerOptions
+                            extraMsbuildProperties
+                            [ for info in infos -> info.ProjectFileName, info.TargetFrameworks ]
+
+                    [
+                        for info in infos do
+                            match builds.TryFind info.ProjectFileName with
+                            | Some build -> info.ProjectFileName, build
+                            | None -> ()
+                    ],
+                    key)
+
+            Map.ofList resolved
+
+        /// The references of a project, split by whether they exist on disk.
+        let referencesOf (build: Crack.DesignTimeBuild) =
+            let refs =
+                [
+                    for otherFlag in build.OtherOptions do
+                        if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
+                            otherFlag.[3..]
+                ]
+
+            let kept, dropped = refs |> List.partition File.Exists
+
+            for r in dropped do
+                logger.Warnf "the reference '-r:%s' was not seen on disk, ignoring" r
+
+            kept, dropped
+
+        /// The substitutions whose value differs between two substitution lists: key, before, after.
+        let changedSubstitutions (before: Substitutions) (after: Substitutions) =
+            let old = dict before
+
+            [
+                for (ParamKey key as pk, value) in after do
+                    match old.TryGetValue pk with
+                    | true, v when v = value -> ()
+                    | true, v -> key, v, value
+                    | _ -> key, "", value
             ]
 
         // Compute the merge of all referenced DLLs across all projects
@@ -1804,22 +414,152 @@ type CoreBuildOptions(watch) =
         //
         // TODO: This is inaccurate: the different projects might not be referencing the same DLLs.
         // We should do doc generation for each output of each proejct separately
-        let apiDocOtherFlags =
+        let apiDocOtherFlagsOf (references: ProjectReferences list) =
             [
-                for (_dllFile, otherFlags, _, _, _, _, _, _, _, _, _, _) in crackedProjects do
-                    for otherFlag in otherFlags do
-                        if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
-                            if File.Exists(otherFlag.[3..]) then
-                                yield otherFlag
-                            else
-                                printfn "NOTE: the reference '%s' was not seen on disk, ignoring" otherFlag
+                for r in references do
+                    for reference in r.References do
+                        yield "-r:" + reference
             ]
             // TODO: This 'distinctBy' is merging references that may be inconsistent across the project set
             |> List.distinctBy (fun ref -> Path.GetFileName(ref.[3..]))
 
+        let projectDiagnosticsOf (crackedProjects: Crack.CrackedProject list) (docsSubstitutions: Substitutions) =
+            let siteSubstitutions = dict docsSubstitutions
+
+            [
+                for project in crackedProjects ->
+                    {
+                        ProjectFile = project.ProjectFileName
+                        TargetPath = project.TargetPath
+                        TargetExists = File.Exists project.TargetPath
+                        OverridingSubstitutions =
+                            [
+                                for (ParamKey key as pk, value) in project.Substitutions do
+                                    if siteSubstitutions.ContainsKey pk && siteSubstitutions.[pk] <> value then
+                                        key, value
+                            ]
+                    }
+            ]
+
+        /// Everything derived from the evaluated projects. With a design-time build, the substitutions
+        /// are recomputed from the properties as the targets set them and the references are known.
+        /// The root URL stays the one chosen at startup.
+        let crackResultOf
+            (infos: Crack.CrackedProjectInfo list)
+            (designTime: Map<string, Crack.DesignTimeBuild> option)
+            : CrackResult =
+            let siteOf infos =
+                let (_, crackedProjects, paths, docsSubstitutions, _) =
+                    Crack.siteOf (Some root, userParameters, collectionName, infos, false)
+
+                crackedProjects, paths, overrideLogoLinkForWatch docsSubstitutions
+
+            let crackedProjects, paths, docsSubstitutions = siteOf infos
+
+            match designTime with
+            | None ->
+                {
+                    Substitutions = docsSubstitutions
+                    SubstitutionDiagnostics =
+                        Diagnostics.substitutions docsSubstitutions userParameters watchOverrides []
+                    ApiDocInputs = apiDocInputsOf crackedProjects
+                    ApiDocOtherFlags = Seq.toList this.fscoptions
+                    LibDirs = paths
+                    Projects = projectDiagnosticsOf crackedProjects docsSubstitutions
+                    References = []
+                    DesignTimeBuilt = false
+                }
+            | Some builds ->
+                let refinedInfos =
+                    [
+                        for info in infos ->
+                            match builds.TryFind info.ProjectFileName with
+                            | Some build -> Crack.refineProjectInfo info build
+                            | None -> info
+                    ]
+
+                let refinedProjects, refinedPaths, refinedSubstitutions = siteOf refinedInfos
+                let evaluatedByProject = crackedProjects |> List.map (fun p -> p.ProjectFileName, p) |> Map.ofList
+
+                let references =
+                    [
+                        for project in refinedProjects do
+                            match builds.TryFind project.ProjectFileName with
+                            | Some build ->
+                                let kept, dropped = referencesOf build
+
+                                let before =
+                                    evaluatedByProject.TryFind project.ProjectFileName
+                                    |> Option.map (fun p -> p.Substitutions)
+                                    |> Option.defaultValue []
+
+                                {
+                                    ProjectFile = project.ProjectFileName
+                                    References = kept
+                                    DroppedReferences = dropped
+                                    ChangedSubstitutions = changedSubstitutions before project.Substitutions
+                                }
+                            | None -> ()
+                    ]
+
+                let changed = changedSubstitutions docsSubstitutions refinedSubstitutions
+
+                let projectChanges =
+                    [
+                        for r in references do
+                            for (key, before, after) in r.ChangedSubstitutions ->
+                                Path.GetFileNameWithoutExtension r.ProjectFile, key, before, after
+                    ]
+
+                if not changed.IsEmpty || not projectChanges.IsEmpty then
+                    logger.Infof
+                        "design-time build: %d site-wide and %d project substitutions changed (use --verbosity detailed to list them)"
+                        changed.Length
+                        projectChanges.Length
+
+                    for (key, before, after) in changed do
+                        logger.Debugf "  %s: '%s' --> '%s'" key before after
+
+                    for (project, key, before, after) in projectChanges do
+                        logger.Debugf "  (%s) %s: '%s' --> '%s'" project key before after
+
+                {
+                    Substitutions = refinedSubstitutions
+                    SubstitutionDiagnostics =
+                        Diagnostics.substitutions
+                            refinedSubstitutions
+                            userParameters
+                            watchOverrides
+                            [ for (key, _, _) in changed -> ParamKey key ]
+                    ApiDocInputs = apiDocInputsOf refinedProjects
+                    ApiDocOtherFlags = apiDocOtherFlagsOf references @ Seq.toList this.fscoptions
+                    LibDirs = refinedPaths
+                    Projects = projectDiagnosticsOf refinedProjects refinedSubstitutions
+                    References = references
+                    DesignTimeBuilt = true
+                }
+
+        /// The crack result of the projects on disk (cached), before any design-time build
+        let evaluatedCrack () =
+            crackResultOf (evaluateProjectsCached ()) None
+
+        /// The crack result after the design-time build, which runs now unless cached ('force' skips the cache)
+        let resolvedCrack (force: bool) =
+            let infos = evaluateProjectsCached ()
+            crackResultOf infos (Some(designTimeBuild force infos))
+
+        /// The crack result for 'build': the design-time build runs once, when the API docs need it
+        let startupCrack =
+            lazy
+                (if this.noapidocs || crackedProjects.IsEmpty then
+                     evaluatedCrack ()
+                 else
+                     resolvedCrack false)
+
+        // Only used by 'build'; 'watch' keeps no output folder
         let rootOutputFolderAsGiven =
             if String.IsNullOrWhiteSpace this.output then
-                if watch then "tmp/watch" else "output"
+                "output"
             else
                 this.output
 
@@ -1834,25 +574,17 @@ type CoreBuildOptions(watch) =
         let defaultTemplateAttempt2 =
             Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.html"))
 
-        let defaultTemplate =
+        let defaultTemplateResolution =
             if this.nodefaultcontent then
-                None
-            else if
-                (try
-                    File.Exists(defaultTemplateAttempt1)
-                 with _ ->
-                     false)
-            then
-                Some defaultTemplateAttempt1
-            elif
-                (try
-                    File.Exists(defaultTemplateAttempt2)
-                 with _ ->
-                     false)
-            then
-                Some defaultTemplateAttempt2
+                {
+                    Tried = []
+                    Chosen = None
+                    Note = Some "--nodefaultcontent is on"
+                }
             else
-                None
+                Diagnostics.resolveFile [ defaultTemplateAttempt1; defaultTemplateAttempt2 ]
+
+        let defaultTemplate = defaultTemplateResolution.Chosen
 
         // Default markdown template – used when generateLlmsTxt is enabled and no user _template.md exists.
         // An empty (or minimal) _template.md causes the processor to emit just the document content, which
@@ -1863,76 +595,161 @@ type CoreBuildOptions(watch) =
         let defaultMdTemplateAttempt2 =
             Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.md"))
 
-        let defaultMdTemplate =
+        let defaultMdTemplateResolution =
             if this.nodefaultcontent then
-                None
-            else if
-                (try
-                    File.Exists(defaultMdTemplateAttempt1)
-                 with _ ->
-                     false)
-            then
-                Some defaultMdTemplateAttempt1
-            elif
-                (try
-                    File.Exists(defaultMdTemplateAttempt2)
-                 with _ ->
-                     false)
-            then
-                Some defaultMdTemplateAttempt2
+                {
+                    Tried = []
+                    Chosen = None
+                    Note = Some "--nodefaultcontent is on"
+                }
             else
-                None
+                Diagnostics.resolveFile [ defaultMdTemplateAttempt1; defaultMdTemplateAttempt2 ]
+
+        let defaultMdTemplate = defaultMdTemplateResolution.Chosen
+
+        // The "extras" content goes in "."
+        //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
+        //   to .nuget\packages\fsdocs-tool\7.1.7\extras
+        // This is for in-repo use only, assuming we are executing directly from
+        //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
+        //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
+        let extrasResolution =
+            if this.nodefaultcontent then
+                {
+                    Tried = []
+                    Chosen = None
+                    Note = Some "--nodefaultcontent is on"
+                }
+            else
+                Diagnostics.resolveDirectory
+                    [
+                        Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+                        Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
+                    ]
 
         let extraInputs =
-            [
-                if not this.nodefaultcontent then
-                    // The "extras" content goes in "."
-                    //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
-                    //   to .nuget\packages\fsdocs-tool\7.1.7\extras
-                    let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+            match extrasResolution.Chosen, extrasResolution.Tried with
+            | Some chosen, attempt1 :: _ when chosen = attempt1 -> [ (chosen, ".") ]
+            | Some chosen, _ -> [ (chosen, "content") ]
+            | None, _ -> []
 
-                    if
-                        (try
-                            Directory.Exists(attempt1)
-                         with _ ->
-                             false)
-                    then
-                        printfn "using extra content from %s" attempt1
-                        (attempt1, ".")
-                    else
-                        // This is for in-repo use only, assuming we are executing directly from
-                        //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
-                        //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
-                        let attempt2 =
-                            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
+        // The template for API reference pages: a 'reference/_template.*' or '_template.*' in the input
+        // folder, else the default template.
+        let apiDocsTemplateResolution, apiDocsOutputKind, apiDocsTemplate =
+            let templates =
+                [
+                    OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                    OutputKind.Html, Path.Combine(this.input, "_template.html")
+                    OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                    OutputKind.Markdown, Path.Combine(this.input, "_template.md")
+                ]
 
-                        if
-                            (try
-                                Directory.Exists(attempt2)
-                             with _ ->
-                                 false)
-                        then
-                            printfn "using extra content from %s" attempt2
-                            (attempt2, "content")
-                        else
-                            printfn "no extra content found at %s or %s" attempt1 attempt2
-            ]
+            let tried = templates |> List.map snd
+
+            match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
+            | Some(kind, path) ->
+                {
+                    Tried = tried
+                    Chosen = Some path
+                    Note = None
+                },
+                kind,
+                Some path
+            | None ->
+                let templateFiles = tried |> String.concat "', '"
+
+                match defaultTemplate with
+                | Some d ->
+                    {
+                        Tried = tried
+                        Chosen = Some d
+                        Note =
+                            Some(
+                                sprintf "note, no template files: '%s' found, using default template %s" templateFiles d
+                            )
+                    },
+                    OutputKind.Html,
+                    Some d
+                | None ->
+                    {
+                        Tried = tried
+                        Chosen = None
+                        Note =
+                            Some(
+                                sprintf
+                                    "note, no template file '%s' found, and no default template at '%s'"
+                                    templateFiles
+                                    defaultTemplateAttempt1
+                            )
+                    },
+                    OutputKind.Html,
+                    None
+
+        let diagnostics: Diagnostics =
+            let headTemplatePath = Path.Combine(this.input, "_head.html")
+            let bodyTemplatePath = Path.Combine(this.input, "_body.html")
+
+            {
+                ToolVersion = Diagnostics.toolVersion ()
+                CommandLine = Diagnostics.commandLine ()
+                Command = (if watch then "watch" else "build")
+                Input = this.input
+                Output = (if watch then None else Some rootOutputFolderAsGiven)
+                Root = root
+                CollectionName = collectionName
+                GenerateLlmsTxt = generateLlmsTxt
+                IgnoredOptions = this.ignoredOptions
+                Projects = projectDiagnosticsOf crackedProjects docsSubstitutions
+                Substitutions = Diagnostics.substitutions docsSubstitutions userParameters watchOverrides []
+                DefaultTemplate = defaultTemplateResolution
+                DefaultMarkdownTemplate = defaultMdTemplateResolution
+                ApiDocsTemplate = apiDocsTemplateResolution
+                ApiDocsOutputKind = string<OutputKind> apiDocsOutputKind
+                Extras = extrasResolution
+                HeadTemplate =
+                    (if File.Exists headTemplatePath then
+                         Some headTemplatePath
+                     else
+                         None)
+                BodyTemplate =
+                    (if File.Exists bodyTemplatePath then
+                         Some bodyTemplatePath
+                     else
+                         None)
+                MenuTemplatesFound = Menu.isTemplatingAvailable this.input
+            }
+
+        Diagnostics.log diagnostics
+
+        for project in diagnostics.Projects do
+            if not project.TargetExists then
+                let msg =
+                    sprintf
+                        "*** %s does not exist, has it been built? You may need to provide --properties Configuration=Release."
+                        project.TargetPath
+
+                if this.strict then failwith msg else logger.Warnf "%s" msg
+
 
         // The incremental state (as well as the files written to disk)
         let mutable latestApiDocModel = None
-        let mutable latestApiDocGlobalParameters = []
-        let mutable latestApiDocCodeReferenceResolver = (fun _ -> None)
+
+        let mutable latestApiDocGlobalParametersFor =
+            (fun (_: string) -> [ ParamKeys.``fsdocs-list-of-namespaces``, "" ])
+
+        let mutable latestApiDocCodeReferenceResolver = (fun (_: string) (_: string) -> None)
         let mutable latestApiDocPhase2 = (fun _ -> ())
         let mutable latestApiDocSearchIndexEntries = [||]
         let mutable latestApiDocOutputKind = OutputKind.Html
         let mutable latestDocContentPhase2 = (fun _ -> ())
         let mutable latestDocContentResults = Map.empty
         let mutable latestDocContentSearchIndexEntries = [||]
-        let mutable latestDocContentGlobalParameters = []
+        let mutable latestDocContentGlobalParametersFor = (fun (_: string) -> [])
 
-        // Actions to read out the incremental state
-        let getLatestGlobalParameters () =
-            latestApiDocGlobalParameters @ latestDocContentGlobalParameters
+        // Actions to read out the incremental state; the globals depend on the root of the page
+        let getLatestGlobalParametersFor (pageRoot: string) =
+            latestApiDocGlobalParametersFor pageRoot
+            @ latestDocContentGlobalParametersFor pageRoot
 
         let regenerateSearchIndex () =
             let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
@@ -1946,7 +763,10 @@ type CoreBuildOptions(watch) =
 
         let generateLlmsTxt () =
             if generateLlmsTxtEnabled then
-                let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
+                let index =
+                    Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
+                    |> Content.absoluteSearchIndex root
+
                 // When FsDocsGenerateLlmsTxt is enabled, markdown is always generated alongside HTML
                 // (using the bundled default markdown template if the user hasn't provided a _template.md).
                 let docContentUsesMarkdown = true
@@ -1968,102 +788,86 @@ type CoreBuildOptions(watch) =
                 // otherwise, inject empty replacement string
                 [ ParamKeys.``fsdocs-watch-script``, "" ]
 
-        // Incrementally generate API docs (regenerates all api docs, in two phases)
-        let runGeneratePhase1 () =
-            protect "API doc generation (phase 1)" (fun () ->
-                if crackedProjects.Length = 0 || this.noapidocs then
-                    latestApiDocGlobalParameters <- [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
-                elif crackedProjects.Length > 0 then
-                    let (outputKind, initialTemplate2) =
-                        let templates =
-                            [
-                                OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                                OutputKind.Html, Path.Combine(this.input, "_template.html")
-                                OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                                OutputKind.Markdown, Path.Combine(this.input, "_template.md")
-                            ]
+        /// Generate the API docs model and page renderers, None when there is nothing to generate.
+        let generateApiDocs
+            (crack: CrackResult)
+            (outputFolder: string)
+            (onError: string -> unit)
+            : ApiDocsPhased option =
+            if crack.ApiDocInputs.IsEmpty || this.noapidocs then
+                None
+            else
+                apiDocsTemplateResolution.Note
+                |> Option.iter (fun note -> logger.Warnf "%s" note)
 
-                        match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
-                        | Some(kind, path) -> kind, Some path
-                        | None ->
-                            let templateFiles = templates |> Seq.map snd |> String.concat "', '"
+                logger.Infof "API docs: generating the model for %d assemblies..." crack.ApiDocInputs.Length
+                let stopwatch = Stopwatch.StartNew()
 
-                            match defaultTemplate with
-                            | Some d ->
-                                printfn
-                                    "note, no template files: '%s' found, using default template %s"
-                                    templateFiles
-                                    d
-
-                                OutputKind.Html, Some d
-                            | None ->
-                                printfn
-                                    "note, no template file '%s' found, and no default template at '%s'"
-                                    templateFiles
-                                    defaultTemplateAttempt1
-
-                                OutputKind.Html, None
-
-                    latestApiDocOutputKind <- outputKind
-
-                    printfn ""
-                    printfn "API docs:"
-                    printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
-
-                    let model, globals, index, phase2 =
-                        match outputKind with
-                        | OutputKind.Html ->
+                let phased =
+                    match apiDocsOutputKind with
+                    | OutputKind.Html ->
+                        Some(
                             ApiDocs.GenerateHtmlPhased(
-                                inputs = apiDocInputs,
-                                output = rootOutputFolderAsGiven,
+                                inputs = crack.ApiDocInputs,
+                                output = outputFolder,
                                 collectionName = collectionName,
-                                substitutions = docsSubstitutions,
+                                substitutions = Content.withPageRoot pageRootKeys apiRoot crack.Substitutions,
                                 qualify = this.qualify,
-                                ?template = initialTemplate2,
-                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                root = root,
-                                libDirs = paths,
+                                ?template = apiDocsTemplate,
+                                otherFlags = crack.ApiDocOtherFlags,
+                                root = apiRoot,
+                                libDirs = crack.LibDirs,
                                 onError = onError,
                                 menuTemplateFolder = this.input
                             )
-                        | OutputKind.Markdown ->
+                        )
+                    | OutputKind.Markdown ->
+                        Some(
                             ApiDocs.GenerateMarkdownPhased(
-                                inputs = apiDocInputs,
-                                output = rootOutputFolderAsGiven,
+                                inputs = crack.ApiDocInputs,
+                                output = outputFolder,
                                 collectionName = collectionName,
-                                substitutions = docsSubstitutions,
+                                substitutions = Content.withPageRoot pageRootKeys apiRoot crack.Substitutions,
                                 qualify = this.qualify,
-                                ?template = initialTemplate2,
-                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                root = root,
-                                libDirs = paths,
+                                ?template = apiDocsTemplate,
+                                otherFlags = crack.ApiDocOtherFlags,
+                                root = apiRoot,
+                                libDirs = crack.LibDirs,
                                 onError = onError
                             )
-                        | _ -> failwithf "API Docs format '%A' is not supported" outputKind
+                        )
+                    | outputKind -> failwithf "API Docs format '%A' is not supported" outputKind
 
-                    // Used to resolve code references in content with respect to the API Docs model
-                    let resolveInlineCodeReference (s: string) =
-                        if s.StartsWith("cref:", StringComparison.Ordinal) then
-                            let s = s.[5..]
+                phased
+                |> Option.iter (fun phased ->
+                    let namespaces = phased.Model.Collection.Namespaces
 
-                            match model.Resolver.ResolveCref s with
-                            | None -> None
-                            | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
-                        else
-                            None
+                    logger.Infof
+                        "API docs: %d namespaces, %d entities in %.1f s"
+                        namespaces.Length
+                        (namespaces |> List.sumBy (fun ns -> ns.Entities.Length))
+                        stopwatch.Elapsed.TotalSeconds)
 
-                    latestApiDocModel <- Some model
-                    latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
-                    latestApiDocSearchIndexEntries <- index
-                    latestApiDocGlobalParameters <- globals
-                    latestApiDocPhase2 <- phase2)
+                phased
+
+        // Incrementally generate API docs (regenerates all api docs, in two phases)
+        let runGeneratePhase1 () =
+            protect "API doc generation (phase 1)" (fun () ->
+                match generateApiDocs startupCrack.Value rootOutputFolderAsGiven onError with
+                | None -> latestApiDocGlobalParametersFor <- (fun _ -> [ ParamKeys.``fsdocs-list-of-namespaces``, "" ])
+                | Some phased ->
+                    latestApiDocOutputKind <- apiDocsOutputKind
+                    latestApiDocModel <- Some phased.Model
+                    latestApiDocCodeReferenceResolver <- Content.makeCrefResolver phased.Model
+                    latestApiDocSearchIndexEntries <- phased.SearchIndex
+                    latestApiDocGlobalParametersFor <- phased.GlobalSubstitutionsFor
+                    latestApiDocPhase2 <- phased.Generate)
 
         let runGeneratePhase2 () =
             protect "API doc generation (phase 2)" (fun () ->
-                printfn ""
-                printfn "Write API Docs:"
+                logger.Debugf "writing the API docs"
 
-                let globals = getLatestWatchScript () @ getLatestGlobalParameters ()
+                let globals = getLatestWatchScript () @ getLatestGlobalParametersFor apiRoot
 
                 latestApiDocPhase2 globals
                 regenerateSearchIndex ())
@@ -2073,8 +877,7 @@ type CoreBuildOptions(watch) =
             protect "Content generation (phase 1)" (fun () ->
                 //printfn "projectInfos = %A" projectInfos
 
-                printfn ""
-                printfn "Content:"
+                let stopwatch = Stopwatch.StartNew()
 
                 let saveImages =
                     (match this.saveImages with
@@ -2089,10 +892,9 @@ type CoreBuildOptions(watch) =
                         latestDocContentResults,
                         Some this.linenumbers,
                         this.eval,
-                        docsSubstitutions,
+                        startupCrack.Value.Substitutions,
                         saveImages,
                         watch,
-                        root,
                         latestApiDocCodeReferenceResolver,
                         onError
                     )
@@ -2117,6 +919,8 @@ type CoreBuildOptions(watch) =
                     docContent.Convert(this.input, defaultTemplate, extraInputs, ?defaultMdTemplate = mdTemplate)
 
                 let actualDocModels = docModels |> List.map fst |> List.choose id
+
+                logger.Infof "Content: %d pages in %.1f s" actualDocModels.Length stopwatch.Elapsed.TotalSeconds
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
                 // Pre-compute the navigation structure once; returned closure cheaply
@@ -2128,25 +932,31 @@ type CoreBuildOptions(watch) =
                         ignoreUncategorized = this.ignoreuncategorized
                     )
 
-                let navEntriesWithoutActivePage = getNavEntries None
+                let extraTemplateText (name: string) =
+                    let path = Path.Combine(this.input, name)
+                    if File.Exists path then File.ReadAllText path else ""
 
-                let headTemplateContent =
-                    let headTemplatePath = Path.Combine(this.input, "_head.html")
+                let headTemplateText = extraTemplateText "_head.html"
+                let bodyTemplateText = extraTemplateText "_body.html"
 
-                    if not (File.Exists headTemplatePath) then
-                        ""
-                    else
-                        File.ReadAllText headTemplatePath
-                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
+                // The globals depend on the root of the page; a site has a handful of depths
+                let globalsByRoot = System.Collections.Generic.Dictionary<string, Substitutions>()
 
-                let bodyTemplateContent =
-                    let bodyTemplatePath = Path.Combine(this.input, "_body.html")
+                let globalsFor (pageRoot: string) =
+                    match globalsByRoot.TryGetValue pageRoot with
+                    | true, g -> g
+                    | _ ->
+                        let subst = SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, pageRoot ]
 
-                    if not (File.Exists bodyTemplatePath) then
-                        ""
-                    else
-                        File.ReadAllText bodyTemplatePath
-                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
+                        let g =
+                            [
+                                ParamKeys.``fsdocs-list-of-documents``, getNavEntries pageRoot None
+                                ParamKeys.``fsdocs-head-extra``, subst headTemplateText
+                                ParamKeys.``fsdocs-body-extra``, subst bodyTemplateText
+                            ]
+
+                        globalsByRoot.[pageRoot] <- g
+                        g
 
                 let results =
                     Map.ofList
@@ -2160,260 +970,179 @@ type CoreBuildOptions(watch) =
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
 
-                latestDocContentGlobalParameters <-
-                    [
-                        ParamKeys.``fsdocs-list-of-documents``, navEntriesWithoutActivePage
-                        ParamKeys.``fsdocs-head-extra``, headTemplateContent
-                        ParamKeys.``fsdocs-body-extra``, bodyTemplateContent
-                    ]
+                latestDocContentGlobalParametersFor <- globalsFor
 
                 latestDocContentPhase2 <-
-                    (fun globals ->
-                        printfn ""
-                        printfn "Write Content:"
+                    (fun (globalsFor: string -> Substitutions) ->
+                        logger.Debugf "writing the content"
 
                         for (optDocModel, action) in docModels do
-                            let globals =
-                                match optDocModel with
-                                | None -> globals
-                                | Some(currentPagePath, _, _) ->
-                                    // Use the pre-computed factory closure (only sets IsActive, no re-sorting)
-                                    let navEntries = getNavEntries (Some currentPagePath)
+                            match optDocModel with
+                            | None -> action []
+                            | Some(currentPagePath, _, model) ->
+                                let pageRoot = Content.relativeRoot model.OutputPath
 
-                                    globals
+                                // Use the pre-computed factory closure (only sets IsActive, no re-sorting)
+                                let navEntries = getNavEntries pageRoot (Some currentPagePath)
+
+                                let globals =
+                                    globalsFor pageRoot
                                     |> List.map (fun (pk, v) ->
                                         if pk <> ParamKeys.``fsdocs-list-of-documents`` then
                                             pk, v
                                         else
                                             ParamKeys.``fsdocs-list-of-documents``, navEntries)
 
-                            action globals))
+                                action globals))
 
         let runDocContentPhase2 () =
             protect "Content generation (phase 2)" (fun () ->
-                let globals = getLatestWatchScript () @ getLatestGlobalParameters ()
-
-                latestDocContentPhase2 globals)
+                latestDocContentPhase2 (fun pageRoot ->
+                    getLatestWatchScript () @ getLatestGlobalParametersFor pageRoot))
 
         //-----------------------------------------
-        // Clean
-
-        let rootInputFolderAsGiven = this.input
-        let rootInputFolderFullPath = Path.GetFullPath rootInputFolderAsGiven
-        let rootOutputFolderFullPath = Path.GetFullPath rootOutputFolderAsGiven
-
-        if this.clean then
-            let rec clean dir =
-                for file in Directory.EnumerateFiles(dir) do
-                    File.Delete file |> ignore
-
-                for subdir in Directory.EnumerateDirectories dir do
-                    if not (Path.GetFileName(subdir).StartsWith '.') then
-                        clean subdir
-
-            let isOutputPathOK =
-                rootOutputFolderAsGiven <> "/"
-                && rootOutputFolderAsGiven <> "."
-                && rootOutputFolderFullPath <> rootInputFolderFullPath
-                && not (String.IsNullOrEmpty rootOutputFolderAsGiven)
-
-            if isOutputPathOK then
-                try
-                    clean rootOutputFolderFullPath
-                with e ->
-                    printfn "warning: error during cleaning, continuing: %s" e.Message
-            else
-                printfn "warning: skipping cleaning due to strange output path: \"%s\"" rootOutputFolderAsGiven
+        // Watch: a lazy site served from memory, no output folder
 
         if watch then
-            printfn "Building docs first time..."
+            Diagnostics.logIgnoredOptions diagnostics
 
-        //-----------------------------------------
-        // Build
+            // Errors are printed, never fatal: the server stays up so the page can be fixed and reloaded
+            let siteOnError msg = logger.Errorf "%s" msg
 
-        let ok =
-            let ok1 = runGeneratePhase1 ()
-            // Note, the above generates these outputs:
-            //   latestApiDocModel
-            //   latestApiDocGlobalParameters
-            //   latestApiDocCodeReferenceResolver
-            //   latestApiDocPhase2
-            //   latestApiDocSearchIndexEntries
-
-            let ok2 = runDocContentPhase1 ()
-            // Note, the above references these inputs:
-            //   latestApiDocCodeReferenceResolver
-            //
-            // Note, the above generates these outputs:
-            //   latestDocContentResults
-            //   latestDocContentSearchIndexEntries
-            //   latestDocContentGlobalParameters
-            //   latestDocContentPhase2
-
-            let ok2 = ok2 && runGeneratePhase2 ()
-
-            // Run this second to override anything produced by API generate, e.g.
-            // bespoke file for namespaces etc.
-            let ok1 = ok1 && runDocContentPhase2 ()
-            regenerateSearchIndex ()
-            generateLlmsTxt ()
-            ok1 && ok2
-
-        //-----------------------------------------
-        // Watch
-
-        if watch then
-
-            let docsWatchers =
-                [
-                    if Directory.Exists(this.input) then
-                        yield new FileSystemWatcher(this.input)
-                    match defaultTemplate with
-                    | Some defaultTemplate ->
-                        yield
-                            new FileSystemWatcher(Path.GetDirectoryName(defaultTemplate), IncludeSubdirectories = true)
-                    | None -> ()
-                ]
-
-            let templateWatchers =
-                if Directory.Exists(this.input) then
-                    [ new FileSystemWatcher(this.input) ]
-                else
-                    []
-
-            let projectOutputWatchers =
-                [
-                    for input in apiDocInputs do
-                        let dir = Path.GetDirectoryName(input.Path)
-
-                        if Directory.Exists(dir) then
-                            new FileSystemWatcher(dir), input.Path
-                ]
-
-            use _holder =
-                { new IDisposable with
-                    member _.Dispose() =
-                        for p in docsWatchers do
-                            p.Dispose()
-
-                        for p in templateWatchers do
-                            p.Dispose()
-
-                        for (p, _) in projectOutputWatchers do
-                            p.Dispose()
+            let config: SiteConfig =
+                {
+                    Input = this.input
+                    ExtraInputs = extraInputs
+                    DefaultTemplateFolder = defaultTemplate |> Option.map Path.GetDirectoryName
+                    Root = root
+                    CollectionName = collectionName
+                    DefaultTemplate = defaultTemplate
+                    DefaultMdTemplate = defaultMdTemplate
+                    GenerateLlmsTxt = generateLlmsTxtEnabled
+                    IgnoreUncategorized = this.ignoreuncategorized
+                    ContentOptions =
+                        {
+                            LineNumbers = Some this.linenumbers
+                            Evaluate = this.eval
+                            Substitutions = docsSubstitutions
+                            RootKeys = pageRootKeys
+                            OnError = siteOnError
+                        }
+                    ApiDllPaths = [ for input in apiDocInputs -> input.Path ]
+                    ProjectFiles = projectFiles @ msbuildFiles
+                    ApiDocsOutputKind = apiDocsOutputKind
+                    ApiDocsTemplate = apiDocsTemplate
+                    Crack = evaluatedCrack
+                    Resolve = resolvedCrack
+                    GenerateApi = (fun crack outputFolder -> generateApiDocs crack outputFolder siteOnError)
+                    WatchScript = Serve.generateWatchScript ()
+                    Diagnostics = diagnostics
                 }
 
-            // Only one update at a time
-            let monitor = obj ()
-            // One of each kind of request at a time
-            let mutable docsQueued = true
-            let mutable generateQueued = true
+            use site = new Site(config)
+            site.Start()
+            site.CheckAssets()
 
-            let docsDependenciesChanged = FSharp.Control.Event<string>()
+            logger.Infof
+                "starting server on http://%s:%d (bound to %s) for content in %s"
+                publicHost
+                port
+                this.host_option
+                this.input
 
-            docsDependenciesChanged.Publish.Add(fun fileName ->
-                if not docsQueued then
-                    docsQueued <- true
-                    printfn "Detected change in '%s', scheduling rebuild of docs..." this.input
+            logger.Infof "pages are built when first requested; see http://%s:%d/.fsdocs/doctor" publicHost port
 
-                    async {
-                        do! Async.Sleep(300)
-
-                        lock monitor (fun () ->
-                            docsQueued <- false
-
-                            if runDocContentPhase1 () then
-                                if runDocContentPhase2 () then
-                                    regenerateSearchIndex ()
-                                    generateLlmsTxt ())
-
-                        Serve.refreshEvent.Trigger fileName
-                    }
-                    |> Async.Start)
-
-            let apiDocsDependenciesChanged = FSharp.Control.Event<_>()
-
-            apiDocsDependenciesChanged.Publish.Add(fun () ->
-                if not generateQueued then
-                    generateQueued <- true
-                    printfn "Detected change in built outputs, scheduling rebuild of API docs..."
-
-                    async {
-                        do! Async.Sleep(300)
-
-                        lock monitor (fun () ->
-                            generateQueued <- false
-
-                            if runGeneratePhase1 () then
-                                if runGeneratePhase2 () then
-                                    regenerateSearchIndex ()
-                                    generateLlmsTxt ())
-
-                        Serve.refreshEvent.Trigger "full"
-                    }
-                    |> Async.Start)
-
-            // Listen to changes in any input under docs
-            for docsWatcher in docsWatchers do
-                docsWatcher.IncludeSubdirectories <- true
-                docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-                docsWatcher.Changed.Add(fun fileEvent -> docsDependenciesChanged.Trigger fileEvent.Name)
-
-            // When _template.* change rebuild everything
-            for templateWatcher in templateWatchers do
-                templateWatcher.IncludeSubdirectories <- true
-                // _menu_template.html or _menu-item_template.html could be changed as well.
-                templateWatcher.Filter <- "*template.html"
-                templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
-
-                templateWatcher.Changed.Add(fun fileEvent ->
-                    docsDependenciesChanged.Trigger fileEvent.Name
-                    apiDocsDependenciesChanged.Trigger())
-
-            // Listen to changes in output DLLs
-            for (projectOutputWatcher, projectOutput) in projectOutputWatchers do
-                projectOutputWatcher.Filter <- Path.GetFileName(projectOutput)
-                projectOutputWatcher.Path <- Path.GetDirectoryName(projectOutput)
-                projectOutputWatcher.NotifyFilter <- NotifyFilters.LastWrite
-                projectOutputWatcher.Changed.Add(fun _ -> apiDocsDependenciesChanged.Trigger())
-
-            // Start raising events
-            for docsWatcher in docsWatchers do
-                docsWatcher.EnableRaisingEvents <- true
-
-            for templateWatcher in templateWatchers do
-                templateWatcher.EnableRaisingEvents <- true
-
-            for (pathWatcher, _path) in projectOutputWatchers do
-                pathWatcher.EnableRaisingEvents <- true
-
-            generateQueued <- false
-            docsQueued <- false
-
-            if not this.noserver_option then
-                printfn
-                    "starting server on http://localhost:%d for content in %s"
-                    this.port_option
-                    rootOutputFolderFullPath
-
-                Serve.startWebServer rootOutputFolderFullPath this.port_option
+            DevServer.startWebServer site this.host_option port
 
             if not this.nolaunch_option then
-                let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
+                let url = sprintf "http://localhost:%d/%s" port this.open_option
 
-                printfn "launching browser window to open %s" url
+                logger.Infof "launching browser window to open %s" url
 
                 try
                     Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
                 with ex ->
-                    printfn "Warning, unable to launch browser(%s), try manually browsing to %s" ex.Message url
+                    logger.Warnf "unable to launch browser (%s), try manually browsing to %s" ex.Message url
 
             waitForKey watch
+            0
+        else
+            //-----------------------------------------
+            // Clean
 
-        if ok then 0 else 1
+            let rootInputFolderAsGiven = this.input
+            let rootInputFolderFullPath = Path.GetFullPath rootInputFolderAsGiven
+            let rootOutputFolderFullPath = Path.GetFullPath rootOutputFolderAsGiven
 
-    abstract noserver_option: bool
-    default x.noserver_option = false
+            if this.clean then
+                let rec clean dir =
+                    for file in Directory.EnumerateFiles(dir) do
+                        File.Delete file |> ignore
+
+                    for subdir in Directory.EnumerateDirectories dir do
+                        if not (Path.GetFileName(subdir).StartsWith '.') then
+                            clean subdir
+
+                let isOutputPathOK =
+                    rootOutputFolderAsGiven <> "/"
+                    && rootOutputFolderAsGiven <> "."
+                    && rootOutputFolderFullPath <> rootInputFolderFullPath
+                    && not (String.IsNullOrEmpty rootOutputFolderAsGiven)
+
+                if isOutputPathOK then
+                    try
+                        clean rootOutputFolderFullPath
+                    with e ->
+                        logger.Warnf "error during cleaning, continuing: %s" e.Message
+                else
+                    logger.Warnf "skipping cleaning due to strange output path: \"%s\"" rootOutputFolderAsGiven
+
+            //-----------------------------------------
+            // Build
+
+            let ok =
+                let ok1 = runGeneratePhase1 ()
+                // Note, the above generates these outputs:
+                //   latestApiDocModel
+                //   latestApiDocGlobalParameters
+                //   latestApiDocCodeReferenceResolver
+                //   latestApiDocPhase2
+                //   latestApiDocSearchIndexEntries
+
+                let ok2 = runDocContentPhase1 ()
+                // Note, the above references these inputs:
+                //   latestApiDocCodeReferenceResolver
+                //
+                // Note, the above generates these outputs:
+                //   latestDocContentResults
+                //   latestDocContentSearchIndexEntries
+                //   latestDocContentGlobalParameters
+                //   latestDocContentPhase2
+
+                let ok2 = ok2 && runGeneratePhase2 ()
+
+                // Run this second to override anything produced by API generate, e.g.
+                // bespoke file for namespaces etc.
+                let ok1 = ok1 && runDocContentPhase2 ()
+                regenerateSearchIndex ()
+                generateLlmsTxt ()
+
+                for (key, setting) in Content.assetSubstitutions do
+                    match startupCrack.Value.Substitutions |> List.tryFind (fst >> (=) key) with
+                    | Some(_, value) when Content.isSiteRelative value ->
+                        if not (File.Exists(Path.Combine(rootOutputFolderFullPath, value))) then
+                            logger.Warnf
+                                "%s is '%s' but the output has no such file (the value comes from the cracked projects)"
+                                setting
+                                value
+                    | _ -> ()
+
+                ok1 && ok2
+
+            if ok then 0 else 1
+
+    abstract ignoredOptions: IgnoredOption list
+    default x.ignoredOptions = []
 
     abstract nolaunch_option: bool
     default x.nolaunch_option = false
@@ -2424,8 +1153,11 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
-    abstract root_override_option: string option
-    default x.root_override_option = None
+    abstract host_option: string
+    default x.host_option = "localhost"
+
+    abstract site_root_option: string option
+    default x.site_root_option = None
 
 /// Helpers for the <c>fsdocs convert</c> command.
 module private ConvertHelpers =
@@ -2433,19 +1165,19 @@ module private ConvertHelpers =
     open System.Text.RegularExpressions
 
     // Compiled at module load; shared across all calls to embedResourcesInHtml.
-    let private cssPattern =
+    let cssPattern =
         Regex(
             """<link\b(?=[^>]*\brel=["']stylesheet["'])[^>]*\bhref=["']([^"']+)["'][^>]*/?>""",
             RegexOptions.IgnoreCase ||| RegexOptions.Compiled
         )
 
-    let private jsPattern =
+    let jsPattern =
         Regex(
             """<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*</script>""",
             RegexOptions.IgnoreCase ||| RegexOptions.Compiled
         )
 
-    let private imgPattern =
+    let imgPattern =
         Regex("""(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)""", RegexOptions.IgnoreCase ||| RegexOptions.Compiled)
 
     /// Return candidate directories in which to search for locally-referenced assets (CSS, JS, images).
@@ -2610,11 +1342,21 @@ type ConvertCommand() =
                  "Disable automatic inlining of local CSS, JS, and images into the output HTML. By default, when a template is used for HTML output, all locally-referenced assets are embedded so the output is a self-contained single file.")>]
     member val noEmbedResources = false with get, set
 
+    [<Option('v',
+             "verbosity",
+             Required = false,
+             Default = "normal",
+             HelpText = "How much to log: quiet, minimal, normal, detailed or diagnostic.")>]
+    member val verbosity = "normal" with get, set
+
     member this.Execute() =
+        if not (Verbosity.configure this.verbosity) then
+            exit 1
+
         let inputFile = Path.GetFullPath(this.input)
 
         if not (File.Exists inputFile) then
-            printfn "error: input file '%s' does not exist" inputFile
+            logger.Errorf "input file '%s' does not exist" inputFile
             1
         else
 
@@ -2676,7 +1418,7 @@ type ConvertCommand() =
                 let parameters = Array.ofSeq this.parameters
 
                 if parameters.Length % 2 = 1 then
-                    printfn "The --parameters option's argument count must be even"
+                    logger.Errorf "The --parameters option's argument count must be even"
                     exit 1
 
                 evalPairwiseStringsNoOption parameters
@@ -2748,7 +1490,7 @@ type ConvertCommand() =
 
             try
                 if isMd then
-                    printfn "converting %s --> %s" inputFile outputFile
+                    logger.Infof "converting %s --> %s" inputFile outputFile
 
                     Literate.ConvertMarkdownFile(
                         inputFile,
@@ -2761,7 +1503,7 @@ type ConvertCommand() =
 
                     0
                 elif isFsx then
-                    printfn "converting %s --> %s" inputFile outputFile
+                    logger.Infof "converting %s --> %s" inputFile outputFile
 
                     let fsiEvaluator =
                         if this.eval then
@@ -2781,7 +1523,7 @@ type ConvertCommand() =
 
                     0
                 elif isPynb then
-                    printfn "converting %s --> %s" inputFile outputFile
+                    logger.Infof "converting %s --> %s" inputFile outputFile
 
                     Literate.ConvertPynbFile(
                         inputFile,
@@ -2794,11 +1536,13 @@ type ConvertCommand() =
 
                     0
                 else
-                    printfn "error: unsupported input file type '%s'" (Path.GetExtension inputFile)
-                    printfn "supported types: .md, .fsx, .ipynb"
+                    logger.Errorf
+                        "unsupported input file type '%s', supported types: .md, .fsx, .ipynb"
+                        (Path.GetExtension inputFile)
+
                     1
             with ex ->
-                printfn "Error during conversion: %O" ex
+                logger.Errorf "Error during conversion: %O" ex
                 1
             |> fun exitCode ->
                 // Clean up any temporary template file we created.
@@ -2815,7 +1559,11 @@ type ConvertCommand() =
                     let searchDirs =
                         ConvertHelpers.findContentSearchDirs outputFile (Option.map Path.GetFullPath templateOpt)
 
-                    printfn "embedding resources into %s (search dirs: %s)" outputFile (String.concat ", " searchDirs)
+                    logger.Debugf
+                        "embedding resources into %s (search dirs: %s)"
+                        outputFile
+                        (String.concat ", " searchDirs)
+
                     ConvertHelpers.embedResourcesInHtml outputFile searchDirs
 
                 exitCode
@@ -2828,10 +1576,24 @@ type BuildCommand() =
 type WatchCommand() =
     inherit CoreBuildOptions(true)
 
-    override x.noserver_option = x.noserver
-
-    [<Option("noserver", Required = false, Default = false, HelpText = "Do not serve content when watching.")>]
-    member val noserver = false with get, set
+    override x.ignoredOptions =
+        [
+            if x.output <> "" then
+                {
+                    Option = "output"
+                    Reason = "'fsdocs watch' keeps no output folder, pages are served from memory"
+                }
+            if x.clean then
+                {
+                    Option = "clean"
+                    Reason = "'fsdocs watch' keeps no output folder, there is nothing to clean"
+                }
+            if x.saveImages <> "none" then
+                {
+                    Option = "saveimages"
+                    Reason = "'fsdocs watch' serves images from their source and does not download them"
+                }
+        ]
 
     override x.nolaunch_option = x.nolaunch
 
@@ -2848,11 +1610,24 @@ type WatchCommand() =
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
 
-    override x.root_override_option = if x.root = "" then None else Some x.root
+    override x.host_option = x.host
 
-    [<Option("root",
+    [<Option("host",
+             Required = false,
+             Default = "localhost",
+             HelpText =
+                 "Address to bind the server to. Use 0.0.0.0 to serve on all interfaces, e.g. to browse from another machine; page links are relative so the site works from any address.")>]
+    member val host = "localhost" with get, set
+
+    override x.site_root_option =
+        if String.IsNullOrEmpty x.siteroot then
+            None
+        else
+            Some x.siteroot
+
+    [<Option("site-root",
              Required = false,
              Default = "",
              HelpText =
-                 "Override the root URL for generated pages. Useful for reverse proxies or GitHub Codespaces. E.g. --root / or --root https://example.com/docs/. When not set, defaults to http://localhost:<port>/.")>]
-    member val root = "" with get, set
+                 "The absolute URL of the site ({{fsdocs-site-root}}), only used by the links that must be absolute such as Open Graph metadata and llms.txt; page links are relative. When not set, defaults to http://<host>:<port>/.")>]
+    member val siteroot = "" with get, set
