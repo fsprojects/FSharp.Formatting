@@ -52,6 +52,9 @@ Having this in place, should already serve the first page when we start the `wat
 
 Open [http://localhost:8901](http://localhost:8901) and you should see our first page!
 
+🪄 When something looks off (a missing logo, a wrong title, a stale page), open [http://localhost:8901/.fsdocs/doctor](http://localhost:8901/.fsdocs/doctor):
+it shows what `fsdocs` found (projects, substitutions, templates, navigation) and why. See [the command line docs](commandline.html) for details.
+
 🪄 You might notice that there are some images missing. You can add these in the `docs` folder in the right location.
 
 ## Generating API documentation

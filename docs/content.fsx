@@ -57,7 +57,7 @@ Content that is not `*.fsx` or `*.md` is copied across.
 
 ## Default Styling Content
 
-By default additional content such as `fsdocs-search.js`, `fsdocs-tips.js` and `fsdocs-default.css` are included in 
+By default additional content such as `fsdocs-search.js`, `fsdocs-tips.js` and `fsdocs-default.css` are included in
 the `content` directory of the output.  This can be suppressed with `--nodefaultcontent` or by having your own
 copy of this content in your `content` directory.
 
@@ -138,8 +138,8 @@ See [Styling](styling.html) for information about template parameters and stylin
 
 |  Substitution name            | Generated content |
 |:------------------------------|:--------------------------------------------------------------|
-| `root`                        | The relative path from the page to the root of the site, ending with `/` (`./`, `../`, ...). Links built with it work wherever the site is hosted. |
-| `fsdocs-site-root`            | The absolute URL of the site: `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`. For the links that must be absolute, such as `og:url`. |
+| `root`                        | The relative path from the page to the root of the site, **ending with `/` (`./`, `../`, ...)**, so write `{{root}}content/style.css` and not `{{root}}/content/style.css`. Links built with it work wherever the site is hosted: a domain root, a sub path, or the file system. |
+| `fsdocs-site-root`            | The absolute URL of the site, ending with `/`: `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`. Only for the links that must be absolute, such as `og:url`, `twitter:site` and `llms.txt`; use `root` everywhere else. Override it with `--parameters fsdocs-site-root <url>` (`build`) or `--site-root <url>` (`watch`, where it defaults to the address of the server). |
 | `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |
 | `fsdocs-content`              | Main page content                                             |
 | `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |
