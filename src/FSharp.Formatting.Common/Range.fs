@@ -23,10 +23,12 @@ module MarkdownRange =
 
     /// A zero range used as a default/placeholder when no real range is available
     let zero =
-        { StartLine = 0
-          StartColumn = 0
-          EndLine = 0
-          EndColumn = 0 }
+        {
+            StartLine = 0
+            StartColumn = 0
+            EndLine = 0
+            EndColumn = 0
+        }
 
     /// Merges a list of ranges into one spanning range that covers all of them
     let mergeRanges (ranges: MarkdownRange list) =
@@ -34,7 +36,9 @@ module MarkdownRange =
 
         let endRange = ranges |> List.maxBy (fun r -> r.EndLine, r.EndColumn)
 
-        { StartLine = startRange.StartLine
-          StartColumn = startRange.StartColumn
-          EndLine = endRange.EndLine
-          EndColumn = endRange.EndColumn }
+        {
+            StartLine = startRange.StartLine
+            StartColumn = startRange.StartColumn
+            EndLine = endRange.EndLine
+            EndColumn = endRange.EndColumn
+        }

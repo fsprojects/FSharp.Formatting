@@ -157,168 +157,176 @@ module internal MarkdownUtils =
 
     /// Format a MarkdownParagraph
     let rec formatParagraph (ctx: FormattingContext) paragraph =
-        [ match paragraph with
-          | LatexBlock(env, lines, _) ->
-              // Single-line equation blocks are rendered with the compact $$...$$ notation
-              // (which is also valid markdown and what most authors write). Multi-line or
-              // non-standard environments keep the \begin{env}...\end{env} form.
-              if env = "equation" && lines.Length = 1 then
-                  yield sprintf "$$%s$$" lines.[0]
-              else
-                  yield sprintf "\\begin{%s}" env
+        [
+            match paragraph with
+            | LatexBlock(env, lines, _) ->
+                // Single-line equation blocks are rendered with the compact $$...$$ notation
+                // (which is also valid markdown and what most authors write). Multi-line or
+                // non-standard environments keep the \begin{env}...\end{env} form.
+                if env = "equation" && lines.Length = 1 then
+                    yield sprintf "$$%s$$" lines.[0]
+                else
+                    yield sprintf "\\begin{%s}" env
 
-                  for line in lines do
-                      yield line
+                    for line in lines do
+                        yield line
 
-                  yield sprintf "\\end{%s}" env
+                    yield sprintf "\\end{%s}" env
 
-              yield ""
+                yield ""
 
-          | Heading(n, spans, _) ->
-              yield String.replicate n "#" + " " + formatSpans ctx spans
+            | Heading(n, spans, _) ->
+                yield String.replicate n "#" + " " + formatSpans ctx spans
 
-              yield ""
-          | Paragraph(spans, _) ->
-              yield String.concat "" [ for span in spans -> formatSpan ctx span ]
-              yield ""
+                yield ""
+            | Paragraph(spans, _) ->
+                yield String.concat "" [ for span in spans -> formatSpan ctx span ]
+                yield ""
 
-          | HorizontalRule(c, _) ->
-              yield String.replicate 3 (string c)
-              yield ""
-          | CodeBlock(code = code; fence = fence; language = language) ->
-              // Indented code blocks (fence = None) are serialised as fenced blocks so
-              // that the round-trip is valid — raw indented code without a '> ' prefix
-              // or 4-space indent would be parsed as a paragraph, not a code block.
-              let f = defaultArg fence "```"
-              yield f + language
+            | HorizontalRule(c, _) ->
+                yield String.replicate 3 (string<char> c)
+                yield ""
+            | CodeBlock(code = code; fence = fence; language = language) ->
+                // Indented code blocks (fence = None) are serialised as fenced blocks so
+                // that the round-trip is valid — raw indented code without a '> ' prefix
+                // or 4-space indent would be parsed as a paragraph, not a code block.
+                let f = defaultArg fence "```"
+                yield f + language
 
-              yield code
+                yield code
 
-              yield f
+                yield f
 
-              yield ""
-          | ListBlock(Unordered, paragraphsl, _) ->
-              // A tight list has exactly one Span per item (no blank lines between items).
-              let isTight =
-                  paragraphsl
-                  |> List.forall (function
-                      | [ Span _ ] -> true
-                      | _ -> false)
+                yield ""
+            | ListBlock(Unordered, paragraphsl, _) ->
+                // A tight list has exactly one Span per item (no blank lines between items).
+                let isTight =
+                    paragraphsl
+                    |> List.forall (function
+                        | [ Span _ ] -> true
+                        | _ -> false)
 
-              for paragraphs in paragraphsl do
-                  for (i, paragraph) in List.indexed paragraphs do
-                      let lines = formatParagraph ctx paragraph
-                      let lines = if lines.IsEmpty then [ "" ] else lines
+                for paragraphs in paragraphsl do
+                    for (i, paragraph) in List.indexed paragraphs do
+                        let lines = formatParagraph ctx paragraph
+                        let lines = if lines.IsEmpty then [ "" ] else lines
 
-                      for (j, line) in List.indexed lines do
-                          if i = 0 && j = 0 then
-                              yield "* " + line
-                          else
-                              yield "  " + line
+                        for (j, line) in List.indexed lines do
+                            if i = 0 && j = 0 then
+                                yield "* " + line
+                            else
+                                yield "  " + line
 
-                  if not isTight then
-                      yield ""
+                    if not isTight then
+                        yield ""
 
-              if isTight then
-                  yield ""
-          | ListBlock(Ordered, paragraphsl, _) ->
-              // A tight list has exactly one Span per item (no blank lines between items).
-              let isTight =
-                  paragraphsl
-                  |> List.forall (function
-                      | [ Span _ ] -> true
-                      | _ -> false)
+                if isTight then
+                    yield ""
+            | ListBlock(Ordered, paragraphsl, _) ->
+                // A tight list has exactly one Span per item (no blank lines between items).
+                let isTight =
+                    paragraphsl
+                    |> List.forall (function
+                        | [ Span _ ] -> true
+                        | _ -> false)
 
-              for (n, paragraphs) in List.indexed paragraphsl do
-                  for (i, paragraph) in List.indexed paragraphs do
-                      let lines = formatParagraph ctx paragraph
-                      let lines = if lines.IsEmpty then [ "" ] else lines
+                for (n, paragraphs) in List.indexed paragraphsl do
+                    for (i, paragraph) in List.indexed paragraphs do
+                        let lines = formatParagraph ctx paragraph
+                        let lines = if lines.IsEmpty then [ "" ] else lines
 
-                      for (j, line) in List.indexed lines do
-                          if i = 0 && j = 0 then
-                              yield $"%i{n + 1}. " + line
-                          else
-                              yield "  " + line
+                        for (j, line) in List.indexed lines do
+                            if i = 0 && j = 0 then
+                                yield $"%i{n + 1}. " + line
+                            else
+                                yield "  " + line
 
-                  if not isTight then
-                      yield ""
+                    if not isTight then
+                        yield ""
 
-              if isTight then
-                  yield ""
-          | TableBlock(headers, alignments, rows, _) ->
+                if isTight then
+                    yield ""
+            | TableBlock(headers, alignments, rows, _) ->
 
-              match headers with
-              | Some headers ->
-                  yield
-                      headers
-                      |> List.collect (fun hs -> [ for h in hs -> String.concat "" (formatParagraph ctx h) ])
-                      |> String.concat " | "
+                match headers with
+                | Some headers ->
+                    yield
+                        headers
+                        |> List.collect (fun hs -> [ for h in hs -> String.concat "" (formatParagraph ctx h) ])
+                        |> String.concat " | "
 
-              | None -> ()
+                | None -> ()
 
-              yield
-                  [ for a in alignments ->
-                        match a with
-                        | AlignLeft -> ":---"
-                        | AlignCenter -> ":---:"
-                        | AlignRight -> "---:"
-                        | AlignDefault -> "---" ]
-                  |> String.concat " | "
+                yield
+                    [
+                        for a in alignments ->
+                            match a with
+                            | AlignLeft -> ":---"
+                            | AlignCenter -> ":---:"
+                            | AlignRight -> "---:"
+                            | AlignDefault -> "---"
+                    ]
+                    |> String.concat " | "
 
-              let replaceEmptyWith x s =
-                  if System.String.IsNullOrWhiteSpace s then x else Some s
+                let replaceEmptyWith x s =
+                    if System.String.IsNullOrWhiteSpace s then x else Some s
 
-              for r in rows do
-                  yield
-                      [ for ps in r do
-                            let x =
-                                [ for p in ps do
-                                      yield
-                                          formatParagraph ctx p
-                                          |> Seq.choose (replaceEmptyWith (Some ""))
-                                          |> String.concat "" ]
+                for r in rows do
+                    yield
+                        [
+                            for ps in r do
+                                let x =
+                                    [
+                                        for p in ps do
+                                            yield
+                                                formatParagraph ctx p
+                                                |> Seq.choose (replaceEmptyWith (Some ""))
+                                                |> String.concat ""
+                                    ]
 
-                            yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
-                      |> Seq.choose (replaceEmptyWith (Some "&#32;"))
-                      |> String.concat " | "
+                                yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />"
+                        ]
+                        |> Seq.choose (replaceEmptyWith (Some "&#32;"))
+                        |> String.concat " | "
 
-              yield ""
+                yield ""
 
-          | OutputBlock(output, "text/html", _executionCount) ->
-              yield (output.Trim())
-              yield ""
-          | OutputBlock(output, _, _executionCount) ->
-              yield "```"
-              yield output
-              yield "```"
-              yield ""
-          | OtherBlock(lines, _) -> yield! List.map fst lines
-          | InlineHtmlBlock(code, _, _) ->
-              let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
-              yield! lines
-          | YamlFrontmatter(lines, _) ->
-              yield "---"
+            | OutputBlock(output, "text/html", _executionCount) ->
+                yield (output.Trim())
+                yield ""
+            | OutputBlock(output, _, _executionCount) ->
+                yield "```"
+                yield output
+                yield "```"
+                yield ""
+            | OtherBlock(lines, _) -> yield! List.map fst lines
+            | InlineHtmlBlock(code, _, _) ->
+                let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
+                yield! lines
+            | YamlFrontmatter(lines, _) ->
+                yield "---"
 
-              for line in lines do
-                  yield line
+                for line in lines do
+                    yield line
 
-              yield "---"
-              yield ""
-          | Span(body = body) -> yield formatSpans ctx body
-          | QuotedBlock(paragraphs = paragraphs) ->
-              let paragraphLines =
-                  paragraphs
-                  |> List.map (fun paragraph -> formatParagraph ctx paragraph |> List.filter (fun line -> line <> ""))
+                yield "---"
+                yield ""
+            | Span(body = body) -> yield formatSpans ctx body
+            | QuotedBlock(paragraphs = paragraphs) ->
+                let paragraphLines =
+                    paragraphs
+                    |> List.map (fun paragraph -> formatParagraph ctx paragraph |> List.filter (fun line -> line <> ""))
 
-              for i, lines in List.indexed paragraphLines do
-                  for line in lines do
-                      yield "> " + line
+                for i, lines in List.indexed paragraphLines do
+                    for line in lines do
+                        yield "> " + line
 
-                  if i < paragraphLines.Length - 1 then
-                      yield ">"
+                    if i < paragraphLines.Length - 1 then
+                        yield ">"
 
-              yield ""
-          | EmbedParagraphs(cmd, _) -> yield! cmd.Render() |> Seq.collect (formatParagraph ctx) ]
+                yield ""
+            | EmbedParagraphs(cmd, _) -> yield! cmd.Render() |> Seq.collect (formatParagraph ctx)
+        ]
 
     /// Strips <c>#if SYMBOL</c> / <c>#endif // SYMBOL</c> conditional compilation lines from an .fsx code block
     /// so that format-specific sections are removed from non-target output formats.

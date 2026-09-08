@@ -352,15 +352,17 @@ let private makeNavDocModel
     =
     (inputPath,
      false,
-     { Title = title
-       Substitutions = []
-       IndexText = None
-       Category = category
-       CategoryIndex = categoryIndex
-       Index = index
-       OutputPath = Path.GetFileNameWithoutExtension(inputPath) + ".html"
-       OutputKind = OutputKind.Html
-       IsActive = false })
+     {
+         Title = title
+         Substitutions = []
+         IndexText = None
+         Category = category
+         CategoryIndex = categoryIndex
+         Index = index
+         OutputPath = Path.GetFileNameWithoutExtension(inputPath) + ".html"
+         OutputKind = OutputKind.Html
+         IsActive = false
+     })
 
 /// DocContent instance whose root URL is empty string (URIs = bare output paths).
 let private makeDocContentForNav () =
@@ -423,9 +425,11 @@ let ``GetNavigationEntriesFactory - exactly one item is active among multiple pa
     let dc = makeDocContentForNav ()
 
     let models =
-        [ makeNavDocModel "Page 1" "/docs/page1.md" None None None
-          makeNavDocModel "Page 2" "/docs/page2.md" None None None
-          makeNavDocModel "Page 3" "/docs/page3.md" None None None ]
+        [
+            makeNavDocModel "Page 1" "/docs/page1.md" None None None
+            makeNavDocModel "Page 2" "/docs/page2.md" None None None
+            makeNavDocModel "Page 3" "/docs/page3.md" None None None
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
     let html = factory (Some "/docs/page2.md")
@@ -441,15 +445,17 @@ let ``GetNavigationEntriesFactory - excludes isOtherLang models`` () =
     let otherLangModel =
         ("/docs/other-lang.md",
          true, // isOtherLang = true
-         { Title = "Other Language Page"
-           Substitutions = []
-           IndexText = None
-           Category = None
-           CategoryIndex = None
-           Index = None
-           OutputPath = "other-lang.html"
-           OutputKind = OutputKind.Html
-           IsActive = false })
+         {
+             Title = "Other Language Page"
+             Substitutions = []
+             IndexText = None
+             Category = None
+             CategoryIndex = None
+             Index = None
+             OutputPath = "other-lang.html"
+             OutputKind = OutputKind.Html
+             IsActive = false
+         })
 
     let factory = dc.GetNavigationEntriesFactory(navInput, [ otherLangModel ], ignoreUncategorized = false)
     factory None |> shouldNotContainText "Other Language Page"
@@ -461,15 +467,17 @@ let ``GetNavigationEntriesFactory - excludes non-HTML output models`` () =
     let latexModel =
         ("/docs/report.md",
          false,
-         { Title = "LaTeX Report"
-           Substitutions = []
-           IndexText = None
-           Category = None
-           CategoryIndex = None
-           Index = None
-           OutputPath = "report.tex"
-           OutputKind = OutputKind.Latex
-           IsActive = false })
+         {
+             Title = "LaTeX Report"
+             Substitutions = []
+             IndexText = None
+             Category = None
+             CategoryIndex = None
+             Index = None
+             OutputPath = "report.tex"
+             OutputKind = OutputKind.Latex
+             IsActive = false
+         })
 
     let factory = dc.GetNavigationEntriesFactory(navInput, [ latexModel ], ignoreUncategorized = false)
     factory None |> shouldNotContainText "LaTeX Report"
@@ -479,8 +487,10 @@ let ``GetNavigationEntriesFactory - excludes files named index`` () =
     let dc = makeDocContentForNav ()
 
     let models =
-        [ makeNavDocModel "Home" "/docs/index.md" None None None
-          makeNavDocModel "Guide" "/docs/guide.md" None None None ]
+        [
+            makeNavDocModel "Home" "/docs/index.md" None None None
+            makeNavDocModel "Guide" "/docs/guide.md" None None None
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
     let html = factory None
@@ -492,8 +502,10 @@ let ``GetNavigationEntriesFactory - ignoreUncategorized true excludes uncategori
     let dc = makeDocContentForNav ()
 
     let models =
-        [ makeNavDocModel "Categorized Doc" "/docs/cat.md" (Some "Tutorials") None None
-          makeNavDocModel "Uncategorized Doc" "/docs/uncat.md" None None None ]
+        [
+            makeNavDocModel "Categorized Doc" "/docs/cat.md" (Some "Tutorials") None None
+            makeNavDocModel "Uncategorized Doc" "/docs/uncat.md" None None None
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = true)
     let html = factory None
@@ -505,8 +517,10 @@ let ``GetNavigationEntriesFactory - ignoreUncategorized false includes all model
     let dc = makeDocContentForNav ()
 
     let models =
-        [ makeNavDocModel "Categorized Doc" "/docs/cat.md" (Some "Tutorials") None None
-          makeNavDocModel "Uncategorized Doc" "/docs/uncat.md" None None None ]
+        [
+            makeNavDocModel "Categorized Doc" "/docs/cat.md" (Some "Tutorials") None None
+            makeNavDocModel "Uncategorized Doc" "/docs/uncat.md" None None None
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
     let html = factory None
@@ -519,8 +533,10 @@ let ``GetNavigationEntriesFactory - categories are ordered by CategoryIndex`` ()
 
     // Beta has CategoryIndex 2, Alpha has CategoryIndex 1 → Alpha should appear first
     let models =
-        [ makeNavDocModel "Beta Doc" "/docs/b.md" (Some "Beta") (Some 2) None
-          makeNavDocModel "Alpha Doc" "/docs/a.md" (Some "Alpha") (Some 1) None ]
+        [
+            makeNavDocModel "Beta Doc" "/docs/b.md" (Some "Beta") (Some 2) None
+            makeNavDocModel "Alpha Doc" "/docs/a.md" (Some "Alpha") (Some 1) None
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
     let html = factory None
@@ -534,8 +550,10 @@ let ``GetNavigationEntriesFactory - items within a category are ordered by Index
 
     // "Second" has Index 2, "First" has Index 1 → "First" should appear first
     let models =
-        [ makeNavDocModel "Second Item" "/docs/second.md" (Some "Guides") None (Some 2)
-          makeNavDocModel "First Item" "/docs/first.md" (Some "Guides") None (Some 1) ]
+        [
+            makeNavDocModel "Second Item" "/docs/second.md" (Some "Guides") None (Some 2)
+            makeNavDocModel "First Item" "/docs/first.md" (Some "Guides") None (Some 1)
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
     let html = factory None
@@ -548,8 +566,10 @@ let ``GetNavigationEntriesFactory - calling factory multiple times returns ident
     let dc = makeDocContentForNav ()
 
     let models =
-        [ makeNavDocModel "Page 1" "/docs/page1.md" None None None
-          makeNavDocModel "Page 2" "/docs/page2.md" None None None ]
+        [
+            makeNavDocModel "Page 1" "/docs/page1.md" None None None
+            makeNavDocModel "Page 2" "/docs/page2.md" None None None
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
     factory None |> shouldEqual (factory None)
@@ -559,8 +579,10 @@ let ``GetNavigationEntriesFactory - successive calls with different page paths s
     let dc = makeDocContentForNav ()
 
     let models =
-        [ makeNavDocModel "Page 1" "/docs/page1.md" None None None
-          makeNavDocModel "Page 2" "/docs/page2.md" None None None ]
+        [
+            makeNavDocModel "Page 1" "/docs/page1.md" None None None
+            makeNavDocModel "Page 2" "/docs/page2.md" None None None
+        ]
 
     let factory = dc.GetNavigationEntriesFactory(navInput, models, ignoreUncategorized = false)
     let htmlPage1 = factory (Some "/docs/page1.md")
@@ -583,11 +605,13 @@ let ``GetNavigationEntriesFactory - successive calls with different page paths s
 open FSharp.Formatting.ApiDocs
 
 let makeEntry t title uri content =
-    { uri = uri
-      title = title
-      content = content
-      headings = []
-      ``type`` = t }
+    {
+        uri = uri
+        title = title
+        content = content
+        headings = []
+        ``type`` = t
+    }
 
 [<Test>]
 let ``LlmsTxt buildContent produces correct header`` () =
@@ -604,8 +628,10 @@ let ``LlmsTxt buildContent with no entries produces header only`` () =
 [<Test>]
 let ``LlmsTxt buildContent separates Docs and API Reference sections`` () =
     let entries =
-        [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Some intro text"
-           makeEntry "apiDocs" "MyModule.MyType" "https://example.com/reference/mytype" "Type docs" |]
+        [|
+            makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Some intro text"
+            makeEntry "apiDocs" "MyModule.MyType" "https://example.com/reference/mytype" "Type docs"
+        |]
 
     let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
     llmsTxt |> shouldContainText "## Docs"
@@ -620,7 +646,13 @@ let ``LlmsTxt buildContent separates Docs and API Reference sections`` () =
 [<Test>]
 let ``LlmsTxt llms.txt does not include content body`` () =
     let entries =
-        [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Detailed page content here" |]
+        [|
+            makeEntry
+                "content"
+                "Getting Started"
+                "https://example.com/docs/getting-started"
+                "Detailed page content here"
+        |]
 
     let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
     llmsTxt |> shouldNotContainText "Detailed page content here"
@@ -628,7 +660,13 @@ let ``LlmsTxt llms.txt does not include content body`` () =
 [<Test>]
 let ``LlmsTxt llms-full.txt includes content body`` () =
     let entries =
-        [| makeEntry "content" "Getting Started" "https://example.com/docs/getting-started" "Detailed page content here" |]
+        [|
+            makeEntry
+                "content"
+                "Getting Started"
+                "https://example.com/docs/getting-started"
+                "Detailed page content here"
+        |]
 
     let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
     llmsFullTxt |> shouldContainText "Detailed page content here"
@@ -672,11 +710,13 @@ let ``LlmsTxt llms-full.txt uses heading format per entry`` () =
 [<Test>]
 let ``LlmsTxt llms-full.txt decodes HTML entities in content`` () =
     let entries =
-        [| makeEntry
-               "content"
-               "Guide"
-               "https://example.com/docs/guide"
-               "use &quot;double quotes&quot; and &gt; greater-than" |]
+        [|
+            makeEntry
+                "content"
+                "Guide"
+                "https://example.com/docs/guide"
+                "use &quot;double quotes&quot; and &gt; greater-than"
+        |]
 
     let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
     llmsFullTxt |> shouldContainText "use \"double quotes\" and > greater-than"
@@ -695,12 +735,14 @@ let ``LlmsTxt llms-full.txt strips eval warning lines from content`` () =
 [<Test>]
 let ``LlmsTxt llms.txt excludes per-member API entries (URIs with hash)`` () =
     let entries =
-        [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
-           makeEntry
-               "apiDocs"
-               "MyModule.myFunction"
-               "https://example.com/reference/mymodule.html#myFunction"
-               "member docs" |]
+        [|
+            makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
+            makeEntry
+                "apiDocs"
+                "MyModule.myFunction"
+                "https://example.com/reference/mymodule.html#myFunction"
+                "member docs"
+        |]
 
     let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries false false
 
@@ -712,12 +754,14 @@ let ``LlmsTxt llms.txt excludes per-member API entries (URIs with hash)`` () =
 [<Test>]
 let ``LlmsTxt llms-full.txt includes per-member API entries`` () =
     let entries =
-        [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
-           makeEntry
-               "apiDocs"
-               "MyModule.myFunction"
-               "https://example.com/reference/mymodule.html#myFunction"
-               "member docs" |]
+        [|
+            makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule.html" "module docs"
+            makeEntry
+                "apiDocs"
+                "MyModule.myFunction"
+                "https://example.com/reference/mymodule.html#myFunction"
+                "member docs"
+        |]
 
     let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries false false
     llmsFullTxt |> shouldContainText "myFunction"
