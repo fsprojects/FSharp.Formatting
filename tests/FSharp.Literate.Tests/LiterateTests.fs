@@ -825,10 +825,12 @@ let ``Filename substitutions are correct with relative path 2`` () =
 // --------------------------------------------------------------------------------------
 
 let info =
-    [ ParamKeys.``fsdocs-collection-name``, "FSharp.ProjectScaffold"
-      ParamKeys.``fsdocs-authors``, "Your Name"
-      ParamKeys.``fsdocs-repository-link``, "http://github.com/pblasucci/fsharp-project-scaffold"
-      ParamKeys.root, "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
+    [
+        ParamKeys.``fsdocs-collection-name``, "FSharp.ProjectScaffold"
+        ParamKeys.``fsdocs-authors``, "Your Name"
+        ParamKeys.``fsdocs-repository-link``, "http://github.com/pblasucci/fsharp-project-scaffold"
+        ParamKeys.root, "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold"
+    ]
 
 
 [<Test>]

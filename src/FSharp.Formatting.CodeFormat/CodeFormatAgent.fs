@@ -78,52 +78,62 @@ module private Helpers =
 
         // Parse lines using the tokenizer
         let indexedSnippetLines =
-            [ let mutable state = FSharpTokenizerLexState.Initial
+            [
+                let mutable state = FSharpTokenizerLexState.Initial
 
-              for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
-                  let tokenizer = sourceTok.CreateLineTokenizer(line)
+                for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
+                    let tokenizer = sourceTok.CreateLineTokenizer(line)
 
-                  let rec parseLine () =
-                      seq {
-                          match tokenizer.ScanToken(state) with
-                          | Some(tok), nstate ->
-                              let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
+                    let rec parseLine () =
+                        seq {
+                            match tokenizer.ScanToken(state) with
+                            | Some(tok), nstate ->
+                                let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
 
-                              yield str, tok
-                              state <- nstate
-                              yield! parseLine ()
-                          | None, nstate -> state <- nstate
-                      }
+                                yield str, tok
+                                state <- nstate
+                                yield! parseLine ()
+                            | None, nstate -> state <- nstate
+                        }
 
-                  yield
-                      { StartLine = n
-                        StartColumn = 0
-                        EndLine = n
-                        EndColumn = 0 },
-                      parseLine () |> List.ofSeq ]
+                    yield
+                        {
+                            StartLine = n
+                            StartColumn = 0
+                            EndLine = n
+                            EndColumn = 0
+                        },
+                        parseLine () |> List.ofSeq
+            ]
 
         indexedSnippetLines
 
     /// Returns the number of leading spaces on the least-indented non-empty line in the snippet,
     /// used to strip common indentation when formatting indented code blocks.
     let countStartingSpaces (lines: Snippet) =
-        [ for _, toks: _ list in lines do
-              match toks with
-              | ((text: string), info) :: _ when info.TokenName = "WHITESPACE" ->
-                  yield text.Length - text.TrimStart([| ' ' |]).Length
-              | [] -> ()
-              | _ -> yield 0 ]
+        [
+            for _, toks: _ list in lines do
+                match toks with
+                | ((text: string), info) :: _ when info.TokenName = "WHITESPACE" ->
+                    yield text.Length - text.TrimStart([| ' ' |]).Length
+                | [] -> ()
+                | _ -> yield 0
+        ]
         |> List.fold min 0
 
 /// A column range within a single source line, used to track string literal extents during tokenisation.
 [<Struct>]
 type internal Range =
-    { LeftCol: int
-      RightCol: int }
+    {
+        LeftCol: int
+        RightCol: int
+    }
 
     static member Create leftCol rightCol =
-        { LeftCol = leftCol
-          RightCol = rightCol }
+        {
+            LeftCol = leftCol
+            RightCol = rightCol
+        }
 
 /// Formats F# source code snippets into annotated token sequences by invoking the
 /// F# Compiler Service for tokenisation, type-checking, and semantic classification.
@@ -210,7 +220,8 @@ module CodeFormatter =
                                 None,
                                 Some
                                     { range with
-                                        RightCol = token.RightColumn },
+                                        RightCol = token.RightColumn
+                                    },
                                 rest
                             | _, Some range -> None, Some range, tokens
                             | _ -> None, None, rest
@@ -221,7 +232,8 @@ module CodeFormatter =
                             | FSharpTokenColorKind.String, Some range ->
                                 Some
                                     { range with
-                                        RightCol = token.RightColumn },
+                                        RightCol = token.RightColumn
+                                    },
                                 None,
                                 rest
                             | _, Some range -> None, Some range, tokens
@@ -283,8 +295,10 @@ module CodeFormatter =
                     | Some _x, None -> yield! loop island rest stringRange
 
                     | _x,
-                      Some { LeftCol = strLeftCol
-                             RightCol = strRightCol } ->
+                      Some {
+                               LeftCol = strLeftCol
+                               RightCol = strRightCol
+                           } ->
                         let printfOrEscapedSpans =
                             semanticRanges
                             |> Array.filter (fun item ->
@@ -352,11 +366,13 @@ module CodeFormatter =
             use reader = new StringReader(source)
 
             let sourceLines =
-                [| let line = ref ""
+                [|
+                    let line = ref ""
 
-                   while (line := reader.ReadLine()
-                          not (isNull line.Value)) do
-                       yield line.Value |]
+                    while (line := reader.ReadLine()
+                           not (isNull line.Value)) do
+                        yield line.Value
+                |]
             // Get options for a standalone script file (this adds some
             // default references and doesn't require full project information)
             let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
@@ -416,18 +432,20 @@ module CodeFormatter =
 
                 { opts with
                     OtherOptions =
-                        [| yield sprintf "-r:%s" fsCore
-                           yield refCorLib
-                           if Env.isNetCoreApp then
-                               yield "--targetprofile:netcore"
+                        [|
+                            yield sprintf "-r:%s" fsCore
+                            yield refCorLib
+                            if Env.isNetCoreApp then
+                                yield "--targetprofile:netcore"
 
-                           // Add FSharp.Compiler.Interactive.Settings.dll so that the
-                           // type-checker can resolve the 'fsi' object in .fsx scripts.
-                           match FSharpAssemblyHelper.fsiSettingsDll.Value with
-                           | Some path -> yield sprintf "-r:%s" path
-                           | None -> ()
+                            // Add FSharp.Compiler.Interactive.Settings.dll so that the
+                            // type-checker can resolve the 'fsi' object in .fsx scripts.
+                            match FSharpAssemblyHelper.fsiSettingsDll.Value with
+                            | Some path -> yield sprintf "-r:%s" path
+                            | None -> ()
 
-                           yield! opts.OtherOptions |]
+                            yield! opts.OtherOptions
+                        |]
                         |> Array.filter (fun item ->
                             if item.StartsWith("-r:", StringComparison.Ordinal) then
                                 let fullPath = item.Substring 3
@@ -442,13 +460,15 @@ module CodeFormatter =
                                 false
                             else
                                 known <- known.Add item
-                                true) }
+                                true)
+                }
             // Override default options if the user specified something
             let opts =
                 match options with
                 | Some(str: string) when not (System.String.IsNullOrEmpty(str)) ->
                     { opts with
-                        OtherOptions = [| yield! Helpers.parseOptions str; yield! opts.OtherOptions |] }
+                        OtherOptions = [| yield! Helpers.parseOptions str; yield! opts.OtherOptions |]
+                    }
                 | _ -> opts
             //// add our file
             //let opts =
@@ -529,18 +549,20 @@ module CodeFormatter =
                             Snippet(title, parsed))
 
                 let sourceDiagnostics =
-                    [| for diagnostic in diagnostics do
-                           if diagnostic.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
-                               yield
-                                   SourceError(
-                                       (diagnostic.StartLine - 1, diagnostic.StartColumn),
-                                       (diagnostic.EndLine - 1, diagnostic.EndColumn),
-                                       (if diagnostic.Severity = FSharpDiagnosticSeverity.Error then
-                                            ErrorKind.Error
-                                        else
-                                            ErrorKind.Warning),
-                                       diagnostic.Message
-                                   ) |]
+                    [|
+                        for diagnostic in diagnostics do
+                            if diagnostic.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+                                yield
+                                    SourceError(
+                                        (diagnostic.StartLine - 1, diagnostic.StartColumn),
+                                        (diagnostic.EndLine - 1, diagnostic.EndColumn),
+                                        (if diagnostic.Severity = FSharpDiagnosticSeverity.Error then
+                                             ErrorKind.Error
+                                         else
+                                             ErrorKind.Warning),
+                                        diagnostic.Message
+                                    )
+                    |]
 
                 return (Array.ofList parsedSnippets, sourceDiagnostics)
             | None -> return! failwith "No result from source code processing"

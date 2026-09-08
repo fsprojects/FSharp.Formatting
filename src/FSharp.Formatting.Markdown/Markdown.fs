@@ -42,36 +42,44 @@ type Markdown internal () =
         use reader = new StringReader(text)
 
         let lines =
-            [ let line = ref ""
-              let mutable lineNo = 1
+            [
+                let line = ref ""
+                let mutable lineNo = 1
 
-              while (line := reader.ReadLine()
-                     not (isNull line.Value)) do
-                  yield
-                      (line.Value,
-                       { StartLine = lineNo
-                         StartColumn = 0
-                         EndLine = lineNo
-                         EndColumn = line.Value.Length })
+                while (line := reader.ReadLine()
+                       not (isNull line.Value)) do
+                    yield
+                        (line.Value,
+                         {
+                             StartLine = lineNo
+                             StartColumn = 0
+                             EndLine = lineNo
+                             EndColumn = line.Value.Length
+                         })
 
-                  lineNo <- lineNo + 1
+                    lineNo <- lineNo + 1
 
-              if text.EndsWith(newline, StringComparison.Ordinal) then
-                  yield
-                      ("",
-                       { StartLine = lineNo
-                         StartColumn = 0
-                         EndLine = lineNo
-                         EndColumn = 0 }) ]
+                if text.EndsWith(newline, StringComparison.Ordinal) then
+                    yield
+                        ("",
+                         {
+                             StartLine = lineNo
+                             StartColumn = 0
+                             EndLine = lineNo
+                             EndColumn = 0
+                         })
+            ]
         //|> Utils.replaceTabs 4
         let links = Dictionary<_, _>()
         //let (Lines.TrimBlank lines) = lines
         let ctx: ParsingContext =
-            { Newline = newline
-              IsFirst = true
-              Links = links
-              CurrentRange = MarkdownRange.zero
-              ParseOptions = parseOptions }
+            {
+                Newline = newline
+                IsFirst = true
+                Links = links
+                CurrentRange = MarkdownRange.zero
+                ParseOptions = parseOptions
+            }
 
         let paragraphs =
             lines

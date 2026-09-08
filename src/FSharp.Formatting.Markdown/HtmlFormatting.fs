@@ -41,15 +41,17 @@ type internal UniqueNameGenerator() =
 
 /// Context passed around while formatting the HTML
 type internal FormattingContext =
-    { LineBreak: unit -> unit
-      Newline: string
-      Writer: TextWriter
-      Links: IDictionary<string, string * string option>
-      WrapCodeSnippets: bool
-      GenerateHeaderAnchors: bool
-      UniqueNameGenerator: UniqueNameGenerator
-      ParagraphIndent: unit -> unit
-      DefineSymbol: string }
+    {
+        LineBreak: unit -> unit
+        Newline: string
+        Writer: TextWriter
+        Links: IDictionary<string, string * string option>
+        WrapCodeSnippets: bool
+        GenerateHeaderAnchors: bool
+        UniqueNameGenerator: UniqueNameGenerator
+        ParagraphIndent: unit -> unit
+        DefineSymbol: string
+    }
 
 let internal bigBreak (ctx: FormattingContext) () = ctx.Writer.Write(ctx.Newline)
 
@@ -304,7 +306,8 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
 
         formatParagraphs
             { ctx with
-                ParagraphIndent = fun () -> ctx.ParagraphIndent() (*; ctx.Writer.Write("  ")*) }
+                ParagraphIndent = fun () -> ctx.ParagraphIndent() (*; ctx.Writer.Write("  ")*)
+            }
             body
 
         ctx.ParagraphIndent()
@@ -339,23 +342,27 @@ and internal formatParagraphs ctx paragraphs =
 /// and a dictionary with link keys defined in the document.
 let formatAsHtml writer generateAnchors wrap links substitutions newline crefResolver mdlinkResolver paragraphs =
     let ctx =
-        { Links = links
-          Substitutions = substitutions
-          Newline = newline
-          CodeReferenceResolver = crefResolver
-          MarkdownDirectLinkResolver = mdlinkResolver
-          DefineSymbol = "HTML" }
+        {
+            Links = links
+            Substitutions = substitutions
+            Newline = newline
+            CodeReferenceResolver = crefResolver
+            MarkdownDirectLinkResolver = mdlinkResolver
+            DefineSymbol = "HTML"
+        }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
 
     formatParagraphs
-        { Writer = writer
-          Links = links
-          Newline = newline
-          LineBreak = ignore
-          WrapCodeSnippets = wrap
-          GenerateHeaderAnchors = generateAnchors
-          UniqueNameGenerator = new UniqueNameGenerator()
-          ParagraphIndent = ignore
-          DefineSymbol = "HTML" }
+        {
+            Writer = writer
+            Links = links
+            Newline = newline
+            LineBreak = ignore
+            WrapCodeSnippets = wrap
+            GenerateHeaderAnchors = generateAnchors
+            UniqueNameGenerator = new UniqueNameGenerator()
+            ParagraphIndent = ignore
+            DefineSymbol = "HTML"
+        }
         paragraphs
