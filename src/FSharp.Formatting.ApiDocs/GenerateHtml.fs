@@ -284,6 +284,18 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                                             p [ Class "fsdocs-note" ] [ embed e ]
 
+                                        if not m.Comment.SeeAlso.IsEmpty then
+                                            h5 [ Class "fsdocs-seealso-header" ] [ !!"See also" ]
+
+                                            ul [ Class "fsdocs-seealso-list" ] [
+                                                for (nm, link, html) in m.Comment.SeeAlso do
+                                                    li [] [
+                                                        match link with
+                                                        | Some href -> a [ Href href ] [ !!nm ]
+                                                        | None -> embed html
+                                                    ]
+                                            ]
+
                                         for e in m.Comment.Examples do
                                             h5 [ Class "fsdocs-example-header" ] [ !!"Example" ]
 
@@ -466,6 +478,18 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     h5 [ Class "fsdocs-note-header" ] [ !!"Note" ]
 
                     p [ Class "fsdocs-note" ] [ embed note ]
+
+                if not entity.Comment.SeeAlso.IsEmpty then
+                    h5 [ Class "fsdocs-seealso-header" ] [ !!"See also" ]
+
+                    ul [ Class "fsdocs-seealso-list" ] [
+                        for (nm, link, html) in entity.Comment.SeeAlso do
+                            li [] [
+                                match link with
+                                | Some href -> a [ Href href ] [ !!nm ]
+                                | None -> embed html
+                            ]
+                    ]
 
                 for example in entity.Comment.Examples do
                     h5 [ Class "fsdocs-example-header" ] [ !!"Example" ]
