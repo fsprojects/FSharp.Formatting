@@ -1,4 +1,5 @@
-#r "nuget: Fun.Build, 1.0.4"
+#!/usr/bin/env -S dotnet fsi --
+#r "nuget: Fun.Build, 1.1.18"
 #r "nuget: Fake.IO.FileSystem, 6.0.0"
 #r "nuget: Ionide.KeepAChangelog, 0.1.8"
 
@@ -40,7 +41,7 @@ let solutionFile = "FSharp.Formatting.sln"
 let lintStage =
     stage "Lint" {
         run "dotnet tool restore"
-        run $"dotnet fantomas {__SOURCE_FILE__} src tests docs --check"
+        run $"dotnet fantomas check {__SOURCE_FILE__} src tests docs"
     }
 
 let testStage =
@@ -106,6 +107,13 @@ pipeline "Verify" {
     testStage
     stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
     checkDocScriptsStage
+    runIfOnlySpecified true
+}
+
+// Start the documentation site in watch mode with the locally built fsdocs tool.
+// Runs until interrupted (Ctrl+C); the site is served on http://localhost:8901.
+pipeline "Docs" {
+    stage "WatchDocs" { run "dotnet run --project src/fsdocs-tool -- watch" }
     runIfOnlySpecified true
 }
 

@@ -114,10 +114,12 @@ module internal CompilerServiceExtensions =
 
         /// Returns the candidate directories in which to search for FSharp.Core.dll.
         let fscoreResolveDirs libDirs =
-            [ yield System.AppContext.BaseDirectory
+            [
+                yield System.AppContext.BaseDirectory
 
-              yield! libDirs
-              yield System.IO.Directory.GetCurrentDirectory() ]
+                yield! libDirs
+                yield System.IO.Directory.GetCurrentDirectory()
+            ]
 
         /// Lazily locates an <c>FSharp.Compiler.Interactive.Settings.dll</c> so the type-checker
         /// can resolve the <c>fsi</c> object in <c>.fsx</c> scripts.
@@ -200,39 +202,40 @@ module internal CompilerServiceExtensions =
 
             let args =
                 [| //yield "--debug:full"
-                   //yield "--define:DEBUG"
-                   //yield "--optimize-"
-                   yield "--langversion:preview"
-                   yield "--nooptimizationdata"
-                   yield "--noframework"
+                    //yield "--define:DEBUG"
+                    //yield "--optimize-"
+                    yield "--langversion:preview"
+                    yield "--nooptimizationdata"
+                    yield "--noframework"
 
-                   if isNetCoreApp then
-                       yield "--targetprofile:netcore"
+                    if isNetCoreApp then
+                        yield "--targetprofile:netcore"
 
-                   for r in getNetCoreAppFrameworkDependencies.Value do
-                       let suppressFSharpCore =
-                           ((hasFsCoreLib || fsCoreLib.IsSome)
-                            && Path.GetFileNameWithoutExtension r = "FSharp.Core")
+                    for r in getNetCoreAppFrameworkDependencies.Value do
+                        let suppressFSharpCore =
+                            ((hasFsCoreLib || fsCoreLib.IsSome)
+                             && Path.GetFileNameWithoutExtension r = "FSharp.Core")
 
-                       if not suppressFSharpCore then
-                           yield r
+                        if not suppressFSharpCore then
+                            yield r
 
-                   yield "--out:" + dllName
-                   yield "--doc:" + xmlName
-                   yield "--warn:3"
-                   yield "--fullpaths"
-                   yield "--flaterrors"
-                   yield "--target:library"
-                   for dllFile in dllFiles do
-                       yield "-r:" + dllFile
-                   for libDir in libDirs do
-                       yield "-I:" + libDir
-                   match fsCoreLib with
-                   | None -> ()
-                   | Some fsCoreLib -> yield $"-r:%s{fsCoreLib}"
+                    yield "--out:" + dllName
+                    yield "--doc:" + xmlName
+                    yield "--warn:3"
+                    yield "--fullpaths"
+                    yield "--flaterrors"
+                    yield "--target:library"
+                    for dllFile in dllFiles do
+                        yield "-r:" + dllFile
+                    for libDir in libDirs do
+                        yield "-I:" + libDir
+                    match fsCoreLib with
+                    | None -> ()
+                    | Some fsCoreLib -> yield $"-r:%s{fsCoreLib}"
 
-                   yield! otherFlags
-                   yield fileName1 |]
+                    yield! otherFlags
+                    yield fileName1
+                |]
 
             projFileName, args
 
@@ -397,14 +400,18 @@ module internal CompilerServiceExtensions =
 
 /// Captured stdout/stderr output from a single FSI interaction split into FSI-produced and script-produced parts.
 type internal OutputData =
-    { FsiOutput: string
-      ScriptOutput: string
-      Merged: string }
+    {
+        FsiOutput: string
+        ScriptOutput: string
+        Merged: string
+    }
 
 /// The captured output and error streams from an FSI interaction round-trip.
 type internal InteractionOutputs =
-    { Output: OutputData
-      Error: OutputData }
+    {
+        Output: OutputData
+        Error: OutputData
+    }
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
 type internal FsiEvaluationException
@@ -441,9 +448,11 @@ type internal FsiExpressionTypeException =
     inherit FsiEvaluationException
 
     new(msg: string, input: string, result: InteractionOutputs, expect: System.Type, ?value: obj) =
-        { inherit FsiEvaluationException(msg, input, None, result, null)
-          expected = expect
-          value = value }
+        {
+            inherit FsiEvaluationException(msg, input, None, result, null)
+            expected = expect
+            value = value
+        }
 
     member x.Value = x.value
     member x.ExpectedType = x.expected
@@ -610,33 +619,35 @@ type internal FsiOptions =
     }
 
     static member Empty =
-        { Checked = None
-          Codepage = None
-          CrossOptimize = None
-          Debug = None
-          Defines = []
-          Exec = false
-          FullPaths = false
-          Gui = None
-          LibDirs = []
-          Loads = []
-          NoFramework = false
-          NoLogo = false
-          NonInteractive = false
-          NoWarns = []
-          Optimize = []
-          Quiet = false
-          QuotationsDebug = false
-          ReadLine = None
-          References = []
-          TailCalls = None
-          Uses = []
-          Utf8Output = false
-          WarnLevel = None
-          WarnAsError = None
-          WarnAsErrorList = []
-          MultiEmit = None
-          ScriptArgs = [] }
+        {
+            Checked = None
+            Codepage = None
+            CrossOptimize = None
+            Debug = None
+            Defines = []
+            Exec = false
+            FullPaths = false
+            Gui = None
+            LibDirs = []
+            Loads = []
+            NoFramework = false
+            NoLogo = false
+            NonInteractive = false
+            NoWarns = []
+            Optimize = []
+            Quiet = false
+            QuotationsDebug = false
+            ReadLine = None
+            References = []
+            TailCalls = None
+            Uses = []
+            Utf8Output = false
+            WarnLevel = None
+            WarnAsError = None
+            WarnAsErrorList = []
+            MultiEmit = None
+            ScriptArgs = []
+        }
 
     static member Default =
         let includes = []
@@ -644,7 +655,8 @@ type internal FsiOptions =
         if Env.isNetCoreApp then
             { FsiOptions.Empty with
                 LibDirs = includes
-                NonInteractive = true }
+                NonInteractive = true
+            }
         else
             let fsCore = FSharpAssemblyHelper.findFSCore [] includes
 
@@ -654,7 +666,8 @@ type internal FsiOptions =
                 LibDirs = includes
                 NoFramework = true
                 References = [ fsCore ]
-                NonInteractive = true }
+                NonInteractive = true
+            }
 
     static member ofArgs args =
         args
@@ -667,40 +680,47 @@ type internal FsiOptions =
                 | _, "--" -> parsed, (true, None)
                 | (true, _), a ->
                     { parsed with
-                        ScriptArgs = a :: parsed.ScriptArgs },
+                        ScriptArgs = a :: parsed.ScriptArgs
+                    },
                     state
                 | _, FsiBoolArg "--checked" enabled -> { parsed with Checked = Some enabled }, state
                 | _, StartsWith "--codepage:" res -> { parsed with Codepage = Some(int res) }, state
                 | _, FsiBoolArg "--crossoptimize" enabled ->
                     { parsed with
-                        CrossOptimize = Some enabled },
+                        CrossOptimize = Some enabled
+                    },
                     state
                 | _, StartsWith "--debug:" "pdbonly"
                 | _, StartsWith "-g:" "pdbonly" ->
                     { parsed with
-                        Debug = Some DebugMode.PdbOnly },
+                        Debug = Some DebugMode.PdbOnly
+                    },
                     state
                 | _, StartsWith "--debug:" "portable"
                 | _, StartsWith "-g:" "portable" ->
                     { parsed with
-                        Debug = Some DebugMode.Portable },
+                        Debug = Some DebugMode.Portable
+                    },
                     state
                 | _, StartsWith "--debug:" "full"
                 | _, StartsWith "-g:" "full"
                 | _, FsiBoolArg "--debug" true
                 | _, FsiBoolArg "-g" true ->
                     { parsed with
-                        Debug = Some DebugMode.Full },
+                        Debug = Some DebugMode.Full
+                    },
                     state
                 | _, FsiBoolArg "--debug" false
                 | _, FsiBoolArg "-g" false ->
                     { parsed with
-                        Debug = Some DebugMode.NoDebug },
+                        Debug = Some DebugMode.NoDebug
+                    },
                     state
                 | _, StartsWith "-d:" def
                 | _, StartsWith "--define:" def ->
                     { parsed with
-                        Defines = def :: parsed.Defines },
+                        Defines = def :: parsed.Defines
+                    },
                     state
                 | _, "--exec" -> { parsed with Exec = true }, state
                 | _, "--noninteractive" -> { parsed with NonInteractive = true }, state
@@ -709,11 +729,13 @@ type internal FsiOptions =
                 | _, StartsWith "-I:" lib
                 | _, StartsWith "--lib:" lib ->
                     { parsed with
-                        LibDirs = lib :: parsed.LibDirs },
+                        LibDirs = lib :: parsed.LibDirs
+                    },
                     state
                 | _, StartsWith "--load:" load ->
                     { parsed with
-                        Loads = load :: parsed.Loads },
+                        Loads = load :: parsed.Loads
+                    },
                     state
                 | _, "--noframework" -> { parsed with NoFramework = true }, state
                 | _, "--nologo" -> { parsed with NoLogo = true }, state
@@ -721,7 +743,8 @@ type internal FsiOptions =
                     let noWarns = warns.Split([| ',' |]) |> Seq.map int |> Seq.toList
 
                     { parsed with
-                        NoWarns = noWarns @ parsed.NoWarns },
+                        NoWarns = noWarns @ parsed.NoWarns
+                    },
                     state
                 | _, FsiBoolArg "--optimize" enabled ->
                     let cont (arg: string) =
@@ -737,11 +760,13 @@ type internal FsiOptions =
                             |> Seq.toList
 
                         { parsed with
-                            Optimize = (enabled, optList) :: parsed.Optimize },
+                            Optimize = (enabled, optList) :: parsed.Optimize
+                        },
                         (false, box None)
 
                     { parsed with
-                        Optimize = (enabled, []) :: parsed.Optimize },
+                        Optimize = (enabled, []) :: parsed.Optimize
+                    },
                     (false, Some cont)
                 | _, "--quiet" -> { parsed with Quiet = true }, state
                 | _, "--quotations-debug" -> { parsed with QuotationsDebug = true }, state
@@ -749,21 +774,25 @@ type internal FsiOptions =
                 | _, StartsWith "-r:" ref
                 | _, StartsWith "--reference:" ref ->
                     { parsed with
-                        References = ref :: parsed.References },
+                        References = ref :: parsed.References
+                    },
                     state
                 | _, FsiBoolArg "--tailcalls" enabled -> { parsed with TailCalls = Some enabled }, state
                 | _, StartsWith "--use:" useFile ->
                     { parsed with
-                        Uses = useFile :: parsed.Uses },
+                        Uses = useFile :: parsed.Uses
+                    },
                     state
                 | _, "--utf8output" -> { parsed with Utf8Output = true }, state
                 | _, StartsWith "--warn:" warn ->
                     { parsed with
-                        WarnLevel = Some(int warn) },
+                        WarnLevel = Some(int warn)
+                    },
                     state
                 | _, FsiBoolArg "--warnaserror" enabled ->
                     { parsed with
-                        WarnAsError = Some enabled },
+                        WarnAsError = Some enabled
+                    },
                     state
                 | _, StartsWith "--warnaserror" warnOpts ->
                     let parseList (l: string) =
@@ -772,21 +801,25 @@ type internal FsiOptions =
                     match warnOpts.[0], (if warnOpts.Length > 1 then Some warnOpts.[1] else None) with
                     | ':', _ ->
                         { parsed with
-                            WarnAsErrorList = (true, parseList (warnOpts.Substring 1)) :: parsed.WarnAsErrorList },
+                            WarnAsErrorList = (true, parseList (warnOpts.Substring 1)) :: parsed.WarnAsErrorList
+                        },
                         state
                     | '+', Some ':' ->
                         { parsed with
-                            WarnAsErrorList = (true, parseList (warnOpts.Substring 2)) :: parsed.WarnAsErrorList },
+                            WarnAsErrorList = (true, parseList (warnOpts.Substring 2)) :: parsed.WarnAsErrorList
+                        },
                         state
                     | '-', Some ':' ->
                         { parsed with
-                            WarnAsErrorList = (false, parseList (warnOpts.Substring 2)) :: parsed.WarnAsErrorList },
+                            WarnAsErrorList = (false, parseList (warnOpts.Substring 2)) :: parsed.WarnAsErrorList
+                        },
                         state
                     | _ -> failwithf "invalid --warnaserror argument: %s" arg
                 | _, FsiBoolArg "--multiemit" enabled -> { parsed with MultiEmit = Some enabled }, state
                 | _, unknown ->
                     { parsed with
-                        ScriptArgs = unknown :: parsed.ScriptArgs },
+                        ScriptArgs = unknown :: parsed.ScriptArgs
+                    },
                     (true, None))
             (FsiOptions.Empty, (false, None))
         |> fst
@@ -797,7 +830,8 @@ type internal FsiOptions =
                 References = p.References |> List.rev
                 LibDirs = p.LibDirs |> List.rev
                 Loads = p.Loads |> List.rev
-                Uses = p.Uses |> List.rev })
+                Uses = p.Uses |> List.rev
+            })
 
     member x.AsArgs =
         let maybeArg opt =
@@ -815,83 +849,85 @@ type internal FsiOptions =
             if b then Some name else None
             |> maybeArg
 
-        [| yield! getFsiBoolArg "--checked" x.Checked
-           yield! maybeArgMap x.Codepage (fun i -> sprintf "--codepage:%d" i)
-           yield! getFsiBoolArg "--crossoptimize" x.CrossOptimize
-           // ! -g[+|-|:full|:pdbonly] is not working, see https://github.com/Microsoft/visualfsharp/issues/311
-           yield!
-               maybeArgMap x.Debug (function
-                   | Full -> "--debug:full"
-                   | PdbOnly -> "--debug:pdbonly"
-                   | Portable -> "--debug:portable"
-                   | NoDebug -> "--debug-")
-           yield! x.Defines |> Seq.map (sprintf "--define:%s")
-           yield! getSimpleBoolArg "--exec" x.Exec
-           yield! getSimpleBoolArg "--fullpaths" x.FullPaths
-           yield! getFsiBoolArg "--gui" x.Gui
-           yield! x.LibDirs |> Seq.map (sprintf "-I:%s")
-           yield! x.Loads |> Seq.map (sprintf "--load:%s")
-           yield! getSimpleBoolArg "--noframework" x.NoFramework
-           yield! getSimpleBoolArg "--nologo" x.NoLogo
-           yield! getSimpleBoolArg "--noninteractive" x.NonInteractive
+        [|
+            yield! getFsiBoolArg "--checked" x.Checked
+            yield! maybeArgMap x.Codepage (fun i -> sprintf "--codepage:%d" i)
+            yield! getFsiBoolArg "--crossoptimize" x.CrossOptimize
+            // ! -g[+|-|:full|:pdbonly] is not working, see https://github.com/Microsoft/visualfsharp/issues/311
+            yield!
+                maybeArgMap x.Debug (function
+                    | Full -> "--debug:full"
+                    | PdbOnly -> "--debug:pdbonly"
+                    | Portable -> "--debug:portable"
+                    | NoDebug -> "--debug-")
+            yield! x.Defines |> Seq.map (sprintf "--define:%s")
+            yield! getSimpleBoolArg "--exec" x.Exec
+            yield! getSimpleBoolArg "--fullpaths" x.FullPaths
+            yield! getFsiBoolArg "--gui" x.Gui
+            yield! x.LibDirs |> Seq.map (sprintf "-I:%s")
+            yield! x.Loads |> Seq.map (sprintf "--load:%s")
+            yield! getSimpleBoolArg "--noframework" x.NoFramework
+            yield! getSimpleBoolArg "--nologo" x.NoLogo
+            yield! getSimpleBoolArg "--noninteractive" x.NonInteractive
 
-           yield!
-               (match x.NoWarns with
-                | [] -> None
-                | l -> l |> Seq.map string<int> |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
-               |> maybeArg
-           yield!
-               match x.Optimize with
-               | [] -> Seq.empty
-               | opts ->
-                   opts
-                   |> Seq.collect (fun (enable, types) ->
-                       seq {
-                           yield sprintf "--optimize%s" (getMinusPlus enable)
+            yield!
+                (match x.NoWarns with
+                 | [] -> None
+                 | l -> l |> Seq.map string<int> |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
+                |> maybeArg
+            yield!
+                match x.Optimize with
+                | [] -> Seq.empty
+                | opts ->
+                    opts
+                    |> Seq.collect (fun (enable, types) ->
+                        seq {
+                            yield sprintf "--optimize%s" (getMinusPlus enable)
 
-                           match types with
-                           | [] -> ()
-                           | _ ->
-                               yield
-                                   types
-                                   |> Seq.map (function
-                                       | NoJitOptimize -> "nojitoptimize"
-                                       | NoJitTracking -> "nojittracking"
-                                       | NoLocalOptimize -> "nolocaloptimize"
-                                       | NoCrossOptimize -> "nocrossoptimize"
-                                       | NoTailCalls -> "notailcalls")
-                                   |> String.concat ","
-                       })
+                            match types with
+                            | [] -> ()
+                            | _ ->
+                                yield
+                                    types
+                                    |> Seq.map (function
+                                        | NoJitOptimize -> "nojitoptimize"
+                                        | NoJitTracking -> "nojittracking"
+                                        | NoLocalOptimize -> "nolocaloptimize"
+                                        | NoCrossOptimize -> "nocrossoptimize"
+                                        | NoTailCalls -> "notailcalls")
+                                    |> String.concat ","
+                        })
 
-           yield! getSimpleBoolArg "--quiet" x.Quiet
-           yield! getSimpleBoolArg "--quotations-debug" x.QuotationsDebug
-           yield! getFsiBoolArg "--readline" x.ReadLine
+            yield! getSimpleBoolArg "--quiet" x.Quiet
+            yield! getSimpleBoolArg "--quotations-debug" x.QuotationsDebug
+            yield! getFsiBoolArg "--readline" x.ReadLine
 
-           yield! x.References |> Seq.map (sprintf "-r:%s")
+            yield! x.References |> Seq.map (sprintf "-r:%s")
 
-           yield! getFsiBoolArg "--tailcalls" x.TailCalls
-           yield! x.Uses |> Seq.map (sprintf "--use:%s")
+            yield! getFsiBoolArg "--tailcalls" x.TailCalls
+            yield! x.Uses |> Seq.map (sprintf "--use:%s")
 
-           yield! getSimpleBoolArg "--utf8output" x.Utf8Output
+            yield! getSimpleBoolArg "--utf8output" x.Utf8Output
 
-           yield! maybeArgMap x.WarnLevel (fun i -> sprintf "--warn:%d" i)
+            yield! maybeArgMap x.WarnLevel (fun i -> sprintf "--warn:%d" i)
 
-           yield! getFsiBoolArg "--warnaserror" x.WarnAsError
-           yield! getFsiBoolArg "--multiemit" x.MultiEmit
+            yield! getFsiBoolArg "--warnaserror" x.WarnAsError
+            yield! getFsiBoolArg "--multiemit" x.MultiEmit
 
-           yield!
-               x.WarnAsErrorList
-               |> Seq.map (fun (enable, warnNums) ->
-                   warnNums
-                   |> Seq.map string<int>
-                   |> String.concat ","
-                   |> sprintf "--warnaserror%s:%s" (getMinusPlus enable))
+            yield!
+                x.WarnAsErrorList
+                |> Seq.map (fun (enable, warnNums) ->
+                    warnNums
+                    |> Seq.map string<int>
+                    |> String.concat ","
+                    |> sprintf "--warnaserror%s:%s" (getMinusPlus enable))
 
-           match x.ScriptArgs with
-           | [] -> ()
-           | l ->
-               yield "--"
-               yield! l |]
+            match x.ScriptArgs with
+            | [] -> ()
+            | l ->
+                yield "--"
+                yield! l
+        |]
 
 [<AutoOpen>]
 module internal Helper =
@@ -957,19 +993,23 @@ module internal Helper =
 
         let fsiOutWriter =
             CombineTextWriter.Create
-                [ yield fsiOutStream
-                  yield mergedOutStream
-                  match liveFsiWriter with
-                  | None -> ()
-                  | Some liveFsiWriter -> yield liveFsiWriter ]
+                [
+                    yield fsiOutStream
+                    yield mergedOutStream
+                    match liveFsiWriter with
+                    | None -> ()
+                    | Some liveFsiWriter -> yield liveFsiWriter
+                ]
 
         let stdOutWriter =
             CombineTextWriter.Create
-                [ yield stdOutStream
-                  yield mergedOutStream
-                  match liveOutWriter with
-                  | None -> ()
-                  | Some liveFsiWriter -> yield liveFsiWriter ]
+                [
+                    yield stdOutStream
+                    yield mergedOutStream
+                    match liveOutWriter with
+                    | None -> ()
+                    | Some liveFsiWriter -> yield liveFsiWriter
+                ]
 
         let all = [ globalFsiOut, fsiOut; globalStdOut, stdOut; globalMergedOut, mergedOut ]
 
@@ -990,9 +1030,11 @@ module internal Helper =
 
             match mapped with
             | [ fsi; std; merged ] ->
-                { FsiOutput = fsi
-                  ScriptOutput = std
-                  Merged = merged }
+                {
+                    FsiOutput = fsi
+                    ScriptOutput = std
+                    Merged = merged
+                }
             | _ -> failwith $"Expected three StringBuilders, got %A{mapped}"
 
     let consoleCapture out err f =
@@ -1103,7 +1145,9 @@ type internal FsiSession
         { o with
             Output =
                 { o.Output with
-                    FsiOutput = diagsToString diags + o.Output.FsiOutput } }
+                    FsiOutput = diagsToString diags + o.Output.FsiOutput
+                }
+        }
 
     member _.EvalInteraction text =
         let i, (r, diags) = evalInteraction text
@@ -1148,7 +1192,8 @@ type internal FsiSession
             member _.Dispose() =
                 if not !isDisposed then
                     cd oldDir
-                    isDisposed := true }
+                    isDisposed := true
+        }
 
     /// Same as ChangeCurrentDirectory but takes a function for the scope.
     member x.WithCurrentDirectory dir f =
@@ -1190,7 +1235,8 @@ type internal ScriptHost() =
         ) =
         let opts =
             { FsiOptions.Default with
-                Defines = defaultArg defines [] }
+                Defines = defaultArg defines []
+            }
 
         ScriptHost.Create(
             opts,

@@ -21,11 +21,8 @@ index: 6
 #r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
 #endif // IPYNB
 
-
 (**
-[![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/fsprojects/fsharp.formatting/gh-pages?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
 
 Creating Content
 ===================================
@@ -224,11 +221,6 @@ of the document is placed.
 
 To generate .ipynb output for each script and markdown file, add a `_template.ipynb`, usually empty. Substitutions are
 applied to this template.
-
-To add a `mybinder` badge to your generated notebook, ensure you have a `Dockerfile` and `NuGet.config`
-in your `docs` directory and use text like this:
-
-    [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)
 
 ## Generating Script outputs
 

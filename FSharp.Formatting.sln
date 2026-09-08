@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1068-4804-89E7-0AFBAD5F885F}"
 	ProjectSection(SolutionItems) = preProject
+		docs\_body.html = docs\_body.html
 		docs\_template.html = docs\_template.html
 		docs\apidocs.fsx = docs\apidocs.fsx
 		docs\codeformat.fsx = docs\codeformat.fsx
@@ -29,6 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 		docs\index.md = docs\index.md
 		docs\literate.fsx = docs\literate.fsx
 		docs\markdown.fsx = docs\markdown.fsx
+		docs\mermaid.md = docs\mermaid.md
 		docs\styling.md = docs\styling.md
 		docs\upgrade.md = docs\upgrade.md
 		docs\users.md = docs\users.md

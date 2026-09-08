@@ -59,8 +59,10 @@ type AttributeClass() =
     static member TestStaticMember = 2
 
 type AttributeRecord =
-    { [<TestAttribute(String = "record")>]
-      TestField: int }
+    {
+        [<TestAttribute(String = "record")>]
+        TestField: int
+    }
 
 type AttributeUnion =
     | [<TestAttribute(String = "union")>] TestCase

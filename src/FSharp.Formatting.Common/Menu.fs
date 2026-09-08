@@ -7,9 +7,11 @@ open FSharp.Formatting.Templating
 
 /// A single navigation menu item with its link, display text, and active state
 type MenuItem =
-    { Link: string
-      Content: string
-      IsActive: bool }
+    {
+        Link: string
+        Content: string
+        IsActive: bool
+    }
 
 /// Converts a display string to a snake_case HTML id attribute value
 let private snakeCaseRegex =
@@ -32,18 +34,22 @@ let createMenu (input: string) (isCategoryActive: bool) (header: string) (items:
             let id = snakeCase title
 
             SimpleTemplating.ApplySubstitutionsInText
-                [| ParamKeys.``fsdocs-menu-item-link``, link
-                   ParamKeys.``fsdocs-menu-item-content``, title
-                   ParamKeys.``fsdocs-menu-item-id``, id
-                   ParamKeys.``fsdocs-menu-item-active-class``, (if model.IsActive then "active" else "") |]
+                [|
+                    ParamKeys.``fsdocs-menu-item-link``, link
+                    ParamKeys.``fsdocs-menu-item-content``, title
+                    ParamKeys.``fsdocs-menu-item-id``, id
+                    ParamKeys.``fsdocs-menu-item-active-class``, (if model.IsActive then "active" else "")
+                |]
                 menuItemTemplate)
         |> String.concat "\n"
 
     SimpleTemplating.ApplySubstitutionsInText
-        [| ParamKeys.``fsdocs-menu-header-content``, header
-           ParamKeys.``fsdocs-menu-header-id``, snakeCase header
-           ParamKeys.``fsdocs-menu-header-active-class``, (if isCategoryActive then "active" else "")
-           ParamKeys.``fsdocs-menu-items``, menuItems |]
+        [|
+            ParamKeys.``fsdocs-menu-header-content``, header
+            ParamKeys.``fsdocs-menu-header-id``, snakeCase header
+            ParamKeys.``fsdocs-menu-header-active-class``, (if isCategoryActive then "active" else "")
+            ParamKeys.``fsdocs-menu-items``, menuItems
+        |]
         menuTemplate
 
 /// Returns true when both required menu template files exist in `input`

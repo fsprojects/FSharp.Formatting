@@ -13,7 +13,9 @@ type Subject =
 /// primitive types, and generic wrapper types from the BCL.
 /// Used to test cross-assembly tooltip rendering (issue #1085).
 type TeamMember =
-    { Did: Did
-      Name: string
-      Active: bool
-      JoinedAt: System.DateTimeOffset option }
+    {
+        Did: Did
+        Name: string
+        Active: bool
+        JoinedAt: System.DateTimeOffset option
+    }

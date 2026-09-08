@@ -18,11 +18,8 @@ index: 2
 #r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
 #endif // IPYNB
 
-
 (**
-[![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/fsprojects/fsharp.formatting/gh-pages?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
 
 Markdown parser
 ==============================
@@ -36,7 +33,6 @@ First, we need to load the assembly and open the necessary namespaces:
 
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.Common
-
 
 (**
 Parsing documents

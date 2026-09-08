@@ -26,10 +26,12 @@ type Substitutions = (ParamKey * string) list
 /// Meta data from files that contains front matter
 /// Used to determine upfront which files have front matter so that previous and next substitutes can be discovered.
 type FrontMatterFile =
-    { FileName: string
-      Category: string
-      CategoryIndex: int
-      Index: int }
+    {
+        FileName: string
+        Category: string
+        CategoryIndex: int
+        Index: int
+    }
 
     /// Parses the category, categoryindex and index from the frontmatter lines
     static member ParseFromLines (fileName: string) (lines: string seq) =
@@ -53,7 +55,7 @@ type FrontMatterFile =
                     let parts = line.Split(":") |> Array.toList
 
                     match parts with
-                    | first :: second :: _ -> Some(first.ToLowerInvariant(), second)
+                    | first :: rest when not rest.IsEmpty -> Some(first.ToLowerInvariant(), String.Join(":", rest))
                     | _ -> None
                 else
                     None)
@@ -64,10 +66,12 @@ type FrontMatterFile =
         with
         | Some category, Some(ValidIndex categoryindex), Some(ValidIndex index) ->
             Some
-                { FileName = fileName
-                  Category = category.Trim()
-                  CategoryIndex = categoryindex
-                  Index = index }
+                {
+                    FileName = fileName
+                    Category = category.Trim()
+                    CategoryIndex = categoryindex
+                    Index = index
+                }
         | _ -> None
 
 /// <summary>

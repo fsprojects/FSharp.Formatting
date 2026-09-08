@@ -37,22 +37,26 @@ type IFsiEvaluationResult = interface end
 /// Represents the result of evaluating an F# snippet. This contains
 /// the generated console output together with a result and its static type.
 type FsiEvaluationResult =
-    { Output: string option
-      FsiOutput: string option
-      FsiMergedOutput: string option
-      ItValue: (obj * Type) option
-      Result: (obj * Type) option }
+    {
+        Output: string option
+        FsiOutput: string option
+        FsiMergedOutput: string option
+        ItValue: (obj * Type) option
+        Result: (obj * Type) option
+    }
 
     interface IFsiEvaluationResult
 
 /// Record that is reported by the EvaluationFailed event when something
 /// goes wrong during evalutaiton of an expression
 type FsiEvaluationFailedInfo =
-    { Text: string
-      AsExpression: bool
-      File: string option
-      Exception: exn
-      StdErr: string }
+    {
+        Text: string
+        AsExpression: bool
+        File: string option
+        Exception: exn
+        StdErr: string
+    }
 
     override x.ToString() =
         let indent (s: string) =
@@ -187,7 +191,8 @@ type FsiEvaluator
     let fsiOptions =
         if addHtmlPrinter then
             { fsiOptions with
-                Defines = fsiOptions.Defines @ [ "HAS_FSI_ADDHTMLPRINTER" ] }
+                Defines = fsiOptions.Defines @ [ "HAS_FSI_ADDHTMLPRINTER" ]
+            }
         else
             fsiOptions
 
@@ -429,12 +434,14 @@ module __FsiSettings =
     /// Registered transformations for pretty printing values
     /// (the default formats value as a string and emits single CodeBlock)
     let mutable valueTransformations: ((obj * Type * int) -> MarkdownParagraph list option) list =
-        [ (fun (o: obj, _t: Type, executionCount: int) ->
-              tryHtmlPrint 0 o
-              |> Option.map (fun (_tags, html) -> [ OutputBlock(html, "text/html", Some executionCount) ]))
+        [
+            (fun (o: obj, _t: Type, executionCount: int) ->
+                tryHtmlPrint 0 o
+                |> Option.map (fun (_tags, html) -> [ OutputBlock(html, "text/html", Some executionCount) ]))
 
-          (fun (o: obj, _t: Type, executionCount: int) ->
-              Some([ OutputBlock(plainTextPrint 0 o, "text/plain", Some executionCount) ])) ]
+            (fun (o: obj, _t: Type, executionCount: int) ->
+                Some([ OutputBlock(plainTextPrint 0 o, "text/plain", Some executionCount) ]))
+        ]
 
     /// Temporarily holds the function value injected into the F# evaluation session
     static member val internal InjectedAddPrintTransformer: ((obj -> obj) * Type -> unit) =
@@ -553,30 +560,53 @@ module __FsiSettings =
                                     | Ok v -> output, None, v
                                     | Error _ -> output, None, None
 
-                        { Output = Some output.Output.ScriptOutput
-                          FsiMergedOutput = Some output.Output.Merged
-                          FsiOutput = Some output.Output.FsiOutput
-                          Result = value
-                          ItValue = itvalue }
+                        {
+                            Output = Some output.Output.ScriptOutput
+                            FsiMergedOutput = Some output.Output.Merged
+                            FsiOutput = Some output.Output.FsiOutput
+                            Result = value
+                            ItValue = itvalue
+                        }
                         :> IFsiEvaluationResult)
             with :? FsiEvaluationException as e ->
                 evalFailed.Trigger
-                    { File = file
-                      AsExpression = asExpression
-                      Text = text
-                      Exception = e
-                      StdErr = e.Result.Error.Merged }
+                    {
+                        File = file
+                        AsExpression = asExpression
+                        Text = text
+                        Exception = e
+                        StdErr = e.Result.Error.Merged
+                    }
 
-                let msg =
-                    $"Evaluation failed and --strict is on\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n\    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
+                // Always surface evaluation failures to stderr so they are visible by default,
+                // even when the caller has not subscribed to EvaluationFailed or provided onError.
+                let fileInfo =
+                    match file with
+                    | Some f -> $" in %s{f}"
+                    | None -> ""
 
-                onError msg
+                let stderr = e.Result.Error.Merged.Trim()
 
-                { Output = None
-                  FsiOutput = None
-                  FsiMergedOutput = None
-                  Result = None
-                  ItValue = None }
+                let errorMsg =
+                    if stderr <> "" then
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%s{stderr}"
+                    else
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%A{e.InnerException}"
+
+                eprintfn "%s" errorMsg
+
+                let strictMsg =
+                    $"Evaluation failed\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
+
+                onError strictMsg
+
+                {
+                    Output = None
+                    FsiOutput = None
+                    FsiMergedOutput = None
+                    Result = None
+                    ItValue = None
+                }
                 :> IFsiEvaluationResult
 
     interface System.IDisposable with

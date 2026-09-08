@@ -73,16 +73,18 @@ type ApiDocInput =
             ?showInheritedMembers,
             ?typeConstraintDisplayMode
         ) =
-        { Path = assemblyPath
-          XmlFile = None
-          SourceFolder = sourceFolder
-          SourceRepo = sourceRepo
-          Warn = defaultArg warn false
-          Substitutions = substitutions
-          PublicOnly = defaultArg publicOnly true
-          MarkdownComments = defaultArg mdcomments false
-          ShowInheritedMembers = defaultArg showInheritedMembers true
-          TypeConstraintDisplayMode = defaultArg typeConstraintDisplayMode TypeConstraintDisplayMode.Short }
+        {
+            Path = assemblyPath
+            XmlFile = None
+            SourceFolder = sourceFolder
+            SourceRepo = sourceRepo
+            Warn = defaultArg warn false
+            Substitutions = substitutions
+            PublicOnly = defaultArg publicOnly true
+            MarkdownComments = defaultArg mdcomments false
+            ShowInheritedMembers = defaultArg showInheritedMembers true
+            TypeConstraintDisplayMode = defaultArg typeConstraintDisplayMode TypeConstraintDisplayMode.Short
+        }
 
 
 
@@ -144,10 +146,12 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
 
         // Compiler arguments used when formatting code snippets inside Markdown comments
         let codeFormatCompilerArgs =
-            [ for dir in libDirs do
-                  yield sprintf "-I:\"%s\"" dir
-              for file in dllFiles do
-                  yield sprintf "-r:\"%s\"" file ]
+            [
+                for dir in libDirs do
+                    yield sprintf "-I:\"%s\"" dir
+                for file in dllFiles do
+                    yield sprintf "-r:\"%s\"" file
+            ]
             |> String.concat " "
 
         printfn "  loading %d assemblies..." dllFiles.Length
@@ -251,11 +255,13 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                 | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Substitutions))
 
         let namespaces =
-            [ for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
-                  printfn "  found %d entities in namespace %s..." entities.Length name
+            [
+                for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
+                    printfn "  found %d entities in namespace %s..." entities.Length name
 
-                  if entities.Length > 0 then
-                      ApiDocNamespace(name, entities, substitutions, summary) ]
+                    if entities.Length > 0 then
+                        ApiDocNamespace(name, entities, substitutions, summary)
+            ]
 
         printfn "  found %d namespaces..." namespaces.Length
 
@@ -263,42 +269,50 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
             ApiDocCollection(collectionName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
 
         let rec nestedModules ns parent (modul: ApiDocEntity) =
-            [ yield ApiDocEntityInfo(modul, collection, ns, parent)
-              for n in modul.NestedEntities do
-                  if not n.IsTypeDefinition then
-                      yield! nestedModules ns (Some modul) n ]
+            [
+                yield ApiDocEntityInfo(modul, collection, ns, parent)
+                for n in modul.NestedEntities do
+                    if not n.IsTypeDefinition then
+                        yield! nestedModules ns (Some modul) n
+            ]
 
         let moduleInfos =
-            [ for ns in collection.Namespaces do
-                  for n in ns.Entities do
-                      if not n.IsTypeDefinition then
-                          yield! nestedModules ns None n ]
+            [
+                for ns in collection.Namespaces do
+                    for n in ns.Entities do
+                        if not n.IsTypeDefinition then
+                            yield! nestedModules ns None n
+            ]
 
         let createType ns parent typ =
             ApiDocEntityInfo(typ, collection, ns, parent)
 
         let rec nestedTypes ns (modul: ApiDocEntity) =
-            [ let entities = modul.NestedEntities
+            [
+                let entities = modul.NestedEntities
 
-              for n in entities do
-                  if n.IsTypeDefinition then
-                      yield createType ns (Some modul) n
+                for n in entities do
+                    if n.IsTypeDefinition then
+                        yield createType ns (Some modul) n
 
-              for n in entities do
-                  if not n.IsTypeDefinition then
-                      yield! nestedTypes ns n ]
+                for n in entities do
+                    if not n.IsTypeDefinition then
+                        yield! nestedTypes ns n
+            ]
 
         let typesInfos =
-            [ for ns in collection.Namespaces do
-                  let entities = ns.Entities
+            [
+                for ns in collection.Namespaces do
+                    let entities = ns.Entities
 
-                  for n in entities do
-                      if not n.IsTypeDefinition then
-                          yield! nestedTypes ns n
+                    for n in entities do
+                        if not n.IsTypeDefinition then
+                            yield! nestedTypes ns n
 
-                  for n in entities do
-                      if n.IsTypeDefinition then
-                          yield createType ns None n ]
+                    for n in entities do
+                        if n.IsTypeDefinition then
+                            yield createType ns None n
+            ]
 
         ApiDocModel(
             substitutions = substitutions,

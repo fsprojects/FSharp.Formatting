@@ -35,4 +35,4 @@ let mkPageContentMenu (html: string) =
 
     match listItems with
     | [] -> List.empty, EmptyContent
-    | items -> headingTexts, string<HtmlElement> (ul [] items)
+    | items -> headingTexts, string<HtmlElement>(ul [] items)

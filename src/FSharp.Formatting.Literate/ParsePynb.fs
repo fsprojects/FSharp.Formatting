@@ -12,9 +12,11 @@ module internal ParsePynb =
     /// A single cell from a Jupyter notebook, either a Markdown cell or a code cell.
     type ParsedCell =
         | Code of
-            {| lang: string
-               source: string
-               outputs: string[] option |}
+            {|
+                lang: string
+                source: string
+                outputs: string[] option
+            |}
         | Markdown of source: string
 
         member this.ToMarkdown() =
@@ -147,9 +149,11 @@ module internal ParsePynb =
         let outputs = collectOutputs cell
 
         Code
-            {| lang = lang
-               source = source
-               outputs = outputs |}
+            {|
+                lang = lang
+                source = source
+                outputs = outputs
+            |}
 
 
     /// Parses a single notebook cell JSON element into a <see cref="T:FSharp.Formatting.Literate.ParsePynb.ParsedCell"/>.
