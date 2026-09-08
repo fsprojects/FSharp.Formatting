@@ -2848,7 +2848,7 @@ type WatchCommand() =
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
 
-    override x.root_override_option = if x.root = "" then None else Some x.root
+    override x.root_override_option = if String.IsNullOrEmpty x.root then None else Some x.root
 
     [<Option("root",
              Required = false,
