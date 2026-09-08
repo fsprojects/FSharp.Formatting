@@ -183,6 +183,19 @@ module internal Content =
         else
             None
 
+    /// The substitutions naming a static file of the site, with the project setting they come from.
+    let assetSubstitutions =
+        [
+            ParamKeys.``fsdocs-logo-src``, "<FsDocsLogoSource>"
+            ParamKeys.``fsdocs-favicon-src``, "<FsDocsFaviconSource>"
+        ]
+
+    /// Whether an asset value is a path in the site, as opposed to an absolute or data URL.
+    let isSiteRelative (value: string) =
+        not (String.IsNullOrWhiteSpace value)
+        && not (value.Contains "://")
+        && not (value.StartsWith("data:", StringComparison.Ordinal))
+
     /// Sort front matter files the way the next/previous page links expect.
     let sortFilesWithFrontMatter (files: FrontMatterFile seq) =
         files

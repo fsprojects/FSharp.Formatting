@@ -989,6 +989,7 @@ type CoreBuildOptions(watch) =
 
             use site = new Site(config)
             site.Start()
+            site.CheckAssets()
 
             logger.Infof "starting server on http://localhost:%d for content in %s" this.port_option this.input
             logger.Infof "pages are built when first requested; see http://localhost:%d/.fsdocs/doctor" this.port_option
@@ -1067,6 +1068,17 @@ type CoreBuildOptions(watch) =
                 let ok1 = ok1 && runDocContentPhase2 ()
                 regenerateSearchIndex ()
                 generateLlmsTxt ()
+
+                for (key, setting) in Content.assetSubstitutions do
+                    match startupCrack.Value.Substitutions |> List.tryFind (fst >> (=) key) with
+                    | Some(_, value) when Content.isSiteRelative value ->
+                        if not (File.Exists(Path.Combine(rootOutputFolderFullPath, value))) then
+                            logger.Warnf
+                                "%s is '%s' but the output has no such file (the value comes from the cracked projects)"
+                                setting
+                                value
+                    | _ -> ()
+
                 ok1 && ok2
 
             if ok then 0 else 1
