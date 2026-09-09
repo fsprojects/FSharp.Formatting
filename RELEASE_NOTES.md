@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+* Bump `FSharp.Data` from 8.1.14 to 8.2.0, `G-Research.FSharp.Analyzers` from 0.22.0 to 0.23.0, and the `fsharp-analyzers` tool from 0.36.0 to 0.37.2.
+* Bump `Ionide.ProjInfo` from 0.74.2 to 0.75.0 and `NUnit3TestAdapter` from 6.2.0 to 6.3.0. Both are routine, non-breaking updates.
+
 ## [23.0.0-alpha.1] - 2026-09-08
 
 ### Changed
