@@ -51,3 +51,12 @@ IMPORTANT LEARNING 2026-09-05: push_to_pull_request_branch blocks protected file
 - **Used all 4 available push_to_pull_request_branch calls this run** — did NOT get to rebase/check PR #1241 (perf HashSet cultures, blocked), PR #1130 (interactive tooltip, blocked, oldest from April), PR #1275 (front-matter colon-parsing, blocked). These still need rebase/conflict-resolution in a FUTURE run — resume here first next time (push quota resets per-run).
 - IMPORTANT LEARNED FACT: `push_to_pull_request_branch` requires an explicit `"repo":"fsprojects/FSharp.Formatting"` field when workflow target is `'*'` — always include it or the call fails with "requires repo" error.
 - RELEASE_NOTES.md conflict pattern confirmed again: when multiple PRs add Unreleased entries, merge ALL entries into appropriate ### subsections (Added/Changed/Fixed) rather than picking one side. Keep already-released version blocks below untouched.
+
+## Run 2026-09-09 (run_id 34294605274)
+- Tasks selected: [3 (Issue Fix), 9 (Testing), 1 (Labelling)]
+- Task 1: no unlabelled issues found — N/A.
+- Task 3: reviewed #585, #1064, #949, #928, #927, #898 — no new fixable bug; existing PRs (#1130 for #949) and prior comments still current, no new human activity.
+- Task 9: implemented — added 2 new tests to tests/FSharp.Markdown.Tests/Markdown.fs covering Markdown.ToLatex OtherBlock and InlineHtmlBlock paragraph rendering (previously untested). 370/370 tests pass. Created draft PR on branch repo-assist/latex-tests-otherblock-20260909. Also updated RELEASE_NOTES.md (Unreleased section).
+- Task 11: attempted to update issue #1277 (Monthly Activity Sept 2026) via update_issue twice — first call had a shell-quoting bug (payload not passed correctly, though tool reported success), second corrected call hit "update_issue limit reached — 1 of 1 already used this run". So issue #1277 may NOT have been updated with this run's content this run despite success being reported on the first malformed call. Next run should verify #1277's body and correct if the first (malformed) update wrote garbage/empty content.
+- Noted issues #1296, #1297, #1298 (gh-aw infra failure/protected-files notices related to PR #1291 and #1130 pushes) — flagged for maintainer closure, not actioned directly (out of scope for available tasks).
+- PR #1291 (deps bundle) and PR #1130 (tooltip fix, oldest open Repo Assist PR) remain open awaiting maintainer review.

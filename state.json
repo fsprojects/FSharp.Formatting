@@ -42,17 +42,24 @@
     "1190": "2026-04-29"
   },
   "last_run": {
-    "run_id": "33932588559",
-    "date": "2026-09-05",
+    "run_id": "34294605274",
+    "date": "2026-09-09",
     "tasks": [
-      6,
-      10,
       3,
-      11
-    ]
+      9,
+      1
+    ],
+    "outcome": "Task9: created test PR (branch repo-assist/latex-tests-otherblock-20260909, 2 new ToLatex tests). Task3/1: no action, no new fixable issue / no unlabelled issues."
   },
   "current_monthly_activity_issue": "1277",
   "notes": [
     "2026-09-05: rebased+pushed #1264 (seealso) and #1267 (docs literate); #1275 confirmed clean. Created new PR bundling Ionide.ProjInfo 0.75.0 + NUnit3TestAdapter 6.3.0 (branch repo-assist/deps-bump-projinfo-nunit-20260905), supersedes stale issue #1276. Issue #1278 (protected files notice for #1264) now resolved."
+  ],
+  "pending_prs": [
+    1130,
+    1264,
+    1267,
+    1275,
+    1291
   ]
 }
