@@ -3,6 +3,7 @@
 #r "nuget: Fake.IO.FileSystem, 6.0.0"
 #r "nuget: Ionide.KeepAChangelog, 0.1.8"
 
+open System
 open System.IO
 open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
@@ -22,7 +23,7 @@ let artifactsDir = root @@ "artifacts"
 let fsdocTool = artifactsDir @@ "fsdocs"
 
 // Read release notes document
-let releaseNugetVersion, _, _ =
+let releaseNugetVersion, _, releaseNotesData =
     let changeLog = FileInfo(__SOURCE_DIRECTORY__ </> "RELEASE_NOTES.md")
 
     match Parser.parseChangeLog changeLog with
@@ -67,6 +68,9 @@ let buildStage =
         run $"dotnet build {solutionFile} --configuration {configuration} -tl"
     }
 
+let packStage =
+    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
+
 
 pipeline "CI" {
     lintStage
@@ -80,7 +84,7 @@ pipeline "CI" {
 
     buildStage
 
-    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
+    packStage
 
     testStage
 
@@ -129,6 +133,104 @@ pipeline "Docs" {
                 |> String.concat " "
 
             $"dotnet run --project src/fsdocs-tool -- watch {extraArgs}")
+    }
+
+    runIfOnlySpecified true
+}
+
+// Build and pack the solution, publish the packages to NuGet and create the matching GitHub
+// release. Runs from the push-to-main workflow after the CI pipeline. Every push to main runs
+// it, so it does nothing when NuGet already has the version at the top of RELEASE_NOTES.md. Pass `--dry-run` to see the notes and the commands without publishing:
+// `./build.fsx -p Release --dry-run`.
+pipeline "Release" {
+    buildStage
+    packStage
+
+    stage "Release" {
+        run (fun ctx ->
+            async {
+                let isDryRun = fsi.CommandLineArgs |> Array.contains "--dry-run"
+                let tag = $"v{releaseNugetVersion}"
+
+                let nugetKey = Environment.GetEnvironmentVariable "NUGET_KEY"
+
+                let publish (command: FormattableString) =
+                    if isDryRun then
+                        let masked =
+                            command.GetArguments()
+                            |> Array.map (fun a -> if a = box nugetKey then box "***" else a)
+
+                        printfn $"[dry-run] {String.Format(command.Format, masked)}"
+                        async { return Ok() }
+                    else
+                        ctx.RunSensitiveCommand command
+
+                // The GitHub release goes with the NuGet push, so a version that is already on
+                // NuGet gets neither.
+                let! nugetVersions =
+                    (new Net.Http.HttpClient())
+                        .GetStringAsync("https://api.nuget.org/v3-flatcontainer/fsdocs-tool/index.json")
+                    |> Async.AwaitTask
+
+                if nugetVersions.Contains $"\"{releaseNugetVersion}\"" then
+                    printfn $"fsdocs-tool {releaseNugetVersion} is already on NuGet, nothing to do."
+                    return 0
+                else
+
+                    let packages = Directory.GetFiles(artifactsDir, $"*.{releaseNugetVersion}.nupkg")
+
+                    let notes =
+                        match releaseNotesData with
+                        | None -> failwith "The release at the top of RELEASE_NOTES.md has no sections."
+                        | Some data ->
+                            [
+                                "Added", data.Added
+                                "Changed", data.Changed
+                                "Fixed", data.Fixed
+                                "Deprecated", data.Deprecated
+                                "Removed", data.Removed
+                                "Security", data.Security
+                                yield! Map.toList data.Custom
+                            ]
+                            |> List.filter (fun (_, lines) -> not lines.IsEmpty)
+                            |> List.map (fun (header, lines) ->
+                                lines
+                                |> List.map (fun line -> line.TrimStart())
+                                |> String.concat "\n"
+                                |> sprintf "### %s\n%s" header)
+                            |> String.concat "\n\n"
+
+                    printfn $"Release notes for {tag}:\n---\n{notes}\n---"
+
+                    for package in packages do
+                        let! result =
+                            publish
+                                $"dotnet nuget push \"{package}\" --api-key {nugetKey} --source https://api.nuget.org/v3/index.json --skip-duplicate"
+
+                        if Result.isError result then
+                            failwith $"Pushing {Path.GetFileName package} failed."
+
+                    let notesFile = Path.GetTempFileName()
+                    File.WriteAllText(notesFile, notes)
+                    let files = packages |> Array.map (sprintf "\"%s\"") |> String.concat " "
+
+                    let prerelease =
+                        if String.IsNullOrEmpty releaseNugetVersion.Prerelease then
+                            ""
+                        else
+                            "--prerelease"
+
+                    let! result =
+                        publish
+                            $"gh release create {tag} {files} --title {releaseNugetVersion} --notes-file \"{notesFile}\" {prerelease}"
+
+                    File.Delete notesFile
+
+                    if Result.isError result then
+                        return failwith "Creating the GitHub release failed."
+                    else
+                        return 0
+            })
     }
 
     runIfOnlySpecified true
