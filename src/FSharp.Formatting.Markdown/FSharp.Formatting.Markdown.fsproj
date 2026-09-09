@@ -28,5 +28,6 @@
   <ItemGroup>
     <PackageReference Include="FSharp.Compiler.Service" />
     <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 </Project>
