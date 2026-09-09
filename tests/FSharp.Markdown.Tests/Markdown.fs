@@ -2156,6 +2156,35 @@ let ``ToLatex handles empty document without error`` () =
     result.Trim() |> shouldEqual ""
 
 [<Test>]
+let ``ToLatex renders OtherBlock content wrapped in lstlisting`` () =
+    // OtherBlock is used for raw/other paragraph content and, like CodeBlock, must be
+    // wrapped in a \begin{lstlisting}/\end{lstlisting} environment (previously untested).
+    let doc =
+        MarkdownDocument(
+            [
+                OtherBlock(
+                    [ ("raw line one", MarkdownRange.zero); ("raw line two", MarkdownRange.zero) ],
+                    MarkdownRange.zero
+                )
+            ],
+            dict []
+        )
+
+    let result = Markdown.ToLatex(doc, newline = "\n")
+    result |> should contain @"\begin{lstlisting}"
+    result |> should contain "raw line one"
+    result |> should contain "raw line two"
+    result |> should contain @"\end{lstlisting}"
+
+[<Test>]
+let ``ToLatex renders InlineHtmlBlock content verbatim`` () =
+    // InlineHtmlBlock is written straight through without escaping or wrapping.
+    let doc = MarkdownDocument([ InlineHtmlBlock("<div>raw html</div>", None, MarkdownRange.zero) ], dict [])
+
+    let result = Markdown.ToLatex(doc, newline = "\n")
+    result |> should contain "<div>raw html</div>"
+
+[<Test>]
 let ``ToLatex EmbedParagraphs delegates to Render()`` () =
     let inner =
         { new MarkdownEmbedParagraphs with
