@@ -34,6 +34,24 @@ valuable inputs to that work.
 - Build with `dotnet build`
 - Open `FSharp.Formatting.sln` with Visual Studio or Visual Studio Code (with the ionide-fsharp extension)
 
+The tool can build its own documentation from the `docs` folder of this repository:
+
+    dotnet run --project src/fsdocs-tool -- watch
+    dotnet run --project src/fsdocs-tool -- build --clean
+
+### Pipelines
+
+Run
+
+    dotnet fsi build.fsx -- --help
+
+to see what other pipelines can be run from `build.fsx`.
+
+    dotnet fsi build.fsx -- -p Verify
+
+Will perform the linting, unit tests and analyzer check.
+This is useful to run locally before submitting your PR.
+
 ## Source Formatting
 
 This repository uses the Fantomas source code formatter and this is checked on commit.
