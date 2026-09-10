@@ -26,6 +26,7 @@
     <RepositoryUrl>https://github.com/fsprojects/FSharp.Formatting</RepositoryUrl>
     <PackageProjectUrl>https://fsprojects.github.io/FSharp.Formatting</PackageProjectUrl>
     <PackageIcon>logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <ChangelogFile>../../RELEASE_NOTES.md</ChangelogFile>
@@ -33,6 +34,7 @@
 
     <ItemGroup Condition="'$(IsPackable)' == 'true'">
         <None Include="..\..\docs\img\logo.png" Pack="true" PackagePath="\"/>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
         <PackageReference Include="Ionide.KeepAChangelog.Tasks" PrivateAssets="all" />
     </ItemGroup>
 </Project>

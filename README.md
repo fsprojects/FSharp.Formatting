@@ -1,37 +1,47 @@
-fsdocs and FSharp.Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/actions/workflows/push-main.yml/badge.svg)
+fsdocs and FSharp.Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/actions/workflows/push-main.yml/badge.svg) [![NuGet](https://img.shields.io/nuget/v/fsdocs-tool.svg)](https://www.nuget.org/packages/fsdocs-tool)
 =================================
 
-The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
-for documentation generation. The primary tool is "fsdocs".
+FSharp.Formatting is a set of libraries and tools for processing F# script files and markdown, and for
+generating API documentation from XML doc comments. The primary tool is `fsdocs`.
 
-See https://fsprojects.github.io/FSharp.Formatting/
+Full documentation: https://fsprojects.github.io/FSharp.Formatting/
 
-## Development
+## The fsdocs tool
 
-    dotnet fsi build.fsx
+`fsdocs` builds a static documentation site from the markdown files and F# scripts in your `docs`
+folder, plus API reference pages for the projects in your solution.
 
-Once built, you can run the command-line tool to self-build the docs for this directory using 
+    dotnet tool install fsdocs-tool
+    dotnet fsdocs build
+    dotnet fsdocs watch
 
-    dotnet build
-    src\fsdocs-tool\bin\Debug\net8.0\fsdocs.exe watch
-    src\fsdocs-tool\bin\Debug\net8.0\fsdocs.exe build --clean
+- `init` creates a `docs` folder with a default `index.md`.
+- `build` processes the `docs` folder and writes the site to `output`.
+- `watch` builds the site, serves it locally and rebuilds on every change.
+- `convert` converts individual markdown and script files.
 
-### Pipelines
+Run `dotnet fsdocs <command> --help` to see the options of a command, or read the
+[command line guide](https://fsprojects.github.io/FSharp.Formatting/commandline.html).
 
-Run
+## The libraries
 
-    dotnet fsi build.fsx -- --help
+The same functionality is available as NuGet packages for use from your own code:
 
-to see what other pipelines can be run from `build.fsx`.
+- [FSharp.Formatting](https://www.nuget.org/packages/FSharp.Formatting) bundles the markdown parser,
+  F# code formatter, literate programming support and API doc generator.
+- [FSharp.Formatting.Literate](https://www.nuget.org/packages/FSharp.Formatting.Literate) only contains
+  the literate programming support and its dependencies.
 
-    dotnet fsi build.fsx -- -p Verify
+See [Markdown parser](https://fsprojects.github.io/FSharp.Formatting/markdown.html),
+[F# code formatting](https://fsprojects.github.io/FSharp.Formatting/codeformat.html) and
+[literate programming](https://fsprojects.github.io/FSharp.Formatting/literate.html) for examples.
 
-Will perform the linting, unit tests and analyzer check.
-This is useful to run locally before submitting your PR.
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/fsprojects/FSharp.Formatting/blob/main/CONTRIBUTING.md) for how to build the repository and run the tool locally.
 
 ## Maintainer(s)
 
 - [@dsyme](https://github.com/dsyme)
 - [@nojaf](https://github.com/nojaf)
 - [@nhirschey](https://github.com/nhirschey)
-- [@nojaf](https://github.com/nojaf)
