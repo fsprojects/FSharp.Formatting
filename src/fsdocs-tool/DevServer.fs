@@ -476,10 +476,13 @@ module Serve =
     /// loopback address; when bound to all interfaces, also one url per address of each interface
     /// that is up (labelled with the interface name), so the site can be opened from another machine.
     let listenUrls (host: string) (port: int) : (string * string option) list =
-        match normalizeHost host with
-        | "127.0.0.1" -> [ sprintf "http://localhost:%d" port, None ]
-        | "0.0.0.0" ->
-            let interfaceUrls =
+        let host = normalizeHost host
+        let url (address: string) = sprintf "http://%s:%d" address port
+
+        let interfaceUrls =
+            if host <> "0.0.0.0" then
+                []
+            else
                 try
                     [
                         for nic in Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces() do
@@ -489,14 +492,19 @@ module Serve =
                             then
                                 for addr in nic.GetIPProperties().UnicastAddresses do
                                     if addr.Address.AddressFamily = Net.Sockets.AddressFamily.InterNetwork then
-                                        sprintf "http://%s:%d" (string addr.Address) port, Some nic.Name
+                                        url (string<Net.IPAddress> addr.Address), Some nic.Name
                     ]
                 with ex ->
                     logger.Debugf "unable to list the network interfaces: %s" ex.Message
                     []
 
-            (sprintf "http://localhost:%d" port, None) :: interfaceUrls
-        | h -> [ sprintf "http://%s:%d" h port, None ]
+        let first =
+            if host = "127.0.0.1" || host = "0.0.0.0" then
+                "localhost"
+            else
+                host
+
+        (url first, None) :: interfaceUrls
 
     /// Start the server with the given application; the mime map is used for static files.
     let startWebServer (app: WebPart) (host: string) localPort =
