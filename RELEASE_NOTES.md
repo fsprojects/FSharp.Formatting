@@ -5,6 +5,7 @@
 ### Fixed
 * Fix tooltip not being interactive: moving the mouse from a code token into its tooltip now keeps the tooltip open, allowing users to select and copy the tooltip text. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
 * `fsdocs watch` rebuilds a page when a file its script depends on changes, following `#load` transitively and `#r` to local files, wherever those files are (a dot folder, outside the input folder). The directives are read from the syntax tree, so a `#load` in a comment does not count. [#1309](https://github.com/fsprojects/FSharp.Formatting/issues/1309)
+* API docs keep the comment of a type abbreviation whose target is a tuple, a list or a BCL type such as `string`, instead of dropping it with "The entity ... was not registered before". An abbreviation page no longer lists the members of the target type (`Item1`, `Item2`, ...) as its own. [#1314](https://github.com/fsprojects/FSharp.Formatting/issues/1314)
 
 ## [23.0.0-alpha.1] - 2026-09-08
 
