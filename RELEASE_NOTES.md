@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+* Added unit tests for `Markdown.ToLatex` covering `OtherBlock` (raw paragraph content, wrapped in `\begin{lstlisting}`) and `InlineHtmlBlock` (verbatim passthrough), which previously had no direct test coverage.
+
 ## [23.0.0-alpha.1] - 2026-09-08
 
 ### Changed
