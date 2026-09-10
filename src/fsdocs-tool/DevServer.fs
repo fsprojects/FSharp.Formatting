@@ -599,7 +599,6 @@ type internal ContentMeta =
     {
         FrontMatter: ScannedFrontMatter
         FrontMatterFile: FrontMatterFile option
-        Loads: string list
         UsesCref: bool
         Error: string option
     }
@@ -720,10 +719,20 @@ type internal Site(config: SiteConfig) =
         && rel.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
            |> Array.exists (fun s -> s.StartsWith '.')
 
+    /// A file of the input trees: under a root and not in a dot folder
+    let isTreeFile (path: string) =
+        treeRoots |> List.exists (fun r -> isUnder r path && not (isInDotFolder r path))
+
+    /// The files the scripts depend on through '#load' and '#r', discovered when a script is
+    /// refreshed. They are watched wherever they are: in a dot folder, outside the input trees.
+    /// Guarded by 'refreshLock'.
+    let loadTargets = System.Collections.Generic.HashSet<string>()
+
     let isWatchedFile (path: string) =
         dllSet.Contains path
         || projectSet.Contains path
-        || treeRoots |> List.exists (fun r -> isUnder r path && not (isInDotFolder r path))
+        || loadTargets.Contains path
+        || isTreeFile path
 
     let isMenuTemplate (path: string) =
         let name = Path.GetFileName path
@@ -742,6 +751,7 @@ type internal Site(config: SiteConfig) =
         || isMenuTemplate path
         || dllSet.Contains path
         || projectSet.Contains path
+        || loadTargets.Contains path
 
     // ---------------------------------------------------------------------------------------------
     // Inputs of the graph and the change pipeline
@@ -749,6 +759,8 @@ type internal Site(config: SiteConfig) =
     let files = cmap<string, FileStamp>()
     let dlls = cmap<string, FileStamp>()
     let projects = cmap<string, FileStamp>()
+    /// The files each script depends on through its hash directives, kept in step with 'files'
+    let scriptLoads = cmap<string, string list>()
     let lastStat = Dictionary<string, struct (int64 * DateTime)>()
     let knownHash = Dictionary<string, string>()
     let refreshLock = obj ()
@@ -792,10 +804,18 @@ type internal Site(config: SiteConfig) =
             while events.Count > 200 do
                 events.TryDequeue() |> ignore
 
-    let hashFile (path: string) =
-        use stream = File.OpenRead path
-        use sha = SHA256.Create()
-        sha.ComputeHash stream |> Convert.ToHexString
+    let hashBytes (bytes: byte array) =
+        SHA256.HashData bytes |> Convert.ToHexString
+
+    let hashFile (path: string) = File.ReadAllBytes path |> hashBytes
+
+    /// Whether the hash directives of this file feed the graph: a content script or a loaded one
+    let hasDirectives (path: string) =
+        Content.isFsxFile path && (isTreeFile path || loadTargets.Contains path)
+
+    let textOf (bytes: byte array) =
+        use reader = new StreamReader(new MemoryStream(bytes), Encoding.UTF8, true)
+        reader.ReadToEnd()
 
     let tryStat (path: string) =
         let fi = FileInfo path
@@ -847,7 +867,11 @@ type internal Site(config: SiteConfig) =
                 | None ->
                     if lastStat.Remove path then
                         knownHash.Remove path |> ignore
-                        transact (fun () -> map.Remove path |> ignore)
+
+                        transact (fun () ->
+                            map.Remove path |> ignore
+                            scriptLoads.Remove path |> ignore)
+
                         logger.Debugf "deleted %s: invalidated" path
                         recordEvent path "deleted" true
                         true
@@ -860,20 +884,21 @@ type internal Site(config: SiteConfig) =
                     | true, previous when previous = stat && (cause = Reconciliation || not (contentMatters path)) ->
                         false
                     | _ ->
-                        let hashResult =
+                        let readResult =
                             if contentMatters path then
                                 try
-                                    Result.Ok(hashFile path)
+                                    let bytes = File.ReadAllBytes path
+                                    Result.Ok(hashBytes bytes, bytes)
                                 with ex ->
                                     Result.Error ex
                             else
-                                Result.Ok ""
+                                Result.Ok("", [||])
 
-                        match hashResult with
+                        match readResult with
                         | Result.Error _ ->
                             // Mid-write or locked: leave the stat alone so the reconciler retries
                             false
-                        | Result.Ok hash ->
+                        | Result.Ok(hash, bytes) ->
                             lastStat.[path] <- stat
 
                             match knownHash.TryGetValue path with
@@ -884,17 +909,33 @@ type internal Site(config: SiteConfig) =
                             | _ ->
                                 knownHash.[path] <- hash
 
+                                let loads =
+                                    if hasDirectives path then
+                                        ScriptDirectives.dependenciesOf path (textOf bytes)
+                                    else
+                                        []
+
                                 transact (fun () ->
                                     map.[path] <-
                                         {
                                             Length = length
                                             LastWriteUtc = lastWrite
                                             Hash = hash
-                                        })
+                                        }
+
+                                    if hasDirectives path then
+                                        scriptLoads.[path] <- loads)
 
                                 logger.Debugf "%s %s: invalidated" change path
                                 recordEvent path change true
                                 changedFiles.Trigger path
+
+                                // Files this script depends on for the first time enter the graph now
+                                for load in loads do
+                                    if loadTargets.Add load then
+                                        logger.Debugf "%s depends on %s" path load
+                                        refresh cause "discovered" load |> ignore
+
                                 true)
 
     /// Forget the current bytes of a file the site rewrote itself (notebook evaluation), so the
@@ -927,6 +968,9 @@ type internal Site(config: SiteConfig) =
             for project in projectPaths do
                 if File.Exists project then
                     yield project
+            for target in loadTargets do
+                if File.Exists target then
+                    yield target
         ]
 
     /// Compare the watched roots with the last snapshot and refresh every difference.
@@ -943,19 +987,6 @@ type internal Site(config: SiteConfig) =
     // ---------------------------------------------------------------------------------------------
     // Derived nodes
 
-    let loadRegex = Regex(@"^\s*#load\s+(.*)$", RegexOptions.Multiline)
-    let quotedRegex = Regex("\"([^\"]+)\"")
-
-    let loadsOf (path: string) (text: string) =
-        if Content.isFsxFile path then
-            [
-                for m in loadRegex.Matches text do
-                    for q in quotedRegex.Matches m.Groups.[1].Value do
-                        Path.GetFullPath(Path.Combine(Path.GetDirectoryName path, q.Groups.[1].Value))
-            ]
-        else
-            []
-
     let computeMeta (path: string) : ContentMeta =
         try
             let text = File.ReadAllText path
@@ -963,7 +994,6 @@ type internal Site(config: SiteConfig) =
             {
                 FrontMatter = Content.scanFrontMatter path
                 FrontMatterFile = Content.parseFrontMatterOfFile path
-                Loads = loadsOf path text
                 UsesCref = text.Contains "cref:"
                 Error = None
             }
@@ -978,7 +1008,6 @@ type internal Site(config: SiteConfig) =
                         Index = None
                     }
                 FrontMatterFile = None
-                Loads = []
                 UsesCref = true
                 Error = Some ex.Message
             }
@@ -1035,7 +1064,7 @@ type internal Site(config: SiteConfig) =
 
         for (root, rootAsGiven, outputRoot) in trees do
             for path in paths do
-                if isUnder root path then
+                if isUnder root path && not (isInDotFolder root path) then
                     let name = Path.GetFileName path
                     let folder = Path.GetDirectoryName path
                     let relFolder = Path.GetRelativePath(root, folder)
@@ -1257,7 +1286,7 @@ type internal Site(config: SiteConfig) =
 
     let contentMeta =
         files
-        |> AMap.filter (fun p _ -> Content.isContentFile p)
+        |> AMap.filter (fun p _ -> isTreeFile p && Content.isContentFile p)
         |> AMap.map (fun p _ -> computeMeta p)
 
     let metaList =
@@ -1296,18 +1325,33 @@ type internal Site(config: SiteConfig) =
     let headText = extraText "_head.html"
     let bodyText = extraText "_body.html"
 
+    /// The stamps of every file a script depends on, following '#load' transitively. 'visited'
+    /// holds the scripts on the current chain, so a load cycle ends.
+    let rec dependencyStamps (visited: Set<string>) (path: string) : aval<FileStamp option list> =
+        AMap.tryFind path scriptLoads
+        |> AVal.bind (fun loads ->
+            match loads with
+            | None -> AVal.constant []
+            | Some loads ->
+                loads
+                |> List.choose (fun load ->
+                    if visited.Contains load then
+                        None
+                    else
+                        AVal.map2
+                            (fun stamp deeper -> stamp :: deeper)
+                            (stampOf load)
+                            (dependencyStamps (visited.Add load) load)
+                        |> Some)
+                |> Adaptive.ofList
+                |> AVal.map List.concat)
+
     let pageModels = ConcurrentDictionary<ContentRoute, aval<LiterateDocModel>>()
 
     let makePageModel (route: ContentRoute) : aval<LiterateDocModel> =
         let path = route.InputFile
         let meta = AMap.tryFind path contentMeta
-
-        let loadStamps =
-            meta
-            |> AVal.bind (fun m ->
-                match m with
-                | Some m -> m.Loads |> List.map stampOf |> Adaptive.ofList
-                | None -> AVal.constant [])
+        let loadStamps = dependencyStamps (Set.singleton path) path
 
         let api =
             meta
