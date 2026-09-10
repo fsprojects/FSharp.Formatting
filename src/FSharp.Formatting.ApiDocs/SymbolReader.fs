@@ -1014,9 +1014,14 @@ module internal SymbolReader =
         readCommentsInto typ ctx xmlDocSig (fun cat catidx exclude _cmds comment ->
             let entityUrl = ctx.UrlMap.ResolveUrlBaseNameForEntity typ
 
+            // A type abbreviation declares no members of its own. The compiler reports the
+            // members of the abbreviated type (e.g. Item1/Item2 for a tuple), which belong to
+            // and are documented on that target type, so they must not be listed here.
             let rec getMembers (typ: FSharpEntity) =
                 [
-                    yield! typ.MembersFunctionsAndValues
+                    if not typ.IsFSharpAbbreviation then
+                        yield! typ.MembersFunctionsAndValues
+
                     match typ.BaseType with
                     | Some baseType ->
                         let loc = typ.DeclarationLocation
