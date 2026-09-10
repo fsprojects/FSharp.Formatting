@@ -4,6 +4,7 @@
 
 ### Fixed
 * Fix tooltip not being interactive: moving the mouse from a code token into its tooltip now keeps the tooltip open, allowing users to select and copy the tooltip text. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
+* The compiler-generated `IsCase` union case tester properties are no longer listed as members of a union type, and `FsDocsWarnOnMissingDocs` no longer reports `FD0001` for them: they cannot carry XML documentation. [#1313](https://github.com/fsprojects/FSharp.Formatting/issues/1313)
 * `fsdocs watch` rebuilds a page when a file its script depends on changes, following `#load` transitively and `#r` to local files, wherever those files are (a dot folder, outside the input folder). The directives are read from the syntax tree, so a `#load` in a comment does not count. [#1309](https://github.com/fsprojects/FSharp.Formatting/issues/1309)
 
 ## [23.0.0-alpha.1] - 2026-09-08
