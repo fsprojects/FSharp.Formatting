@@ -80,8 +80,6 @@ type internal ContentMeta =
         FrontMatter: ScannedFrontMatter
         /// The front matter used for next/previous links, present only when complete
         FrontMatterFile: FrontMatterFile option
-        /// Full paths of the files loaded with '#load'
-        Loads: string list
         /// Whether the file mentions 'cref:' and therefore needs the API model
         UsesCref: bool
         Error: string option

@@ -23,6 +23,8 @@
     <Compile Include="DocContent.fs" />
     <Compile Include="LlmsTxt.fs" />
     <Compile Include="Diagnostics.fs" />
+    <Compile Include="ScriptDirectives.fsi" />
+    <Compile Include="ScriptDirectives.fs" />
     <Compile Include="DevServer.fsi" />
     <Compile Include="DevServer.fs" />
     <Compile Include="BuildCommand.fsi" />
