@@ -472,6 +472,40 @@ module Serve =
                 (port + 1)
                 host
 
+    /// The urls the site answers on, for the console: 'http://localhost:port' when bound to the
+    /// loopback address; when bound to all interfaces, also one url per address of each interface
+    /// that is up (labelled with the interface name), so the site can be opened from another machine.
+    let listenUrls (host: string) (port: int) : (string * string option) list =
+        let host = normalizeHost host
+        let url (address: string) = sprintf "http://%s:%d" address port
+
+        let interfaceUrls =
+            if host <> "0.0.0.0" then
+                []
+            else
+                try
+                    [
+                        for nic in Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces() do
+                            if
+                                nic.OperationalStatus = Net.NetworkInformation.OperationalStatus.Up
+                                && nic.NetworkInterfaceType <> Net.NetworkInformation.NetworkInterfaceType.Loopback
+                            then
+                                for addr in nic.GetIPProperties().UnicastAddresses do
+                                    if addr.Address.AddressFamily = Net.Sockets.AddressFamily.InterNetwork then
+                                        url (string<Net.IPAddress> addr.Address), Some nic.Name
+                    ]
+                with ex ->
+                    logger.Debugf "unable to list the network interfaces: %s" ex.Message
+                    []
+
+        let first =
+            if host = "127.0.0.1" || host = "0.0.0.0" then
+                "localhost"
+            else
+                host
+
+        (url first, None) :: interfaceUrls
+
     /// Start the server with the given application; the mime map is used for static files.
     let startWebServer (app: WebPart) (host: string) localPort =
         let host = normalizeHost host
@@ -480,6 +514,8 @@ module Serve =
             { defaultConfig with
                 bindings = [ HttpBinding.createSimple HTTP host localPort ]
                 mimeTypesMap = mimeTypesMap
+                // The bound address is reported through our own logger instead.
+                hideStartupMessage = true
             }
 
         // In Suave 3.x the server part of the tuple is a hot Task, no explicit start needed.
