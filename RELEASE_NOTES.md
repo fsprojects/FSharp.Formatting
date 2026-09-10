@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+* Fix tooltip not being interactive: moving the mouse from a code token into its tooltip now keeps the tooltip open, allowing users to select and copy the tooltip text. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
+
 ## [23.0.0-alpha.1] - 2026-09-08
 
 ### Changed
