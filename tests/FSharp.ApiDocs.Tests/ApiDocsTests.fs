@@ -302,6 +302,10 @@ let ``ApiDocs works on two sample F# assemblies`` (format: OutputFormat) =
     files.[(sprintf "fslib-union.%s" format.Extension)]
     |> shouldContainText "Hello of int"
 
+    // The compiler-generated `IsCase` union case testers are not documented (#1313)
+    files.[(sprintf "fslib-union.%s" format.Extension)]
+    |> shouldNotContainText "IsHello"
+
     files.[(sprintf "fslib.%s" format.Extension)]
     |> shouldContainText "Sample class"
 
