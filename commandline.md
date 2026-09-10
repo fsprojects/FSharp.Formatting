@@ -1,0 +1,212 @@
+---
+category: Documentation
+categoryindex: 1
+index: 2
+---
+
+# Command line
+
+To use F# Formatting tools via the command line, you can use the `fsdocs` dotnet tool.
+
+    [lang=text]
+    dotnet tool install fsdocs-tool
+    dotnet fsdocs [command] [options]
+
+## The build command
+
+This command processes a `docs` directory and generates API docs for projects in the solution according to the
+rules of [API doc generation](apidocs.html). The input accepted is described in [content](content.html).
+
+    [lang=text]
+    fsdocs build
+
+The command line options accepted are:
+
+Command Line Option | Description
+:--- | :---
+`--input` | Input directory of content (default: `docs`)
+`--projects` | Project files to build API docs for outputs, defaults to all packable projects
+`--output` | Output Directory (default 'output'). Ignored by `watch`, which keeps no output folder.
+`--ignoreuncategorized` | Disable generation of the 'Other' category in the navigation bar for uncategorized docs
+`--noapidocs` | Disable generation of API docs
+`--ignoreprojects` | Disable project cracking
+`--eval` | Evaluate F# fragments in scripts
+`--saveimages` | Save images referenced in docs (`none`\|`some`\|`all`, default: `none`). If `some`, images are downloaded and saved locally for LaTeX (`.tex`) and notebook (`.ipynb`) outputs. If `all`, images are also saved for HTML and Markdown outputs. See [Embedding Images](#embedding-images) for details.
+`--nolinenumbers` | Don't add line numbers, the default is to add line numbers.
+`--parameters` | Additional substitution parameters for templates
+`--nonpublic` | The tool will also generate documentation for non-public members
+`--nodefaultcontent` | Do not copy default content styles, javascript or use default templates
+`--clean` | Clean the output directory. Ignored by `watch`, which keeps no output folder.
+`-v`, `--verbosity` | How much to log: `quiet` (errors only), `minimal` (and warnings), `normal` (default: one line per phase, and in `watch` one line per change and per page built), `detailed` (one line per file, the substitutions, the cracked projects) or `diagnostic` (everything, with timestamps). Warnings and errors go to standard error, the rest to standard output.
+`--help` | Display this help screen
+`--version` | Display version information
+`--properties` | Provide properties to dotnet msbuild, e.g. --properties Configuration=Release Version=3.4
+`--fscoptions` | Additional arguments passed down as `otherflags` to the F# compiler when the API is being generated.<br/>Note that these arguments are trimmed, this is to overcome [a limitation in the command line argument processing](https://github.com/commandlineparser/commandline/issues/58).<br/>A typical use-case would be to pass an addition assembly reference.<br/>Example `--fscoptions " -r:MyAssembly.dll"`
+`--strict` | Fail if docs are missing or can't be generated
+
+The following command line options are also accepted but it is instead recommended you use
+settings in your .fsproj project files:
+
+Command Line Option | Description
+:--- | :---
+`--sourcefolder` | Source folder at time of component build (`<FsDocsSourceFolder>`)
+`--sourcerepo` | Source repository for github links (`<FsDocsSourceRepository>`)
+`--mdcomments` | Assume comments in F# code are markdown (`<UsesMarkdownComments>`)
+
+## Project file settings
+
+Many fsdocs behaviours can be controlled via MSBuild properties in your `.fsproj` (or `Directory.Build.props`) file.
+
+Property | Default | Description
+:--- | :--- | :---
+`<GenerateDocumentationFile>true</GenerateDocumentationFile>` | `false` | Required — enables XML doc generation so fsdocs can produce API docs for this project.
+`<FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>` | `false` | Include this project even though its `OutputType` is not `Library`.
+`<UsesMarkdownComments>true</UsesMarkdownComments>` | `false` | Treat `///` doc comments as Markdown rather than XML doc. Equivalent to `--mdcomments`.
+`<FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>` | `false` | Emit warnings for public members that have no documentation comments.
+`<FsDocsSourceFolder>src</FsDocsSourceFolder>` | *(auto)* | Root source folder used when constructing source-link URLs. Equivalent to `--sourcefolder`.
+`<FsDocsSourceRepository>https://github.com/…/blob/main</FsDocsSourceRepository>` | *(auto from repo)* | Repository URL prefix for source links. Equivalent to `--sourcerepo`.
+`<FsDocsCollectionNameLink>https://example.com</FsDocsCollectionNameLink>` | *(none)* | URL for the collection-name link in the navigation header.
+`<FsDocsLogoSource>img/logo.png</FsDocsLogoSource>` | *(none)* | Path to the logo image shown in the header.
+`<FsDocsLogoAlt>My Project</FsDocsLogoAlt>` | `Logo` | Alt text for the header logo (accessibility).
+`<FsDocsLogoLink>https://example.com</FsDocsLogoLink>` | *(none)* | URL the logo links to.
+`<FsDocsFaviconSource>img/favicon.ico</FsDocsFaviconSource>` | *(none)* | Path to the favicon.
+`<FsDocsTheme>default</FsDocsTheme>` | `default` | Theme to use for generated HTML.
+`<FsDocsLicenseLink>https://…/LICENSE</FsDocsLicenseLink>` | *(none)* | URL to the project licence, shown in the footer.
+`<FsDocsReleaseNotesLink>https://…/RELEASE_NOTES.md</FsDocsReleaseNotesLink>` | *(none)* | URL to the release notes, shown in the footer.
+`<FsDocsNoInheritedMembers>true</FsDocsNoInheritedMembers>` | `false` | Suppress the "Inherited from X" sections on type pages.
+`<FsDocsTypeConstraints>Short</FsDocsTypeConstraints>` | `Short` | Controls how generic type constraints are displayed in member tooltips. `None` hides constraints entirely; `Short` (default) shows them inline using the compact `(requires ...)` style (e.g. `'T (requires equality)`); `Full` shows them in a separate "Constraints:" section with full `when` syntax.
+`<FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>` | `true` | Generate `llms.txt` and `llms-full.txt` for LLM consumption alongside the HTML output.
+
+The command will report on any `.fsproj` files that it finds, telling you if it decides to skip a particular file and why.
+
+For example, a project will be skipped if:
+
+* The project name contains ".Tests" or "test" (because it looks like a test project)
+  
+
+* The project does not contain
+  
+  ```
+  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  ```
+  
+
+* The project `OutputType` is not `Library`. To include an executable project, add this to the project file:
+  
+  ```
+  <FsDocsAllowExecutableProject>true</FsDocsAllowExecutableProject>
+  ```
+
+## The watch command
+
+This command serves the documentation from memory while you edit it. Nothing is written to disk: a page is
+built the first time the browser asks for it and kept until a file that influences it changes. Static files
+such as images and css are served from their source location. A browser will be launched automatically
+(unless `--nolaunch` is specified).
+
+    [lang=text]
+    fsdocs watch
+
+The input directory (e.g. `docs`) and the extra content shipped with the tool are watched, together with the
+project files, the solution-wide MSBuild files (`Directory.Build.props` and friends) and the project output
+DLLs used for the API docs. Every change goes through the same pipeline: the file is
+stat-ed, its content hashed when the content matters, and only a real change invalidates the pages that
+depend on it. A byte-identical rewrite (for example by a formatter) invalidates nothing. Editing a heading in
+`a.md` rebuilds `a.html` on the next request and refreshes the navigation of the other pages without
+rebuilding them; a project DLL or project file change re-cracks the projects and rebuilds the API reference in the
+background. The API reference is also built in the background at startup, so the first page does not wait
+for it. A background reconciler walks the watched folders every two seconds as a guard against missed file system events.
+
+A page that fails to build returns a `500` with the error message; the other pages keep working and the
+process stays up, even with `--strict`.
+
+The search index (`index.json`) and `llms.txt` are the only URLs that need every page, and they are only
+requested when the search dialog is first opened.
+
+Two diagnostic pages are served under the reserved `/.fsdocs/` prefix:
+
+* `/.fsdocs/doctor`: the projects that were cracked, whether their design-time build ran and which
+substitutions it changed (properties set by MSBuild targets, such as a version computed from a
+changelog, are only known after it; a button runs it again), the substitutions and where they come
+from, the templates that were tried and chosen, the navigation with the source of every title, the
+routes, the state of every requested page, the recent file events, the collected errors and the
+recent log lines.
+* `/.fsdocs/doctor.json`: the same as JSON, handy for troubleshooting with an LLM.
+
+Adding a project to the solution, or changing a project's output path, still needs a restart. The same
+parameters as `build` are accepted
+(`--output`, `--clean` and `--saveimages` are ignored with a note), plus these:
+
+Command Line Option | Description
+:--- | :---
+`--nolaunch` | Do not launch a browser window.
+`--open` | URL extension to launch [http://localhost:<port>/%s.](http://localhost:<port>/%s.)
+`--port` | Port to serve content for [http://localhost](http://localhost) serving.
+`--host` | Address to bind the server to (default `localhost`). Use `0.0.0.0` to browse from another machine on the network; page links are relative, so the site works from any address.
+`--site-root` | The absolute URL of the site (`{{fsdocs-site-root}}`), only used by the links that must be absolute such as Open Graph metadata and `llms.txt`. Defaults to `http://<host>:<port>/`.
+
+## Searchable docs
+
+When using the command-line tool a [Fuse](https://www.fusejs.io/) search index is automatically generated in `index.json`.
+A search box is included in the default template via an [HTML Dialog element](https://developer.mozilla.org/docs/Web/HTML/Element/dialog).  
+To add search to your own `_template.html`:
+
+* include an HTML element with id `search-btn`
+* include a `dialog` element
+* include `fsdocs-search.js` script
+
+```html
+<button id="search-btn">Open search dialog</button>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="{`{root}}content/fsdocs-search.js"></script>
+```
+
+
+## Embedding Images
+
+### Downloading Remote Images (`--saveimages`)
+
+The `--saveimages` flag controls whether images referenced in your docs are downloaded and saved locally alongside the generated output. This is primarily useful for non-HTML output formats such as LaTeX (PDF) and Jupyter Notebook (`.ipynb`), which cannot reference remote URLs at display time.
+
+Value | Behaviour
+--- | ---
+`none` (default) | Images are referenced by their original URL; nothing is downloaded.
+`some` | Images are downloaded and saved for LaTeX and notebook outputs only.
+`all` | Images are downloaded and saved for all output formats including HTML and Markdown.
+
+Example:
+
+    [lang=text]
+    fsdocs build --saveimages some
+
+### Embedding Images Generated by Scripts
+
+When using `--eval` to evaluate literate F# scripts, you can embed images produced by code (e.g. charts, plots) directly into the HTML output.
+
+**Option 1: Inline Base64 image using `include-it-raw`**
+
+Write a helper that reads an image file and returns an HTML `<img>` tag with the image data embedded as a Base64 string. Then use `(*** include-it-raw ***)` to inject the raw HTML into the output:
+
+    [lang=fsharp]
+    let inlinePng (fileName: string) =
+        let bytes = System.IO.File.ReadAllBytes(fileName)
+        let b64 = System.Convert.ToBase64String(bytes)
+        sprintf """<img src="data:image/png;base64,%s" />""" b64
+
+    // Generate the image in your script, then embed it:
+    // myChart.SavePng("chart.png")
+    // (*** hide ***)
+    // inlinePng "chart.png"
+    // (*** include-it-raw ***)
+
+The `(*** hide ***)` command suppresses the source code of the expression, so only the rendered image appears in the output.
+
+**Option 2: Custom HTML printer via `fsi.AddHtmlPrinter`**
+
+If your charting library produces values of a known type, you can register a custom HTML printer so that values of that type are automatically rendered as images whenever they appear via `(*** include-it ***)`. See [Embedding Script Output](evaluation.html#using-addprinter-and-addhtmlprinter) for details.
