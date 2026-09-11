@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+* Avoid recomputing `List.length` on the shrinking remainder for every scanned character when splitting a Markdown pipe-table row into cells (`pipeTableFindSplits` in `MarkdownTableParser.fs`). The scan now tracks the number of consumed characters incrementally, turning an O(n²) split into an O(n) one for rows with many delimiters, with no behavior change.
+
 ## [23.0.0-alpha.2] - 2026-09-10
 
 ### Fixed
