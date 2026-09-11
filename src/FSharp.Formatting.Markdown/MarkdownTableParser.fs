@@ -20,26 +20,34 @@ let rec pipeTableFindSplits (delim: char array) (line: char list) =
     let cLstToStr (x: char list) =
         x |> Array.ofList |> System.String.Concat
 
+    // Scans the line and, on success, returns the number of characters consumed up to and
+    // including the found delimiter, together with the remaining list. Tracking the consumed
+    // count incrementally (rather than recomputing `List.length` over the shrinking remainder
+    // on every character) keeps this scan linear instead of quadratic in the row length.
     let rec ptfs delim line =
         match line with
-        | DelimitedLatexDisplayMath [ '$'; '$' ] (_body, rest) -> ptfs delim rest
-        | DelimitedLatexInlineMath [ '$' ] (_body, rest) -> ptfs delim rest
-        | List.DelimitedWith [ '`'; ' ' ] [ ' '; '`' ] (_body, rest, _s, _e) -> ptfs delim rest
-        | List.DelimitedNTimes '`' (_body, rest, _s, _e) -> ptfs delim rest
-        | x :: rest when Array.exists ((=) x) delim -> Some rest
-        | '\\' :: _ :: rest
-        | _ :: rest -> ptfs delim rest
+        | DelimitedLatexDisplayMath [ '$'; '$' ] (_body, rest)
+        | DelimitedLatexInlineMath [ '$' ] (_body, rest)
+        | List.DelimitedWith [ '`'; ' ' ] [ ' '; '`' ] (_body, rest, _, _)
+        | List.DelimitedNTimes '`' (_body, rest, _, _) ->
+            let consumedHere = List.length line - List.length rest
+
+            ptfs delim rest
+            |> Option.map (fun (count, remainder) -> (count + consumedHere, remainder))
+        | x :: rest when Array.exists ((=) x) delim -> Some(1, rest)
+        | '\\' :: _ :: rest -> ptfs delim rest |> Option.map (fun (count, remainder) -> (count + 2, remainder))
+        | _ :: rest -> ptfs delim rest |> Option.map (fun (count, remainder) -> (count + 1, remainder))
         | [] -> None
 
-    let rest = ptfs delim line
+    let result = ptfs delim line
 
-    match rest with
+    match result with
     | None -> [ cLstToStr line ]
-    | Some _x when List.isEmpty line -> [ "" ]
-    | Some x ->
-        let chunkSize = List.length line - List.length x - 1
+    | Some _ when List.isEmpty line -> [ "" ]
+    | Some(count, x) ->
+        let chunkSize = count - 1
 
-        cLstToStr (Seq.take chunkSize line |> Seq.toList) :: pipeTableFindSplits delim x
+        cLstToStr (List.truncate chunkSize line) :: pipeTableFindSplits delim x
 
 
 
