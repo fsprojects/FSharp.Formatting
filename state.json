@@ -1,65 +1,30 @@
 {
-  "run": "25105019910",
-  "cursor": 1178,
-  "monthly": "1131",
-  "prs": [
-    1264,
-    1267,
-    1275
-  ],
-  "dependabot_prs": [
-    1179,
-    1180,
-    1181,
-    1182,
-    1183,
-    1186,
-    1191,
-    1193
-  ],
-  "deps_bundle_issues": [
-    1184,
-    1188,
-    1190
-  ],
-  "deps_bundle_branch": "repo-assist/deps-bundle-2026-04-23-6d457b475a0265de",
-  "deps_bundle_test_sdk_warning": "18.5.0 is unlisted on NuGet \u2014 use PR #1193 (18.5.1) instead",
+  "run": "34546068188",
+  "cursor": 1316,
+  "monthly": "1277",
+  "prs": [1299, 1291],
+  "new_pr_this_run": "repo-assist/perf-pipe-table-split-20260911 (perf fix for MarkdownTableParser.fs pipeTableFindSplits)",
+  "dependabot_prs": [1318],
   "comments_made": {
-    "685": "prior",
-    "705": "prior",
-    "828": "prior",
-    "898": "prior",
-    "924": "prior",
-    "926": "prior",
-    "927": "prior",
-    "928": "prior",
-    "929": "prior",
-    "949": "prior",
-    "1064": "prior",
-    "585": "prior",
-    "1156": "prior",
-    "1178": "2026-04-22",
-    "1190": "2026-04-29"
+    "685": "prior", "705": "prior", "828": "prior", "898": "prior",
+    "924": "prior", "926": "prior", "927": "prior", "928": "prior",
+    "929": "prior", "949": "prior", "1064": "prior", "585": "prior",
+    "1156": "prior", "1178": "prior", "1190": "prior", "1220": "prior",
+    "1221": "prior", "1243": "prior", "1277": "2026-09-11"
   },
   "last_run": {
-    "run_id": "34294605274",
-    "date": "2026-09-09",
-    "tasks": [
-      3,
-      9,
-      1
-    ],
-    "outcome": "Task9: created test PR (branch repo-assist/latex-tests-otherblock-20260909, 2 new ToLatex tests). Task3/1: no action, no new fixable issue / no unlabelled issues."
+    "run_id": "34546068188",
+    "date": "2026-09-11",
+    "tasks": [1, 8, 2],
+    "outcome": "Task1: labelled #1316 (enhancement, documentation), #1313 (bug, documentation), #1314 (bug, documentation). Task8: created PR fixing O(n^2) pipeTableFindSplits in MarkdownTableParser.fs (branch repo-assist/perf-pipe-table-split-20260911), added 1 new test (escaped pipe in table cell), 369/369 tests pass. Task2: no new comment needed - all issues already adequately covered."
   },
-  "current_monthly_activity_issue": "1277",
+  "pending_prs_needing_rebase": [1299, 1291],
   "notes": [
-    "2026-09-05: rebased+pushed #1264 (seealso) and #1267 (docs literate); #1275 confirmed clean. Created new PR bundling Ionide.ProjInfo 0.75.0 + NUnit3TestAdapter 6.3.0 (branch repo-assist/deps-bump-projinfo-nunit-20260905), supersedes stale issue #1276. Issue #1278 (protected files notice for #1264) now resolved."
-  ],
-  "pending_prs": [
-    1130,
-    1264,
-    1267,
-    1275,
-    1291
+    "2026-09-11: Confirmed PRs #1130, #1241, #1242, #1264, #1267, #1275 all MERGED since last memory update - repo-assist backlog is shrinking nicely.",
+    "2026-09-11: Only #1299 (ToLatex tests) and #1291 (deps bundle) remain open repo-assist PRs, both mergeable_state=dirty (need rebase onto main) - good Task 6 candidates next run.",
+    "2026-09-11: New issues #1313, #1314, #1316 filed by nojaf (collaborator) with detailed root-cause analysis; #1313 and #1314 already have open fix PRs (#1315, #1317) from nojaf himself. #1316 (postfix FSharp.Core type constructor linking, e.g. 'list'/'option'/'seq' not getting cross-reference links) has no PR yet - good Task 3/5 candidate for a future run, root cause and fix approach already spelled out in the issue body (modify tryResolveCrossReferenceForEntity in CrossReferenceResolver.fs to resolve via entity.AbbreviatedType.TypeDefinition when the abbreviation itself is unregistered).",
+    "2026-09-11: Found+fixed O(n^2) list-length recomputation in pipeTableFindSplits (MarkdownTableParser.fs) - each recursive call previously recomputed List.length over the shrinking line; rewrote to track consumed-character count incrementally during the scan. Pure algorithmic fix, no behavior change, verified against existing 'delimiters in code or math' table test plus new escaped-pipe test.",
+    "Issue #1240 (deps bundle Aug 2026, blocked by workflow-file push protection) still open, unchanged - still needs manual maintainer action.",
+    "Issues #1296, #1297, #1298 (gh-aw infra failure/protected-files notices, all superseded/stale) still open - flagged for maintainer closure, not directly actionable via current safe-output tools (no close_issue tool available)."
   ]
 }
