@@ -63,6 +63,74 @@ if ("onpagereveal" in window) {
     window.addEventListener("pagereveal", restoreScroll, { once: true });
 }
 
+// Navigation progress bar. The dev server renders a page on first request, which can take a while
+// for a big script, and the browser keeps showing the old page until the response arrives with no
+// sign that anything is happening. So, when the user follows a link on this site (or a live reload
+// starts), show an indeterminate bar along the bottom of the window until the new page paints.
+const progressBarId = "fsdocs-watch-progress";
+
+function progressBar() {
+    let bar = document.getElementById(progressBarId);
+    if (bar) return bar;
+    const style = document.createElement("style");
+    style.textContent = `
+        #${progressBarId} {
+            position: fixed; left: 0; right: 0; bottom: 0; height: 3px; z-index: 10000;
+            overflow: hidden; background: color-mix(in srgb, var(--primary, #1e8bc3) 25%, transparent);
+            pointer-events: none;
+        }
+        #${progressBarId}::before {
+            content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 30%;
+            background: var(--primary, #1e8bc3);
+            animation: fsdocs-watch-progress 1.2s ease-in-out infinite;
+        }
+        @keyframes fsdocs-watch-progress {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(333%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #${progressBarId}::before { animation-duration: 3s; }
+        }`;
+    bar = document.createElement("div");
+    bar.id = progressBarId;
+    bar.setAttribute("role", "progressbar");
+    bar.setAttribute("aria-label", "Loading page");
+    bar.hidden = true;
+    document.head.append(style);
+    document.body.append(bar);
+    return bar;
+}
+
+function showProgress() {
+    progressBar().hidden = false;
+}
+
+function hideProgress() {
+    const bar = document.getElementById(progressBarId);
+    if (bar) bar.hidden = true;
+}
+
+// A plain left click on a link to another page of this site; anything else is left to the browser.
+function isPageNavigation(ev) {
+    if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return false;
+    const link = ev.target.closest("a[href]");
+    if (!link || link.target && link.target !== "_self" || link.hasAttribute("download")) return false;
+    const url = new URL(link.href, location.href);
+    if (url.origin !== location.origin) return false;
+    // Same document, different fragment: no request is made.
+    return url.pathname !== location.pathname || url.search !== location.search;
+}
+
+document.addEventListener("click", ev => {
+    if (isPageNavigation(ev)) showProgress();
+});
+// The page stays around when the navigation is cancelled (Escape) or comes back from the
+// back/forward cache; the bar must not stay with it.
+window.addEventListener("keydown", ev => {
+    if (ev.key === "Escape") hideProgress();
+});
+window.addEventListener("pageshow", hideProgress);
+
 function init()
 {
     restoreScroll();
@@ -83,6 +151,7 @@ function init()
             console.log('closing');
             websocket.close();
             sessionStorage.setItem(scrollKey, scrollContainer().scrollTop);
+            showProgress();
             document.location.reload();
         }
     }

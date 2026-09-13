@@ -1871,6 +1871,7 @@ ITEMS: {{fsdocs-menu-items}}
 LINK: {{fsdocs-menu-item-link}}
 LINK ID: {{fsdocs-menu-item-id}}
 CONTENT: {{fsdocs-menu-item-content}}
+ACTIVE: {{fsdocs-menu-item-active-class}}
 """
     )
 
@@ -1903,7 +1904,8 @@ HEADER ID: api_reference
 ITEMS:
 LINK: /reference/index{format.ExtensionInUrl}
 LINK ID: all_namespaces
-CONTENT: All Namespaces"""
+CONTENT: All Namespaces
+ACTIVE:"""
             .Replace("\r", ""),
         listOfNamespaces
     )

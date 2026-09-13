@@ -77,6 +77,28 @@ if (main && content) {
                 ? currentHeading(all)
                 : all[Math.min(Math.max(focusedIndex + delta, 0), all.length - 1)];
         focusElement(target, { block: "start" });
+        revealPageMenuEntry(target);
+        updateAnchor(target);
+    }
+
+    // Put the anchor of the focused heading in the URL, as clicking its menu entry would, so the page URL
+    // can be copied with the right anchor. replaceState keeps the history clean: one entry per page, not
+    // one per key press.
+    function updateAnchor(heading) {
+        const anchor = heading?.querySelector("a[href^='#']")?.getAttribute("href") ?? (heading?.id ? `#${heading.id}` : null);
+        if (anchor && anchor !== location.hash) {
+            history.replaceState(history.state, "", anchor);
+        }
+    }
+
+    // Keep the page menu entry of the focused heading in view when the menu has its own scroll bar.
+    // Instant rather than smooth, so a quick series of key presses does not leave the menu lagging.
+    function revealPageMenuEntry(heading) {
+        const index = heading?.dataset.fsdocsHeading;
+        const entry = index && pageMenu?.querySelector(`[data-fsdocs-heading="${index}"]`);
+        if (entry && isVisible(entry)) {
+            entry.scrollIntoView({ block: "nearest", behavior: "instant" });
+        }
     }
 
     function moveLink(region, delta) {
