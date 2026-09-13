@@ -1,7 +1,7 @@
 #!/usr/bin/env -S dotnet fsi --
-#r "nuget: Fun.Build, 1.1.18"
-#r "nuget: Fake.IO.FileSystem, 6.0.0"
-#r "nuget: Ionide.KeepAChangelog, 0.1.8"
+#r "nuget: Fun.Build, 1.2.0"
+#r "nuget: Fake.IO.FileSystem, 6.1.4"
+#r "nuget: Ionide.KeepAChangelog, 0.2.0"
 
 open System
 open System.IO
@@ -30,11 +30,7 @@ let releaseNugetVersion, _, releaseNotesData =
     | Error(msg, error) -> failwithf "%s msg\n%A" msg error
     | Ok result ->
         match result.Releases with
-        | [] ->
-            failwith
-                "RELEASE_NOTES.md has no versioned releases. \
-                 Note: blank lines between items inside a section (e.g. '### Added') \
-                 cause Ionide.KeepAChangelog 0.1.8 to stop parsing — remove them."
+        | [] -> failwith "RELEASE_NOTES.md has no versioned releases."
         | h :: _ -> h
 
 let solutionFile = "FSharp.Formatting.sln"
@@ -192,12 +188,11 @@ pipeline "Release" {
                                 "Security", data.Security
                                 yield! Map.toList data.Custom
                             ]
-                            |> List.filter (fun (_, lines) -> not lines.IsEmpty)
-                            |> List.map (fun (header, lines) ->
-                                lines
-                                |> List.map (fun line -> line.TrimStart())
-                                |> String.concat "\n"
-                                |> sprintf "### %s\n%s" header)
+                            |> List.choose (fun (header, text: string) ->
+                                if String.IsNullOrWhiteSpace text then
+                                    None
+                                else
+                                    Some(sprintf "### %s\n%s" header (text.Trim())))
                             |> String.concat "\n\n"
 
                     printfn $"Release notes for {tag}:\n---\n{notes}\n---"
