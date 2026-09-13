@@ -31,6 +31,12 @@
     --heading-line-height: 1.25;
     --radius: 6px;
 
+    /* outline of the element the hotkeys (j / k / h / l) moved the focus to */
+    --hotkey-focus-color: var(--primary);
+    --hotkey-focus-width: 2px;
+    --hotkey-focus-offset: var(--spacing-50);
+    --hotkey-focus-radius: 2px;
+
     --container-sm: 768px;
     --container-md: 960px;
     --container-lg: 1024px;
@@ -578,6 +584,18 @@ h1, h2, h3, h4, h5, h6 {
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     color: var(--heading-color);
     text-decoration: none;
+}
+
+/* Headings are focused by the j / k hotkeys (fsdocs-hotkeys.js) and reached by anchor links. */
+#content h1, #content h2, #content h3, #content h4, #content h5, #content h6 {
+    scroll-margin-top: var(--spacing-300);
+}
+
+/* The element the hotkeys moved the focus to. */
+.fsdocs-hotkey-focus {
+    outline: var(--hotkey-focus-width) solid var(--hotkey-focus-color);
+    outline-offset: var(--hotkey-focus-offset);
+    border-radius: var(--hotkey-focus-radius);
 }
 
 h1 {
