@@ -394,9 +394,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 if entity.IsFSharpAbbreviation && entity.AbbreviatedType.HasTypeDefinition then
                     let abbreviatedEntity = entity.AbbreviatedType.TypeDefinition
 
-                    match abbreviatedEntity.TryFullName with
-                    | None -> None
-                    | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
+                    abbreviatedEntity.TryFullName
+                    |> Option.map (fun nm -> externalDocsLink false entity.DisplayName nm nm)
                 else
                     None
             | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
