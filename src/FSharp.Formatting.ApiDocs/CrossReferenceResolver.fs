@@ -386,7 +386,30 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 }
         | _ ->
             match entity.TryFullName with
-            | None -> None
+            | None ->
+                // F# postfix generic type abbreviations such as 'list', 'option', 'voption'
+                // and 'seq' (IsFSharpAbbreviation = true, GenericParameters.Count > 0) have no
+                // full name of their own, but the fsharp-core-docs site publishes a page keyed
+                // by the abbreviation's own name (e.g. "fsharp-collections-list-1" for 'list',
+                // not "fsharp-collections-fsharplist-1" for the abbreviated FSharpList<'T>
+                // definition). Build the link from the abbreviation's own namespace and compiled
+                // name so it resolves to that page.
+                match entity.Namespace with
+                | Some ns when entity.IsFSharpAbbreviation && entity.GenericParameters.Count > 0 ->
+                    let ownFullName = sprintf "%s.%s" ns entity.CompiledName
+                    Some(externalDocsLink false entity.DisplayName ownFullName ownFullName)
+                | _ ->
+                    // Other F# abbreviations, such as 'string' and 'obj', have no dedicated
+                    // fsharp-core-docs page; resolve the link through the abbreviated type's
+                    // definition (e.g. System.String for 'string') while keeping the
+                    // abbreviation's own display name (e.g. "string") as the link text.
+                    if entity.IsFSharpAbbreviation && entity.AbbreviatedType.HasTypeDefinition then
+                        let abbreviatedEntity = entity.AbbreviatedType.TypeDefinition
+
+                        abbreviatedEntity.TryFullName
+                        |> Option.map (fun nm -> externalDocsLink false entity.DisplayName nm nm)
+                    else
+                        None
             | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
 
     /// Resolves a type cross-reference given its XML doc signature (must start with <c>"T:"</c>).
