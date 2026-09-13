@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+* The "On this page" menu of the default template marks the section the reader is in: the entry of the last heading scrolled past the top of the content gets a coloured left border, and a heading focused with the `j` / `k` hotkeys marks its entry as well. Pure CSS, through scroll-driven animations (`view-timeline-name`, `timeline-scope`, `animation-timeline`); browsers without them show the menu as before. The generator numbers the headings and menu entries (`data-fsdocs-heading`) and emits the wiring in a `<style>` next to the menu. The colour and the reading line are the `--page-menu-active-border-color` and `--page-menu-reading-line` variables. When the menu has its own scroll bar, `j` / `k` also scroll the entry of the focused heading into view and put its anchor in the URL (without a history entry).
+
 ### Fixed
 * The "All Namespaces" entry of the API Reference menu no longer carries the `active` class on every documentation page when menu templates are used. A page without an entry of its own, such as the docs index, showed it as the current page, and the `h` hotkey entered the menu there.
 
