@@ -386,7 +386,18 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 }
         | _ ->
             match entity.TryFullName with
-            | None -> None
+            | None ->
+                // F# postfix type abbreviations such as 'list', 'option', 'voption' and 'seq'
+                // (IsFSharpAbbreviation = true) have no full name of their own. Resolve the link
+                // through the abbreviated type's definition (e.g. FSharpList<'T> for 'list') while
+                // keeping the abbreviation's own display name (e.g. "list") as the link text.
+                if entity.IsFSharpAbbreviation && entity.AbbreviatedType.HasTypeDefinition then
+                    let abbreviatedEntity = entity.AbbreviatedType.TypeDefinition
+
+                    abbreviatedEntity.TryFullName
+                    |> Option.map (fun nm -> externalDocsLink false entity.DisplayName nm nm)
+                else
+                    None
             | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
 
     /// Resolves a type cross-reference given its XML doc signature (must start with <c>"T:"</c>).

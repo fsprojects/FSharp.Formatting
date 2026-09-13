@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+* Link postfix FSharp.Core type constructors (`list`, `option`, `voption`, etc.) in API doc type signatures. Previously only the compiled name form (e.g. `FSharpList`) was linked; the postfix abbreviation form (e.g. `int list`) rendered as plain, unlinked text because the abbreviation entity has no `TryFullName`. The cross-reference resolver now falls back to the abbreviated type's definition when resolving these abbreviation entities. [#1316](https://github.com/fsprojects/FSharp.Formatting/issues/1316)
+
 ## [23.0.0-alpha.2] - 2026-09-10
 
 ### Fixed
