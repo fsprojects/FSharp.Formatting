@@ -8,6 +8,7 @@
 * `fsdocs watch` shows a progress bar along the bottom of the window while it waits for the next page, which can take a while when a big script is rendered for the first time. Dev server only, it comes with the live reload script. [#1322](https://github.com/fsprojects/FSharp.Formatting/pull/1322)
 
 ### Fixed
+* `fsdocs watch` renders the API Reference section of the menu with the current `_menu_template.html` and `_menu-item_template.html` after an edit; it kept the templates as they were when the watch started, until an assembly changed. [#1323](https://github.com/fsprojects/FSharp.Formatting/issues/1323)
 * The "All Namespaces" entry of the API Reference menu no longer carries the `active` class on every documentation page when menu templates are used. A page without an entry of its own, such as the docs index, showed it as the current page, and the `h` hotkey entered the menu there.
 
 ## [23.0.0-alpha.3] - 2026-09-13

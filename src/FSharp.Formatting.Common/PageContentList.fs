@@ -56,13 +56,13 @@ let private scrollSpyStyle (headingCount: int) =
             String.concat
                 "\n"
                 [
-                    $"#content {selector} {{ view-timeline-name: {timelineName index}; }}"
-                    $"#fsdocs-page-menu {selector} {{ animation-timeline: {timelines}; }}"
-                    $"body:has(#content {selector}:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu {selector} {{ --fsdocs-toc-focused: 1; }}"
+                    $"#content %s{selector} {{ view-timeline-name: %s{timelineName index}; }}"
+                    $"#fsdocs-page-menu %s{selector} {{ animation-timeline: %s{timelines}; }}"
+                    $"body:has(#content %s{selector}:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu %s{selector} {{ --fsdocs-toc-focused: 1; }}"
                 ])
         |> String.concat "\n"
 
-    $"<style>\nbody {{ timeline-scope: {scope}; }}\n{rules}\n</style>"
+    $"<style>\nbody {{ timeline-scope: %s{scope}; }}\n%s{rules}\n</style>"
 
 /// Returns the heading texts (for the search index), the menu HTML and the content HTML with the
 /// headings annotated with their index.
@@ -76,7 +76,7 @@ let mkPageContentMenu (html: string) =
         let linkText = matchItem.Groups.[3].Value
         headings.Add((level, href, linkText))
         // "<hN>" is 4 characters, the rest of the match is kept as is.
-        $"""<h%i{level} data-fsdocs-heading="%i{headings.Count}">{matchItem.Value.Substring(4)}"""
+        $"""<h%i{level} data-fsdocs-heading="%i{headings.Count}">%s{matchItem.Value.Substring(4)}"""
 
     let annotatedHtml = headingLinkRegex.Replace(html, annotateHeading)
 

@@ -661,6 +661,11 @@ type internal ApiState =
         BuiltAt: DateTime option
     }
 
+/// The API global substitutions per page root, memoised for one API state and one set of menu
+/// templates. Reference equality: a new memo means the pages must re-render.
+[<ReferenceEquality>]
+type internal ApiGlobals = { For: string -> Substitutions }
+
 type internal Response =
     {
         ContentType: string
@@ -1237,12 +1242,11 @@ type internal Site(config: SiteConfig) =
                 match config.GenerateApi crack virtualOutput with
                 | None -> emptyApi
                 | Some phased ->
-                    // The namespace list depends on the root of the page; a site has a handful of depths
-                    let globalsByRoot = ConcurrentDictionary<string, Substitutions>()
-
                     {
                         Phased = Some phased
-                        GlobalsFor = (fun root -> globalsByRoot.GetOrAdd(root, phased.GlobalSubstitutionsFor))
+                        // Not memoised here: the namespace list is rendered with the menu templates,
+                        // which change independently of the assemblies. See 'apiGlobals'.
+                        GlobalsFor = phased.GlobalSubstitutionsFor
                         CrefResolver = Content.makeCrefResolver phased.Model
                         Pages =
                             phased.Pages
@@ -1350,6 +1354,20 @@ type internal Site(config: SiteConfig) =
 
     let menuStamps = files |> AMap.filter (fun p _ -> isMenuTemplate p) |> sortedStamps
     let navInputs = AVal.map2 (fun pages menus -> pages, menus) navPages menuStamps
+
+    /// The API global substitutions (the namespace list) per page root, memoised for the current
+    /// API state and menu templates: a site has a handful of depths, and the list is rendered with
+    /// the menu templates, so an edit to those must not be served from the previous memo.
+    let apiGlobals: aval<ApiGlobals> =
+        AVal.map2
+            (fun (api: ApiState) _ ->
+                let globalsByRoot = ConcurrentDictionary<string, Substitutions>()
+
+                {
+                    For = fun root -> globalsByRoot.GetOrAdd(root, api.GlobalsFor)
+                })
+            apiState
+            menuStamps
 
     let templateText (path: string) : aval<string> =
         stampOf path
@@ -1506,11 +1524,11 @@ type internal Site(config: SiteConfig) =
             | Some t -> stampOf t
             | None -> AVal.constant None
 
-        let apiGlobals =
+        let pageApiGlobals =
             templateStamp
             |> AVal.bind (fun _ ->
                 if templateNeedsApi route.Template then
-                    apiState |> AVal.map Some
+                    apiGlobals |> AVal.map Some
                 else
                     AVal.constant None)
 
@@ -1521,7 +1539,7 @@ type internal Site(config: SiteConfig) =
                 headText.GetValue token,
                 bodyText.GetValue token,
                 navInputs.GetValue token,
-                apiGlobals.GetValue token)
+                pageApiGlobals.GetValue token)
 
         inputs
         |> Adaptive.mapCached (fun (model, _, head, body, (pages, _), api) ->
@@ -1532,7 +1550,7 @@ type internal Site(config: SiteConfig) =
                     None
 
             let pageRoot = Content.relativeRoot route.OutputFileRelativeToRoot
-            let api = api |> Option.map (fun (a: ApiState) -> a.GlobalsFor)
+            let api = api |> Option.map (fun (g: ApiGlobals) -> g.For)
             let globals = globalsFor pageRoot api (navHtmlFor pageRoot pages activePage) head body
             let text = Content.renderPage model route.Template globals
             Some(textResponse (contentTypeOf route.OutputKind) text))
@@ -1546,18 +1564,19 @@ type internal Site(config: SiteConfig) =
         let inputs =
             AVal.custom (fun token ->
                 apiState.GetValue token,
+                apiGlobals.GetValue token,
                 templateStamp.GetValue token,
                 headText.GetValue token,
                 bodyText.GetValue token,
                 navInputs.GetValue token)
 
         inputs
-        |> Adaptive.mapCached (fun (api, _, head, body, (pages, _)) ->
+        |> Adaptive.mapCached (fun (api, apiGlobals: ApiGlobals, _, head, body, (pages, _)) ->
             match api.Pages.TryFind relativeFile with
             | None -> None
             | Some render ->
                 let pageRoot = Content.relativeRoot relativeFile
-                let globals = globalsFor pageRoot (Some api.GlobalsFor) (navHtmlFor pageRoot pages None) head body
+                let globals = globalsFor pageRoot (Some apiGlobals.For) (navHtmlFor pageRoot pages None) head body
                 let text = render config.ApiDocsTemplate globals
                 Some(textResponse (contentTypeOf config.ApiDocsOutputKind) text))
 
