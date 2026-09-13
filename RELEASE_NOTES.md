@@ -1,6 +1,9 @@
 # Changelog
 
-## [Unreleased]
+## [23.0.0-alpha.3] - 2026-09-13
+
+### Added
+* Keyboard navigation in the default template: `j` / `k` go to the next / previous heading of the page (or the next / previous link when a menu has the focus), `h` / `l` move the focus between the main menu, the content and the page menu. Headings get a visible focus outline and a scroll margin so they are not glued to the top edge. Implemented in the new `fsdocs-hotkeys.js`, documented under "Keyboard navigation" in the command-line docs.
 
 ### Fixed
 * Link postfix FSharp.Core type constructors (`list`, `option`, `voption`, etc.) in API doc type signatures. Previously only the compiled name form (e.g. `FSharpList`) was linked; the postfix abbreviation form (e.g. `int list`) rendered as plain, unlinked text because the abbreviation entity has no `TryFullName`. The cross-reference resolver now builds the fsharp-core-docs link from the abbreviation's own name (e.g. `list` → `fsharp-collections-list-1`) instead of the abbreviated type's compiled name (e.g. `FSharpList` → `fsharp-collections-fsharplist-1`, which 404s), falling back to the abbreviated type's definition only for non-generic abbreviations such as `string` and `obj` that have no dedicated fsharp-core-docs page. [#1316](https://github.com/fsprojects/FSharp.Formatting/issues/1316)
