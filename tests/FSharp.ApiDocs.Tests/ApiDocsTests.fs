@@ -150,15 +150,17 @@ let ``ApiDocs seealso can find members`` (format: OutputFormat) =
 [<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs links postfix FSharp.Core type constructors like list`` (format: OutputFormat) =
-    // Regression test for #1316: postfix type abbreviations such as `list` (which the
+    // Regression test for #1316 / #1320: postfix type abbreviations such as `list` (which the
     // compiler surfaces as the abbreviation entity `FSharp.Collections.list<'T>`, not
-    // `FSharpList<'T>`) should still be linked to the `FSharpList` cross-reference URL.
+    // `FSharpList<'T>`) should be linked using the abbreviation's own name, since
+    // fsharp-core-docs publishes pages keyed by that name (e.g. "fsharp-collections-list-1"),
+    // not by the abbreviated `FSharpList<'T>` definition (whose page would 404).
     let library = testBin </> "TestLib3.dll" |> fullpath
 
     let files = generateApiDocs [ library ] format false "TestLib3-list-link"
 
     files.[(sprintf "test-seealso.%s" format.Extension)]
-    |> shouldContainText "https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-fsharplist-1"
+    |> shouldContainText "https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-list-1"
 
 [<Test>]
 [<TestCaseSource("formats")>]
