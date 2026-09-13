@@ -1,9 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [23.0.0-alpha.4] - 2026-09-13
 
 ### Added
-* The "On this page" menu of the default template marks the section the reader is in: the entry of the last heading scrolled past the top of the content gets a coloured left border, and a heading focused with the `j` / `k` hotkeys marks its entry as well. Pure CSS, through scroll-driven animations (`view-timeline-name`, `timeline-scope`, `animation-timeline`); browsers without them show the menu as before. The generator numbers the headings and menu entries (`data-fsdocs-heading`) and emits the wiring in a `<style>` next to the menu. The colour and the reading line are the `--page-menu-active-border-color` and `--page-menu-reading-line` variables. When the menu has its own scroll bar, `j` / `k` also scroll the entry of the focused heading into view and put its anchor in the URL (without a history entry).
+* The "On this page" menu of the default template marks the section the reader is in: the entry of the last heading scrolled past the top of the content gets a coloured left border, and a heading focused with the `j` / `k` hotkeys marks its entry as well. Pure CSS, through scroll-driven animations (`view-timeline-name`, `timeline-scope`, `animation-timeline`); browsers without them show the menu as before. The generator numbers the headings and menu entries (`data-fsdocs-heading`) and emits the wiring in a `<style>` next to the menu. The colour and the reading line are the `--page-menu-active-border-color` and `--page-menu-reading-line` variables. When the menu has its own scroll bar, `j` / `k` also scroll the entry of the focused heading into view and put its anchor in the URL (without a history entry). [#1322](https://github.com/fsprojects/FSharp.Formatting/pull/1322)
+
+* `fsdocs watch` shows a progress bar along the bottom of the window while it waits for the next page, which can take a while when a big script is rendered for the first time. Dev server only, it comes with the live reload script. [#1322](https://github.com/fsprojects/FSharp.Formatting/pull/1322)
 
 ### Fixed
 * The "All Namespaces" entry of the API Reference menu no longer carries the `active` class on every documentation page when menu templates are used. A page without an entry of its own, such as the docs index, showed it as the current page, and the `h` hotkey entered the menu there.
@@ -11,7 +13,7 @@
 ## [23.0.0-alpha.3] - 2026-09-13
 
 ### Added
-* Keyboard navigation in the default template: `j` / `k` go to the next / previous heading of the page (or the next / previous link when a menu has the focus), `h` / `l` move the focus between the main menu, the content and the page menu. Headings get a visible focus outline and a scroll margin so they are not glued to the top edge. Implemented in the new `fsdocs-hotkeys.js`, documented under "Keyboard navigation" in the command-line docs.
+* Keyboard navigation in the default template: `j` / `k` go to the next / previous heading of the page (or the next / previous link when a menu has the focus), `h` / `l` move the focus between the main menu, the content and the page menu. Headings get a visible focus outline and a scroll margin so they are not glued to the top edge. Implemented in the new `fsdocs-hotkeys.js`, documented under "Keyboard navigation" in the command-line docs. [#1321](https://github.com/fsprojects/FSharp.Formatting/pull/1321)
 
 ### Fixed
 * Link postfix FSharp.Core type constructors (`list`, `option`, `voption`, etc.) in API doc type signatures. Previously only the compiled name form (e.g. `FSharpList`) was linked; the postfix abbreviation form (e.g. `int list`) rendered as plain, unlinked text because the abbreviation entity has no `TryFullName`. The cross-reference resolver now builds the fsharp-core-docs link from the abbreviation's own name (e.g. `list` → `fsharp-collections-list-1`) instead of the abbreviated type's compiled name (e.g. `FSharpList` → `fsharp-collections-fsharplist-1`, which 404s), falling back to the abbreviated type's definition only for non-generic abbreviations such as `string` and `obj` that have no dedicated fsharp-core-docs page. [#1316](https://github.com/fsprojects/FSharp.Formatting/issues/1316)
