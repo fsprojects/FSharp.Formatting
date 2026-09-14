@@ -69,7 +69,11 @@ module internal TypeFormatter =
                     not
                     <| docPath.StartsWith(sourceFolderPath, StringComparison.InvariantCultureIgnoreCase)
                 then
-                    Log.verbf "Current source file '%s' doesn't reside in source folder '%s'" docPath sourceFolderPath
+                    logger.Debugf
+                        "Current source file '%s' doesn't reside in source folder '%s'"
+                        docPath
+                        sourceFolderPath
+
                     ""
                 else
                     let relativePath = docPath.[sourceFolderPath.Length ..]

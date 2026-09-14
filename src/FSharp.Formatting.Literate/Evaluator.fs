@@ -367,12 +367,14 @@ module __FsiSettings =
             match res with
             | Ok _v -> ()
             | Error exn ->
-                printfn "Error establishing FSI:"
-                printfn "%s" outputs.Output.FsiOutput
-                printfn "%s" outputs.Output.ScriptOutput
-                printfn "%s" outputs.Error.FsiOutput
-                printfn "%s" outputs.Error.ScriptOutput
-                printfn "Exception: %A" exn
+                FSharp.Formatting.Literate.Log.logger.Errorf
+                    "Error establishing FSI:\n%s\n%s\n%s\n%s\nException: %A"
+                    outputs.Output.FsiOutput
+                    outputs.Output.ScriptOutput
+                    outputs.Error.FsiOutput
+                    outputs.Error.ScriptOutput
+                    exn
+
                 raise exn
 
 
@@ -578,10 +580,27 @@ module __FsiSettings =
                         StdErr = e.Result.Error.Merged
                     }
 
-                let msg =
-                    $"Evaluation failed and --strict is on\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n\    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
+                // Always surface evaluation failures to stderr so they are visible by default,
+                // even when the caller has not subscribed to EvaluationFailed or provided onError.
+                let fileInfo =
+                    match file with
+                    | Some f -> $" in %s{f}"
+                    | None -> ""
 
-                onError msg
+                let stderr = e.Result.Error.Merged.Trim()
+
+                let errorMsg =
+                    if stderr <> "" then
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%s{stderr}"
+                    else
+                        $"fsdocs eval: evaluation failure%s{fileInfo}\n%A{e.InnerException}"
+
+                eprintfn "%s" errorMsg
+
+                let strictMsg =
+                    $"Evaluation failed\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
+
+                onError strictMsg
 
                 {
                     Output = None

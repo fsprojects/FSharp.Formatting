@@ -672,7 +672,7 @@ module internal SymbolReader =
         lines
         |> Seq.choose findCommand
         |> Seq.iter (fun (k, v) ->
-            printfn
+            logger.Warnf
                 "The use of `[%s]` and other commands in XML comments is deprecated, please use XML extensions, see https://github.com/fsharp/fslang-design/blob/master/tooling/FST-1031-xmldoc-extensions.md"
                 k
 
@@ -693,7 +693,7 @@ module internal SymbolReader =
                     let m = defaultArg m range0
 
                     if ctx.UrlMap.IsLocal xmlSig then
-                        printfn
+                        logger.Warnf
                             "%s(%d,%d): warning FD0001: no documentation for '%s'"
                             m.FileName
                             m.StartLine
@@ -724,8 +724,8 @@ module internal SymbolReader =
                 if sum.Value.Contains("<exclude") then
                     cmds.["exclude"] <- ""
 
-                    printfn
-                        "Warning: detected \"<exclude/>\" in text of \"<summary>\" for \"%s\". Please see https://fsprojects.github.io/FSharp.Formatting/apidocs.html#Classic-XML-Doc-Comments"
+                    logger.Warnf
+                        "detected \"<exclude/>\" in text of \"<summary>\" for \"%s\". Please see https://fsprojects.github.io/FSharp.Formatting/apidocs.html#Classic-XML-Doc-Comments"
                         xmlSig
 
                 readXmlCommentAndCommands ctx sum.Value el cmds
@@ -793,7 +793,7 @@ module internal SymbolReader =
 
                             sprintf "unknown, part of %s" part
 
-                printfn "Could not read comments from entity '%s': %O" name e
+                logger.Warnf "Could not read comments from entity '%s': %O" name e
                 None
 
     /// Returns <c>true</c> when the symbol is accessible under the current context settings
@@ -1145,7 +1145,7 @@ module internal SymbolReader =
             let nsdocs = combineNamespaceDocs [ nsdocs1; nsdocs2; nsdocs3; nsdocs4; nsdocs5; nsdocs6 ]
 
             if nsdocs.IsSome then
-                printfn "ignoring namespace summary on nested position"
+                logger.Warnf "ignoring namespace summary on nested position"
 
             let loc = tryGetLocation typ
 
@@ -1218,7 +1218,7 @@ module internal SymbolReader =
             let nsdocs = combineNamespaceDocs [ nsdocs1; nsdocs2; nsdocs3; nsdocs4 ]
 
             if nsdocs.IsSome then
-                printfn "ignoring namespace summary on nested position"
+                logger.Warnf "ignoring namespace summary on nested position"
 
             let loc = tryGetLocation modul
 
@@ -1323,7 +1323,7 @@ module internal SymbolReader =
             // See https://github.com/fsprojects/FSharp.Formatting/issues/229
             // and https://github.com/fsprojects/FSharp.Formatting/issues/287
             if xmlMemberMap.ContainsKey key then
-                Log.warnf "Duplicate documentation for '%s', one will be ignored!" key
+                logger.Warnf "Duplicate documentation for '%s', one will be ignored!" key
 
             xmlMemberMap.[key] <- value
 

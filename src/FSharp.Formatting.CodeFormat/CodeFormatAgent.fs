@@ -361,7 +361,7 @@ module CodeFormatter =
     /// returning an array of named, token-annotated snippets and any compilation diagnostics.
     let processSourceCode (filePath, source, options, defines, onError) =
         async {
-            Log.verbf "starting to process source code from '%s'" filePath
+            logger.Debugf "starting to process source code from '%s'" filePath
             // Read the source code into an array of lines
             use reader = new StringReader(source)
 
@@ -402,7 +402,7 @@ module CodeFormatter =
                     && not <| item.StartsWith("--nooptimizationdata", StringComparison.Ordinal)
                     && not <| item.EndsWith("mscorlib.dll", StringComparison.Ordinal))
 
-            //Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
+            //logger.Debugf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
             let filePath = Path.GetFullPath(filePath)
 
             let! (opts, diagnostics) =
@@ -477,12 +477,12 @@ module CodeFormatter =
             //        //UnresolvedReferences = Some ( UnresolvedReferencesSet.UnresolvedAssemblyReference [])
             //        ProjectFileNames = [| filePath |] }
 
-            //Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
+            //logger.Debugf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
             //let! results = fsChecker.ParseAndCheckProject(opts)
             //let _errors = results.Errors
 
             for diagnostic in diagnostics do
-                printfn "error from GetProjectOptionsFromScript '%s'" (formatDiagnostic diagnostic)
+                logger.Warnf "error from GetProjectOptionsFromScript '%s'" (formatDiagnostic diagnostic)
 
             if
                 diagnostics
@@ -491,12 +491,12 @@ module CodeFormatter =
                 onError "exiting due to errors in script"
 
             // Run the second phase - perform type checking
-            Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
+            logger.Debugf "starting to ParseAndCheckDocument from '%s'" filePath
             let! res = fsChecker.ParseAndCheckDocument(filePath, source, opts, false)
 
             match res with
             | Some(_parseResults, parsedInput, checkResults) ->
-                Log.verbf "starting to GetAllUsesOfAllSymbolsInFile from '%s'" filePath
+                logger.Debugf "starting to GetAllUsesOfAllSymbolsInFile from '%s'" filePath
 
                 let _symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile()
 

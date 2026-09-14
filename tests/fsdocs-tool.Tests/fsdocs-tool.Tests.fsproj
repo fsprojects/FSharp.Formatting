@@ -7,6 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ConvertCommandTests.fs" />
+    <Compile Include="DocContentTests.fs" />
+    <Compile Include="SiteTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\fsdocs-tool\fsdocs-tool.fsproj" />

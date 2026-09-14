@@ -21,7 +21,17 @@ type InitCommand() =
              HelpText = "Also scaffold a _template.html file in the docs directory.")>]
     member val withTemplate = false with get, set
 
+    [<Option('v',
+             "verbosity",
+             Required = false,
+             Default = "normal",
+             HelpText = "How much to log: quiet, minimal, normal, detailed or diagnostic.")>]
+    member val verbosity = "normal" with get, set
+
     member this.Execute() =
+        if not (Verbosity.configure this.verbosity) then
+            exit 1
+
         let docsDir =
             if Path.IsPathRooted(this.input) then
                 this.input
@@ -29,16 +39,16 @@ type InitCommand() =
                 Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, this.input))
 
         if not (Directory.Exists(docsDir)) then
-            printfn "Creating directory: %s" docsDir
+            logger.Infof "Creating directory: %s" docsDir
             Directory.CreateDirectory(docsDir) |> ignore
 
         let indexPath = Path.Combine(docsDir, "index.md")
 
         let writeIfNeeded path content =
             if File.Exists(path) && not this.force then
-                printfn "Skipping %s (already exists; use --force to overwrite)" path
+                logger.Infof "Skipping %s (already exists; use --force to overwrite)" path
             else
-                printfn "Writing %s" path
+                logger.Infof "Writing %s" path
                 File.WriteAllText(path, (content: string))
 
         let indexContent =
@@ -74,6 +84,5 @@ Run `dotnet fsdocs watch` to preview the site locally.
 
             writeIfNeeded templatePath templateContent
 
-        printfn ""
-        printfn "Done! Run 'dotnet fsdocs watch --input %s' to preview your documentation." this.input
+        logger.Infof "Done! Run 'dotnet fsdocs watch --input %s' to preview your documentation." this.input
         0

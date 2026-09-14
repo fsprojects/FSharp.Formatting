@@ -22,7 +22,7 @@ index: 1
 #endif // IPYNB
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
+[![Script](img/badge-script.svg)]({{root}}{{fsdocs-source-basename}}.fsx)
 
 Code formatting
 ==============================

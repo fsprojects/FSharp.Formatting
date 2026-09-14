@@ -114,6 +114,7 @@ module internal Utils =
 
 /// Controls how type constraints on generic members are displayed in generated API docs.
 [<RequireQualifiedAccess>]
+[<Struct>]
 type TypeConstraintDisplayMode =
     /// Do not display type constraints.
     | None
@@ -131,7 +132,7 @@ type ApiDocHtml(html: string, id: string option) =
     member _.Id = id
 
 /// Represents a documentation comment attached to source code
-type ApiDocComment(xmldoc, summary, remarks, parameters, returns, examples, notes, exceptions, rawData) =
+type ApiDocComment(xmldoc, summary, remarks, parameters, returns, examples, notes, exceptions, seeAlso, rawData) =
 
     /// The XElement for the XML doc if available
     member _.Xml: XElement option = xmldoc
@@ -157,10 +158,13 @@ type ApiDocComment(xmldoc, summary, remarks, parameters, returns, examples, note
     /// The notes sections of the comment
     member _.Exceptions: (string * string option * ApiDocHtml) list = exceptions
 
+    /// The top-level "seealso" sections of the comment, rendered as a "See also:" list
+    member _.SeeAlso: (string * string option * ApiDocHtml) list = seeAlso
+
     /// The raw data of the comment
     member _.RawData: KeyValuePair<string, string> list = rawData
 
-    static member internal Empty = ApiDocComment(None, ApiDocHtml("", None), None, [], None, [], [], [], [])
+    static member internal Empty = ApiDocComment(None, ApiDocHtml("", None), None, [], None, [], [], [], [], [])
 
 /// Represents a custom attribute attached to source code
 type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments) =
@@ -386,7 +390,7 @@ type ApiDocMember
         if warn then
             for (pn, _pdoc) in comment.Parameters do
                 if not (tnames.Contains(Some pn)) then
-                    printfn
+                    logger.Warnf
                         "%s(%d,%d): warning: extraneous docs for unknown parameter '%s'"
                         m.FileName
                         m.StartLine
@@ -399,16 +403,20 @@ type ApiDocMember
                     match psym with
                     | Choice1Of2 p ->
                         if isUnitType p.Type |> not then
-                            printfn
+                            logger.Warnf
                                 "%s(%d,%d): warning: a parameter was missing a name"
                                 m.FileName
                                 m.StartLine
                                 m.StartColumn
                     | Choice2Of2 _ ->
-                        printfn "%s(%d,%d): warning: a field was missing a name" m.FileName m.StartLine m.StartColumn
+                        logger.Warnf
+                            "%s(%d,%d): warning: a field was missing a name"
+                            m.FileName
+                            m.StartLine
+                            m.StartColumn
                 | Some nm ->
                     if not (tdocs.ContainsKey pnm) then
-                        printfn
+                        logger.Warnf
                             "%s(%d,%d): warning: missing docs for parameter '%s'"
                             m.FileName
                             m.StartLine
@@ -431,9 +439,19 @@ type ApiDocMember
         for (id, count) in knownExampleIds do
             if count > 1 then
                 if warn then
-                    printfn "%s(%d,%d): warning: duplicate id for example '%s'" m.FileName m.StartLine m.StartColumn id
+                    logger.Warnf
+                        "%s(%d,%d): warning: duplicate id for example '%s'"
+                        m.FileName
+                        m.StartLine
+                        m.StartColumn
+                        id
                 else
-                    printfn "%s(%d,%d): error: duplicate id for example '%s'" m.FileName m.StartLine m.StartColumn id
+                    logger.Errorf
+                        "%s(%d,%d): error: duplicate id for example '%s'"
+                        m.FileName
+                        m.StartLine
+                        m.StartColumn
+                        id
 
         for (id, _count) in knownExampleIds do
             if id.StartsWith("example-", StringComparison.Ordinal) then
@@ -442,14 +460,14 @@ type ApiDocMember
                 match System.Int32.TryParse potentialInteger with
                 | true, id ->
                     if warn then
-                        printfn
+                        logger.Warnf
                             "%s(%d,%d): warning: automatic identifer generated for example '%d'. Consider adding an explicit example id attribute."
                             m.FileName
                             m.StartLine
                             m.StartColumn
                             id
                     else
-                        printfn
+                        logger.Errorf
                             "%s(%d,%d): error: automatic identifer generated for example '%d'. Consider adding an explicit example id attribute."
                             m.FileName
                             m.StartLine

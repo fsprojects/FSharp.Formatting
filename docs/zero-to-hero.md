@@ -52,6 +52,9 @@ Having this in place, should already serve the first page when we start the `wat
 
 Open [http://localhost:8901](http://localhost:8901) and you should see our first page!
 
+🪄 When something looks off (a missing logo, a wrong title, a stale page), open [http://localhost:8901/.fsdocs/doctor](http://localhost:8901/.fsdocs/doctor):
+it shows what `fsdocs` found (projects, substitutions, templates, navigation) and why. See [the command line docs](commandline.html) for details.
+
 🪄 You might notice that there are some images missing. You can add these in the `docs` folder in the right location.
 
 ## Generating API documentation
@@ -109,23 +112,12 @@ You can change this by adding a custom domain so we need to be sure that all lin
 
 Let's now run `dotnet fsdocs build`.
 
-`<PackageProjectUrl>` will replace the `{{root}}` substitution, which is used all over the place in the default template.  
+The links between the pages, and to the stylesheets, scripts and images, are relative: the `{{root}}` substitution used all over the default template
+is the path from the page to the root of the site (`./`, `../`, ...). The output therefore works wherever it is hosted, and you can open
+the files of the `output` folder directly in a browser to preview them.
 
-⚠️ You want to ensure that the static files in the `output` folder (after running the build) have the correct links.
-
-### Previewing the built output locally
-
-When `<PackageProjectUrl>` is not set, `root` defaults to `/<fsdocs-collection-name>` (e.g. `/MyProject`).
-Opening the output files directly in a browser using the `file://` protocol will result in broken links to stylesheets and scripts,
-because the browser will try to load assets from an absolute path like `/MyProject/content/fsdocs-default.css` which does not exist on the filesystem.
-
-To work around this when building for a local preview, pass a relative root:
-
-    dotnet fsdocs build --parameters root ./
-
-This makes all asset links relative, so the output can be viewed directly from the filesystem without a web server.
-
-> 💡 Note that `dotnet fsdocs watch` serves files over HTTP and handles the `root` correctly for local development — this limitation only applies to `fsdocs build` when `<PackageProjectUrl>` is not configured.
+`<PackageProjectUrl>` becomes the `{{fsdocs-site-root}}` substitution, the absolute URL of the site. It is only used where a link
+must be absolute: the Open Graph metadata of the pages and `llms.txt`. Override it with `--parameters fsdocs-site-root <url>` when the site is published elsewhere.
 
 ## Ignore generated files
 

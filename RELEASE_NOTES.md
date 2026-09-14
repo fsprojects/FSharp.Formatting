@@ -1,9 +1,54 @@
 # Changelog
 
-## [Unreleased]
+## [23.0.0-alpha.4] - 2026-09-13
+
+### Added
+* The "On this page" menu of the default template marks the section the reader is in: the entry of the last heading scrolled past the top of the content gets a coloured left border, and a heading focused with the `j` / `k` hotkeys marks its entry as well. Pure CSS, through scroll-driven animations (`view-timeline-name`, `timeline-scope`, `animation-timeline`); browsers without them show the menu as before. The generator numbers the headings and menu entries (`data-fsdocs-heading`) and emits the wiring in a `<style>` next to the menu. The colour and the reading line are the `--page-menu-active-border-color` and `--page-menu-reading-line` variables. When the menu has its own scroll bar, `j` / `k` also scroll the entry of the focused heading into view and put its anchor in the URL (without a history entry). [#1322](https://github.com/fsprojects/FSharp.Formatting/pull/1322)
+
+* `fsdocs watch` shows a progress bar along the bottom of the window while it waits for the next page, which can take a while when a big script is rendered for the first time. Dev server only, it comes with the live reload script. [#1322](https://github.com/fsprojects/FSharp.Formatting/pull/1322)
+
+### Fixed
+* `fsdocs watch` renders the API Reference section of the menu with the current `_menu_template.html` and `_menu-item_template.html` after an edit; it kept the templates as they were when the watch started, until an assembly changed. [#1323](https://github.com/fsprojects/FSharp.Formatting/issues/1323)
+* The "All Namespaces" entry of the API Reference menu no longer carries the `active` class on every documentation page when menu templates are used. A page without an entry of its own, such as the docs index, showed it as the current page, and the `h` hotkey entered the menu there.
+
+## [23.0.0-alpha.3] - 2026-09-13
+
+### Added
+* Keyboard navigation in the default template: `j` / `k` go to the next / previous heading of the page (or the next / previous link when a menu has the focus), `h` / `l` move the focus between the main menu, the content and the page menu. Headings get a visible focus outline and a scroll margin so they are not glued to the top edge. Implemented in the new `fsdocs-hotkeys.js`, documented under "Keyboard navigation" in the command-line docs. [#1321](https://github.com/fsprojects/FSharp.Formatting/pull/1321)
+
+### Fixed
+* Link postfix FSharp.Core type constructors (`list`, `option`, `voption`, etc.) in API doc type signatures. Previously only the compiled name form (e.g. `FSharpList`) was linked; the postfix abbreviation form (e.g. `int list`) rendered as plain, unlinked text because the abbreviation entity has no `TryFullName`. The cross-reference resolver now builds the fsharp-core-docs link from the abbreviation's own name (e.g. `list` → `fsharp-collections-list-1`) instead of the abbreviated type's compiled name (e.g. `FSharpList` → `fsharp-collections-fsharplist-1`, which 404s), falling back to the abbreviated type's definition only for non-generic abbreviations such as `string` and `obj` that have no dedicated fsharp-core-docs page. [#1316](https://github.com/fsprojects/FSharp.Formatting/issues/1316)
+
+## [23.0.0-alpha.2] - 2026-09-10
+
+### Fixed
+* Fix tooltip not being interactive: moving the mouse from a code token into its tooltip now keeps the tooltip open, allowing users to select and copy the tooltip text. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
+* `fsdocs watch` rebuilds a page when a file its script depends on changes, following `#load` transitively and `#r` to local files, wherever those files are (a dot folder, outside the input folder). The directives are read from the syntax tree, so a `#load` in a comment does not count. [#1309](https://github.com/fsprojects/FSharp.Formatting/issues/1309)
+
+## [23.0.0-alpha.1] - 2026-09-08
 
 ### Changed
+* Links are relative. The `{{root}}` substitution is now the path from the page to the root of the site (`./`, `../`, ...) instead of the absolute site URL, so the generated site works from any host name or sub path, from the file system, and `fsdocs watch` can be reached through any address the server is bound to (`--host 0.0.0.0`, a Codespaces forward, a reverse proxy). The `--root` option of `watch` is replaced by `--site-root`, which only sets the site URL. The search index holds site-relative URIs that the search script prefixes with the page's root. The absolute URL of the site is available as the new `{{fsdocs-site-root}}` substitution (from `<PackageProjectUrl>` or `--parameters fsdocs-site-root`; a `root` parameter still sets it but warns); the default template uses it for `og:url` and `twitter:site`, and `llms.txt` links stay absolute. Custom templates that use `{{root}}` in metadata that must be absolute should switch to `{{fsdocs-site-root}}`. Notebook, script and LaTeX outputs keep the absolute site URL since they are used outside the site. The dev server serves a folder URL from its index page and redirects `/folder` to `/folder/`, as static web servers do.
+* `fsdocs watch` is a lazy dev server: no output folder is written, a page is built the first time it is requested and cached until a file that influences it changes (content hashes, so byte-identical rewrites invalidate nothing), static files are served from their source location, and a failing page returns a `500` while the other pages keep working. The search index is fetched when the search dialog is first opened instead of on page load. New diagnostic pages at `/.fsdocs/doctor` and `/.fsdocs/doctor.json` show the cracked projects, substitutions, templates, navigation titles, routes and cache state. `--output`, `--clean` and `--saveimages` are ignored by `watch`.
+* Project cracking evaluates the MSBuild properties of each project with `dotnet msbuild --getProperty` (in parallel, no design-time build) and drops test projects and executables before any expensive work. The compiler references come from a design-time build (`dotnet msbuild -t:...CoreCompile -getItem:FscCommandLineArgs`, one process per project, in parallel) that runs only for the documented projects and only when the API docs are generated; it is cached in `.fsdocs/references`. Ionide.ProjInfo is no longer used for the design-time build, only to read solution files. The `.fsdocs/cache` key now covers the discovered project files, `Directory.Build.props`, `Directory.Build.targets`, `Directory.Packages.props` and `global.json`, so editing those no longer serves stale project settings.
+* Properties set by MSBuild targets, such as a `Version` computed from a changelog by `Ionide.KeepAChangelog.Tasks`, are not visible to an evaluation. The substitutions are therefore recomputed from the design-time build when it runs: `build` uses the refined values for the API docs and the content, `watch` serves the evaluated values until the design-time build ran (at startup, in the background) and then rebuilds the affected pages. The doctor shows per project whether the design-time build ran, which substitutions it changed, and has a button to run it again.
+* `TypeConstraintDisplayMode` is a struct discriminated union, as the Ionide analyzers suggest. Source compatible, but the compiled representation changes, so a consumer needs to recompile.
 * Rewrote the Mermaid documentation recipe as `docs/mermaid.md` (moved from the oddly-named `docs/sidebyside/sidemermaid.md`) to follow the approach used by the fantomas docs: diagrams are written as plain ```mermaid fenced code blocks, which GitHub renders natively, and an `_body.html` script promotes those blocks into `<div class="mermaid">` elements on fsdocs pages. The FSharp.Formatting docs now ship that script (`docs/_body.html`), so the recipe page actually demonstrates working diagrams.
+* Bump `Ionide.ProjInfo` from 0.74.2 to 0.75.0 and `NUnit3TestAdapter` from 6.2.0 to 6.3.0. Both are routine, non-breaking updates.
+* Replace `sprintf "<pre><code>"` (a format string with no format arguments) with the plain string literal `"<pre><code>"` in `HtmlFormatting.fs`. This is on the hot path invoked once per rendered code/output block, and avoids the unnecessary printf-format parsing overhead for a string with no substitutions.
+
+### Added
+* Logging goes through `Microsoft.Extensions.Logging`. The libraries are silent by default; hosts set `FSharp.Formatting.Common.Logging.LoggerFactory` or call `Logging.UseConsole(level)`. The tool has `-v`/`--verbosity quiet|minimal|normal|detailed|diagnostic` on `build`, `watch`, `convert` and `init`; `normal` prints one line per phase with counts and durations instead of one line per file, warnings and errors go to standard error with a `warning:`/`error:` prefix, and the doctor shows the last log lines.
+* `fsdocs watch` builds the API reference in the background at startup and after a project DLL or project file change, so no page request waits for it. Project files and the solution-wide MSBuild files are watched: a change re-cracks the projects, so substitutions such as `<FsDocsLogoSource>` and the compiler references are picked up without a restart.
+* `fsdocs watch --host 0.0.0.0` binds the server to all interfaces so the site can be browsed from another machine on the network.
+* Support top-level `<seealso cref="..."/>` XML doc tags in API documentation generation. Per the [xmldoc recommended tags](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/recommended-tags#seealso), `<seealso>` is a top-level section (unlike the inline `<see>` tag) and is now rendered as a "See also" list in both HTML and Markdown API doc output, for both members and entities. [#1256](https://github.com/fsprojects/FSharp.Formatting/issues/1256)
+
+### Fixed
+* Surface FSI evaluation failures to stderr by default in `FsiEvaluator`. Previously, when a code snippet failed during `--eval`, the error was silently discarded unless the caller subscribed to `EvaluationFailed` or provided an `onError` callback. Now a concise error message (file name + stderr output) is always written to stderr, making failures visible in `fsdocs` output.
+* Fix `FrontMatterFile.ParseFromLines` truncating front-matter values that contain a `:` character (e.g. `title: F#: An Introduction` was previously captured as just `F#`). Additional colons in a value are now preserved.
+
+### Removed
+* Remove the `--noserver` option of `fsdocs watch`; watching without serving no longer does anything now that no output folder is written.
 
 ## [22.2.0] - 2026-08-31
 

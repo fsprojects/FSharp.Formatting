@@ -19,7 +19,7 @@ index: 2
 #endif // IPYNB
 
 (**
-[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)
+[![Script](img/badge-script.svg)]({{root}}{{fsdocs-source-basename}}.fsx)
 
 Markdown parser
 ==============================

@@ -154,7 +154,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
             ]
             |> String.concat " "
 
-        printfn "  loading %d assemblies..." dllFiles.Length
+        logger.Debugf "  loading %d assemblies..." dllFiles.Length
 
         let resolvedList =
             FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
@@ -169,7 +169,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
             for (_, asmOpt) in resolvedList do
                 match asmOpt with
                 | (_, Some asm) ->
-                    printfn "  registering entities for assembly %s..." asm.SimpleName
+                    logger.Debugf "  registering entities for assembly %s..." asm.SimpleName
 
                     asm.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
                 | _ -> ()
@@ -180,20 +180,20 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                     match project.SourceFolder, project.SourceRepo with
                     | Some folder, Some repo -> Some(folder, repo)
                     | Some _folder, _ ->
-                        Log.warnf "Repository url should be specified along with source folder."
+                        logger.Warnf "Repository url should be specified along with source folder."
                         None
                     | _, Some _repo ->
-                        Log.warnf "Repository url should be specified along with source folder."
+                        logger.Warnf "Repository url should be specified along with source folder."
                         None
                     | _ -> None
 
                 match asmOpt with
                 | None ->
-                    printfn "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+                    logger.Errorf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
                     onError "exiting"
                     None
                 | Some asm ->
-                    printfn "  reading XML doc for %s..." dllFile
+                    logger.Debugf "  reading XML doc for %s..." dllFile
 
                     let xmlFile = defaultArg project.XmlFile (Path.ChangeExtension(dllFile, ".xml"))
 
@@ -222,7 +222,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                     match xmlFileOpt with
                     | None -> raise (FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile))
                     | Some xmlFile ->
-                        printfn "  reading assembly data for %s..." dllFile
+                        logger.Debugf "  reading assembly data for %s..." dllFile
 
                         SymbolReader.readAssembly (
                             asm,
@@ -240,13 +240,13 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                         )
                         |> Some)
 
-        printfn "  collecting namespaces..."
+        logger.Debugf "  collecting namespaces..."
         // Union namespaces from multiple libraries
         let namespaces = Dictionary<_, (_ * _ * Substitutions)>()
 
         for asm, nss in assemblies do
             for ns in nss do
-                printfn "  found namespace %s in assembly %s..." ns.Name asm.Name
+                logger.Debugf "  found namespace %s in assembly %s..." ns.Name asm.Name
 
                 match namespaces.TryGetValue(ns.Name) with
                 | true, (entities, summary, substitutions) ->
@@ -257,13 +257,13 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
         let namespaces =
             [
                 for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
-                    printfn "  found %d entities in namespace %s..." entities.Length name
+                    logger.Debugf "  found %d entities in namespace %s..." entities.Length name
 
                     if entities.Length > 0 then
                         ApiDocNamespace(name, entities, substitutions, summary)
             ]
 
-        printfn "  found %d namespaces..." namespaces.Length
+        logger.Debugf "  found %d namespaces..." namespaces.Length
 
         let collection =
             ApiDocCollection(collectionName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))

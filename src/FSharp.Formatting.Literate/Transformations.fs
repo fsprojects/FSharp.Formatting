@@ -580,7 +580,7 @@ module internal Transformations =
                         | ValueReference _ ->
                             let msg = "Warning: Output, it-value and value references require --eval"
 
-                            printfn "%s" msg
+                            logger.Warnf "Output, it-value and value references require --eval"
                             Some(InlineHtmlBlock(msg, None, MarkdownRange.zero))
                         | LanguageTaggedCode(lang, code, _) ->
                             let inlined =

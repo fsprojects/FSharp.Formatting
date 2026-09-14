@@ -149,6 +149,21 @@ let ``ApiDocs seealso can find members`` (format: OutputFormat) =
 
 [<Test>]
 [<TestCaseSource("formats")>]
+let ``ApiDocs links postfix FSharp.Core type constructors like list`` (format: OutputFormat) =
+    // Regression test for #1316 / #1320: postfix type abbreviations such as `list` (which the
+    // compiler surfaces as the abbreviation entity `FSharp.Collections.list<'T>`, not
+    // `FSharpList<'T>`) should be linked using the abbreviation's own name, since
+    // fsharp-core-docs publishes pages keyed by that name (e.g. "fsharp-collections-list-1"),
+    // not by the abbreviated `FSharpList<'T>` definition (whose page would 404).
+    let library = testBin </> "TestLib3.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] format false "TestLib3-list-link"
+
+    files.[(sprintf "test-seealso.%s" format.Extension)]
+    |> shouldContainText "https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-list-1"
+
+[<Test>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs excludes items`` (format: OutputFormat) =
     let library = testBin </> "TestLib3.dll" |> fullpath
 
@@ -323,12 +338,16 @@ let ``ApiDocs works on two sample F# assemblies`` (format: OutputFormat) =
     files.[(sprintf "fslib-nested-submodule.%s" format.Extension)]
     |> shouldContainText "Very nested field"
 
-    // Check that union fields are correctly generated
+    // Check that union fields are correctly generated. `string` is a postfix FSharp.Core
+    // type abbreviation (for System.String) and, per #1316, is now hyperlinked like any
+    // other resolvable type constructor.
     files.[(sprintf "fslib-union.%s" format.Extension)]
-    |> shouldContainText "<span>World(<span>string,&#32;int</span>)</span>"
+    |> shouldContainText
+        "<span>World(<span><a href=\"https://learn.microsoft.com/dotnet/api/system.string\">string</a>,&#32;int</span>)</span>"
 
     files.[(sprintf "fslib-union.%s" format.Extension)]
-    |> shouldContainText "<span>Naming(<span>rate,&#32;string</span>)</span>"
+    |> shouldContainText
+        "<span>Naming(<span>rate,&#32;<a href=\"https://learn.microsoft.com/dotnet/api/system.string\">string</a></span>)</span>"
 
     // Check that operators are encoded
 
@@ -1678,6 +1697,29 @@ let ``ApiDocs Markdown uses section-based member layout instead of tables`` () =
     nestedContent |> shouldNotContainText "Function or value | Description | Source"
 
 [<Test>]
+let ``ApiDocs Markdown generates See also section for top-level seealso tags`` () =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] OutputFormat.Markdown false "FsLib2_markdown_seealso"
+
+    let seeAlsoContent = files.["fslib-seealsoexamples.md"]
+
+    seeAlsoContent |> shouldContainText "##### See also"
+    seeAlsoContent |> shouldContainText "dothing"
+    seeAlsoContent |> shouldContainText "dothing2"
+
+[<Test>]
+let ``ApiDocs HTML generates See also section for top-level seealso tags`` () =
+    let library = testBin </> "FsLib2.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] OutputFormat.Html false "FsLib2_html_seealso"
+
+    let seeAlsoContent = files.["fslib-seealsoexamples.html"]
+
+    seeAlsoContent |> shouldContainText "See also"
+    seeAlsoContent |> shouldContainText "fsdocs-seealso-list"
+
+[<Test>]
 let ``ApiDocs Markdown generates Example and Note section headings`` () =
     let library = testBin </> "FsLib2.dll" |> fullpath
 
@@ -1829,15 +1871,18 @@ ITEMS: {{fsdocs-menu-items}}
 LINK: {{fsdocs-menu-item-link}}
 LINK ID: {{fsdocs-menu-item-id}}
 CONTENT: {{fsdocs-menu-item-content}}
+ACTIVE: {{fsdocs-menu-item-active-class}}
 """
     )
 
-    let _, substitutions, _, _ =
+    let phased =
         match format with
         | OutputFormat.Html ->
             ApiDocs.GenerateHtmlPhased([ inputs ], output, "Collection", [], menuTemplateFolder = "menu")
         | OutputFormat.Markdown ->
             ApiDocs.GenerateMarkdownPhased([ inputs ], output, "Collection", [], menuTemplateFolder = "menu")
+
+    let substitutions = phased.GlobalSubstitutions
 
     let listOfNamespaces =
         substitutions
@@ -1859,7 +1904,8 @@ HEADER ID: api_reference
 ITEMS:
 LINK: /reference/index{format.ExtensionInUrl}
 LINK ID: all_namespaces
-CONTENT: All Namespaces"""
+CONTENT: All Namespaces
+ACTIVE:"""
             .Replace("\r", ""),
         listOfNamespaces
     )

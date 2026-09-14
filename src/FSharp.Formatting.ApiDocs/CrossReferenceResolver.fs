@@ -117,8 +117,8 @@ module internal CrossReferences =
 
                     sprintf "%s%s%s" name typeArgs paramList
                 with exn ->
-                    printfn "Error while building fsdocs-member-name for %s because: %s" memb.FullName exn.Message
-                    Log.verbf "Full Exception details of previous message: %O" exn
+                    logger.Warnf "Error while building fsdocs-member-name for %s because: %s" memb.FullName exn.Message
+                    logger.Debugf "Full Exception details of previous message: %O" exn
                     memb.CompiledName
 
             match
@@ -386,7 +386,30 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 }
         | _ ->
             match entity.TryFullName with
-            | None -> None
+            | None ->
+                // F# postfix generic type abbreviations such as 'list', 'option', 'voption'
+                // and 'seq' (IsFSharpAbbreviation = true, GenericParameters.Count > 0) have no
+                // full name of their own, but the fsharp-core-docs site publishes a page keyed
+                // by the abbreviation's own name (e.g. "fsharp-collections-list-1" for 'list',
+                // not "fsharp-collections-fsharplist-1" for the abbreviated FSharpList<'T>
+                // definition). Build the link from the abbreviation's own namespace and compiled
+                // name so it resolves to that page.
+                match entity.Namespace with
+                | Some ns when entity.IsFSharpAbbreviation && entity.GenericParameters.Count > 0 ->
+                    let ownFullName = sprintf "%s.%s" ns entity.CompiledName
+                    Some(externalDocsLink false entity.DisplayName ownFullName ownFullName)
+                | _ ->
+                    // Other F# abbreviations, such as 'string' and 'obj', have no dedicated
+                    // fsharp-core-docs page; resolve the link through the abbreviated type's
+                    // definition (e.g. System.String for 'string') while keeping the
+                    // abbreviation's own display name (e.g. "string") as the link text.
+                    if entity.IsFSharpAbbreviation && entity.AbbreviatedType.HasTypeDefinition then
+                        let abbreviatedEntity = entity.AbbreviatedType.TypeDefinition
+
+                        abbreviatedEntity.TryFullName
+                        |> Option.map (fun nm -> externalDocsLink false entity.DisplayName nm nm)
+                    else
+                        None
             | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
 
     /// Resolves a type cross-reference given its XML doc signature (must start with <c>"T:"</c>).
@@ -564,7 +587,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                         let simple = getMemberName 2 false memberName
                         Some(externalDocsLink true simple typeName memberName)
             | None ->
-                Log.errorf "Assumed '%s' was a member but we cannot extract a type!" memberXmlSig
+                logger.Errorf "Assumed '%s' was a member but we cannot extract a type!" memberXmlSig
                 None
 
 
@@ -627,7 +650,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         | _ when cref.StartsWith("T:", StringComparison.Ordinal) -> Some(resolveCrossReferenceForTypeByXmlSig cref)
         // Compiler was unable to resolve!
         | _ when cref.StartsWith("!:", StringComparison.Ordinal) ->
-            Log.warnf "Compiler was unable to resolve %s" cref
+            logger.Warnf "Compiler was unable to resolve %s" cref
             None
         // ApiDocMember
         | _ when cref.[1] = ':' -> tryResolveCrossReferenceForMemberByXmlSig cref
@@ -636,7 +659,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
             match tryResolveUnqualifiedCref cref with
             | Some r -> Some r
             | None ->
-                Log.warnf "Unresolved reference '%s'!" cref
+                logger.Warnf "Unresolved reference '%s'!" cref
                 None
 
     /// Registers an entity (and all its nested entities and members) so that cross-references to it can be resolved.
