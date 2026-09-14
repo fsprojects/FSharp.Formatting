@@ -209,8 +209,12 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         for nested in entity.NestedEntities do
             registerEntity nested
 
-        for memb in entity.TryGetMembersFunctionsAndValues() do
-            registerMember memb
+        // A type abbreviation has no members of its own: the compiler reports the members of the
+        // abbreviated type (e.g. System.Tuple.Item1), whose declaring entity is not part of this
+        // documentation set. Registering them would make them look local.
+        if not entity.IsFSharpAbbreviation then
+            for memb in entity.TryGetMembersFunctionsAndValues() do
+                registerMember memb
 
     /// Returns the previously-assigned URL base name for a registered entity,
     /// raising an exception if the entity has not been registered.
@@ -386,7 +390,30 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 }
         | _ ->
             match entity.TryFullName with
-            | None -> None
+            | None ->
+                // F# postfix generic type abbreviations such as 'list', 'option', 'voption'
+                // and 'seq' (IsFSharpAbbreviation = true, GenericParameters.Count > 0) have no
+                // full name of their own, but the fsharp-core-docs site publishes a page keyed
+                // by the abbreviation's own name (e.g. "fsharp-collections-list-1" for 'list',
+                // not "fsharp-collections-fsharplist-1" for the abbreviated FSharpList<'T>
+                // definition). Build the link from the abbreviation's own namespace and compiled
+                // name so it resolves to that page.
+                match entity.Namespace with
+                | Some ns when entity.IsFSharpAbbreviation && entity.GenericParameters.Count > 0 ->
+                    let ownFullName = sprintf "%s.%s" ns entity.CompiledName
+                    Some(externalDocsLink false entity.DisplayName ownFullName ownFullName)
+                | _ ->
+                    // Other F# abbreviations, such as 'string' and 'obj', have no dedicated
+                    // fsharp-core-docs page; resolve the link through the abbreviated type's
+                    // definition (e.g. System.String for 'string') while keeping the
+                    // abbreviation's own display name (e.g. "string") as the link text.
+                    if entity.IsFSharpAbbreviation && entity.AbbreviatedType.HasTypeDefinition then
+                        let abbreviatedEntity = entity.AbbreviatedType.TypeDefinition
+
+                        abbreviatedEntity.TryFullName
+                        |> Option.map (fun nm -> externalDocsLink false entity.DisplayName nm nm)
+                    else
+                        None
             | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
 
     /// Resolves a type cross-reference given its XML doc signature (must start with <c>"T:"</c>).
@@ -473,13 +500,19 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         match mfv.DeclaringEntity with
         | None -> failwith $"%s{mfv.DisplayName} does not have a DeclaringEntity"
         | Some declaringEntity ->
-            let entityUrlBaseName = getUrlBaseNameForRegisteredEntity declaringEntity
-
-            {
-                IsInternal = true
-                ReferenceLink = internalCrossReferenceForMember entityUrlBaseName mfv
-                NiceName = declaringEntity.DisplayName + "." + mfv.DisplayName
-            }
+            match registeredSymbolsToUrlBaseName.TryGetValue(declaringEntity) with
+            | true, entityUrlBaseName ->
+                {
+                    IsInternal = true
+                    ReferenceLink = internalCrossReferenceForMember entityUrlBaseName mfv
+                    NiceName = declaringEntity.DisplayName + "." + mfv.DisplayName
+                }
+            | _ ->
+                // The declaring entity is not part of this documentation set (e.g. a member of
+                // System.Tuple reached through a type abbreviation), so link externally instead.
+                let typeName = defaultArg declaringEntity.TryFullName declaringEntity.DisplayName
+                let memberName = typeName + "." + mfv.DisplayName
+                externalDocsLink true (declaringEntity.DisplayName + "." + mfv.DisplayName) typeName memberName
 
     /// Tries to resolve a cross-reference for a member given its XML doc signature
     /// (must start with <c>"M:"</c>, <c>"P:"</c>, <c>"F:"</c>, or <c>"E:"</c>).

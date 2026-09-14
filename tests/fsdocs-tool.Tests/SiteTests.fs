@@ -19,12 +19,15 @@ type internal Fixture() =
 
     let input = root </> "docs"
     let extras = root </> "extras"
+    let shared = root </> "shared"
     let project = root </> "Lib.fsproj"
 
     do
         Directory.CreateDirectory input |> ignore
         Directory.CreateDirectory(input </> "sub") |> ignore
+        Directory.CreateDirectory(input </> ".aux") |> ignore
         Directory.CreateDirectory extras |> ignore
+        Directory.CreateDirectory shared |> ignore
 
         File.WriteAllText(
             input </> "_template.html",
@@ -43,7 +46,16 @@ type internal Fixture() =
             "(**\n---\ncategory: Docs\ncategoryindex: 1\nindex: 2\n---\n*)\n#load \"lib.fsx\"\n(**\n# Page B\n*)\nlet y = Lib.x + 1\n"
         )
 
-        File.WriteAllText(input </> "lib.fsx", "module Lib\nlet x = 1\n")
+        // lib.fsx loads a script from a dot folder, which loads one outside the input, and
+        // references a local dll: none of them is a page, all of them influence b.fsx
+        File.WriteAllText(
+            input </> "lib.fsx",
+            "#load \"./.aux/common.fsx\"\n#r \"../shared/helper.dll\"\nlet x = Common.x + 1\n"
+        )
+
+        File.WriteAllText(input </> ".aux" </> "common.fsx", "#load \"../../shared/outside.fsx\"\nlet x = Outside.x\n")
+        File.WriteAllText(shared </> "outside.fsx", "let x = 1\n")
+        File.Copy(typeof<Fixture>.Assembly.Location, shared </> "helper.dll")
         File.WriteAllText(input </> "style.css", "body { }\n")
         File.WriteAllText(input </> ".hidden.md", "# Hidden\n")
         File.WriteAllText(input </> "sub" </> "c.md", "# Page C\n")
@@ -54,6 +66,7 @@ type internal Fixture() =
 
     member _.Input = input
     member _.Extras = extras
+    member _.Shared = shared
     member _.Project = project
 
     member _.Config: SiteConfig =
@@ -281,11 +294,60 @@ let ``pages are computed once and only invalidated by relevant changes`` () =
     body (site.Render "/b.html") |> shouldContainText "Page B"
     computedSince site [ "b.fsx" ]
     let lib = fx.Input </> "lib.fsx"
-    File.WriteAllText(lib, "module Lib\nlet x = 12\n")
+    let libText = File.ReadAllText lib
+    File.WriteAllText(lib, libText.Replace("+ 1", "+ 12"))
     site.Refresh lib |> shouldEqual true
     body (site.Render "/b.html") |> ignore
     computedSince site [ "b.fsx" ]
     body (site.Render "/index.html") |> ignore
+    computedSince site []
+
+    // ... transitively, through a dot folder the site does not serve
+    let common = fx.Input </> ".aux" </> "common.fsx"
+    File.WriteAllText(common, "#load \"../../shared/outside.fsx\"\nlet x = Outside.x + 1\n")
+    site.Refresh common |> shouldEqual true
+    body (site.Render "/b.html") |> ignore
+    computedSince site [ "b.fsx" ]
+    site.Resolve "/.aux/common.html" |> shouldEqual None
+
+    // ... and outside the input folder
+    let outside = fx.Shared </> "outside.fsx"
+    File.WriteAllText(outside, "let x = 2\n")
+    site.Refresh outside |> shouldEqual true
+    body (site.Render "/b.html") |> ignore
+    computedSince site [ "b.fsx" ]
+
+    // a local '#r' counts too
+    let helper = fx.Shared </> "helper.dll"
+    File.Copy(typeof<list<int>>.Assembly.Location, helper, true)
+    site.Refresh helper |> shouldEqual true
+    body (site.Render "/b.html") |> ignore
+    computedSince site [ "b.fsx" ]
+
+    // a '#load' added to a loaded script is followed, even before its target exists
+    File.WriteAllText(
+        common,
+        "#load \"../../shared/outside.fsx\"\n#load \"../../shared/more.fsx\"\nlet x = Outside.x + More.x\n"
+    )
+
+    site.Refresh common |> shouldEqual true
+    body (site.Render "/b.html") |> ignore
+    computedSince site [ "b.fsx" ]
+    let more = fx.Shared </> "more.fsx"
+    File.WriteAllText(more, "let x = 3\n")
+    site.Refresh more |> shouldEqual true
+    body (site.Render "/b.html") |> ignore
+    computedSince site [ "b.fsx" ]
+
+    // a comment mentioning '#load' is not a dependency
+    File.WriteAllText(lib, libText + "// #load \"../shared/nothing.fsx\"\n")
+    site.Refresh lib |> shouldEqual true
+    body (site.Render "/b.html") |> ignore
+    computedSince site [ "b.fsx" ]
+    let nothing = fx.Shared </> "nothing.fsx"
+    File.WriteAllText(nothing, "let x = 0\n")
+    site.Refresh nothing |> shouldEqual false
+    body (site.Render "/b.html") |> ignore
     computedSince site []
 
     // a template change re-renders without recomputing models
@@ -446,3 +508,67 @@ let ``folder urls serve their index page and get their trailing slash`` () =
     site.RedirectTo "/sub" |> shouldEqual (Some "/sub/")
     body (site.Render "/sub/") |> shouldContainText "Sub home"
     body (site.Render "/sub/") |> shouldContainText "data-root=\"../\""
+
+[<Test>]
+let ``a menu template edit re-renders the API namespace list without rebuilding the API`` () =
+    // The namespace list of the API docs is rendered with the menu templates. Editing one must
+    // update it on the content pages and the API pages alike, from the API state already built.
+    let fx = Fixture()
+    let menuTemplate = fx.Input </> "_menu_template.html"
+    File.WriteAllText(menuTemplate, "<nav class=\"v1\">{{fsdocs-menu-items}}</nav>")
+
+    File.WriteAllText(
+        fx.Input </> "_template.html",
+        "<html><body><nav>{{fsdocs-list-of-namespaces}}</nav><main>{{fsdocs-content}}</main></body></html>"
+    )
+
+    let apiBuilds = ref 0
+
+    let generateApi _ _ =
+        apiBuilds.Value <- apiBuilds.Value + 1
+        // The namespace list is rendered from the menu template, as the real generator does.
+        let globalsFor (root: string) =
+            [
+                FSharp.Formatting.Templating.ParamKeys.``fsdocs-list-of-namespaces``,
+                File.ReadAllText(menuTemplate).Replace("{{fsdocs-menu-items}}", root + "reference/index.html")
+            ]
+
+        let phased: FSharp.Formatting.ApiDocs.ApiDocsPhased =
+            {
+                Model = Unchecked.defaultof<_>
+                GlobalSubstitutions = globalsFor "/"
+                GlobalSubstitutionsFor = globalsFor
+                SearchIndex = [||]
+                Pages =
+                    [
+                        "reference/index.html",
+                        (fun _ globals ->
+                            globals
+                            |> List.pick (fun (k, v) ->
+                                if k = FSharp.Formatting.Templating.ParamKeys.``fsdocs-list-of-namespaces`` then
+                                    Some v
+                                else
+                                    None))
+                    ]
+                Generate = ignore
+            }
+
+        Some phased
+
+    use site =
+        new Site(
+            { fx.Config with
+                GenerateApi = generateApi
+            }
+        )
+
+    body (site.Render "/index.html") |> shouldContainText "class=\"v1\""
+    body (site.Render "/reference/index.html") |> shouldContainText "class=\"v1\""
+    apiBuilds.Value |> shouldEqual 1
+
+    File.WriteAllText(menuTemplate, "<nav class=\"v2\">{{fsdocs-menu-items}}</nav>")
+    site.Refresh menuTemplate |> shouldEqual true
+
+    body (site.Render "/index.html") |> shouldContainText "class=\"v2\""
+    body (site.Render "/reference/index.html") |> shouldContainText "class=\"v2\""
+    apiBuilds.Value |> shouldEqual 1

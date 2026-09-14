@@ -31,6 +31,10 @@ module Serve =
     /// The port to actually serve on: the given port if free, else port + 1; raises with a clear
     /// message when neither is free.
     val resolvePort: host: string -> port: int -> int
+    /// A --host value as Suave binds it: localhost and empty become 127.0.0.1, * and + become 0.0.0.0.
+    val normalizeHost: host: string -> string
+    /// The urls the site answers on, each with the network interface name when bound to all interfaces.
+    val listenUrls: host: string -> port: int -> (string * string option) list
 
 /// The websocket clients of the browser live reload and the broadcasts to them.
 type internal LiveReload =
@@ -80,8 +84,6 @@ type internal ContentMeta =
         FrontMatter: ScannedFrontMatter
         /// The front matter used for next/previous links, present only when complete
         FrontMatterFile: FrontMatterFile option
-        /// Full paths of the files loaded with '#load'
-        Loads: string list
         /// Whether the file mentions 'cref:' and therefore needs the API model
         UsesCref: bool
         Error: string option

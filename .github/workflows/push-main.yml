@@ -63,5 +63,8 @@ jobs:
       id: login
       with:
           user: dsyme
-    - name: Publish NuGets (if this version not published before)
-      run: dotnet nuget push "artifacts/*.nupkg" -s https://www.nuget.org/api/v2/package -k ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate
+    - name: Release (NuGet and GitHub, skipped if this version is already released)
+      env:
+        NUGET_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet fsi build.fsx -p Release

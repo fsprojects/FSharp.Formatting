@@ -1043,16 +1043,21 @@ type CoreBuildOptions(watch) =
             site.Start()
             site.CheckAssets()
 
-            logger.Infof
-                "starting server on http://%s:%d (bound to %s) for content in %s"
-                publicHost
-                port
-                this.host_option
-                this.input
+            DevServer.startWebServer site this.host_option port
+
+            let urls =
+                Serve.listenUrls this.host_option port
+                |> List.map (fun (url, nic) ->
+                    match nic with
+                    | Some name -> sprintf "  %s  (%s)" url name
+                    | None -> sprintf "  %s" url)
+
+            logger.Infof "serving %s on:%s%s" this.input Environment.NewLine (String.concat Environment.NewLine urls)
+
+            if Serve.normalizeHost this.host_option = "127.0.0.1" then
+                logger.Infof "pass --host 0.0.0.0 to open the site from another machine"
 
             logger.Infof "pages are built when first requested; see http://%s:%d/.fsdocs/doctor" publicHost port
-
-            DevServer.startWebServer site this.host_option port
 
             if not this.nolaunch_option then
                 let url = sprintf "http://localhost:%d/%s" port this.open_option
