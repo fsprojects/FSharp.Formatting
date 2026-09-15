@@ -368,9 +368,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                     // This adds #EntityName anchor. These may currently be ambiguous
                                     p [] [
                                         a [ Name nm ] [
-                                            a [ Href(e.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
-                                                !!nmWithSiffix
-                                            ]
+                                            // data-fsdocs-nav makes the j / k hotkeys stop here, so they walk the
+                                            // types and modules of the namespace after the headings above them.
+                                            a [
+                                                Href(e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                                                Custom("data-fsdocs-nav", "")
+                                            ] [ !!nmWithSiffix ]
                                         ]
                                     ]
                                 ]
@@ -625,9 +628,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 // Generate the entry for the namespace
                 tr [] [
                     td [] [
+                        // data-fsdocs-nav makes the j / k hotkeys stop here, so they walk the namespaces
+                        // after the two headings of the page.
                         a [
                             Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
                             HtmlProperties.Title ns.Name
+                            Custom("data-fsdocs-nav", "")
                         ] [ !!ns.Name ]
                     ]
                     td [] [
