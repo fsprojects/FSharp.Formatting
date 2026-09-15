@@ -1,9 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## [23.0.0-alpha.6] - 2026-09-15
 
 ### Fixed
+* The Markdown output marks the namespace of the page in the menu. The menu of the page was overwritten by the site-wide one, which marks nothing, the way the HTML output was until 23.0.0-alpha.5. [#1330](https://github.com/fsprojects/FSharp.Formatting/pull/1330)
+
 * API docs keep the comment of a member whose signature has a type abbreviation of a function type in the range of a function type, such as `(string -> IsPathIgnored) * (unit -> int)` with `type IsPathIgnored = string -> bool`. Reading the member threw `ArgumentOutOfRangeException` and the comment was dropped. The abbreviation is now shown under its own name, as it is everywhere else. [#1327](https://github.com/fsprojects/FSharp.Formatting/issues/1327)
+
+### Changed
+* The API Reference section of the menu lists the namespaces on every page of the site. The content pages got a single "All Namespaces" link instead, and only a collection named `FSharp.Core` got the list there, which made the menu of a content page a different menu from the one of an API page. No entry is marked active while the reader is on a content page. [#1330](https://github.com/fsprojects/FSharp.Formatting/pull/1330)
+
+* The header of that section reads "API Reference" on the API pages as well, where 23.0.0-alpha.5 made it "Namespaces". A menu template sees the same `{{fsdocs-menu-header-content}}` and `{{fsdocs-menu-header-id}}` (`api_reference`) on every page of the site now. The built-in menu keeps the header as the link to the index of all namespaces. [#1330](https://github.com/fsprojects/FSharp.Formatting/pull/1330)
 
 ## [23.0.0-alpha.5] - 2026-09-15
 

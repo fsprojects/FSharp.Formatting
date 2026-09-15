@@ -18,7 +18,7 @@ fsharp_max_value_binding_width=120
 
 # Specific settings for "View/HTML" related files
 # It makes the code more consistent in term of spacing and indentation
-[GenerateHtml.fs]
+[{GenerateHtml,GenerateMarkdown}.fs]
 fsharp_experimental_elmish = true
 fsharp_multi_line_lambda_closing_newline = true
 fsharp_multiline_bracket_style = aligned

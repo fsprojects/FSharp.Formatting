@@ -212,11 +212,11 @@ One template renders every section of the menu: the documents, each of their cat
 API reference. The header tells them apart, through `{{fsdocs-menu-header-content}}` and its `{{fsdocs-menu-header-id}}`,
 but the substitutions have no conditionals, so anything else a template adds appears in every section.
 
-That matters in one place. The built-in menu makes the "Namespaces" header itself the link to the index of all
+That matters in one place. The built-in menu makes the "API Reference" header itself the link to the index of all
 namespaces:
 
 ```html
-<li class="nav-header"><a href="../reference/index.html">Namespaces</a></li>
+<li class="nav-header"><a href="../reference/index.html">API Reference</a></li>
 ```
 
 A templated header is a label, and a template cannot single out one section, so putting that link back is a job for
@@ -229,7 +229,7 @@ a few lines of script. Give the header its id and its root, both of which the te
 and turn the text of that one header into a link, the way the built-in menu does:
 
 ```js
-const header = document.getElementById("namespaces");
+const header = document.getElementById("api_reference");
 
 if (header) {
     const link = document.createElement("a");
@@ -239,7 +239,8 @@ if (header) {
 }
 ```
 
-The id comes from the header text, so "Namespaces" gives `namespaces` and "API Reference" gives `api_reference`.
+The id comes from the header text, so "API Reference" gives `api_reference` and "Getting started" gives
+`getting_started`.
 The API reference menu lists every namespace already, so what the index adds over it is the description of each one.
 
 `{{fsdocs-menu-item-title}}` is the hover text of an item, meant for the `title` attribute of the link. The API
