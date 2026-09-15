@@ -854,6 +854,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
+        // What the page itself is rendered with, but with the root of this page, so a menu template
+        // can use {{root}} and the other site-wide substitutions to reach the rest of the site.
+        let menuSubstitutions = [ yield! model.Substitutions; yield ParamKeys.root, root ]
+
         match menuTemplateFolder with
         | None -> noTemplatingFallback ()
         | Some menuTemplateFolder ->
@@ -872,11 +876,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         {
                             Menu.MenuItem.Link = link
                             Menu.MenuItem.Content = title
+                            Menu.MenuItem.Title = None
                             Menu.MenuItem.IsActive = false
                         }
                     ]
 
-                Menu.createMenu menuTemplateFolder false "API Reference" menuItems
+                Menu.createMenu menuTemplateFolder menuSubstitutions false "API Reference" menuItems
 
             else
                 let categorise = categorised.Value
@@ -887,24 +892,24 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     let prefix = commonNamespacePrefix [ for _, ns in categorise -> ns.Name ]
 
                     let menuItems =
-                        categorise
-                        |> List.map (fun (_, ns) ->
-                            let link = ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
-
-                            {
-                                Menu.MenuItem.Link = link
-                                Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
-                                Menu.MenuItem.IsActive =
-                                    match nsOpt with
-                                    | None -> false
-                                    | Some current -> current.Name = ns.Name
-                            }
-                        )
+                        [
+                            for _, ns in categorise do
+                                {
+                                    Menu.MenuItem.Link =
+                                        ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
+                                    Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
+                                    Menu.MenuItem.Title = (if String.IsNullOrEmpty prefix then None else Some ns.Name)
+                                    Menu.MenuItem.IsActive =
+                                        match nsOpt with
+                                        | None -> false
+                                        | Some current -> current.Name = ns.Name
+                                }
+                        ]
 
                     // A template can fold a section away, and the reader arriving on an API page is
                     // inside this one. Mark the category active so the section it renders is the one
                     // that opens. The other docs render the same list while the reader is elsewhere.
-                    Menu.createMenu menuTemplateFolder (not otherDocs) "Namespaces" menuItems
+                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "Namespaces" menuItems
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
         listOfNamespacesNavWithRoot root otherDocs nsOpt
