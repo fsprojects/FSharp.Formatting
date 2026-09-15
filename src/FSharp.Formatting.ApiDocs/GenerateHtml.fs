@@ -1,5 +1,3 @@
-/// Internal module that generates HTML documentation output from an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>.
-/// Produces one HTML file per namespace and per entity, plus an index file.
 module internal FSharp.Formatting.ApiDocs.GenerateHtml
 
 open System
@@ -12,11 +10,8 @@ open FSharp.Formatting.Templating
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 
-/// Embed some HTML generated in GenerateModel
 let embed (x: ApiDocHtml) = !!x.HtmlText
 
-/// Wraps the HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> in a summary paragraph,
-/// unless the content starts with a <c>&lt;pre&gt;</c> tag (which cannot be nested inside <c>&lt;p&gt;</c>).
 let fsdocsSummary (x: ApiDocHtml) =
     // the <pre> tag is not allowed inside a <p> tag.
     if x.HtmlText.StartsWith("<pre>", StringComparison.Ordinal) then
@@ -24,9 +19,84 @@ let fsdocsSummary (x: ApiDocHtml) =
     else
         div [ Class "fsdocs-summary-contents" ] [ p [ Class "fsdocs-summary" ] [ embed x ] ]
 
-/// Renders HTML API documentation for all namespaces and entities in an
-/// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>. Writes one file per namespace
-/// and per entity to the output directory using the supplied template.
+/// How much two names have in common, character for character.
+let sharedPrefixLength (a: string) (b: string) =
+    let limit = min a.Length b.Length
+    let mutable i = 0
+
+    while i < limit && a.[i] = b.[i] do
+        i <- i + 1
+
+    i
+
+let commonNamespacePrefix (names: string list) =
+    match names with
+    | []
+    | [ _ ] -> ""
+    | first :: rest ->
+        // What the first name shares with whichever of the others agrees with it least.
+        let shared =
+            rest
+            |> List.fold (fun shared name -> min shared (sharedPrefixLength first name)) first.Length
+
+        // Back up to a dot: half of a segment is not a prefix worth hiding.
+        let lastDot =
+            if shared = 0 then
+                -1
+            else
+                first.LastIndexOf('.', shared - 1)
+
+        if lastDot < 0 then "" else first.Substring(0, lastDot + 1)
+
+type internal SectionCollector() =
+    let sections = ResizeArray<int * string * string>()
+    let entries = ResizeArray<int * string * string>()
+
+    member _.Heading(level: int, id: string, title: string) =
+        sections.Add(level, id, title)
+
+        let heading =
+            match level with
+            | 2 -> h2
+            | 3 -> h3
+            | _ -> h4
+
+        heading [ Id id; Custom("data-fsdocs-heading", string<int> sections.Count) ] [ !!title ]
+
+    member _.Entry(href: string, text: string) =
+        if sections.Count > 0 then
+            entries.Add(sections.Count, href, text)
+
+    member _.Menu =
+        if sections.Count = 0 then
+            PageContentList.EmptyContent
+        else
+            // The entries of a section go in a nested list. The scroll-driven highlight styles the
+            // items of the outer list, which stay exactly the sections.
+            let items =
+                [
+                    for index in 1 .. sections.Count do
+                        let level, id, title = sections.[index - 1]
+
+                        // The menu is narrow and cuts its entries off, so each carries its own text
+                        // as a title for the reader to hover.
+                        let ownEntries =
+                            [
+                                for (owner, href, text) in entries do
+                                    if owner = index then
+                                        li [] [ a [ Href href; HtmlProperties.Title text ] [ !!text ] ]
+                            ]
+
+                        li [ Class $"level-%i{level}"; Custom("data-fsdocs-heading", string<int> index) ] [
+                            a [ Href($"#%s{id}"); HtmlProperties.Title title ] [ !!title ]
+
+                            if not ownEntries.IsEmpty then
+                                ul [ Class "fsdocs-menu-entries" ] ownEntries
+                        ]
+                ]
+
+            string<HtmlElement>(ul [] items) + PageContentList.scrollSpyStyle sections.Count
+
 type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
@@ -37,6 +107,11 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     //      strong [] [!!"NOTE:"]
     //      p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
     //  ]
+
+    // Grouping every namespace and entity by category is the same answer for the whole lifetime of
+    // the renderer: the model it reads is a constructor argument and never changes. Rendering asks
+    // for it once per page, so without this it ran once per page of the whole API reference.
+    let categorised = lazy (Categorise.model model)
 
     let mutable uniqueNumber = 0
 
@@ -111,10 +186,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             | _ -> ()
         ]
 
-    let renderMembers header tableHeader (members: ApiDocMember list) =
+    let renderMembers (sections: SectionCollector) sectionId header tableHeader (members: ApiDocMember list) =
         [
             if members.Length > 0 then
-                h3 [] [ !!header ]
+                sections.Heading(3, sectionId, header)
 
                 table [ Class "table outer-list fsdocs-member-list" ] [
                     thead [] [
@@ -328,7 +403,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 ]
         ]
 
-    let renderEntities (entities: ApiDocEntity list) =
+    let renderEntities (sections: SectionCollector) (entities: ApiDocEntity list) =
         [
             if entities.Length > 0 then
                 let hasTypes = entities |> List.exists (fun e -> e.IsTypeDefinition)
@@ -350,27 +425,36 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         let nameCounts = entities |> List.countBy (fun e -> e.Name) |> dict
 
                         for e in entities do
+                            let nm = e.Name
+
+                            let multi = nameCounts.[nm] > 1
+
+                            let nmWithSiffix =
+                                if multi then
+                                    (if e.IsTypeDefinition then
+                                         nm + " (Type)"
+                                     else
+                                         nm + " (Module)")
+                                else
+                                    nm
+
+                            sections.Entry(
+                                e.Url(root, collectionName, qualify, model.FileExtensions.InUrl),
+                                nmWithSiffix
+                            )
+
                             tr [] [
                                 td [ Class "fsdocs-entity-name" ] [
-                                    let nm = e.Name
-
-                                    let multi = nameCounts.[nm] > 1
-
-                                    let nmWithSiffix =
-                                        if multi then
-                                            (if e.IsTypeDefinition then
-                                                 nm + " (Type)"
-                                             else
-                                                 nm + " (Module)")
-                                        else
-                                            nm
 
                                     // This adds #EntityName anchor. These may currently be ambiguous
                                     p [] [
                                         a [ Name nm ] [
-                                            a [ Href(e.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
-                                                !!nmWithSiffix
-                                            ]
+                                            // data-fsdocs-nav makes the j / k hotkeys stop here, so they walk the
+                                            // types and modules of the namespace after the headings above them.
+                                            a [
+                                                Href(e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                                                Custom("data-fsdocs-nav", "")
+                                            ] [ !!nmWithSiffix ]
                                         ]
                                     ]
                                 ]
@@ -389,7 +473,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 ]
         ]
 
-    let entityContent (info: ApiDocEntityInfo) =
+    let entityContent (sections: SectionCollector) (info: ApiDocEntityInfo) =
         // Get all the members & comment for the type
         let entity = info.Entity
 
@@ -403,7 +487,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             | _ -> entity.Name
 
         [
-            h2 [] [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
+            sections.Heading(
+                2,
+                entity.UrlBaseName,
+                usageName + (if entity.IsTypeDefinition then " Type" else " Module")
+            )
+
             dl [ Class "fsdocs-metadata" ] [
                 dt [] [
                     !!"Namespace: "
@@ -498,30 +587,24 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
             ]
 
-            if (byCategory.Length > 1) then
-                // If there is more than 1 category in the type, generate TOC
-                h3 [] [ !!"Table of contents" ]
-
-                ul [] [
-                    for (index, _, name) in byCategory do
-                        li [] [ a [ Href(sprintf "#section%d" index) ] [ !!name ] ]
-                ]
-
             //<!-- Render nested types and modules, if there are any -->
 
             let nestedEntities = entity.NestedEntities |> List.filter (fun e -> not e.IsObsolete)
 
             if (nestedEntities.Length > 0) then
                 div [] [
-                    h3 [] [
-                        !!(if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then
-                               "Nested modules"
-                           elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then
-                               "Types"
-                           else
-                               "Types and nested modules")
-                    ]
-                    yield! renderEntities nestedEntities
+                    sections.Heading(
+                        3,
+                        "nested-entities",
+                        if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then
+                            "Nested modules"
+                        elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then
+                            "Types"
+                        else
+                            "Types and nested modules"
+                    )
+
+                    yield! renderEntities sections nestedEntities
                 ]
 
             for (index, ms, name) in byCategory do
@@ -529,8 +612,16 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 // categories, print the category heading (as <h2>) and add XML comment from the type
                 // that is related to this specific category.
                 if (byCategory.Length > 1) then
-                    h2 [ Id(sprintf "section%d" index) ] [ !!name ]
-                //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
+                    sections.Heading(2, sprintf "section%d" index, name)
+
+                // A page can repeat a kind of member once per category, so the anchor of a section
+                // carries its category index.
+                let sectionId (name: string) =
+                    if byCategory.Length > 1 then
+                        sprintf "section%d-%s" index name
+                    else
+                        name
+
                 let functionsOrValues = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)
                 let extensions = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)
                 let activePatterns = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)
@@ -540,15 +631,55 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 let constructors = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)
                 let instanceMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)
                 let staticMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)
-                div [] (renderMembers "Functions and values" "Function or value" functionsOrValues)
-                div [] (renderMembers "Type extensions" "Type extension" extensions)
-                div [] (renderMembers "Active patterns" "Active pattern" activePatterns)
-                div [] (renderMembers "Union cases" "Union case" unionCases)
-                div [] (renderMembers "Record fields" "Record Field" recordFields)
-                div [] (renderMembers "Static parameters" "Static parameters" staticParameters)
-                div [] (renderMembers "Constructors" "Constructor" constructors)
-                div [] (renderMembers "Instance members" "Instance member" instanceMembers)
-                div [] (renderMembers "Static members" "Static member" staticMembers)
+
+                div
+                    []
+                    (renderMembers
+                        sections
+                        (sectionId "functions-and-values")
+                        "Functions and values"
+                        "Function or value"
+                        functionsOrValues)
+
+                div
+                    []
+                    (renderMembers sections (sectionId "type-extensions") "Type extensions" "Type extension" extensions)
+
+                div
+                    []
+                    (renderMembers
+                        sections
+                        (sectionId "active-patterns")
+                        "Active patterns"
+                        "Active pattern"
+                        activePatterns)
+
+                div [] (renderMembers sections (sectionId "union-cases") "Union cases" "Union case" unionCases)
+                div [] (renderMembers sections (sectionId "record-fields") "Record fields" "Record Field" recordFields)
+
+                div
+                    []
+                    (renderMembers
+                        sections
+                        (sectionId "static-parameters")
+                        "Static parameters"
+                        "Static parameters"
+                        staticParameters)
+
+                div [] (renderMembers sections (sectionId "constructors") "Constructors" "Constructor" constructors)
+
+                div
+                    []
+                    (renderMembers
+                        sections
+                        (sectionId "instance-members")
+                        "Instance members"
+                        "Instance member"
+                        instanceMembers)
+
+                div
+                    []
+                    (renderMembers sections (sectionId "static-members") "Static members" "Static member" staticMembers)
 
             let inheritedMemberGroups =
                 entity.InheritedMembers
@@ -568,20 +699,38 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 )
 
             if not (List.isEmpty inheritedMemberGroups) then
-                h3 [] [ !!"Inherited members" ]
+                sections.Heading(3, "inherited-members", "Inherited members")
 
-                for (baseTypeHtml, instMembers, statMembers) in inheritedMemberGroups do
-                    h4 [] [ !!"Inherited from "; embed baseTypeHtml ]
-                    div [] (renderMembers "Instance members" "Instance member" instMembers)
-                    div [] (renderMembers "Static members" "Static member" statMembers)
+                for (i, (baseTypeHtml, instMembers, statMembers)) in List.indexed inheritedMemberGroups do
+                    // The base type is HTML (it carries links), so the heading is written by hand and
+                    // the menu gets the plain name.
+                    h4 [ Id(sprintf "inherited-%d" i) ] [ !!"Inherited from "; embed baseTypeHtml ]
+
+                    div
+                        []
+                        (renderMembers
+                            sections
+                            (sprintf "inherited-%d-instance-members" i)
+                            "Instance members"
+                            "Instance member"
+                            instMembers)
+
+                    div
+                        []
+                        (renderMembers
+                            sections
+                            (sprintf "inherited-%d-static-members" i)
+                            "Static members"
+                            "Static member"
+                            statMembers)
         ]
 
-    let namespaceContent (nsIndex, ns: ApiDocNamespace) =
+    let namespaceContent (sections: SectionCollector) (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
 
         [
             if allByCategory.Length > 0 then
-                h2 [ Id ns.UrlHash ] [ !!(ns.Name + " Namespace") ]
+                sections.Heading(2, ns.UrlHash, ns.Name + " Namespace")
 
                 div [ Class "fsdocs-xmldoc" ] [
                     match ns.NamespaceDocs with
@@ -595,39 +744,28 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     | None -> ()
                 ]
 
-                if (allByCategory.Length > 1) then
-                    h3 [] [ !!"Contents" ]
-
-                    ul [] [
-                        for category in allByCategory do
-                            li [] [ a [ Href("#category-" + category.CategoryIndex) ] [ !!category.CategoryName ] ]
-                    ]
-
                 for category in allByCategory do
                     if (allByCategory.Length > 1) then
-                        h3 [] [
-                            a [
-                                Class "anchor"
-                                Name("category-" + category.CategoryIndex)
-                                Href("#category-" + category.CategoryIndex)
-                            ] [ !!category.CategoryName ]
-                        ]
+                        sections.Heading(3, "category-" + category.CategoryIndex, category.CategoryName)
 
-                    yield! renderEntities category.CategoryEntites
+                    yield! renderEntities sections category.CategoryEntites
         ]
 
     let tableOfNamespacesAux () =
         [
-            let categorise = Categorise.model model
+            let categorise = categorised.Value
 
             for _allByCategory, ns in categorise do
 
                 // Generate the entry for the namespace
                 tr [] [
                     td [] [
+                        // data-fsdocs-nav makes the j / k hotkeys stop here, so they walk the namespaces
+                        // after the two headings of the page.
                         a [
                             Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
                             HtmlProperties.Title ns.Name
+                            Custom("data-fsdocs-nav", "")
                         ] [ !!ns.Name ]
                     ]
                     td [] [
@@ -654,14 +792,29 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 ]
             else
 
-                let categorise = Categorise.model model
+                let categorise = categorised.Value
 
                 let someExist = categorise.Length > 0
 
                 if someExist then
-                    li [ Class "nav-header" ] [ !!"Namespaces" ]
+                    // The API pages have no "All Namespaces" entry of their own, so the header is the
+                    // way back to the index. It is the current page when no namespace is in view.
+                    li [
+                        Class(
+                            "nav-header"
+                            + match nsOpt with
+                              | None -> " active"
+                              | Some _ -> ""
+                        )
+                    ] [
+                        a [ Href(model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
+                            !!"Namespaces"
+                        ]
+                    ]
 
-                for allByCategory, ns in categorise do
+                let prefix = commonNamespacePrefix [ for _, ns in categorise -> ns.Name ]
+
+                for _allByCategory, ns in categorise do
 
                     // Generate the entry for the namespace
                     li [
@@ -685,26 +838,14 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                     | _ -> ""
                                 )
                                 Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-                            ] [ !!ns.Name ]
+                                // The entry drops the prefix it shares with its neighbours, so the
+                                // full name is a hover away.
+                                if prefix <> "" then
+                                    HtmlProperties.Title ns.Name
+                            ] [ !!(ns.Name.Substring(prefix.Length)) ]
 
                         ]
                     ]
-
-                    // In the navigation bar generate the expanded list of entities
-                    // for the active namespace
-                    match nsOpt with
-                    | Some ns2 when ns.Name = ns2.Name ->
-                        ul [ Custom("list-style-type", "none") (* Class "navbar-nav " *) ] [
-                            for category in allByCategory do
-                                for e in category.CategoryEntites do
-                                    li [ Class "nav-item" ] [
-                                        a [
-                                            Class "nav-link"
-                                            Href(e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-                                        ] [ !!e.Name ]
-                                    ]
-                        ]
-                    | _ -> ()
         ]
 
     let listOfNamespacesNavWithRoot (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
@@ -712,6 +853,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             listOfNamespacesNavAux root otherDocs nsOpt
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
+
+        // What the page itself is rendered with, but with the root of this page, so a menu template
+        // can use {{root}} and the other site-wide substitutions to reach the rest of the site.
+        let menuSubstitutions = [ yield! model.Substitutions; yield ParamKeys.root, root ]
 
         match menuTemplateFolder with
         | None -> noTemplatingFallback ()
@@ -731,67 +876,76 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         {
                             Menu.MenuItem.Link = link
                             Menu.MenuItem.Content = title
+                            Menu.MenuItem.Title = None
                             Menu.MenuItem.IsActive = false
                         }
                     ]
 
-                Menu.createMenu menuTemplateFolder false "API Reference" menuItems
+                Menu.createMenu menuTemplateFolder menuSubstitutions false "API Reference" menuItems
 
             else
-                let categorise = Categorise.model model
+                let categorise = categorised.Value
 
                 if categorise.Length = 0 then
                     ""
                 else
+                    let prefix = commonNamespacePrefix [ for _, ns in categorise -> ns.Name ]
+
                     let menuItems =
-                        categorise
-                        |> List.map (fun (_, ns) ->
-                            let link = ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
-                            let name = ns.Name
+                        [
+                            for _, ns in categorise do
+                                {
+                                    Menu.MenuItem.Link =
+                                        ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
+                                    Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
+                                    Menu.MenuItem.Title = (if String.IsNullOrEmpty prefix then None else Some ns.Name)
+                                    Menu.MenuItem.IsActive =
+                                        match nsOpt with
+                                        | None -> false
+                                        | Some current -> current.Name = ns.Name
+                                }
+                        ]
 
-                            {
-                                Menu.MenuItem.Link = link
-                                Menu.MenuItem.Content = name
-                                Menu.MenuItem.IsActive = false
-                            }
-                        )
-
-                    Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
+                    // A template can fold a section away, and the reader arriving on an API page is
+                    // inside this one. Mark the category active so the section it renders is the one
+                    // that opens. The other docs render the same list while the reader is elsewhere.
+                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "Namespaces" menuItems
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
         listOfNamespacesNavWithRoot root otherDocs nsOpt
 
-    /// The substitutions relevant to all pages, with the namespace links built for the given root
-    /// (a content page deeper in the site needs a different relative root than the API pages).
     member _.GlobalSubstitutionsFor(root: string) : Substitutions =
         let toc = listOfNamespacesNavWithRoot root true None
 
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc); yield ParamKeys.``fsdocs-body-class``, "api-docs" ]
 
-    /// Get the substitutions relevant to all
     member x.GlobalSubstitutions: Substitutions = x.GlobalSubstitutionsFor root
 
-    /// The pages of the API documentation: the output file relative to the output folder
-    /// (forward slashes) and a function rendering the page for a template and global substitutions.
-    /// Nothing is rendered until the function is called.
     member _.Pages(collectionName: string) : (string * (string option -> Substitutions -> string)) list =
 
-        let getSubstitutons parameters toc (content: HtmlElement) pageTitle globalParameters =
+        let getSubstitutons parameters toc (content: HtmlElement) pageContentList pageTitle globalParameters =
             [|
                 yield! parameters
-                yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
                 yield (ParamKeys.``fsdocs-content``, content.ToString())
                 yield (ParamKeys.``fsdocs-source``, String.Empty)
                 yield (ParamKeys.``fsdocs-tooltips``, String.Empty)
                 yield (ParamKeys.``fsdocs-page-title``, pageTitle)
-                yield (ParamKeys.``fsdocs-page-content-list``, PageContentList.EmptyContent)
+                yield (ParamKeys.``fsdocs-page-content-list``, pageContentList)
                 yield (ParamKeys.``fsdocs-meta-tags``, String.Empty)
                 yield! globalParameters
+                // Last one wins (the substitutions become a dictionary), so the namespace menu of the
+                // page goes after the global substitutions: those carry the single "All Namespaces"
+                // link meant for the content pages, which would otherwise take its place here.
+                yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
             |]
 
-        let page outFile parameters toc (content: unit -> HtmlElement) pageTitle =
+        let page outFile parameters toc (content: SectionCollector -> HtmlElement) pageTitle =
             let render (templateOpt: string option) (globalParameters: Substitutions) =
-                let substitutions = getSubstitutons parameters toc (content ()) pageTitle globalParameters
+                // The content has to be rendered before the menu: it is what fills the collector.
+                let sections = SectionCollector()
+                let element = content sections
+
+                let substitutions = getSubstitutons parameters toc element sections.Menu pageTitle globalParameters
 
                 SimpleTemplating.RenderWithFileTemplate(substitutions, templateOpt)
 
@@ -800,7 +954,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let collection = model.Collection
 
         [
-            (let content () =
+            // The index page is one table of namespaces, so it registers no sections and keeps the
+            // wide two column layout: a menu mirroring that table one for one would say nothing new.
+            (let content (_: SectionCollector) =
                 div [] [
                     h1 [] [ !!"API Reference" ]
                     h2 [] [ !!"Available Namespaces:" ]
@@ -826,7 +982,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             //printfn "Namespaces = %A" [ for ns in collection.Namespaces -> ns.Name ]
 
             for (nsIndex, ns) in Seq.indexed collection.Namespaces do
-                let content () = div [] (namespaceContent (nsIndex, ns))
+                let content sections =
+                    div [] (namespaceContent sections (nsIndex, ns))
+
                 let pageTitle = ns.Name
                 let toc = listOfNamespacesNav false (Some ns)
 
@@ -835,7 +993,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 page outFile model.Substitutions toc content pageTitle
 
             for info in model.EntityInfos do
-                let content () = div [] (entityContent info)
+                let content sections = div [] (entityContent sections info)
 
                 let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
 
@@ -846,8 +1004,6 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 page outFile info.Entity.Substitutions toc content pageTitle
         ]
 
-    /// Writes all API documentation HTML files (index, one per namespace, one per entity)
-    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
     member x.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
         for (relativeFile, render) in x.Pages(collectionName) do
             let outFile = Path.Combine(outDir, relativeFile)

@@ -1497,8 +1497,18 @@ type internal Site(config: SiteConfig) =
             yield ParamKeys.``fsdocs-body-extra``, subst body
         ]
 
-    let navHtmlFor (pageRoot: string) (pages: NavPage list) (activePage: string option) =
-        Content.getNavigationEntriesFactory (config.Input, pages, config.IgnoreUncategorized) pageRoot activePage
+    // The substitutions come in rather than off contentOptions: those are the ones the watch started
+    // with, and a menu template may use any of them.
+    let navHtmlFor
+        (siteSubstitutions: Substitutions)
+        (pageRoot: string)
+        (pages: NavPage list)
+        (activePage: string option)
+        =
+        Content.getNavigationEntriesFactory
+            (config.Input, pages, config.IgnoreUncategorized, siteSubstitutions, contentOptions.RootKeys)
+            pageRoot
+            activePage
 
     let contentTypeOf (kind: OutputKind) =
         match kind with
@@ -1539,10 +1549,11 @@ type internal Site(config: SiteConfig) =
                 headText.GetValue token,
                 bodyText.GetValue token,
                 navInputs.GetValue token,
-                pageApiGlobals.GetValue token)
+                pageApiGlobals.GetValue token,
+                substitutions.GetValue token)
 
         inputs
-        |> Adaptive.mapCached (fun (model, _, head, body, (pages, _), api) ->
+        |> Adaptive.mapCached (fun (model, _, head, body, (pages, _), api, siteSubstitutions) ->
             let activePage =
                 if route.OutputKind = OutputKind.Html then
                     Some route.InputFile
@@ -1551,7 +1562,7 @@ type internal Site(config: SiteConfig) =
 
             let pageRoot = Content.relativeRoot route.OutputFileRelativeToRoot
             let api = api |> Option.map (fun (g: ApiGlobals) -> g.For)
-            let globals = globalsFor pageRoot api (navHtmlFor pageRoot pages activePage) head body
+            let globals = globalsFor pageRoot api (navHtmlFor siteSubstitutions pageRoot pages activePage) head body
             let text = Content.renderPage model route.Template globals
             Some(textResponse (contentTypeOf route.OutputKind) text))
 
@@ -1568,15 +1579,24 @@ type internal Site(config: SiteConfig) =
                 templateStamp.GetValue token,
                 headText.GetValue token,
                 bodyText.GetValue token,
-                navInputs.GetValue token)
+                navInputs.GetValue token,
+                substitutions.GetValue token)
 
         inputs
-        |> Adaptive.mapCached (fun (api, apiGlobals: ApiGlobals, _, head, body, (pages, _)) ->
+        |> Adaptive.mapCached (fun (api, apiGlobals: ApiGlobals, _, head, body, (pages, _), siteSubstitutions) ->
             match api.Pages.TryFind relativeFile with
             | None -> None
             | Some render ->
                 let pageRoot = Content.relativeRoot relativeFile
-                let globals = globalsFor pageRoot (Some apiGlobals.For) (navHtmlFor pageRoot pages None) head body
+
+                let globals =
+                    globalsFor
+                        pageRoot
+                        (Some apiGlobals.For)
+                        (navHtmlFor siteSubstitutions pageRoot pages None)
+                        head
+                        body
+
                 let text = render config.ApiDocsTemplate globals
                 Some(textResponse (contentTypeOf config.ApiDocsOutputKind) text))
 
