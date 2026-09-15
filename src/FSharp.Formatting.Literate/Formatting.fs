@@ -288,7 +288,8 @@ module internal Formatting =
                 ctx.CodeReferenceResolver
                 ctx.MarkdownDirectLinkResolver
 
-        let headingTexts, pageHeaders = FSharp.Formatting.Common.PageContentList.mkPageContentMenu formattedDocument
+        let headingTexts, pageHeaders, annotatedDocument =
+            FSharp.Formatting.Common.PageContentList.mkPageContentMenu formattedDocument
 
         let tipsHtml = doc.FormattedTips
 
@@ -296,7 +297,7 @@ module internal Formatting =
         let substitutions =
             substitutions0
             @ [
-                ParamKeys.``fsdocs-content``, formattedDocument
+                ParamKeys.``fsdocs-content``, annotatedDocument
                 ParamKeys.``fsdocs-tooltips``, tipsHtml
                 ParamKeys.``fsdocs-page-content-list``, pageHeaders
             ]

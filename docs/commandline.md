@@ -165,6 +165,26 @@ To add search to your own `_template.html`:
 <script type="module" src="{`{root}}content/fsdocs-search.js"></script>
 ```
 
+## Keyboard navigation
+
+The default template can be used from the keyboard:
+
+| Key                | Action                                                            |
+|:-------------------|:------------------------------------------------------------------|
+| `/` or `Ctrl`+`K`  | Open the search dialog                                            |
+| `Esc`              | Close the search dialog                                           |
+| `j` / `k`          | Go to the next / previous heading of the page                     |
+| `h` / `l`          | Move the focus to the main menu / the content / the page menu     |
+| `j` / `k` in a menu| Go to the next / previous link of the menu; `Enter` follows it    |
+
+The hotkeys are ignored while typing in a text box. They are implemented in `fsdocs-hotkeys.js`, which expects the
+`main`, `#content`, `#fsdocs-main-menu` and `#fsdocs-page-menu` elements of the default template. To add them to your
+own `_template.html`, include the script:
+
+```html
+<script type="module" src="{`{root}}content/fsdocs-hotkeys.js"></script>
+```
+
 
 ## Embedding Images
 

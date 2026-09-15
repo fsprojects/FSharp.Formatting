@@ -508,3 +508,67 @@ let ``folder urls serve their index page and get their trailing slash`` () =
     site.RedirectTo "/sub" |> shouldEqual (Some "/sub/")
     body (site.Render "/sub/") |> shouldContainText "Sub home"
     body (site.Render "/sub/") |> shouldContainText "data-root=\"../\""
+
+[<Test>]
+let ``a menu template edit re-renders the API namespace list without rebuilding the API`` () =
+    // The namespace list of the API docs is rendered with the menu templates. Editing one must
+    // update it on the content pages and the API pages alike, from the API state already built.
+    let fx = Fixture()
+    let menuTemplate = fx.Input </> "_menu_template.html"
+    File.WriteAllText(menuTemplate, "<nav class=\"v1\">{{fsdocs-menu-items}}</nav>")
+
+    File.WriteAllText(
+        fx.Input </> "_template.html",
+        "<html><body><nav>{{fsdocs-list-of-namespaces}}</nav><main>{{fsdocs-content}}</main></body></html>"
+    )
+
+    let apiBuilds = ref 0
+
+    let generateApi _ _ =
+        apiBuilds.Value <- apiBuilds.Value + 1
+        // The namespace list is rendered from the menu template, as the real generator does.
+        let globalsFor (root: string) =
+            [
+                FSharp.Formatting.Templating.ParamKeys.``fsdocs-list-of-namespaces``,
+                File.ReadAllText(menuTemplate).Replace("{{fsdocs-menu-items}}", root + "reference/index.html")
+            ]
+
+        let phased: FSharp.Formatting.ApiDocs.ApiDocsPhased =
+            {
+                Model = Unchecked.defaultof<_>
+                GlobalSubstitutions = globalsFor "/"
+                GlobalSubstitutionsFor = globalsFor
+                SearchIndex = [||]
+                Pages =
+                    [
+                        "reference/index.html",
+                        (fun _ globals ->
+                            globals
+                            |> List.pick (fun (k, v) ->
+                                if k = FSharp.Formatting.Templating.ParamKeys.``fsdocs-list-of-namespaces`` then
+                                    Some v
+                                else
+                                    None))
+                    ]
+                Generate = ignore
+            }
+
+        Some phased
+
+    use site =
+        new Site(
+            { fx.Config with
+                GenerateApi = generateApi
+            }
+        )
+
+    body (site.Render "/index.html") |> shouldContainText "class=\"v1\""
+    body (site.Render "/reference/index.html") |> shouldContainText "class=\"v1\""
+    apiBuilds.Value |> shouldEqual 1
+
+    File.WriteAllText(menuTemplate, "<nav class=\"v2\">{{fsdocs-menu-items}}</nav>")
+    site.Refresh menuTemplate |> shouldEqual true
+
+    body (site.Render "/index.html") |> shouldContainText "class=\"v2\""
+    body (site.Render "/reference/index.html") |> shouldContainText "class=\"v2\""
+    apiBuilds.Value |> shouldEqual 1
