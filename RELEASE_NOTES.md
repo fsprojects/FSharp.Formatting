@@ -1,5 +1,15 @@
 # Changelog
 
+## [23.0.0-alpha.5] - 2026-09-15
+
+### Added
+* The API reference pages have an "On this page" menu, like the content pages do. A namespace page lists its types and modules, each linking to its own page; a type or module page lists its sections, which now carry anchors of their own (`Static members`, `Nested modules`, `Inherited members` had none). The index of all namespaces keeps the wide layout, since the page is already that list. The inline "Table of contents" and "Contents" blocks are gone, the menu replaces them. The menu marks the section the reader is in through the same scroll-driven animations as the content pages, over the section headings only: each tracked element costs three generated CSS rules, so a module with hundreds of members stays cheap. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+### Fixed
+* The API reference menu on the left lists the namespaces again. Every API page computed that menu and then had it silently replaced: the global substitutions define `fsdocs-list-of-namespaces` as well, with the single "All Namespaces" link meant for the content pages, and the last value for a key wins. The entries drop the prefix that all the namespaces share (`FSharp.Formatting.` here, `Microsoft.FSharp.` for FSharp.Core), which otherwise left a column of identically truncated names, and the full name is the `title` of the entry. The entries of the "On this page" menu carry one too, since that menu is narrow enough to cut them off. The header links to the index of all namespaces. The list of entities that used to expand under the current namespace is gone, the "On this page" menu covers it. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* The `j` / `k` hotkeys continue through the tables of the API reference: the namespaces on the index page and the types and modules on a namespace page, which have few headings of their own to stop at. The pages of a module or a type keep to their headings. The generator marks the links that take part with `data-fsdocs-nav`, so a link in your own content can join in as well. A marked link is only scrolled into view when it is off screen, a run of key presses walks the table instead of paging it. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
 ## [23.0.0-alpha.4] - 2026-09-13
 
 ### Added
