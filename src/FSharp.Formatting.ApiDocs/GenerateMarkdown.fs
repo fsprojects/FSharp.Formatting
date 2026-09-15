@@ -417,74 +417,61 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
     /// Builds the list-of-namespaces Markdown fragment (for sidebar navigation or index page).
     /// When <paramref name="nav"/> is <c>true</c> the active namespace is expanded to show its entities.
-    let listOfNamespacesAux (root: string) otherDocs nav (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesAux (root: string) nav (nsOpt: ApiDocNamespace option) =
         [
-            // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
-            //
-            // For non-FSharp.Core we only show one link "API Reference" in the nav menu
-            if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
+            let categorise = categorised.Value
+
+            let someExist = categorise.Length > 0
+
+            if someExist && nav then
+                p [ !!"API Reference" ]
+
+            for allByCategory, ns in categorise do
+
+                // Generate the entry for the namespace
                 p
                     [
-                        !!"API Reference"
-                        link
-                            [ !!"All Namespaces" ]
-                            (model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl))
+                        link [ !!ns.Name ] (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+
+                        // If not in the navigation list then generate the summary text as well
+                        if not nav then
+                            !!" - "
+
+                            match ns.NamespaceDocs with
+                            | Some nsdocs -> embed nsdocs.Summary
+                            | None -> ()
                     ]
-            else
 
-                let categorise = categorised.Value
-
-                let someExist = categorise.Length > 0
-
-                if someExist && nav then
-                    p [ !!"Namespaces" ]
-
-                for allByCategory, ns in categorise do
-
-                    // Generate the entry for the namespace
-                    p
-                        [
-                            link [ !!ns.Name ] (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-
-                            // If not in the navigation list then generate the summary text as well
-                            if not nav then
-                                !!" - "
-
-                                match ns.NamespaceDocs with
-                                | Some nsdocs -> embed nsdocs.Summary
-                                | None -> ()
-                        ]
-
-                    // In the navigation bar generate the expanded list of entities
-                    // for the active namespace
-                    if nav then
-                        match nsOpt with
-                        | Some ns2 when ns.Name = ns2.Name ->
-                            ul
-                                [
-                                    for category in allByCategory do
-                                        for e in category.CategoryEntites do
-                                            [
-                                                p
-                                                    [
-                                                        link
-                                                            [ !!e.Name ]
-                                                            (e.Url(
-                                                                root,
-                                                                collectionName,
-                                                                qualify,
-                                                                model.FileExtensions.InUrl
-                                                            ))
-                                                    ]
-                                            ]
-                                ]
-                        | _ -> ()
+                // In the navigation bar generate the expanded list of entities
+                // for the active namespace
+                if nav then
+                    match nsOpt with
+                    | Some ns2 when ns.Name = ns2.Name ->
+                        ul
+                            [
+                                for category in allByCategory do
+                                    for e in category.CategoryEntites do
+                                        [
+                                            p
+                                                [
+                                                    link
+                                                        [ !!e.Name ]
+                                                        (e.Url(
+                                                            root,
+                                                            collectionName,
+                                                            qualify,
+                                                            model.FileExtensions.InUrl
+                                                        ))
+                                                ]
+                                        ]
+                            ]
+                    | _ -> ()
         ]
 
     /// Returns the list-of-namespaces string, using a menu template when available.
     let listOfNamespacesWithRoot (root: string) otherDocs nav (nsOpt: ApiDocNamespace option) =
         let noTemplatingFallback () =
-            listOfNamespacesAux root otherDocs nav nsOpt
+            listOfNamespacesAux root nav nsOpt
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
@@ -499,22 +486,6 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
             if not isTemplatingAvailable then
                 noTemplatingFallback ()
-            else if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
-                let menuItems =
-                    let title = "All Namespaces"
-                    let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
-
-                    [
-                        {
-                            Menu.MenuItem.Link = link
-                            Menu.MenuItem.Content = title
-                            Menu.MenuItem.Title = None
-                            Menu.MenuItem.IsActive = false
-                        }
-                    ]
-
-                Menu.createMenu menuTemplateFolder menuSubstitutions false "API Reference" menuItems
-
             else
                 let categorise = categorised.Value
 
@@ -541,7 +512,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     // A template can fold a section away, and the reader arriving on an API page is
                     // inside this one. Mark the category active so the section it renders is the one
                     // that opens. The other docs render the same list while the reader is elsewhere.
-                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "Namespaces" menuItems
+                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "API Reference" menuItems
 
     let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
         listOfNamespacesWithRoot root otherDocs nav nsOpt
@@ -557,12 +528,15 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let getSubstitutons parameters toc (content: MarkdownDocument) pageTitle globalParameters =
             [|
                 yield! parameters
-                yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
                 yield (ParamKeys.``fsdocs-content``, Markdown.ToMd(content))
                 yield (ParamKeys.``fsdocs-source``, "")
                 yield (ParamKeys.``fsdocs-tooltips``, "")
                 yield (ParamKeys.``fsdocs-page-title``, pageTitle)
                 yield! globalParameters
+                // Last one wins (the substitutions become a dictionary), so the namespace menu of the
+                // page goes after the global substitutions: those carry the same list with nothing
+                // marked active, which would otherwise take the place of the one marking this page.
+                yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
             |]
 
         let page outFile parameters toc (content: unit -> MarkdownDocument) pageTitle =
@@ -581,7 +555,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     [
                         ``#`` [ !!"API Reference" ]
                         ``##`` [ !!"Available Namespaces" ]
-                        ul [ (listOfNamespacesAux root false false None) ]
+                        ul [ (listOfNamespacesAux root false None) ]
                     ],
                     Map.empty
                 )

@@ -778,74 +778,61 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
     let listOfNamespacesNavAux (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
         [
-            // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
-            //
-            // For non-FSharp.Core we only show one link "API Reference" in the nav menu
-            if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
-                li [ Class "nav-header" ] [ !!"API Reference" ]
+            let categorise = categorised.Value
 
-                li [ Class "nav-item" ] [
-                    a [
-                        Class "nav-link"
-                        Href(model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl))
-                    ] [ !!"All Namespaces" ]
+            let someExist = categorise.Length > 0
+
+            if someExist then
+                // The header is the way back to the index of all namespaces, which no page
+                // links to otherwise. It is the current page on an API page showing no namespace;
+                // on a content page the reader is somewhere else entirely.
+                li [
+                    Class(
+                        "nav-header"
+                        + match nsOpt with
+                          | None when not otherDocs -> " active"
+                          | _ -> ""
+                    )
+                ] [
+                    a [ Href(model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
+                        !!"API Reference"
+                    ]
                 ]
-            else
 
-                let categorise = categorised.Value
+            let prefix = commonNamespacePrefix [ for _, ns in categorise -> ns.Name ]
 
-                let someExist = categorise.Length > 0
+            for _allByCategory, ns in categorise do
 
-                if someExist then
-                    // The API pages have no "All Namespaces" entry of their own, so the header is the
-                    // way back to the index. It is the current page when no namespace is in view.
-                    li [
-                        Class(
-                            "nav-header"
-                            + match nsOpt with
-                              | None -> " active"
-                              | Some _ -> ""
-                        )
-                    ] [
-                        a [ Href(model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
-                            !!"Namespaces"
-                        ]
+                // Generate the entry for the namespace
+                li [
+                    Class(
+                        "nav-item"
+                        +
+                        // add the 'active' class if this is the namespace of the thing being shown
+                        match nsOpt with
+                        | Some ns2 when ns.Name = ns2.Name -> " active"
+                        | _ -> ""
+                    )
+                ] [
+                    span [] [
+                        a [
+                            Class(
+                                "nav-link"
+                                +
+                                // add the 'active' class if this is the namespace of the thing being shown
+                                match nsOpt with
+                                | Some ns2 when ns.Name = ns2.Name -> " active"
+                                | _ -> ""
+                            )
+                            Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                            // The entry drops the prefix it shares with its neighbours, so the
+                            // full name is a hover away.
+                            if prefix <> "" then
+                                HtmlProperties.Title ns.Name
+                        ] [ !!(ns.Name.Substring(prefix.Length)) ]
+
                     ]
-
-                let prefix = commonNamespacePrefix [ for _, ns in categorise -> ns.Name ]
-
-                for _allByCategory, ns in categorise do
-
-                    // Generate the entry for the namespace
-                    li [
-                        Class(
-                            "nav-item"
-                            +
-                            // add the 'active' class if this is the namespace of the thing being shown
-                            match nsOpt with
-                            | Some ns2 when ns.Name = ns2.Name -> " active"
-                            | _ -> ""
-                        )
-                    ] [
-                        span [] [
-                            a [
-                                Class(
-                                    "nav-link"
-                                    +
-                                    // add the 'active' class if this is the namespace of the thing being shown
-                                    match nsOpt with
-                                    | Some ns2 when ns.Name = ns2.Name -> " active"
-                                    | _ -> ""
-                                )
-                                Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-                                // The entry drops the prefix it shares with its neighbours, so the
-                                // full name is a hover away.
-                                if prefix <> "" then
-                                    HtmlProperties.Title ns.Name
-                            ] [ !!(ns.Name.Substring(prefix.Length)) ]
-
-                        ]
-                    ]
+                ]
         ]
 
     let listOfNamespacesNavWithRoot (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
@@ -865,24 +852,6 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
             if not isTemplatingAvailable then
                 noTemplatingFallback ()
-            else if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
-                let menuItems =
-                    let title = "All Namespaces"
-                    let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
-
-                    // This menu is rendered on the other docs (otherDocs), never on the API reference pages,
-                    // so the reader is not on the page this entry links to.
-                    [
-                        {
-                            Menu.MenuItem.Link = link
-                            Menu.MenuItem.Content = title
-                            Menu.MenuItem.Title = None
-                            Menu.MenuItem.IsActive = false
-                        }
-                    ]
-
-                Menu.createMenu menuTemplateFolder menuSubstitutions false "API Reference" menuItems
-
             else
                 let categorise = categorised.Value
 
@@ -909,7 +878,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     // A template can fold a section away, and the reader arriving on an API page is
                     // inside this one. Mark the category active so the section it renders is the one
                     // that opens. The other docs render the same list while the reader is elsewhere.
-                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "Namespaces" menuItems
+                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "API Reference" menuItems
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
         listOfNamespacesNavWithRoot root otherDocs nsOpt
@@ -934,8 +903,8 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 yield (ParamKeys.``fsdocs-meta-tags``, String.Empty)
                 yield! globalParameters
                 // Last one wins (the substitutions become a dictionary), so the namespace menu of the
-                // page goes after the global substitutions: those carry the single "All Namespaces"
-                // link meant for the content pages, which would otherwise take its place here.
+                // page goes after the global substitutions: those carry the same list with nothing
+                // marked active, which would otherwise take the place of the one marking this page.
                 yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
             |]
 

@@ -448,7 +448,7 @@ main {
         font-weight: 500;
         color: var(--menu-color);
 
-        /* The "Namespaces" header of the API Reference menu links to the index of all namespaces.
+        /* The "API Reference" header of that menu links to the index of all namespaces.
          * It keeps the look of a header rather than taking on the link styling. */
         & a {
             color: inherit;
