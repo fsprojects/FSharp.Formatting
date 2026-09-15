@@ -836,13 +836,19 @@ module internal SymbolReader =
                 ctx.WarnOnMissingDocs
             ))
 
+    /// Members the compiler synthesizes for the user: compiler-generated members and the
+    /// <c>IsCase</c> union case tester properties. They cannot carry XML documentation, so they
+    /// are neither documented nor reported as missing documentation.
+    let isSynthesizedMember (v: FSharpMemberOrFunctionOrValue) =
+        v.IsCompilerGenerated || v.IsUnionCaseTester
+
     /// Reads all members in a sequence without filtering out any by kind.
     let readAllMembers ctx entityUrl kind (members: FSharpMemberOrFunctionOrValue seq) =
         members
         |> Seq.choose (fun v ->
             if
                 checkAccess ctx v.Accessibility
-                && not v.IsCompilerGenerated
+                && not (isSynthesizedMember v)
                 && not v.IsPropertyGetterMethod
                 && not v.IsPropertySetterMethod
                 && not v.IsEventAddMethod
@@ -858,7 +864,7 @@ module internal SymbolReader =
     let readMembers ctx entityUrl kind (entity: FSharpEntity) cond =
         entity.MembersFunctionsAndValues
         |> Seq.choose (fun v ->
-            if checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && cond v then
+            if checkAccess ctx v.Accessibility && not (isSynthesizedMember v) && cond v then
                 tryReadMember ctx entityUrl kind v
             else
                 None)
@@ -1014,9 +1020,14 @@ module internal SymbolReader =
         readCommentsInto typ ctx xmlDocSig (fun cat catidx exclude _cmds comment ->
             let entityUrl = ctx.UrlMap.ResolveUrlBaseNameForEntity typ
 
+            // A type abbreviation declares no members of its own. The compiler reports the
+            // members of the abbreviated type (e.g. Item1/Item2 for a tuple), which belong to
+            // and are documented on that target type, so they must not be listed here.
             let rec getMembers (typ: FSharpEntity) =
                 [
-                    yield! typ.MembersFunctionsAndValues
+                    if not typ.IsFSharpAbbreviation then
+                        yield! typ.MembersFunctionsAndValues
+
                     match typ.BaseType with
                     | Some baseType ->
                         let loc = typ.DeclarationLocation
@@ -1053,7 +1064,7 @@ module internal SymbolReader =
                                     bdef.MembersFunctionsAndValues
                                     |> Seq.filter (fun v ->
                                         checkAccess ctx v.Accessibility
-                                        && not v.IsCompilerGenerated
+                                        && not (isSynthesizedMember v)
                                         && not v.IsOverrideOrExplicitInterfaceImplementation
                                         && not v.IsEventAddMethod
                                         && not v.IsEventRemoveMethod
@@ -1088,7 +1099,7 @@ module internal SymbolReader =
                 getMembers typ
                 |> Seq.filter (fun v ->
                     checkAccess ctx v.Accessibility
-                    && not v.IsCompilerGenerated
+                    && not (isSynthesizedMember v)
                     && not v.IsOverrideOrExplicitInterfaceImplementation
                     && not v.IsEventAddMethod
                     && not v.IsEventRemoveMethod

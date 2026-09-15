@@ -218,3 +218,14 @@ module TypeConstraintTests =
         member _.Value = value
         /// Compares with another wrapper
         member x.CompareTo(other: ComparisonWrapper<'T>) = compare x.Value other.Value
+
+/// Type abbreviations whose target is a tuple, a list or a BCL type (issue 1314)
+module Abbreviations =
+    /// A position as a zero-based line and column
+    type Position01 = int * int
+
+    /// A long identifier
+    type LongIdent = string list
+
+    /// A file name
+    type FileName = string

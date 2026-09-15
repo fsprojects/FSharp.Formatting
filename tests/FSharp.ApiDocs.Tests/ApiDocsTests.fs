@@ -317,6 +317,10 @@ let ``ApiDocs works on two sample F# assemblies`` (format: OutputFormat) =
     files.[(sprintf "fslib-union.%s" format.Extension)]
     |> shouldContainText "Hello of int"
 
+    // The compiler-generated `IsCase` union case testers are not documented (#1313)
+    files.[(sprintf "fslib-union.%s" format.Extension)]
+    |> shouldNotContainText "IsHello"
+
     files.[(sprintf "fslib.%s" format.Extension)]
     |> shouldContainText "Sample class"
 
@@ -537,6 +541,37 @@ let ``ApiDocs InheritedMembers is populated for derived types (issue 590)`` () =
     let memberNames = members |> List.map (fun m -> m.Name) |> List.sort
     memberNames |> shouldContain "BaseMethod"
     memberNames |> shouldContain "BaseStaticMethod"
+
+[<Test>]
+let ``ApiDocs reads comments of type abbreviations to tuples, lists and BCL types (issue 1314)`` () =
+    let libraries = [ testBin </> "FsLib2.dll" ]
+
+    // warn=true is what triggers the cross-reference lookup that used to throw
+    let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = false, warn = true) ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let abbreviations =
+        model.Collection.Namespaces.[0].Entities
+        |> List.find (fun e -> e.Name = "Abbreviations")
+
+    let find name =
+        abbreviations.NestedEntities |> List.find (fun e -> e.Name = name)
+
+    let expectations =
+        [
+            "Position01", "A position as a zero-based line and column"
+            "LongIdent", "A long identifier"
+            "FileName", "A file name"
+        ]
+
+    for name, summary in expectations do
+        let entity = find name
+        entity.Comment.Summary.HtmlText |> shouldContainText summary
+        entity.AbbreviatedType.IsSome |> shouldEqual true
+        // An abbreviation declares no members; the target type's members must not leak in
+        entity.AllMembers |> shouldEqual []
 
 [<Test>]
 [<TestCaseSource("formats")>]
