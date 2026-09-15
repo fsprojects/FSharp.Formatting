@@ -894,11 +894,17 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                             {
                                 Menu.MenuItem.Link = link
                                 Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
-                                Menu.MenuItem.IsActive = false
+                                Menu.MenuItem.IsActive =
+                                    match nsOpt with
+                                    | None -> false
+                                    | Some current -> current.Name = ns.Name
                             }
                         )
 
-                    Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
+                    // A template can fold a section away, and the reader arriving on an API page is
+                    // inside this one. Mark the category active so the section it renders is the one
+                    // that opens. The other docs render the same list while the reader is elsewhere.
+                    Menu.createMenu menuTemplateFolder (not otherDocs) "Namespaces" menuItems
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
         listOfNamespacesNavWithRoot root otherDocs nsOpt
