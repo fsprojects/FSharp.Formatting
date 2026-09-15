@@ -23,6 +23,12 @@ val fsdocsSummary: x: ApiDocHtml -> HtmlElement
 /// column of identically truncated names.
 val commonNamespacePrefix: names: string list -> string
 
+/// The namespace whose menu entry stands for this one: itself, or the outermost documented namespace
+/// it is nested in. "Fantomas.FCS.Syntax" folds into "Fantomas.FCS", so the menu that every page
+/// carries stays a list of top-level namespaces rather than one line per nested namespace. The API
+/// reference index is unaffected and still lists every namespace.
+val menuNamespaceOf: documented: Set<string> -> name: string -> string
+
 /// Collects the sections of one API page while its content is rendered, so the "On this page" menu
 /// can be built afterwards from the very same ids. Content and menu therefore cannot drift apart.
 ///

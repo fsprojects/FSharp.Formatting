@@ -2007,6 +2007,66 @@ let ``The menu of the content pages lists the namespaces`` (format: OutputFormat
     listOfNamespaces |> shouldNotContainText "active"
 
 [<Test>]
+[<TestCaseSource("formats")>]
+let ``The menu leaves out a namespace nested in another namespace`` (format: OutputFormat) =
+    // Deedle documents 'Deedle' plus five namespaces inside it. Only the outermost one belongs in
+    // the menu that every page carries; the API reference index stays the list of all of them.
+    let library = root </> "files" </> "Deedle.dll"
+    let inputs = ApiDocInput.FromFile(library, mdcomments = true)
+    let output = getOutputDir format "PhasedNestedNamespaces"
+
+    let phased =
+        match format with
+        | OutputFormat.Html -> ApiDocs.GenerateHtmlPhased([ inputs ], output, "Deedle", [], libDirs = [ testBin ])
+        | OutputFormat.Markdown ->
+            ApiDocs.GenerateMarkdownPhased([ inputs ], output, "Deedle", [], libDirs = [ testBin ])
+
+    let listOfNamespaces =
+        phased.GlobalSubstitutions
+        |> Seq.pick (fun (key, content) ->
+            if key = ParamKeys.``fsdocs-list-of-namespaces`` then
+                Some content
+            else
+                None)
+
+    listOfNamespaces
+    |> shouldContainText (sprintf "reference/deedle%s" format.ExtensionInUrl)
+
+    for nested in [ "deedle-indices"; "deedle-indices-linear"; "deedle-internal"; "deedle-keys"; "deedle-vectors" ] do
+        listOfNamespaces |> shouldNotContainText nested
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``A namespace page lists the namespaces nested in it`` (format: OutputFormat) =
+    // The counterpart of the menu folding them away: the page of the outermost namespace is where
+    // the reader finds the ones it stands for.
+    let library = root </> "files" </> "Deedle.dll"
+    let input = ApiDocInput.FromFile(library, mdcomments = true)
+    let output = getOutputDir format "NestedNamespacePage"
+
+    let _model, _index =
+        DocsGenerator(format)
+            .Run(
+                [ input ],
+                output,
+                collectionName = "Deedle",
+                template = docTemplate format,
+                substitutions = substitutions,
+                libDirs = [ testBin ]
+            )
+
+    let deedlePage = File.ReadAllText(output </> "reference" </> sprintf "deedle.%s" format.Extension)
+
+    deedlePage |> shouldContainText "Deedle.Vectors"
+    deedlePage |> shouldContainText "Deedle.Vectors.ArrayVector"
+    deedlePage |> shouldContainText "Deedle.Indices"
+    deedlePage |> shouldContainText "Deedle.Internal"
+    deedlePage |> shouldContainText "Deedle.Keys"
+
+    deedlePage
+    |> shouldContainText (sprintf "deedle-vectors%s" format.ExtensionInUrl)
+
+[<Test>]
 let ``ApiDocs includes type whose name matches its namespace (issue 944)`` () =
     // Regression test: a type named 'SameNameLib.SameNameLib' was previously missing
     // from the generated API docs when the type name equalled the namespace name.

@@ -25,6 +25,25 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
     // Same answer for the lifetime of the renderer, see the note in GenerateHtml.
     let categorised = lazy (Categorise.model model)
+
+    let documentedNamespaces = lazy (categorised.Value |> List.map (fun (_, ns) -> ns.Name) |> Set.ofList)
+
+    // The menu folds a namespace into the documented one it is nested in, see GenerateHtml.
+    let menuNamespaces =
+        lazy
+            (categorised.Value
+             |> List.filter (fun (_, ns) -> GenerateHtml.menuNamespaceOf documentedNamespaces.Value ns.Name = ns.Name))
+
+    let isActiveMenuNamespace (nsOpt: ApiDocNamespace option) (ns: ApiDocNamespace) =
+        match nsOpt with
+        | None -> false
+        | Some current -> GenerateHtml.menuNamespaceOf documentedNamespaces.Value current.Name = ns.Name
+
+    /// The namespaces nested in this one, at any depth, see GenerateHtml.
+    let nestedNamespaces (name: string) =
+        categorised.Value
+        |> List.filter (fun (_, ns: ApiDocNamespace) -> ns.Name.StartsWith(name + ".", StringComparison.Ordinal))
+
     let root = model.Root
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
@@ -373,9 +392,10 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     /// and one section per category of entities.
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
+        let nested = nestedNamespaces ns.Name
 
         [
-            if allByCategory.Length > 0 then
+            if allByCategory.Length > 0 || not nested.IsEmpty then
                 ``##`` [ !!(ns.Name + " Namespace") ]
 
                 match ns.NamespaceDocs with
@@ -386,6 +406,24 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     | Some r -> p [ embed r ]
                     | None -> ()
                 | None -> ()
+
+                // The menu lists this namespace and not the ones inside it, so they are listed here
+                // instead: without this the page is a dead end and the index is the only way on.
+                if not nested.IsEmpty then
+                    ``###`` [ !!"Namespaces" ]
+
+                    for _allByCategory, nestedNs in nested do
+                        p [
+                            link
+                                [ !!nestedNs.Name ]
+                                (nestedNs.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+
+                            match nestedNs.NamespaceDocs with
+                            | Some nsdocs ->
+                                !!" - "
+                                embed nsdocs.Summary
+                            | None -> ()
+                        ]
 
                 if (allByCategory.Length > 1) then
                     ``###`` [ !!"Contents" ]
@@ -406,7 +444,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     /// When <paramref name="nav"/> is <c>true</c> the active namespace is expanded to show its entities.
     let listOfNamespacesAux (root: string) nav (nsOpt: ApiDocNamespace option) =
         [
-            let categorise = categorised.Value
+            // The index page lists every namespace; the menu shows the ones the reader navigates by.
+            let categorise = if nav then menuNamespaces.Value else categorised.Value
 
             let someExist = categorise.Length > 0
 
@@ -466,7 +505,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             if not isTemplatingAvailable then
                 noTemplatingFallback ()
             else
-                let categorise = categorised.Value
+                let categorise = menuNamespaces.Value
 
                 if categorise.Length = 0 then
                     ""
@@ -481,10 +520,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                         ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
                                     Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
                                     Menu.MenuItem.Title = (if String.IsNullOrEmpty prefix then None else Some ns.Name)
-                                    Menu.MenuItem.IsActive =
-                                        match nsOpt with
-                                        | None -> false
-                                        | Some current -> current.Name = ns.Name
+                                    Menu.MenuItem.IsActive = isActiveMenuNamespace nsOpt ns
                                 }
                         ]
 
