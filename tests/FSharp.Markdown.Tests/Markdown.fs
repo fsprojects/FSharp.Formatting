@@ -819,6 +819,35 @@ let ``Transform tables with delimiters in code or math correctly`` () =
     Markdown.ToHtml doc |> shouldEqualNoWhiteSpace expected
 
 [<Test>]
+let ``Transform tables with escaped pipe characters correctly`` () =
+    let doc =
+        """| a | b |
+|---|---|
+| 1\|2 | 3 |
+"""
+
+    let expected =
+        """<table>
+<thead>
+<tr class="header">
+<th><p>a</p></th>
+<th><p>b</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>1\|2</p></td>
+<td><p>3</p></td>
+</tr>
+</tbody>
+</table>
+
+"""
+        |> properNewLines
+
+    Markdown.ToHtml doc |> shouldEqualNoWhiteSpace expected
+
+[<Test>]
 let ``Parse empty blockquote followed by content`` () =
     let doc =
         ">
