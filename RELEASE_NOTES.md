@@ -5,6 +5,33 @@
 ### Added
 * Added unit tests for `Markdown.ToLatex` covering `OtherBlock` (raw paragraph content, wrapped in `\begin{lstlisting}`) and `InlineHtmlBlock` (verbatim passthrough), which previously had no direct test coverage.
 
+## [23.0.0-alpha.4] - 2026-09-13
+
+### Added
+* The "On this page" menu of the default template marks the section the reader is in: the entry of the last heading scrolled past the top of the content gets a coloured left border, and a heading focused with the `j` / `k` hotkeys marks its entry as well. Pure CSS, through scroll-driven animations (`view-timeline-name`, `timeline-scope`, `animation-timeline`); browsers without them show the menu as before. The generator numbers the headings and menu entries (`data-fsdocs-heading`) and emits the wiring in a `<style>` next to the menu. The colour and the reading line are the `--page-menu-active-border-color` and `--page-menu-reading-line` variables. When the menu has its own scroll bar, `j` / `k` also scroll the entry of the focused heading into view and put its anchor in the URL (without a history entry). [#1322](https://github.com/fsprojects/FSharp.Formatting/pull/1322)
+
+* `fsdocs watch` shows a progress bar along the bottom of the window while it waits for the next page, which can take a while when a big script is rendered for the first time. Dev server only, it comes with the live reload script. [#1322](https://github.com/fsprojects/FSharp.Formatting/pull/1322)
+
+### Fixed
+* `fsdocs watch` renders the API Reference section of the menu with the current `_menu_template.html` and `_menu-item_template.html` after an edit; it kept the templates as they were when the watch started, until an assembly changed. [#1323](https://github.com/fsprojects/FSharp.Formatting/issues/1323)
+* The "All Namespaces" entry of the API Reference menu no longer carries the `active` class on every documentation page when menu templates are used. A page without an entry of its own, such as the docs index, showed it as the current page, and the `h` hotkey entered the menu there.
+
+## [23.0.0-alpha.3] - 2026-09-13
+
+### Added
+* Keyboard navigation in the default template: `j` / `k` go to the next / previous heading of the page (or the next / previous link when a menu has the focus), `h` / `l` move the focus between the main menu, the content and the page menu. Headings get a visible focus outline and a scroll margin so they are not glued to the top edge. Implemented in the new `fsdocs-hotkeys.js`, documented under "Keyboard navigation" in the command-line docs. [#1321](https://github.com/fsprojects/FSharp.Formatting/pull/1321)
+
+### Fixed
+* Link postfix FSharp.Core type constructors (`list`, `option`, `voption`, etc.) in API doc type signatures. Previously only the compiled name form (e.g. `FSharpList`) was linked; the postfix abbreviation form (e.g. `int list`) rendered as plain, unlinked text because the abbreviation entity has no `TryFullName`. The cross-reference resolver now builds the fsharp-core-docs link from the abbreviation's own name (e.g. `list` → `fsharp-collections-list-1`) instead of the abbreviated type's compiled name (e.g. `FSharpList` → `fsharp-collections-fsharplist-1`, which 404s), falling back to the abbreviated type's definition only for non-generic abbreviations such as `string` and `obj` that have no dedicated fsharp-core-docs page. [#1316](https://github.com/fsprojects/FSharp.Formatting/issues/1316)
+
+## [23.0.0-alpha.2] - 2026-09-10
+
+### Fixed
+* Fix tooltip not being interactive: moving the mouse from a code token into its tooltip now keeps the tooltip open, allowing users to select and copy the tooltip text. [#949](https://github.com/fsprojects/FSharp.Formatting/issues/949)
+* The compiler-generated `IsCase` union case tester properties are no longer listed as members of a union type, and `FsDocsWarnOnMissingDocs` no longer reports `FD0001` for them: they cannot carry XML documentation. [#1313](https://github.com/fsprojects/FSharp.Formatting/issues/1313)
+* `fsdocs watch` rebuilds a page when a file its script depends on changes, following `#load` transitively and `#r` to local files, wherever those files are (a dot folder, outside the input folder). The directives are read from the syntax tree, so a `#load` in a comment does not count. [#1309](https://github.com/fsprojects/FSharp.Formatting/issues/1309)
+* API docs keep the comment of a type abbreviation whose target is a tuple, a list or a BCL type such as `string`, instead of dropping it with "The entity ... was not registered before". An abbreviation page no longer lists the members of the target type (`Item1`, `Item2`, ...) as its own. [#1314](https://github.com/fsprojects/FSharp.Formatting/issues/1314)
+
 ## [23.0.0-alpha.1] - 2026-09-08
 
 ### Changed

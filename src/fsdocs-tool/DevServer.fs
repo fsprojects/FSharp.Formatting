@@ -472,6 +472,40 @@ module Serve =
                 (port + 1)
                 host
 
+    /// The urls the site answers on, for the console: 'http://localhost:port' when bound to the
+    /// loopback address; when bound to all interfaces, also one url per address of each interface
+    /// that is up (labelled with the interface name), so the site can be opened from another machine.
+    let listenUrls (host: string) (port: int) : (string * string option) list =
+        let host = normalizeHost host
+        let url (address: string) = sprintf "http://%s:%d" address port
+
+        let interfaceUrls =
+            if host <> "0.0.0.0" then
+                []
+            else
+                try
+                    [
+                        for nic in Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces() do
+                            if
+                                nic.OperationalStatus = Net.NetworkInformation.OperationalStatus.Up
+                                && nic.NetworkInterfaceType <> Net.NetworkInformation.NetworkInterfaceType.Loopback
+                            then
+                                for addr in nic.GetIPProperties().UnicastAddresses do
+                                    if addr.Address.AddressFamily = Net.Sockets.AddressFamily.InterNetwork then
+                                        url (string<Net.IPAddress> addr.Address), Some nic.Name
+                    ]
+                with ex ->
+                    logger.Debugf "unable to list the network interfaces: %s" ex.Message
+                    []
+
+        let first =
+            if host = "127.0.0.1" || host = "0.0.0.0" then
+                "localhost"
+            else
+                host
+
+        (url first, None) :: interfaceUrls
+
     /// Start the server with the given application; the mime map is used for static files.
     let startWebServer (app: WebPart) (host: string) localPort =
         let host = normalizeHost host
@@ -480,6 +514,8 @@ module Serve =
             { defaultConfig with
                 bindings = [ HttpBinding.createSimple HTTP host localPort ]
                 mimeTypesMap = mimeTypesMap
+                // The bound address is reported through our own logger instead.
+                hideStartupMessage = true
             }
 
         // In Suave 3.x the server part of the tuple is a hot Task, no explicit start needed.
@@ -599,7 +635,6 @@ type internal ContentMeta =
     {
         FrontMatter: ScannedFrontMatter
         FrontMatterFile: FrontMatterFile option
-        Loads: string list
         UsesCref: bool
         Error: string option
     }
@@ -625,6 +660,11 @@ type internal ApiState =
         Error: string option
         BuiltAt: DateTime option
     }
+
+/// The API global substitutions per page root, memoised for one API state and one set of menu
+/// templates. Reference equality: a new memo means the pages must re-render.
+[<ReferenceEquality>]
+type internal ApiGlobals = { For: string -> Substitutions }
 
 type internal Response =
     {
@@ -720,10 +760,20 @@ type internal Site(config: SiteConfig) =
         && rel.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
            |> Array.exists (fun s -> s.StartsWith '.')
 
+    /// A file of the input trees: under a root and not in a dot folder
+    let isTreeFile (path: string) =
+        treeRoots |> List.exists (fun r -> isUnder r path && not (isInDotFolder r path))
+
+    /// The files the scripts depend on through '#load' and '#r', discovered when a script is
+    /// refreshed. They are watched wherever they are: in a dot folder, outside the input trees.
+    /// Guarded by 'refreshLock'.
+    let loadTargets = System.Collections.Generic.HashSet<string>()
+
     let isWatchedFile (path: string) =
         dllSet.Contains path
         || projectSet.Contains path
-        || treeRoots |> List.exists (fun r -> isUnder r path && not (isInDotFolder r path))
+        || loadTargets.Contains path
+        || isTreeFile path
 
     let isMenuTemplate (path: string) =
         let name = Path.GetFileName path
@@ -742,6 +792,7 @@ type internal Site(config: SiteConfig) =
         || isMenuTemplate path
         || dllSet.Contains path
         || projectSet.Contains path
+        || loadTargets.Contains path
 
     // ---------------------------------------------------------------------------------------------
     // Inputs of the graph and the change pipeline
@@ -749,6 +800,8 @@ type internal Site(config: SiteConfig) =
     let files = cmap<string, FileStamp>()
     let dlls = cmap<string, FileStamp>()
     let projects = cmap<string, FileStamp>()
+    /// The files each script depends on through its hash directives, kept in step with 'files'
+    let scriptLoads = cmap<string, string list>()
     let lastStat = Dictionary<string, struct (int64 * DateTime)>()
     let knownHash = Dictionary<string, string>()
     let refreshLock = obj ()
@@ -792,10 +845,18 @@ type internal Site(config: SiteConfig) =
             while events.Count > 200 do
                 events.TryDequeue() |> ignore
 
-    let hashFile (path: string) =
-        use stream = File.OpenRead path
-        use sha = SHA256.Create()
-        sha.ComputeHash stream |> Convert.ToHexString
+    let hashBytes (bytes: byte array) =
+        SHA256.HashData bytes |> Convert.ToHexString
+
+    let hashFile (path: string) = File.ReadAllBytes path |> hashBytes
+
+    /// Whether the hash directives of this file feed the graph: a content script or a loaded one
+    let hasDirectives (path: string) =
+        Content.isFsxFile path && (isTreeFile path || loadTargets.Contains path)
+
+    let textOf (bytes: byte array) =
+        use reader = new StreamReader(new MemoryStream(bytes), Encoding.UTF8, true)
+        reader.ReadToEnd()
 
     let tryStat (path: string) =
         let fi = FileInfo path
@@ -847,7 +908,11 @@ type internal Site(config: SiteConfig) =
                 | None ->
                     if lastStat.Remove path then
                         knownHash.Remove path |> ignore
-                        transact (fun () -> map.Remove path |> ignore)
+
+                        transact (fun () ->
+                            map.Remove path |> ignore
+                            scriptLoads.Remove path |> ignore)
+
                         logger.Debugf "deleted %s: invalidated" path
                         recordEvent path "deleted" true
                         true
@@ -860,20 +925,21 @@ type internal Site(config: SiteConfig) =
                     | true, previous when previous = stat && (cause = Reconciliation || not (contentMatters path)) ->
                         false
                     | _ ->
-                        let hashResult =
+                        let readResult =
                             if contentMatters path then
                                 try
-                                    Result.Ok(hashFile path)
+                                    let bytes = File.ReadAllBytes path
+                                    Result.Ok(hashBytes bytes, bytes)
                                 with ex ->
                                     Result.Error ex
                             else
-                                Result.Ok ""
+                                Result.Ok("", [||])
 
-                        match hashResult with
+                        match readResult with
                         | Result.Error _ ->
                             // Mid-write or locked: leave the stat alone so the reconciler retries
                             false
-                        | Result.Ok hash ->
+                        | Result.Ok(hash, bytes) ->
                             lastStat.[path] <- stat
 
                             match knownHash.TryGetValue path with
@@ -884,17 +950,33 @@ type internal Site(config: SiteConfig) =
                             | _ ->
                                 knownHash.[path] <- hash
 
+                                let loads =
+                                    if hasDirectives path then
+                                        ScriptDirectives.dependenciesOf path (textOf bytes)
+                                    else
+                                        []
+
                                 transact (fun () ->
                                     map.[path] <-
                                         {
                                             Length = length
                                             LastWriteUtc = lastWrite
                                             Hash = hash
-                                        })
+                                        }
+
+                                    if hasDirectives path then
+                                        scriptLoads.[path] <- loads)
 
                                 logger.Debugf "%s %s: invalidated" change path
                                 recordEvent path change true
                                 changedFiles.Trigger path
+
+                                // Files this script depends on for the first time enter the graph now
+                                for load in loads do
+                                    if loadTargets.Add load then
+                                        logger.Debugf "%s depends on %s" path load
+                                        refresh cause "discovered" load |> ignore
+
                                 true)
 
     /// Forget the current bytes of a file the site rewrote itself (notebook evaluation), so the
@@ -927,6 +1009,9 @@ type internal Site(config: SiteConfig) =
             for project in projectPaths do
                 if File.Exists project then
                     yield project
+            for target in loadTargets do
+                if File.Exists target then
+                    yield target
         ]
 
     /// Compare the watched roots with the last snapshot and refresh every difference.
@@ -943,19 +1028,6 @@ type internal Site(config: SiteConfig) =
     // ---------------------------------------------------------------------------------------------
     // Derived nodes
 
-    let loadRegex = Regex(@"^\s*#load\s+(.*)$", RegexOptions.Multiline)
-    let quotedRegex = Regex("\"([^\"]+)\"")
-
-    let loadsOf (path: string) (text: string) =
-        if Content.isFsxFile path then
-            [
-                for m in loadRegex.Matches text do
-                    for q in quotedRegex.Matches m.Groups.[1].Value do
-                        Path.GetFullPath(Path.Combine(Path.GetDirectoryName path, q.Groups.[1].Value))
-            ]
-        else
-            []
-
     let computeMeta (path: string) : ContentMeta =
         try
             let text = File.ReadAllText path
@@ -963,7 +1035,6 @@ type internal Site(config: SiteConfig) =
             {
                 FrontMatter = Content.scanFrontMatter path
                 FrontMatterFile = Content.parseFrontMatterOfFile path
-                Loads = loadsOf path text
                 UsesCref = text.Contains "cref:"
                 Error = None
             }
@@ -978,7 +1049,6 @@ type internal Site(config: SiteConfig) =
                         Index = None
                     }
                 FrontMatterFile = None
-                Loads = []
                 UsesCref = true
                 Error = Some ex.Message
             }
@@ -1035,7 +1105,7 @@ type internal Site(config: SiteConfig) =
 
         for (root, rootAsGiven, outputRoot) in trees do
             for path in paths do
-                if isUnder root path then
+                if isUnder root path && not (isInDotFolder root path) then
                     let name = Path.GetFileName path
                     let folder = Path.GetDirectoryName path
                     let relFolder = Path.GetRelativePath(root, folder)
@@ -1172,12 +1242,11 @@ type internal Site(config: SiteConfig) =
                 match config.GenerateApi crack virtualOutput with
                 | None -> emptyApi
                 | Some phased ->
-                    // The namespace list depends on the root of the page; a site has a handful of depths
-                    let globalsByRoot = ConcurrentDictionary<string, Substitutions>()
-
                     {
                         Phased = Some phased
-                        GlobalsFor = (fun root -> globalsByRoot.GetOrAdd(root, phased.GlobalSubstitutionsFor))
+                        // Not memoised here: the namespace list is rendered with the menu templates,
+                        // which change independently of the assemblies. See 'apiGlobals'.
+                        GlobalsFor = phased.GlobalSubstitutionsFor
                         CrefResolver = Content.makeCrefResolver phased.Model
                         Pages =
                             phased.Pages
@@ -1257,7 +1326,7 @@ type internal Site(config: SiteConfig) =
 
     let contentMeta =
         files
-        |> AMap.filter (fun p _ -> Content.isContentFile p)
+        |> AMap.filter (fun p _ -> isTreeFile p && Content.isContentFile p)
         |> AMap.map (fun p _ -> computeMeta p)
 
     let metaList =
@@ -1286,6 +1355,20 @@ type internal Site(config: SiteConfig) =
     let menuStamps = files |> AMap.filter (fun p _ -> isMenuTemplate p) |> sortedStamps
     let navInputs = AVal.map2 (fun pages menus -> pages, menus) navPages menuStamps
 
+    /// The API global substitutions (the namespace list) per page root, memoised for the current
+    /// API state and menu templates: a site has a handful of depths, and the list is rendered with
+    /// the menu templates, so an edit to those must not be served from the previous memo.
+    let apiGlobals: aval<ApiGlobals> =
+        AVal.map2
+            (fun (api: ApiState) _ ->
+                let globalsByRoot = ConcurrentDictionary<string, Substitutions>()
+
+                {
+                    For = fun root -> globalsByRoot.GetOrAdd(root, api.GlobalsFor)
+                })
+            apiState
+            menuStamps
+
     let templateText (path: string) : aval<string> =
         stampOf path
         |> AVal.map (fun _ -> if File.Exists path then File.ReadAllText path else "")
@@ -1296,18 +1379,33 @@ type internal Site(config: SiteConfig) =
     let headText = extraText "_head.html"
     let bodyText = extraText "_body.html"
 
+    /// The stamps of every file a script depends on, following '#load' transitively. 'visited'
+    /// holds the scripts on the current chain, so a load cycle ends.
+    let rec dependencyStamps (visited: Set<string>) (path: string) : aval<FileStamp option list> =
+        AMap.tryFind path scriptLoads
+        |> AVal.bind (fun loads ->
+            match loads with
+            | None -> AVal.constant []
+            | Some loads ->
+                loads
+                |> List.choose (fun load ->
+                    if visited.Contains load then
+                        None
+                    else
+                        AVal.map2
+                            (fun stamp deeper -> stamp :: deeper)
+                            (stampOf load)
+                            (dependencyStamps (visited.Add load) load)
+                        |> Some)
+                |> Adaptive.ofList
+                |> AVal.map List.concat)
+
     let pageModels = ConcurrentDictionary<ContentRoute, aval<LiterateDocModel>>()
 
     let makePageModel (route: ContentRoute) : aval<LiterateDocModel> =
         let path = route.InputFile
         let meta = AMap.tryFind path contentMeta
-
-        let loadStamps =
-            meta
-            |> AVal.bind (fun m ->
-                match m with
-                | Some m -> m.Loads |> List.map stampOf |> Adaptive.ofList
-                | None -> AVal.constant [])
+        let loadStamps = dependencyStamps (Set.singleton path) path
 
         let api =
             meta
@@ -1426,11 +1524,11 @@ type internal Site(config: SiteConfig) =
             | Some t -> stampOf t
             | None -> AVal.constant None
 
-        let apiGlobals =
+        let pageApiGlobals =
             templateStamp
             |> AVal.bind (fun _ ->
                 if templateNeedsApi route.Template then
-                    apiState |> AVal.map Some
+                    apiGlobals |> AVal.map Some
                 else
                     AVal.constant None)
 
@@ -1441,7 +1539,7 @@ type internal Site(config: SiteConfig) =
                 headText.GetValue token,
                 bodyText.GetValue token,
                 navInputs.GetValue token,
-                apiGlobals.GetValue token)
+                pageApiGlobals.GetValue token)
 
         inputs
         |> Adaptive.mapCached (fun (model, _, head, body, (pages, _), api) ->
@@ -1452,7 +1550,7 @@ type internal Site(config: SiteConfig) =
                     None
 
             let pageRoot = Content.relativeRoot route.OutputFileRelativeToRoot
-            let api = api |> Option.map (fun (a: ApiState) -> a.GlobalsFor)
+            let api = api |> Option.map (fun (g: ApiGlobals) -> g.For)
             let globals = globalsFor pageRoot api (navHtmlFor pageRoot pages activePage) head body
             let text = Content.renderPage model route.Template globals
             Some(textResponse (contentTypeOf route.OutputKind) text))
@@ -1466,18 +1564,19 @@ type internal Site(config: SiteConfig) =
         let inputs =
             AVal.custom (fun token ->
                 apiState.GetValue token,
+                apiGlobals.GetValue token,
                 templateStamp.GetValue token,
                 headText.GetValue token,
                 bodyText.GetValue token,
                 navInputs.GetValue token)
 
         inputs
-        |> Adaptive.mapCached (fun (api, _, head, body, (pages, _)) ->
+        |> Adaptive.mapCached (fun (api, apiGlobals: ApiGlobals, _, head, body, (pages, _)) ->
             match api.Pages.TryFind relativeFile with
             | None -> None
             | Some render ->
                 let pageRoot = Content.relativeRoot relativeFile
-                let globals = globalsFor pageRoot (Some api.GlobalsFor) (navHtmlFor pageRoot pages None) head body
+                let globals = globalsFor pageRoot (Some apiGlobals.For) (navHtmlFor pageRoot pages None) head body
                 let text = render config.ApiDocsTemplate globals
                 Some(textResponse (contentTypeOf config.ApiDocsOutputKind) text))
 

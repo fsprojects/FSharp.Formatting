@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="TestFiles.fs" />
     <Compile Include="Markdown.fs" />
+    <Compile Include="PageContentList.fs" />
     <Compile Include="Externals.fs" />
     <Compile Include="CommonMarkSpecTest.fs" />
   </ItemGroup>

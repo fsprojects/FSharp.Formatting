@@ -725,11 +725,13 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     let title = "All Namespaces"
                     let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
 
+                    // This menu is rendered on the other docs (otherDocs), never on the API reference pages,
+                    // so the reader is not on the page this entry links to.
                     [
                         {
                             Menu.MenuItem.Link = link
                             Menu.MenuItem.Content = title
-                            Menu.MenuItem.IsActive = true
+                            Menu.MenuItem.IsActive = false
                         }
                     ]
 

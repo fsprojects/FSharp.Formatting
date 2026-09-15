@@ -13,8 +13,12 @@ updates:
   - dependency-name: "Microsoft.Build.Tasks.Core"
   open-pull-requests-limit: 25
   package-ecosystem: nuget
+  groups:
+    nuget:
+      patterns:
+      - "*"
   schedule:
-    interval: daily
+    interval: weekly
     time: "10:00"
 - allow:
   - dependency-name: "FSharp.Compiler.Service"
