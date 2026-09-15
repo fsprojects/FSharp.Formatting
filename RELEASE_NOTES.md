@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+* API docs keep the comment of a member whose signature has a type abbreviation of a function type in the range of a function type, such as `(string -> IsPathIgnored) * (unit -> int)` with `type IsPathIgnored = string -> bool`. Reading the member threw `ArgumentOutOfRangeException` and the comment was dropped. The abbreviation is now shown under its own name, as it is everywhere else. [#1327](https://github.com/fsprojects/FSharp.Formatting/issues/1327)
+
 ## [23.0.0-alpha.5] - 2026-09-15
 
 ### Added

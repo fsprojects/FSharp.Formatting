@@ -574,6 +574,36 @@ let ``ApiDocs reads comments of type abbreviations to tuples, lists and BCL type
         entity.AllMembers |> shouldEqual []
 
 [<Test>]
+let ``ApiDocs reads comments of members returning a function-type abbreviation (issue 1327)`` () =
+    let libraries = [ testBin </> "FsLib2.dll" ]
+    let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = false, warn = true) ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let entity =
+        model.Collection.Namespaces.[0].Entities
+        |> List.find (fun e -> e.Name = "FunctionTypeAbbreviations")
+
+    let find name =
+        entity.AllMembers |> List.find (fun m -> m.Name = name)
+
+    // Formatting the return type used to throw, which dropped the comment of the whole member
+    let makeLoader = find "makeLoader"
+    makeLoader.Comment.Summary.HtmlText |> shouldContainText "Returns a loader"
+
+    let returnTypeHtml (m: ApiDocMember) =
+        m.ReturnInfo.ReturnType |> Option.map (fun (_, html) -> html.HtmlText)
+
+    // The abbreviation is shown under its own name, not expanded into its target type
+    returnTypeHtml makeLoader |> Option.get |> shouldContainText "IsPathIgnored"
+
+    // A generic abbreviation carries two type arguments, which are not a domain and a range
+    let lookupTransform = find "lookupTransform"
+    lookupTransform.Comment.Summary.HtmlText |> shouldContainText "Returns a lookup"
+    returnTypeHtml lookupTransform |> Option.get |> shouldContainText "Transform"
+
+[<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs renders inherited members section in output (issue 590)`` (format: OutputFormat) =
     let library = testBin </> "FsLib2.dll" |> fullpath
