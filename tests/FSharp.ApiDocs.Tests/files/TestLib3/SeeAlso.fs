@@ -16,3 +16,16 @@ let disposeOnUnmount (ds: System.IDisposable list) = ignore ds
 /// See also: <seealso cref="M:Test.SeeAlso.disposeOnUnmount"/>
 /// </summary>
 let unsubscribeOnUnmount (ds: (unit -> unit) list) = ignore ds
+
+/// <summary>
+/// Returns the first element of the given sequence, if any.
+/// </summary>
+let tryFirst (xs: int seq) : int option = Seq.tryHead xs
+
+/// <summary>
+/// Returns the first element of the given sequence, or ValueNone if empty.
+/// </summary>
+let tryFirstStruct (xs: int seq) : int voption =
+    match Seq.tryHead xs with
+    | Some x -> ValueSome x
+    | None -> ValueNone
