@@ -48,6 +48,18 @@ let commonNamespacePrefix (names: string list) =
 
         if lastDot < 0 then "" else first.Substring(0, lastDot + 1)
 
+let menuNamespaceOf (documented: Set<string>) (name: string) =
+    let rec outermost (name: string) (found: string option) =
+        match name.LastIndexOf '.' with
+        | -1 -> found
+        | i ->
+            let parent = name.Substring(0, i)
+            // Walking outwards, so the last documented ancestor seen is the outermost one.
+            let found = if documented.Contains parent then Some parent else found
+            outermost parent found
+
+    outermost name None |> Option.defaultValue name
+
 type internal SectionCollector() =
     let sections = ResizeArray<int * string * string>()
     let entries = ResizeArray<int * string * string>()
@@ -112,6 +124,29 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     // the renderer: the model it reads is a constructor argument and never changes. Rendering asks
     // for it once per page, so without this it ran once per page of the whole API reference.
     let categorised = lazy (Categorise.model model)
+
+    let documentedNamespaces = lazy (categorised.Value |> List.map (fun (_, ns) -> ns.Name) |> Set.ofList)
+
+    // The namespaces the menu lists. One nested in another documented namespace folds into it, so
+    // a library such as Fantomas shows six entries instead of twenty. The API reference index is
+    // still the list of every namespace.
+    let menuNamespaces =
+        lazy
+            (categorised.Value
+             |> List.filter (fun (_, ns) -> menuNamespaceOf documentedNamespaces.Value ns.Name = ns.Name))
+
+    /// Whether the menu entry for a namespace is the one the reader is inside: the namespace itself,
+    /// or one nested in it that the menu folded away.
+    let isActiveMenuNamespace (nsOpt: ApiDocNamespace option) (ns: ApiDocNamespace) =
+        match nsOpt with
+        | None -> false
+        | Some current -> menuNamespaceOf documentedNamespaces.Value current.Name = ns.Name
+
+    /// The namespaces nested in this one, at any depth. The menu shows the outermost namespace only,
+    /// so the page of that namespace is where the reader finds the ones it stands for.
+    let nestedNamespaces (name: string) =
+        categorised.Value
+        |> List.filter (fun (_, ns: ApiDocNamespace) -> ns.Name.StartsWith(name + ".", StringComparison.Ordinal))
 
     let mutable uniqueNumber = 0
 
@@ -725,11 +760,31 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                             statMembers)
         ]
 
+    /// One row of a table of namespaces: the link and the summary.
+    let namespaceRow (ns: ApiDocNamespace) =
+        tr [] [
+            td [] [
+                // data-fsdocs-nav makes the j / k hotkeys stop here, so they walk the namespaces
+                // after the headings above them.
+                a [
+                    Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                    HtmlProperties.Title ns.Name
+                    Custom("data-fsdocs-nav", "")
+                ] [ !!ns.Name ]
+            ]
+            td [] [
+                match ns.NamespaceDocs with
+                | Some nsdocs -> embed nsdocs.Summary
+                | None -> ()
+            ]
+        ]
+
     let namespaceContent (sections: SectionCollector) (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
+        let nested = nestedNamespaces ns.Name
 
         [
-            if allByCategory.Length > 0 then
+            if allByCategory.Length > 0 || not nested.IsEmpty then
                 sections.Heading(2, ns.UrlHash, ns.Name + " Namespace")
 
                 div [ Class "fsdocs-xmldoc" ] [
@@ -744,6 +799,24 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     | None -> ()
                 ]
 
+                // The menu lists this namespace and not the ones inside it, so they are listed here
+                // instead: without this the page is a dead end and the index is the only way on.
+                if not nested.IsEmpty then
+                    sections.Heading(3, "namespaces", "Namespaces")
+
+                    table [ Class "table outer-list fsdocs-entity-list" ] [
+                        thead [] [ tr [] [ td [] [ !!"Namespace" ]; td [] [ !!"Description" ] ] ]
+                        tbody [] [
+                            for _allByCategory, nestedNs in nested do
+                                sections.Entry(
+                                    nestedNs.Url(root, collectionName, qualify, model.FileExtensions.InUrl),
+                                    nestedNs.Name
+                                )
+
+                                namespaceRow nestedNs
+                        ]
+                    ]
+
                 for category in allByCategory do
                     if (allByCategory.Length > 1) then
                         sections.Heading(3, "category-" + category.CategoryIndex, category.CategoryName)
@@ -752,33 +825,11 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         ]
 
     let tableOfNamespacesAux () =
-        [
-            let categorise = categorised.Value
-
-            for _allByCategory, ns in categorise do
-
-                // Generate the entry for the namespace
-                tr [] [
-                    td [] [
-                        // data-fsdocs-nav makes the j / k hotkeys stop here, so they walk the namespaces
-                        // after the two headings of the page.
-                        a [
-                            Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-                            HtmlProperties.Title ns.Name
-                            Custom("data-fsdocs-nav", "")
-                        ] [ !!ns.Name ]
-                    ]
-                    td [] [
-                        match ns.NamespaceDocs with
-                        | Some nsdocs -> embed nsdocs.Summary
-                        | None -> ()
-                    ]
-                ]
-        ]
+        [ for _allByCategory, ns in categorised.Value -> namespaceRow ns ]
 
     let listOfNamespacesNavAux (root: string) otherDocs (nsOpt: ApiDocNamespace option) =
         [
-            let categorise = categorised.Value
+            let categorise = menuNamespaces.Value
 
             let someExist = categorise.Length > 0
 
@@ -809,9 +860,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         "nav-item"
                         +
                         // add the 'active' class if this is the namespace of the thing being shown
-                        match nsOpt with
-                        | Some ns2 when ns.Name = ns2.Name -> " active"
-                        | _ -> ""
+                        if isActiveMenuNamespace nsOpt ns then " active" else ""
                     )
                 ] [
                     span [] [
@@ -820,9 +869,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                 "nav-link"
                                 +
                                 // add the 'active' class if this is the namespace of the thing being shown
-                                match nsOpt with
-                                | Some ns2 when ns.Name = ns2.Name -> " active"
-                                | _ -> ""
+                                if isActiveMenuNamespace nsOpt ns then " active" else ""
                             )
                             Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
                             // The entry drops the prefix it shares with its neighbours, so the
@@ -853,7 +900,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             if not isTemplatingAvailable then
                 noTemplatingFallback ()
             else
-                let categorise = categorised.Value
+                let categorise = menuNamespaces.Value
 
                 if categorise.Length = 0 then
                     ""
@@ -868,10 +915,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                         ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
                                     Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
                                     Menu.MenuItem.Title = (if String.IsNullOrEmpty prefix then None else Some ns.Name)
-                                    Menu.MenuItem.IsActive =
-                                        match nsOpt with
-                                        | None -> false
-                                        | Some current -> current.Name = ns.Name
+                                    Menu.MenuItem.IsActive = isActiveMenuNamespace nsOpt ns
                                 }
                         ]
 
