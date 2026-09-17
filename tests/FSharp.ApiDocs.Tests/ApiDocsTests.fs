@@ -162,6 +162,18 @@ let ``ApiDocs links postfix FSharp.Core type constructors like list`` (format: O
     files.[(sprintf "test-seealso.%s" format.Extension)]
     |> shouldContainText "https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-list-1"
 
+    // Same postfix-abbreviation handling applies to `option` and `voption`, whose
+    // abbreviation entities also have GenericParameters.Count > 0 and no full name of
+    // their own, and to `seq`, which is a postfix abbreviation for IEnumerable<'T>.
+    files.[(sprintf "test-seealso.%s" format.Extension)]
+    |> shouldContainText "https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-option-1"
+
+    files.[(sprintf "test-seealso.%s" format.Extension)]
+    |> shouldContainText "https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-voption-1"
+
+    files.[(sprintf "test-seealso.%s" format.Extension)]
+    |> shouldContainText "https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-seq-1"
+
 [<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs excludes items`` (format: OutputFormat) =
