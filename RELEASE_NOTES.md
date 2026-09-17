@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+* Regression test coverage for the postfix FSharp.Core type-constructor cross-reference fix (#1316/#1320): `ApiDocs links postfix FSharp.Core type constructors like list` now also asserts `option`, `voption`, and `seq` resolve to their fsharp-core-docs pages, not just `list`.
+
 ## [23.0.0-alpha.7] - 2026-09-15
 
 ### Changed
@@ -39,7 +44,6 @@
 
 ### Changed
 * `Menu.createMenu` takes the substitutions of the page as its second argument, and `Menu.MenuItem` carries a `Title` field. Both are breaking for code that builds menus through `FSharp.Formatting.Common`. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
-
 ## [23.0.0-alpha.4] - 2026-09-13
 
 ### Added
