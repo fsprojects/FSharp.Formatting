@@ -219,7 +219,11 @@ module internal TypeFormatter =
             bracketHtmlIf (prec <= 2) (formatTypesWithPrecAsHtml ctx 2 "&#32;*&#32;" tyargs)
         | _ when typ.IsFunctionType ->
             let rec loop soFar (typ: FSharpType) =
-                if typ.IsFunctionType then
+                // IsFunctionType strips abbreviations, so an abbreviation of a function type answers
+                // true while its GenericArguments are its own type arguments, not a domain and a
+                // range. Only a bare function type is taken apart, the rest is formatted under its
+                // own name like the cases above do.
+                if typ.IsFunctionType && not typ.HasTypeDefinition then
                     let domainTyp, retType = typ.GenericArguments.[0], typ.GenericArguments.[1]
 
                     loop (soFar @ [ formatTypeWithPrecAsHtml ctx 4 domainTyp; !!"&#32;->&#32;" ]) retType
