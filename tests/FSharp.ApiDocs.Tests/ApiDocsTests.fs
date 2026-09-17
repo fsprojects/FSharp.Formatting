@@ -1975,17 +1975,48 @@ ACTIVE: {{fsdocs-menu-item-active-class}}
             |> Array.map (fun s -> s.Trim())
             |> String.concat "\n"
 
+    // The global substitutions go on the content pages, which list the namespaces just as the API
+    // pages do; nothing is marked active there, the reader is on a page of their own.
     Assert.AreEqual(
         $"""HEADER: API Reference
 HEADER ID: api_reference
 ITEMS:
-LINK: /reference/index{format.ExtensionInUrl}
-LINK ID: all_namespaces
-CONTENT: All Namespaces
+LINK: /reference/fslib{format.ExtensionInUrl}
+LINK ID: fslib
+CONTENT: FsLib
 ACTIVE:"""
             .Replace("\r", ""),
         listOfNamespaces
     )
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``The menu of the content pages lists the namespaces`` (format: OutputFormat) =
+    let library = testBin </> "FsLib1.dll" |> fullpath
+    let inputs = ApiDocInput.FromFile(library)
+    let output = getOutputDir format "PhasedContentMenu"
+
+    let phased =
+        match format with
+        | OutputFormat.Html -> ApiDocs.GenerateHtmlPhased([ inputs ], output, "Collection", [])
+        | OutputFormat.Markdown -> ApiDocs.GenerateMarkdownPhased([ inputs ], output, "Collection", [])
+
+    let listOfNamespaces =
+        phased.GlobalSubstitutions
+        |> Seq.pick (fun (key, content) ->
+            if key = ParamKeys.``fsdocs-list-of-namespaces`` then
+                Some content
+            else
+                None)
+
+    // The content pages get the same list as the API pages, where they used to get a single link.
+    listOfNamespaces
+    |> shouldContainText (sprintf "reference/fslib%s" format.ExtensionInUrl)
+
+    listOfNamespaces |> shouldContainText "API Reference"
+    listOfNamespaces |> shouldNotContainText "All Namespaces"
+    // The reader is on a content page, so no entry of this menu is the page they are on.
+    listOfNamespaces |> shouldNotContainText "active"
 
 [<Test>]
 let ``ApiDocs includes type whose name matches its namespace (issue 944)`` () =
