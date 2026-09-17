@@ -1,5 +1,12 @@
 # Changelog
 
+## [23.0.0-alpha.7] - 2026-09-15
+
+### Changed
+* The API Reference section of the menu leaves out a namespace nested in another documented namespace: `Fantomas.FCS.Syntax` folds into `Fantomas.FCS`, and the menu of a library such as Fantomas is six entries instead of twenty truncated ones. A page of a folded namespace marks the entry it sits in as the active one. [#1331](https://github.com/fsprojects/FSharp.Formatting/pull/1331)
+
+* A namespace page opens with a "Namespaces" table of the namespaces nested in it, the ones the menu folds away, each linking to its own page. The "On this page" menu and the `j` / `k` hotkeys walk them like the types and modules below. A namespace holding nothing but other namespaces gets that table too, where its page used to be empty. [#1331](https://github.com/fsprojects/FSharp.Formatting/pull/1331)
+
 ## [23.0.0-alpha.6] - 2026-09-15
 
 ### Fixed

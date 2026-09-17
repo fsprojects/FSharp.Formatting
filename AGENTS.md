@@ -4,6 +4,8 @@
 
 Update `RELEASE_NOTES.md` when making user-visible changes:
 - Add entries under the `## [Unreleased]` section
+- A `## [x.y.z] - date` heading is a version that is already published. Never add an entry to one, not even the topmost, and never edit the entries it holds
+- The release commit renames `## [Unreleased]` to the version it ships, so right after a release the file has no `## [Unreleased]` section. Add one above the topmost version heading rather than appending to that version
 - Use categories: `### Added`, `### Changed`, `### Fixed`, `### Removed`
 - Include PR links: `[#123](https://github.com/fsprojects/FSharp.Formatting/pull/123)`
 
