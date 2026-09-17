@@ -1,5 +1,3 @@
-/// Internal module that generates Markdown documentation output from an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>.
-/// Produces one Markdown file per namespace and per entity, plus an index file.
 module internal FSharp.Formatting.ApiDocs.GenerateMarkdown
 
 open System
@@ -10,32 +8,23 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
-/// HTML-encodes a string and additionally escapes pipe characters for safe use in Markdown tables.
 let encode (x: string) =
     HttpUtility.HtmlEncode(x).Replace("|", "&#124;")
 
-/// URL-encodes a string (for use in anchor hrefs).
 let urlEncode (x: string) = HttpUtility.UrlEncode x
-/// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value.
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
-/// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value,
-/// with newlines replaced by <c>&lt;br /&gt;</c> and pipe characters escaped for Markdown tables.
 let htmlStringSafe (x: ApiDocHtml) =
     (x.HtmlText.Trim()).Replace("\n", "<br />").Replace("|", "&#124;")
 
-/// Wraps an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value as a Markdown DSL node.
 let embed (x: ApiDocHtml) = !!(htmlString x)
-/// Wraps an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value as a Markdown DSL node,
-/// escaping characters that would break Markdown table cells.
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
-/// A Markdown DSL node representing an HTML line break.
 let br = !!"<br />"
 
-/// Renders Markdown API documentation for all namespaces and entities in an
-/// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>. Writes one file per namespace
-/// and per entity to <paramref name="outDir"/> using the supplied template.
 type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
+
+    // Same answer for the lifetime of the renderer, see the note in GenerateHtml.
+    let categorised = lazy (Categorise.model model)
     let root = model.Root
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
@@ -443,7 +432,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     ]
             else
 
-                let categorise = Categorise.model model
+                let categorise = categorised.Value
 
                 let someExist = categorise.Length > 0
 
@@ -499,6 +488,10 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
+        // What the page itself is rendered with, but with the root of this page, so a menu template
+        // can use {{root}} and the other site-wide substitutions to reach the rest of the site.
+        let menuSubstitutions = [ yield! model.Substitutions; yield ParamKeys.root, root ]
+
         match menuTemplateFolder with
         | None -> noTemplatingFallback ()
         | Some menuTemplateFolder ->
@@ -515,47 +508,50 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         {
                             Menu.MenuItem.Link = link
                             Menu.MenuItem.Content = title
+                            Menu.MenuItem.Title = None
                             Menu.MenuItem.IsActive = false
                         }
                     ]
 
-                Menu.createMenu menuTemplateFolder false "API Reference" menuItems
+                Menu.createMenu menuTemplateFolder menuSubstitutions false "API Reference" menuItems
 
             else
-                let categorise = Categorise.model model
+                let categorise = categorised.Value
 
                 if categorise.Length = 0 then
                     ""
                 else
+                    let prefix = GenerateHtml.commonNamespacePrefix [ for _, ns in categorise -> ns.Name ]
+
                     let menuItems =
-                        categorise
-                        |> List.map (fun (_, ns) ->
-                            let link = ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
-                            let name = ns.Name
+                        [
+                            for _, ns in categorise do
+                                {
+                                    Menu.MenuItem.Link =
+                                        ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
+                                    Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
+                                    Menu.MenuItem.Title = (if String.IsNullOrEmpty prefix then None else Some ns.Name)
+                                    Menu.MenuItem.IsActive =
+                                        match nsOpt with
+                                        | None -> false
+                                        | Some current -> current.Name = ns.Name
+                                }
+                        ]
 
-                            {
-                                Menu.MenuItem.Link = link
-                                Menu.MenuItem.Content = name
-                                Menu.MenuItem.IsActive = false
-                            })
-
-                    Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
+                    // A template can fold a section away, and the reader arriving on an API page is
+                    // inside this one. Mark the category active so the section it renders is the one
+                    // that opens. The other docs render the same list while the reader is elsewhere.
+                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "Namespaces" menuItems
 
     let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
         listOfNamespacesWithRoot root otherDocs nav nsOpt
 
-    /// The substitutions relevant to all pages, with the namespace links built for the given root
-    /// (a content page deeper in the site needs a different relative root than the API pages).
     member _.GlobalSubstitutionsFor(root: string) : Substitutions =
         let toc = listOfNamespacesWithRoot root true true None
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
 
-    /// Get the substitutions relevant to all
     member x.GlobalSubstitutions: Substitutions = x.GlobalSubstitutionsFor root
 
-    /// The pages of the API documentation: the output file relative to the output folder
-    /// (forward slashes) and a function rendering the page for a template and global substitutions.
-    /// Nothing is rendered until the function is called.
     member _.Pages(collectionName: string) : (string * (string option -> Substitutions -> string)) list =
 
         let getSubstitutons parameters toc (content: MarkdownDocument) pageTitle globalParameters =
@@ -623,8 +619,6 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 page outFile info.Entity.Substitutions toc content pageTitle
         ]
 
-    /// Writes all API documentation Markdown files (index, one per namespace, one per entity)
-    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
     member x.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
         for (relativeFile, render) in x.Pages(collectionName) do
             let outFile = Path.Combine(outDir, relativeFile)

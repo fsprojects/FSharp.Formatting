@@ -1,5 +1,26 @@
 # Changelog
 
+## [23.0.0-alpha.5] - 2026-09-15
+
+### Added
+* The API reference pages have an "On this page" menu, like the content pages do. A namespace page lists its types and modules, each linking to its own page; a type or module page lists its sections, which now carry anchors of their own (`Static members`, `Nested modules`, `Inherited members` had none). The index of all namespaces keeps the wide layout, since the page is already that list. The inline "Table of contents" and "Contents" blocks are gone, the menu replaces them. The menu marks the section the reader is in through the same scroll-driven animations as the content pages, over the section headings only: each tracked element costs three generated CSS rules, so a module with hundreds of members stays cheap. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* `_menu_template.html` and `_menu-item_template.html` are rendered with the substitutions of the page they go into, `{{root}}` among them, so a menu can link anywhere on the site and not only where fsdocs hands it a link. `{{root}}` is relative to the page being rendered, so `{{root}}reference/index.html` resolves from every depth. A key a menu template defines for itself still wins over a site-wide one of the same name. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* `_menu-item_template.html` can use `{{fsdocs-menu-item-title}}`, the hover text of an item. The API reference fills it with the full name of a namespace, where the menu shortened the entry to what tells it apart from its neighbours, and leaves it empty for an item whose text already says where it leads. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+### Fixed
+* The API reference menu on the left lists the namespaces again. Every API page computed that menu and then had it silently replaced: the global substitutions define `fsdocs-list-of-namespaces` as well, with the single "All Namespaces" link meant for the content pages, and the last value for a key wins. The entries drop the prefix that all the namespaces share (`FSharp.Formatting.` here, `Microsoft.FSharp.` for FSharp.Core), which otherwise left a column of identically truncated names, and the full name is the `title` of the entry. The entries of the "On this page" menu carry one too, since that menu is narrow enough to cut them off. The header links to the index of all namespaces. The list of entities that used to expand under the current namespace is gone, the "On this page" menu covers it. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* The API reference menu built from `_menu_template.html` and `_menu-item_template.html` marks the namespace of the page the reader is on, and marks its own section as active so a template that folds a section away opens the one the reader is inside. It shortens an entry to the part that tells it apart from its neighbours, with the full name on the `title`. The Markdown output builds the same menu from the same templates and gained all of it too. Note that a templated menu renders its header as a label, where the built-in menu makes the "Namespaces" header the link to the index of all namespaces; see "Customizing menu items by template" for adding that link back. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* A menu built from `_menu-item_template.html` no longer escapes the text of a documentation page twice. `Menu.createMenu` encodes the content of an item, and the list of documents encoded it again beforehand, so a title carrying `&`, `<`, `>` or `"` reached the page as the escape sequence itself. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* The `j` / `k` hotkeys continue through the tables of the API reference: the namespaces on the index page and the types and modules on a namespace page, which have few headings of their own to stop at. The pages of a module or a type keep to their headings. The generator marks the links that take part with `data-fsdocs-nav`, so a link in your own content can join in as well. A marked link is only scrolled into view when it is off screen, a run of key presses walks the table instead of paging it. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+### Changed
+* `Menu.createMenu` takes the substitutions of the page as its second argument, and `Menu.MenuItem` carries a `Title` field. Both are breaking for code that builds menus through `FSharp.Formatting.Common`. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
 ## [23.0.0-alpha.4] - 2026-09-13
 
 ### Added

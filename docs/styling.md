@@ -196,6 +196,56 @@ Do note that files must be added before running, or won't be generated.
 In case you want to get a unique identifier for a header or menu item, you can use `{{fsdocs-menu-header-id}}`
 and `{{fsdocs-menu-item-id}}`, respectively.
 
+Both menu templates also get the substitutions of the page they are rendered into, `{{root}}` among them, so a
+menu can link anywhere on the site and not only where fsdocs hands it a link. `{{root}}` is relative to the page
+being rendered, so `{{root}}reference/index.html` resolves from every depth:
+
+```html
+<li class="nav-header">{{fsdocs-menu-header-content}}</li>
+<li class="nav-item"><a href="{{root}}reference/index.html">All Namespaces</a></li>
+{{fsdocs-menu-items}}
+```
+
+A key that a menu template defines for itself always wins over a site-wide one of the same name.
+
+One template renders every section of the menu: the documents, each of their categories, and the namespaces of the
+API reference. The header tells them apart, through `{{fsdocs-menu-header-content}}` and its `{{fsdocs-menu-header-id}}`,
+but the substitutions have no conditionals, so anything else a template adds appears in every section.
+
+That matters in one place. The built-in menu makes the "Namespaces" header itself the link to the index of all
+namespaces:
+
+```html
+<li class="nav-header"><a href="../reference/index.html">Namespaces</a></li>
+```
+
+A templated header is a label, and a template cannot single out one section, so putting that link back is a job for
+a few lines of script. Give the header its id and its root, both of which the template already has:
+
+```html
+<li class="nav-header" id="{{fsdocs-menu-header-id}}" data-root="{{root}}">{{fsdocs-menu-header-content}}</li>
+```
+
+and turn the text of that one header into a link, the way the built-in menu does:
+
+```js
+const header = document.getElementById("namespaces");
+
+if (header) {
+    const link = document.createElement("a");
+    link.href = `${header.dataset.root}reference/index.html`;
+    link.textContent = header.textContent.trim();
+    header.replaceChildren(link);
+}
+```
+
+The id comes from the header text, so "Namespaces" gives `namespaces` and "API Reference" gives `api_reference`.
+The API reference menu lists every namespace already, so what the index adds over it is the description of each one.
+
+`{{fsdocs-menu-item-title}}` is the hover text of an item, meant for the `title` attribute of the link. The API
+reference uses it for the full name of a namespace, where the menu shortened the entry to what tells it apart from
+its neighbours. It is empty for an item whose text already says where it leads.
+
 ## Injecting additional html into the default template
 
 Occasionally, you may find the need to make small customizations to the default template, such as adding a Google
