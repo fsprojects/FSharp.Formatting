@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+* Documented how to embed images in XML/Markdown `///` doc comments (`fsdocs` does not copy source-tree images referenced there; use a site-root-relative path under the `docs` input directory instead). [#928](https://github.com/fsprojects/FSharp.Formatting/issues/928)
+
 ## [23.0.0-alpha.7] - 2026-09-15
 
 ### Changed
