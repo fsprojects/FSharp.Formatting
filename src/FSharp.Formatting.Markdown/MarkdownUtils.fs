@@ -421,7 +421,7 @@ module internal MarkdownUtils =
 
                     if
                         code.StartsWith("<pre", StringComparison.Ordinal)
-                        || code.StartsWith("<table class=\"pre\"", StringComparison.Ordinal)
+                        || code.StartsWith("<div class=\"fsdocs-snippet\"", StringComparison.Ordinal)
                     then
                         // Skip check for non-user html
                         // Should be even run that code through `fText`?
