@@ -568,6 +568,140 @@ c.Method()
     tooltip |> shouldNotContainText "[&lt;DefaultParameterValue"
 
 // --------------------------------------------------------------------------------------
+// Tests for laying out a wide signature over several lines
+// --------------------------------------------------------------------------------------
+
+/// The layout works on classified runs. These cases care about where the lines break, so the
+/// text goes in as one run and comes back as the lines it was cut into.
+let private lay (width: int) (text: string) =
+    NiceSignaturePrint.layout width [ TokenKind.Default, text ]
+    |> List.map (fun line -> line |> List.map snd |> String.concat "")
+    |> String.concat "\n"
+
+[<Test>]
+let ``a signature that fits is left alone`` () =
+    lay 80 "val add: x: int -> y: int -> int"
+    |> shouldEqual "val add: x: int -> y: int -> int"
+
+[<Test>]
+let ``a wide val breaks after the name, between the parameters and before the result`` () =
+    lay
+        80
+        "val ParseAndCheckSource: file: string * source: string * options: string option * defines: string option * onError: (string -> unit) -> Snippet array * SourceError array"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [
+                "val ParseAndCheckSource:"
+                "    file: string *"
+                "    source: string *"
+                "    options: string option *"
+                "    defines: string option *"
+                "    onError: (string -> unit) ->"
+                "        Snippet array * SourceError array"
+            ]
+    )
+
+[<Test>]
+let ``a member keeps the name the tip qualified it with`` () =
+    // the compiler never parses `Literate.ConvertScriptFile` as a member name, so only the type
+    // is handed to it and the name is carried through untouched
+    lay
+        80
+        "static member Literate.ConvertScriptFile: input: string * ?template: string * ?outputKind: OutputKind -> unit"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [
+                "static member Literate.ConvertScriptFile:"
+                "    input: string *"
+                "    ?template: string *"
+                "    ?outputKind: OutputKind ->"
+                "        unit"
+            ]
+    )
+
+[<Test>]
+let ``a member indented under its type stays there, and its lines indent from it`` () =
+    // the compiler shows the members of a type two columns in, and breaking one must not
+    // pull it back to the margin
+    lay 60 "  static member FormatHtml: snippets: Snippet array * prefix: string * ?openTag: string -> FormattedContent"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [
+                "  static member FormatHtml:"
+                "      snippets: Snippet array *"
+                "      prefix: string *"
+                "      ?openTag: string ->"
+                "          FormattedContent"
+            ]
+    )
+
+[<Test>]
+let ``a union case breaks like any other signature`` () =
+    lay 60 "union case Snippet.Snippet: title: string * lines: Line list -> Snippet"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [ "union case Snippet.Snippet:"; "    title: string *"; "    lines: Line list ->"; "        Snippet" ]
+    )
+
+[<Test>]
+let ``a curried signature breaks at each arrow`` () =
+    lay 40 "val map: mapping: ('T -> 'U) -> source: 'T list -> 'U list"
+    |> shouldEqual (
+        String.concat "\n" [ "val map:"; "    mapping: ('T -> 'U) ->"; "    source: 'T list ->"; "        'U list" ]
+    )
+
+[<Test>]
+let ``a line the compiler cannot read a type out of is left alone`` () =
+    let prose = "Performs operations on String instances that contain file or directory path information."
+
+    lay 40 prose |> shouldEqual prose
+
+[<Test>]
+let ``the classification of every run survives the layout`` () =
+    let runs =
+        [
+            TokenKind.Keyword, "val"
+            TokenKind.Default, " "
+            TokenKind.Function, "veryLongFunctionNameIndeed"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.Identifier, "first"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.ReferenceType, "string"
+            TokenKind.Default, " "
+            TokenKind.Punctuation, "*"
+            TokenKind.Default, " "
+            TokenKind.Identifier, "second"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.ReferenceType, "string"
+            TokenKind.Default, " "
+            TokenKind.Punctuation, "->"
+            TokenKind.Default, " "
+            TokenKind.ReferenceType, "string"
+        ]
+
+    let laid = NiceSignaturePrint.layout 40 runs
+
+    // more than one line, and no run lost the kind it went in with
+    laid.Length |> shouldBeGreaterThan 1
+
+    let kept =
+        laid
+        |> List.collect id
+        |> List.filter (fun (_, text) -> text.Trim() <> "")
+        |> List.map fst
+
+    let expected = runs |> List.filter (fun (_, text) -> text.Trim() <> "") |> List.map fst
+
+    kept |> shouldEqual expected
+
+// --------------------------------------------------------------------------------------
 // Tests for rendering doc comments in tooltips
 // --------------------------------------------------------------------------------------
 

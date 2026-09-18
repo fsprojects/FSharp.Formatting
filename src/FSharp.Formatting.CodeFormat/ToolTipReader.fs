@@ -20,6 +20,10 @@ open FSharp.Compiler.Text
 // Implements formatting of tool tips
 // --------------------------------------------------------------------------------------
 
+/// How wide a signature is allowed to get before it is laid out over several lines.
+[<Literal>]
+let private signatureWidth = 80
+
 /// Maps the tag the compiler attached to a run of tool tip text onto the token kind
 /// the snippet formatter already knows how to color, so a tool tip is highlighted by
 /// the same rules as the code it describes.
@@ -326,6 +330,7 @@ let private formatElement tooltip =
                             Some stripped
                         | _ -> None)
                     |> List.ofSeq
+                    |> List.collect (NiceSignaturePrint.layout signatureWidth)
                     |> formatTaggedLines
 
                 yield HardLineBreak
