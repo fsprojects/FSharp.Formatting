@@ -35,7 +35,9 @@ let private tokenKindOfTextTag (tag: TextTag) =
     | TextTag.Interface -> TokenKind.Interface
     | TextTag.Enum -> TokenKind.Enumeration
     | TextTag.Module
-    | TextTag.Namespace -> TokenKind.Module
+    | TextTag.Namespace
+    // the qualifier of a fully written name, `System.` in `System.DateTime`
+    | TextTag.UnknownEntity -> TokenKind.Module
     | TextTag.TypeParameter -> TokenKind.TypeArgument
     | TextTag.UnionCase
     | TextTag.ActivePatternCase
@@ -52,13 +54,15 @@ let private tokenKindOfTextTag (tag: TextTag) =
     | TextTag.Operator -> TokenKind.Operator
     | TextTag.Punctuation -> TokenKind.Punctuation
     | TextTag.Parameter
-    | TextTag.Local
-    | TextTag.Alias -> TokenKind.Identifier
+    | TextTag.Local -> TokenKind.Identifier
+    // `string`, `list`, `option` and `array` are type abbreviations, which read as types even
+    // though the compiler tags them apart from the ones they abbreviate. Leaving them out of the
+    // type color puts `string` and `int` in two colors in the same signature.
+    | TextTag.Alias -> TokenKind.ReferenceType
     | TextTag.Text
     | TextTag.Space
     | TextTag.LineBreak
-    | TextTag.UnknownType
-    | TextTag.UnknownEntity -> TokenKind.Default
+    | TextTag.UnknownType -> TokenKind.Default
 
 /// Converts an array of <see cref="T:FSharp.Compiler.Text.TaggedText"/> values emitted by
 /// the F# compiler into lines of runs. Each run keeps the token kind its tag maps to, so

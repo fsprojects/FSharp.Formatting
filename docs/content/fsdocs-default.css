@@ -109,18 +109,20 @@
 
     --header-brand-text-transform: none;
 
-    /* Syntax colors, GitHub's light and dark schemes.
-       Roles rather than one hue per token kind: keywords, types and
-       namespaces, callables, values, strings, and one mute for anything the
-       reader is not meant to focus on. Identifiers, operators and punctuation
-       are left as plain text, the way GitHub renders them. */
+    /* Syntax colors, built from GitHub's Primer syntax hues.
+       Roles rather than one hue per token kind: keywords, types, the modules
+       and namespaces that hold them, callables, values, strings, and one mute
+       for anything the reader is not meant to focus on. Operators and
+       punctuation are left as plain text, the way GitHub renders them. */
 
     /* keywords and preprocessor directives */
     --code-keywords-color: light-dark(#cf222e, #ff7b72);
     --code-preprocessor-color: light-dark(#cf222e, #ff7b72);
 
-    /* types, modules and namespaces */
-    --code-module-color: light-dark(#953800, #ffa657);
+    /* modules and namespaces, the containers rather than the types themselves */
+    --code-module-color: light-dark(#116329, #7ee787);
+
+    /* types */
     --code-reference-color: light-dark(#953800, #ffa657);
     --code-value-color: light-dark(#953800, #ffa657);
     --code-interface-color: light-dark(#953800, #ffa657);
