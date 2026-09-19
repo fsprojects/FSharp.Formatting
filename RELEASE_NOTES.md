@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+* Support nested navigation categories using `/` as a separator in the `category` front-matter field (e.g. `category: Collections/Lists`). The part before the `/` renders as a top-level nav header; the part after it renders as an indented sub-header beneath it. Documents without a sub-category, or using a flat `category` with no `/`, continue to render exactly as before. [#927](https://github.com/fsprojects/FSharp.Formatting/issues/927)
+
 ## [23.0.0-alpha.8] - 2026-09-18
 
 ### Added

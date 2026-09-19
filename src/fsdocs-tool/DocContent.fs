@@ -564,6 +564,21 @@ module internal Content =
             rootKeys: ParamKey list
         ) : string -> string option -> string =
 
+        // Splits a `category` front-matter value on the first `/` into a parent category and an
+        // optional sub-category, e.g. "Collections/Lists" -> (Some "Collections", Some "Lists").
+        // A category without a `/` is treated as a parent with no sub-category, so flat categories
+        // render exactly as before.
+        let parseNestedCategory (cat: string option) =
+            match cat with
+            | None -> (None, None)
+            | Some s ->
+                let idx = s.IndexOf('/')
+
+                if idx > 0 && idx < s.Length - 1 then
+                    (Some(s.[.. idx - 1].Trim()), Some(s.[idx + 1 ..].Trim()))
+                else
+                    (Some s, None)
+
         let baseModels =
             [
                 for page in pages do
@@ -582,37 +597,57 @@ module internal Content =
             items
             |> List.sortBy (fun (_, model: NavPage) -> Option.defaultValue Int32.MaxValue model.Index)
 
-        // Pre-compute: group by category, sort categories, sort items within each group
+        let minCategoryIndex items =
+            items
+            |> List.choose (fun (_, model: NavPage) -> model.CategoryIndex)
+            |> function
+                | [] -> Int32.MaxValue
+                | idxs -> List.min idxs
+
+        // Pre-compute: group by (parent, sub) category, sort parents, sort sub-groups within each
+        // parent, sort items within each sub-group. Parent ordering uses the minimum CategoryIndex
+        // of any item under it (including items in sub-categories); items with no sub-category are
+        // listed before any sub-headers within their parent.
         let sortedGroups =
             filteredBase
-            |> List.groupBy (fun (_, model) -> model.Category)
-            |> List.sortBy (fun (_, items) ->
-                match (snd items.[0]).CategoryIndex with
-                | Some s ->
-                    (try
-                        int32 s
-                     with _ ->
-                         Int32.MaxValue)
-                | None -> Int32.MaxValue)
-            |> List.map (fun (cat, items) -> cat, orderGroup items)
+            |> List.groupBy (fun (_, model) -> parseNestedCategory model.Category)
+            |> List.groupBy (fun ((parentCat, _), _) -> parentCat)
+            |> List.sortBy (fun (_, subGroups) -> subGroups |> List.collect snd |> minCategoryIndex)
+            |> List.map (fun (parentCat, subGroups) ->
+                let orderedSubGroups =
+                    subGroups
+                    |> List.sortBy (fun ((_, subCat), items) ->
+                        match subCat with
+                        | None -> Int32.MinValue
+                        | Some _ -> minCategoryIndex items)
+                    |> List.map (fun ((_, subCat), items) -> subCat, orderGroup items)
+
+                parentCat, orderedSubGroups)
 
         // Cache filesystem check — same result for all pages in a build
         let useTemplating = Menu.isTemplatingAvailable input
 
         // Cheap render function: only sets IsActive and generates HTML (no sorting/grouping)
         fun (root: string) (currentPagePath: string option) ->
+            let setActive items =
+                items
+                |> List.map (fun (path, model) ->
+                    let isActive =
+                        match currentPagePath with
+                        | None -> false
+                        | Some cp -> cp = path
+
+                    model, isActive)
+
             let modelsByCategory =
                 sortedGroups
-                |> List.map (fun (cat, items) ->
-                    cat,
-                    items
-                    |> List.map (fun (path, model) ->
-                        let isActive =
-                            match currentPagePath with
-                            | None -> false
-                            | Some cp -> cp = path
+                |> List.map (fun (parentCat, subGroups) ->
+                    parentCat, subGroups |> List.map (fun (subCat, items) -> subCat, setActive items))
 
-                        model, isActive))
+            let isSingleFlatCategory =
+                match modelsByCategory with
+                | [ (None, [ (None, _) ]) ] -> true
+                | _ -> false
 
             if useTemplating then
                 // The menu templates get what the page gets, root included, so they can link
@@ -635,22 +670,29 @@ module internal Content =
 
                     Menu.createMenu input pageSubstitutions isCategoryActive header menuItems
 
-                if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                    let _, items = modelsByCategory.[0]
+                if isSingleFlatCategory then
+                    let _, subGroups = modelsByCategory.[0]
+                    let _, items = subGroups.[0]
                     createGroup false "Documentation" items
                 else
+                    // The menu template system has no notion of a sub-header, so a nested category
+                    // is flattened here: every item under a parent, sub-categorised or not, is
+                    // rendered as one flat group under the parent's own header.
                     modelsByCategory
-                    |> List.map (fun (header, items) ->
-                        let header = Option.defaultValue "Other" header
+                    |> List.map (fun (parentCat, subGroups) ->
+                        let header = Option.defaultValue "Other" parentCat
+                        let items = subGroups |> List.collect snd
                         let isActive = items |> List.exists snd
                         createGroup isActive header items)
                     |> String.concat "\n"
             else
                 [
-                    if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                    if isSingleFlatCategory then
+                        let _, subGroups = modelsByCategory.[0]
+                        let _, items = subGroups.[0]
                         li [ Class "nav-header" ] [ !!"Documentation" ]
 
-                        for (model, isActive) in snd modelsByCategory.[0] do
+                        for (model, isActive) in items do
                             let link = model.Uri(root)
                             let activeClass = if isActive then "active" else ""
 
@@ -658,20 +700,32 @@ module internal Content =
                                 [ Class $"nav-item %s{activeClass}" ]
                                 [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
                     else
-                        for (cat, modelsInCategory) in modelsByCategory do
-                            let categoryActiveClass = if modelsInCategory |> List.exists snd then "active" else ""
+                        for (parentCat, subGroups) in modelsByCategory do
+                            let parentActiveClass =
+                                if subGroups |> List.exists (fun (_, items) -> items |> List.exists snd) then
+                                    "active"
+                                else
+                                    ""
 
-                            match cat with
-                            | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
-                            | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
+                            match parentCat with
+                            | Some c -> li [ Class $"nav-header %s{parentActiveClass}" ] [ !!c ]
+                            | None -> li [ Class $"nav-header %s{parentActiveClass}" ] [ !!"Other" ]
 
-                            for (model, isActive) in modelsInCategory do
-                                let link = model.Uri(root)
-                                let activeClass = if isActive then "active" else ""
+                            for (subCat, itemsInGroup) in subGroups do
+                                match subCat with
+                                | Some sub ->
+                                    let subActiveClass = if itemsInGroup |> List.exists snd then "active" else ""
 
-                                li
-                                    [ Class $"nav-item %s{activeClass}" ]
-                                    [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                                    li [ Class $"nav-sub-header %s{subActiveClass}" ] [ !!sub ]
+                                | None -> ()
+
+                                for (model, isActive) in itemsInGroup do
+                                    let link = model.Uri(root)
+                                    let activeClass = if isActive then "active" else ""
+
+                                    li
+                                        [ Class $"nav-item %s{activeClass}" ]
+                                        [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
                 ]
                 |> List.map (fun html -> html.ToString())
                 |> String.concat "             \n"
