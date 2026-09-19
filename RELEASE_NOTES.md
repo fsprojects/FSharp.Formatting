@@ -1,5 +1,34 @@
 # Changelog
 
+## [23.0.0-alpha.8] - 2026-09-18
+
+### Added
+* Tool tips on F# snippets are syntax highlighted. The compiler hands a signature over as runs it has already classified, and `ToolTipReader` was flattening them into one string, so `val printfn: format: Printf.TextWriterFormat<'T> -> 'T` rendered as undifferentiated text. The runs keep their classification now and a tip is colored by the same `--code-*` rules as the snippet it describes, so a keyword, a type, a function and a type parameter look the same whether you read them in the code or in the tip. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A signature too wide for its tool tip is laid out over several lines instead of wrapping wherever the line runs out. It breaks after the name, after each parameter and before the result, the parameters indented under the name and the result under them, the way a formatter would write it. The compiler's own parser decides where those points are, so the breaks land on syntax rather than a guess, and a line that fits, or that is not a signature, is left as it was. Nearly every line this touched was a member of a type: one with six optional parameters ran to 600 characters. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+### Changed
+* A tool tip opens with the doc comment and the signature follows it, where the signature used to come first. The doc text is shown in the color a comment has in a snippet. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* Code snippets are no longer laid out with a table. A snippet is a `<div class="fsdocs-snippet">` holding one `<pre class="fsdocs-snippet-lines">` for the line numbers and one `<pre class="fssnip">` for the code, placed side by side with CSS grid. Markdown code blocks, notebook output and non-F# snippets use the same wrapper, so one selector covers every code block on the page. A stylesheet that targets `table.pre`, `td.lines`, `td.snippet`, or the `.code-block-wrapper` the copy button used to insert, needs updating, and a script that looks for a snippet, such as the Mermaid recipe in the documentation, should look for `.fsdocs-snippet` instead of `table.pre`. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* Line numbers lost the `: ` suffix and sit in a column marked `aria-hidden`, so a screen reader reads the code and not the numbering. The code column scrolls on its own, so the line numbers stay in view while a wide snippet scrolls. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* The default stylesheet ships a new syntax palette built from GitHub's light and dark hues. The previous one had grown a separate hue per token kind, eight of them teal or purple, on top of a dark green default text color in light mode. Tokens are grouped into roles instead: keywords, types, the modules and namespaces that hold them, callables, values, strings, and one mute for comments, fsi output, inactive code and line numbers. Modules take the green GitHub reserves for tags, so `List.map String.trim` reads as container then function rather than one orange run. Identifiers, operators and punctuation read as plain text. Every color is a `--code-*` custom property, so a site can restyle the whole scheme without touching a selector. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* `ToolTipSpan` gained a `Token of kind: TokenKind * body: string` case for a classified run of tool tip text, and `ToolTipReader.stripParameterAttributes` now takes and returns those runs instead of a string. Code that matches on `ToolTipSpan` has to handle the new case. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+### Fixed
+* A type abbreviation in a tool tip was colored as an identifier rather than as a type, so `int` and `bool` were orange while `string`, `option`, `list`, `array` and `unit` were plain, in the same position of the same signature. The compiler tags an abbreviation apart from the type it stands for, and the tag was being grouped with parameters and locals. The `System.` qualifier of a fully written name takes the module color instead of plain for the same reason. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A tool tip lost every line break in the signature it was showing. The compiler does not hand the break over in a tag of its own, it arrives inside a `Text` or `Space` run with the indentation of the next line attached, and only the `Space` case was split on. A tip is flowing text, so the browser collapsed the rest and `type List<'T>` ran its cases, interfaces and members together on one line. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A doc comment reached the tool tip as the raw XML it was written as, so `<summary>` and `<param>` tags showed up in the tip. The comment is read as XML now and a `<see cref="..."/>` keeps the name it points at, rather than leaving a hole in the sentence it sits in. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* Several syntax token classes had no matching rule in the default stylesheet and were rendered in the plain code color: union cases (`uc`), F# preprocessor directives (`pp`), escaped characters (`esc`), enumeration cases (`en`), mutable bindings (`mv`), and identifiers in every non-F# language (`i`), which is the bulk of a C#, JavaScript, TypeScript or HTML snippet. The stylesheet was matching `u`, `prep`, `e` and `v`, names the formatters stopped emitting. Compiler errors (`cerr`) and omitted code (`omitted`) are styled for the first time. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A code block rendered from an `OtherBlock` opened its wrapper element without ever closing it, leaving unbalanced HTML on the page whenever code snippet wrapping was on. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
 ## [23.0.0-alpha.7] - 2026-09-15
 
 ### Changed

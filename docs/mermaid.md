@@ -22,10 +22,10 @@ Create or edit a `_body.html` file in your `docs` folder. fsdocs injects it at t
   // as a syntax-highlighted code block. Promote those blocks to
   // <div class="mermaid"> elements so one plain fence works in both places.
   for (const code of document.querySelectorAll('code[lang="mermaid"]')) {
-    // fsdocs wraps the snippet in <table class="pre"><tr><td><pre><code>...;
-    // replace the outermost wrapper so no table scaffolding is left around
+    // fsdocs wraps the snippet in <div class="fsdocs-snippet"><pre><code>...;
+    // replace the outermost wrapper so no snippet scaffolding is left around
     // the diagram.
-    const snippet = code.closest('table.pre') ?? code.closest('pre');
+    const snippet = code.closest('.fsdocs-snippet') ?? code.closest('pre');
     if (!snippet) continue;
     const diagram = document.createElement('div');
     diagram.className = 'mermaid';

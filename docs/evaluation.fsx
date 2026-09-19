@@ -230,15 +230,10 @@ followed by a nicely formatted ordered list:
 
 <blockquote>
 <h3>Formatting demo</h3>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <spanclass="i">test</span> <span class="o">=</span> [<span class="s">&quot;</span><span class="s">one</span><span class="s">&quot;</span>;<span class="s">&quot;</span><span class="s">two</span><span class="s">&quot;</span>;<span class="s">&quot;</span><span class="s">three</span><span class="s">&quot;</span>]</pre>
-</td>
-</tr>
-</table>
+<div class="fsdocs-snippet">
+<pre class="fsdocs-snippet-lines" aria-hidden="true"><span class="l">1</span>
+</pre><pre class="fssnip"><span class="k">let</span> <span class="id">test</span> <span class="o">=</span> [<span class="s">&quot;</span><span class="s">one</span><span class="s">&quot;</span>;<span class="s">&quot;</span><span class="s">two</span><span class="s">&quot;</span>;<span class="s">&quot;</span><span class="s">three</span><span class="s">&quot;</span>]</pre>
+</div>
 <ol>
 <li><p>one</p></li>
 <li><p>two</p></li>

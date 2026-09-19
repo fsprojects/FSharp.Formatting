@@ -506,35 +506,31 @@ module internal Transformations =
     let replaceHtmlTaggedCode (ctx: LiterateProcessingContext) (lang: string) (code: string) =
         let sb = new System.Text.StringBuilder()
         let writer = new System.IO.StringWriter(sb)
-        writer.Write("<table class=\"pre\">")
-        writer.Write("<tr>")
+        writer.Write("<div class=\"fsdocs-snippet\">")
 
         if ctx.GenerateLineNumbers then
-            // Split the formatted code into lines & emit line numbers in <td>
+            // Split the formatted code into lines & emit line numbers in their own <pre>
             // (Similar to formatSnippets in FSharp.Formatting.CodeFormat\HtmlFormatting.fs)
             let lines =
                 code.Trim('\r', '\n').Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n").Split('\n')
 
             let numberLength = lines.Length.ToString().Length
             let linesLength = lines.Length
-            writer.Write("<td class=\"lines\"><pre class=\"fssnip\">")
+            writer.Write("<pre class=\"fsdocs-snippet-lines\" aria-hidden=\"true\">")
 
             for index in 0 .. linesLength - 1 do
                 let lineStr = (index + 1).ToString().PadLeft(numberLength)
 
-                writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
+                writer.WriteLine("<span class=\"l\">{0}</span>", lineStr)
 
             writer.Write("</pre>")
-            writer.WriteLine("</td>")
-
-        writer.Write("<td class=\"snippet\">")
 
         match SyntaxHighlighter.FormatCode(lang, code) with
         | true, code ->
             Printf.fprintf writer "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>" lang code
         | false, code -> Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
 
-        writer.Write("</td></tr></table>")
+        writer.Write("</div>")
         sb.ToString()
 
     /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
@@ -623,7 +619,7 @@ module internal Transformations =
                 let openTag = "<pre class=\"fssnip highlighted\"><code lang=\"fsharp\">"
 
                 let closeTag = "</code></pre>"
-                let openLinesTag = "<pre class=\"fssnip\">"
+                let openLinesTag = "<pre class=\"fsdocs-snippet-lines\" aria-hidden=\"true\">"
                 let closeLinesTag = "</pre>"
 
                 CodeFormat.FormatHtml(

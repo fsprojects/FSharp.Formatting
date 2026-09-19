@@ -10,6 +10,11 @@ open FsUnit
 open FsUnitTyped
 open NUnit.Framework
 
+/// Tool tips are now marked up with the same token classes as the snippet they
+/// describe, so strip the tags before asserting on what a tip actually says.
+let private withoutTags (html: string) =
+    System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", "")
+
 do FSharp.Formatting.TestHelpers.enableLogging ()
 
 // --------------------------------------------------------------------------------------
@@ -138,7 +143,15 @@ printfn "42"
 
     let html = Literate.ToHtml(doc)
     html.Contains("42") |> shouldEqual true
-    html.Contains(">printfn<") |> shouldEqual false
+
+    // A hidden snippet still registers its tool tips, and those are written after the
+    // content, so assert against the rendered part rather than the whole document.
+    let rendered =
+        match html.IndexOf("<div popover class=\"fsdocs-tip\"") with
+        | -1 -> html
+        | index -> html.Substring(0, index)
+
+    rendered.Contains(">printfn<") |> shouldEqual false
 
 [<Test>]
 let ``Can parse literate F# script with custom evaluator`` () =
@@ -199,7 +212,7 @@ printfn "hi"
 
     let html = Literate.ToHtml(doc)
 
-    html.Split([| "<table class=\"pre\">" |], System.StringSplitOptions.None).Length
+    html.Split([| "<div class=\"fsdocs-snippet\">" |], System.StringSplitOptions.None).Length
     |> shouldEqual 5
 
 
@@ -483,7 +496,7 @@ let xxxx = 1+1
 
     let html1 = Literate.ToHtml(doc1)
     html1 |> shouldContainText "helloworld"
-    html1 |> shouldContainText "val xxxx: int"
+    html1 |> withoutTags |> shouldContainText "val xxxx: int"
 
     html1 |> shouldContainText """<span class="k">let</span>""" // formatted code
 
@@ -506,7 +519,7 @@ let xxxx = 1+1
 
     let html1 = Literate.ToHtml(doc1)
     html1 |> shouldContainText "helloworld"
-    html1 |> shouldContainText "val xxxx: int"
+    html1 |> withoutTags |> shouldContainText "val xxxx: int"
 
     html1 |> shouldNotContainText """<span class="k">let</span>""" // formatted code
 
@@ -529,7 +542,7 @@ let xxxx = 1+1
 
     let html1 = Literate.ToHtml(doc1)
     html1 |> shouldContainText "helloworld"
-    html1 |> shouldContainText "val xxxx: int"
+    html1 |> withoutTags |> shouldContainText "val xxxx: int"
     html1 |> shouldContainText "2000"
 
 [<Test>]
