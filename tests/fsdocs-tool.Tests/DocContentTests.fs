@@ -331,3 +331,67 @@ let ``navigation factory excludes index pages and marks the active page`` () =
     html |> shouldContainText "B &amp; co"
     html |> shouldContainText "nav-item active"
     html.IndexOf("A") < html.IndexOf("B &amp; co") |> shouldEqual true
+
+[<Test>]
+let ``navigation factory renders a Parent/Child category as a nested header, closes #927`` () =
+    let page path title category index =
+        {
+            NavPage.InputPath = path
+            OutputPath = Path.GetFileNameWithoutExtension path + ".html"
+            Title = title
+            Category = Some category
+            CategoryIndex = Some 1
+            Index = Some index
+        }
+
+    let pages =
+        [
+            page "/docs/lists.md" "Lists" "Collections/Lists" 1
+            page "/docs/arrays.md" "Arrays" "Collections/Arrays" 1
+            page "/docs/misc.md" "Misc" "Collections" 1
+        ]
+
+    let render =
+        Content.getNavigationEntriesFactory (tempDir, pages, false, [], [ FSharp.Formatting.Templating.ParamKeys.root ])
+
+    let html = render "../" (Some "/docs/lists.md")
+
+    // One parent header, not one per document.
+    html |> shouldContainText "nav-header"
+    html |> shouldContainText "Collections"
+
+    // Each sub-category gets its own sub-header.
+    html |> shouldContainText "nav-sub-header"
+    html |> shouldContainText "Arrays"
+    html |> shouldContainText "Lists"
+
+    // A document without a sub-category is listed directly under the parent, before any sub-header.
+    let miscIdx = html.IndexOf("Misc")
+    let firstSubHeaderIdx = html.IndexOf("nav-sub-header")
+    miscIdx < firstSubHeaderIdx |> shouldEqual true
+
+    // The active document's page marks its own sub-header active, not the whole parent alone.
+    html |> shouldContainText "nav-sub-header active"
+
+[<Test>]
+let ``navigation factory renders a flat category unchanged when no category uses a slash`` () =
+    let page path title category index =
+        {
+            NavPage.InputPath = path
+            OutputPath = Path.GetFileNameWithoutExtension path + ".html"
+            Title = title
+            Category = Some category
+            CategoryIndex = Some 1
+            Index = Some index
+        }
+
+    let pages = [ page "/docs/a.md" "A" "Docs" 1; page "/docs/b.md" "B" "Docs" 2 ]
+
+    let render =
+        Content.getNavigationEntriesFactory (tempDir, pages, false, [], [ FSharp.Formatting.Templating.ParamKeys.root ])
+
+    let html = render "../" None
+
+    html |> shouldNotContainText "nav-sub-header"
+    html |> shouldContainText "nav-header"
+    html |> shouldContainText "Docs"
