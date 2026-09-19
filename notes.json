@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "cursors": {
+    "labelling_after": null,
+    "investigation_after": 927
+  },
+  "issues": [
+    {
+      "number": 927,
+      "state": "resolution_recommended",
+      "updated_at": "2026-09-19",
+      "note": "Nested nav categories via category:Parent/Sub. Fix PR opened (repo-assist/fix-issue-927-nested-categories)."
+    },
+    {
+      "number": 585,
+      "state": "commented",
+      "updated_at": "2026-09-19",
+      "note": "Group overloaded methods - large feature, analysis comment posted, no new activity."
+    },
+    {
+      "number": 705,
+      "state": "commented",
+      "updated_at": "2026-09-19",
+      "note": "Result display for API examples - analysis comment posted, no new activity."
+    },
+    {
+      "number": 828,
+      "state": "commented",
+      "updated_at": "2026-09-19",
+      "note": "Multi-target F# libs discussion - linked to #1064, no new activity."
+    },
+    {
+      "number": 898,
+      "state": "commented",
+      "updated_at": "2026-09-19",
+      "note": "Keyword/glossary site map - analysis comment posted, no new activity."
+    },
+    {
+      "number": 928,
+      "state": "commented",
+      "updated_at": "2026-09-19",
+      "note": "Include images in docs - now also documented via PR #1332."
+    },
+    {
+      "number": 929,
+      "state": "commented",
+      "updated_at": "2026-09-19",
+      "note": "Signature-like API docs - status note referencing closed WIP #932, no new activity."
+    },
+    {
+      "number": 1064,
+      "state": "commented",
+      "updated_at": "2026-09-19",
+      "note": "Multi-TFM docs - large architectural ask, analysis comment posted, no new activity."
+    },
+    {
+      "number": 1333,
+      "state": "deferred",
+      "updated_at": "2026-09-19",
+      "note": "[aw] Repo Assist failed - stale rebase-conflict notice, no repo-assist action possible."
+    },
+    {
+      "number": 1325,
+      "state": "deferred",
+      "updated_at": "2026-09-19",
+      "note": "[aw] Repo Assist failed - stale engine-crash notice, no repo-assist action possible."
+    }
+  ],
+  "fixes": [
+    {
+      "issue": 927,
+      "pr": null,
+      "branch": "repo-assist/fix-issue-927-nested-categories",
+      "status": "open",
+      "updated_at": "2026-09-19",
+      "note": "Nested category feature reimplemented cleanly; old PR #1105 closed only for unrelated merge conflicts. 33+146 tests pass."
+    }
+  ],
+  "checks": [
+    {
+      "area": "dependencies",
+      "checked_at": "2026-09-19",
+      "result": "Bumped fantomas 8.0.0-beta-002->8.0.0 stable, Microsoft.NET.Test.Sdk 18.10.0->18.10.1. PR opened on repo-assist/eng-deps-bump-fantomas-nunit-sdk-20260919, supersedes Dependabot #1334.",
+      "follow_up": "After merge, maintainer should close Dependabot PR #1334."
+    },
+    {
+      "area": "repo_assist_prs",
+      "checked_at": "2026-09-19",
+      "result": "PRs #1319 (perf pipe-table) and #1299 (ToLatex tests) both mergeable_state=dirty, need rebase onto main.",
+      "follow_up": "Rebase #1319 and #1299 onto main in a future Task 6 run."
+    }
+  ],
+  "completed_actions": [],
+  "priorities": [
+    {
+      "task": 6,
+      "item": "monthly-activity-1277-update",
+      "note": "Sept 2026 Monthly Activity issue #1277 body was NOT refreshed this run (update_issue 1-per-run limit was used closing stale #1198). Apply the full new body during the mandatory activity-summary update, first thing, next run."
+    },
+    {
+      "task": 6,
+      "item": "pr-1319-rebase",
+      "note": "PR #1319 (perf pipe-table) is mergeable_state=dirty, needs rebase onto main."
+    },
+    {
+      "task": 6,
+      "item": "pr-1299-rebase",
+      "note": "PR #1299 (ToLatex tests) is mergeable_state=dirty, needs rebase onto main."
+    }
+  ]
+}
