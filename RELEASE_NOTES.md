@@ -1,10 +1,5 @@
 # Changelog
 
-## [Unreleased]
-
-### Changed
-* Bump fantomas from `8.0.0-beta-002` to `8.0.0` (stable) and `Microsoft.NET.Test.Sdk` from `18.10.0` to `18.10.1`. [#1334](https://github.com/fsprojects/FSharp.Formatting/pull/1334)
-
 ## [23.0.0-alpha.8] - 2026-09-18
 
 ### Added
