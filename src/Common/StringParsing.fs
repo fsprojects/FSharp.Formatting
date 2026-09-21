@@ -398,12 +398,7 @@ module Lines =
     /// the number of spaces the first line started with.
     let (|TakeCodeBlock|_|) (input: (string * MarkdownRange) list) =
         let spaceNum = 4
-        //match input with
-        //| h :: _ ->
-        //  let head = (input |> List.head).Replace("\t", "    ") |> Seq.toList
-        //  let spaces, _ = List.partitionWhile (fun s -> s = ' ') head
-        //  spaces.Length
-        //| _ -> 0
+
         let startsWithSpaces (s: string) =
             let normalized = s.Replace("\t", "    ")
 
@@ -411,7 +406,7 @@ module Lines =
             && normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
 
         match List.partitionWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
-        | matching, rest when matching <> [] && spaceNum >= 4 -> Some(spaceNum, matching, rest)
+        | matching, rest when matching <> [] -> Some(spaceNum, matching, rest)
         | _ -> None
 
     /// Removes whitespace lines from the beginning of the list
