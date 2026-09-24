@@ -16,7 +16,7 @@
     <PackageVersion Include="Ionide.ProjInfo" Version="0.75.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="Suave" Version="3.5.0" />
-    <PackageVersion Include="FSharp.Data.Adaptive" Version="1.2.26" />
+    <PackageVersion Include="FSharp.Data.Adaptive" Version="1.2.27" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
     <PackageVersion Include="System.Memory" Version="4.6.3" />
     <PackageVersion Include="System.Text.Json" Version="10.0.12" />
@@ -26,7 +26,7 @@
     <PackageVersion Include="FSharp.Data" Version="8.2.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="6.3.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
-    <PackageVersion Include="Ionide.KeepAChangelog.Tasks" Version="0.3.3" />
+    <PackageVersion Include="Ionide.KeepAChangelog.Tasks" Version="0.4.0" />
     <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.25.0" />
     <PackageVersion Include="Ionide.Analyzers" Version="0.19.0" />
   </ItemGroup>
