@@ -485,6 +485,20 @@ main {
             font-weight: 700;
         }
     }
+
+    .nav-sub-header {
+        margin-top: var(--spacing-200);
+        padding-left: var(--spacing-200);
+        font-size: var(--font-200);
+        font-weight: 500;
+        color: var(--menu-color);
+        opacity: 0.8;
+
+        &.active {
+            font-weight: 700;
+            opacity: 1;
+        }
+    }
 }
 
 .nav-header:first-child {

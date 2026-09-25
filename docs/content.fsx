@@ -100,6 +100,13 @@ The `title` is used in the navigation bar instead of any title inferred from the
 The `description` is used in `<meta name="description"` as part of the `{{fsdocs-meta-tags}}` substitution.
 The `keywords` are also used in a meta tag as part of `{{fsdocs-meta-tags}}`. Separate them using a `,`.
 
+A `category` can be nested one level by using `/` as a separator, e.g. `category: Collections/Lists`.
+The part before the `/` is rendered as a top-level navigation header, and the part after it as an
+indented sub-header beneath it. Documents that share the same parent but have no sub-category (or a
+flat `category` with no `/`) are listed directly under the parent header. The parent's position among
+the other top-level headers is determined by the lowest `categoryindex` of any document under it,
+including those in its sub-categories.
+
 ## Link Translation for Inputs
 
 If an input is used in markdown as a target of a markdown direct link, then that is replaced by the output file. For example:
