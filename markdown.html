@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" data-root="./">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="Markdown parser
+" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="Markdown parser
+">
+    
+    <title>Markdown parser
+ | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="./img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="./content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="./content/fsdocs-details-set-expanded.js"></script>
+    <link href="./content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="./content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./mermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header active">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-apidocs.html" title="FSharp.Formatting.ApiDocs">
+      ApiDocs
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-csharpformat.html" title="FSharp.Formatting.CSharpFormat">
+      CSharpFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-codeformat.html" title="FSharp.Formatting.CodeFormat">
+      CodeFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-common.html" title="FSharp.Formatting.Common">
+      Common
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-literate.html" title="FSharp.Formatting.Literate">
+      Literate
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-markdown.html" title="FSharp.Formatting.Markdown">
+      Markdown
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-templating.html" title="FSharp.Formatting.Templating">
+      Templating
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="./img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./mermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header active">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-apidocs.html" title="FSharp.Formatting.ApiDocs">
+      ApiDocs
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-csharpformat.html" title="FSharp.Formatting.CSharpFormat">
+      CSharpFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-codeformat.html" title="FSharp.Formatting.CodeFormat">
+      CodeFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-common.html" title="FSharp.Formatting.Common">
+      Common
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-literate.html" title="FSharp.Formatting.Literate">
+      Literate
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-markdown.html" title="FSharp.Formatting.Markdown">
+      Markdown
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-templating.html" title="FSharp.Formatting.Templating">
+      Templating
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<p><a href="markdown.html"><img src="img/badge-script.svg" alt="Script" /></a></p>
+<h1 data-fsdocs-heading="1"><a name="Markdown-parser" class="anchor" href="#Markdown-parser">Markdown parser</a></h1>
+<p>This page demonstrates how to use <code>FSharp.Formatting.Markdown</code> to parse a Markdown
+document, process the obtained document representation, and
+how to turn the code into a nicely formatted HTML.</p>
+<p>First, we need to load the assembly and open the necessary namespaces:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">Formatting</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">Markdown</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="4" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="5" class="id">Formatting</span><span class="pn">.</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="6" class="id">Common</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="2"><a name="Parsing-documents" class="anchor" href="#Parsing-documents">Parsing documents</a></h2>
+<p>The F# Markdown parser recognizes the standard <a href="http://daringfireball.net/projects/markdown/">Markdown syntax</a>
+and it is not the aim of this tutorial to fully document it.
+The following snippet creates a simple string containing a document
+with several elements and then parses it using the <a href="./reference/fsharp-formatting-markdown-markdown.html#Parse">Markdown.Parse</a> method:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="7" class="id">document</span> <span class="o">=</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s"># F# Hello world</span>
+<span class="s">Hello world in [F#](http://fsharp.net) looks like this:</span>
+
+<span class="s">    printfn &quot;Hello world!&quot;</span>
+
+<span class="s">For more see [fsharp.org][fsorg].</span>
+
+<span class="s">  [fsorg]: http://fsharp.org &quot;The F# organization.&quot; &quot;&quot;&quot;</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="8" class="id">parsed</span> <span class="o">=</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="9" class="rt">Markdown</span><span class="pn">.</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="10" class="id">Parse</span><span class="pn">(</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="11" class="id">document</span><span class="pn">)</span>
+</code></pre></div>
+<p>The sample document consists of a first-level heading (written using
+one of the two alternative styles) followed by a paragraph with a
+<em>direct</em> link, code snippet and one more paragraph that includes an
+<em>indirect</em> link. The URLs of indirect links are defined by a separate
+block as demonstrated on the last line (and they can then be easily used repeatedly
+from multiple places in the document).</p>
+<h2 data-fsdocs-heading="3"><a name="Working-with-parsed-documents" class="anchor" href="#Working-with-parsed-documents">Working with parsed documents</a></h2>
+<p>The F# Markdown processor does not turn the document directly into HTML.
+Instead, it builds a nice F# data structure that we can use to analyze,
+transform and process the document. First of all the <a href="./reference/fsharp-formatting-markdown-markdowndocument.html#DefinedLinks">MarkdownDocument.DefinedLinks</a> property
+returns all indirect link definitions:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="12" class="id">parsed</span><span class="pn">.</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="13" class="id">DefinedLinks</span>
+<span class="fsi">val it : IDictionary&lt;string,(string * string option)&gt; =</span>
+<span class="fsi">  dict [(&quot;fsorg&quot;, (&quot;http://fsharp.org&quot;, Some &quot;The F# organization.&quot;))]</span>
+</code></pre></div>
+<p>The document content can be accessed using the <a href="./reference/fsharp-formatting-markdown-markdowndocument.html#Paragraphs">MarkdownDocument.Paragraphs</a> property that returns
+a sequence of paragraphs or other first-level elements (headings, quotes, code snippets, etc.).
+The following snippet prints the heading of the document:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Iterate over all the paragraph elements</span>
+<span class="k">for</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="14" class="fn">par</span> <span class="k">in</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="15" class="id">parsed</span><span class="pn">.</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="16" class="id">Paragraphs</span> <span class="k">do</span>
+    <span class="k">match</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="17" class="fn">par</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="18" class="uc">Heading</span> <span class="pn">(</span><span class="prop">size</span> <span class="o">=</span> <span class="n">1</span><span class="pn">;</span> <span class="prop">body</span> <span class="o">=</span> <span class="pn">[</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="19" class="uc">Literal</span> <span class="pn">(</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="20" class="prop">text</span> <span class="o">=</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="21" class="fn">text</span><span class="pn">)</span> <span class="pn">]</span><span class="pn">)</span> <span class="k">-&gt;</span>
+        <span class="c">// Recognize heading that has a simple content</span>
+        <span class="c">// containing just a literal (no other formatting)</span>
+        <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="22" class="fn">printfn</span> <span class="s">&quot;</span><span class="pf">%s</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="23" class="fn">text</span>
+    <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
+</code></pre></div>
+<p>You can find more detailed information about the document structure and how to process it
+in the book <a href="http://manning.com/petricek2/">F# Deep Dives</a>.</p>
+<h2 data-fsdocs-heading="4"><a name="Processing-the-document-recursively" class="anchor" href="#Processing-the-document-recursively">Processing the document recursively</a></h2>
+<p>The library provides active patterns that can be used to easily process the Markdown
+document recursively. The example in this section shows how to extract all links from the
+document. To do that, we need to write two recursive functions. One that will process
+all paragraph-style elements and one that will process all inline formattings (inside
+paragraphs, headings etc.).</p>
+<p>To avoid pattern matching on every single kind of span and every single kind of
+paragraph, we can use active patterns from the <a href="./reference/fsharp-formatting-markdown-markdownpatterns.html">MarkdownPatterns</a> module. These can be use
+to recognize any paragraph or span that can contain child elements:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Returns all links in a specified span node</span>
+<span class="k">let</span> <span class="k">rec</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="24" class="fn">collectSpanLinks</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="25" class="fn">span</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="26" class="fn">seq</span> <span class="pn">{</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="27" class="fn">span</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="28" class="uc">DirectLink</span> <span class="pn">(</span><span class="prop">link</span> <span class="o">=</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="29" class="fn">url</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="k">yield</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="30" class="fn">url</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="31" class="uc">IndirectLink</span> <span class="pn">(</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="32" class="prop">key</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="33" class="fn">key</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="k">yield</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="34" class="fn">fst</span> <span class="pn">(</span><span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="35" class="id">parsed</span><span class="pn">.</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="36" class="id">DefinedLinks</span><span class="pn">.</span><span class="pn">[</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="37" class="fn">key</span><span class="pn">]</span><span class="pn">)</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="38" class="m">MarkdownPatterns</span><span class="pn">.</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="39" class="id">SpanLeaf</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="40" class="m">MarkdownPatterns</span><span class="pn">.</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="41" class="id">SpanNode</span> <span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="42" class="fn">spans</span><span class="pn">)</span> <span class="k">-&gt;</span>
+            <span class="k">for</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="43" class="fn">s</span> <span class="k">in</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="44" class="fn">spans</span> <span class="k">do</span>
+                <span class="k">yield!</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="45" class="fn">collectSpanLinks</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="46" class="fn">s</span>
+    <span class="pn">}</span>
+
+<span class="c">/// Returns all links in the specified paragraph node</span>
+<span class="k">let</span> <span class="k">rec</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="47" class="fn">collectParLinks</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="48" class="fn">par</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="49" class="fn">seq</span> <span class="pn">{</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="50" class="fn">par</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="51" class="m">MarkdownPatterns</span><span class="pn">.</span><span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="52" class="id">ParagraphLeaf</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="53" class="m">MarkdownPatterns</span><span class="pn">.</span><span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="54" class="id">ParagraphNested</span> <span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="55" class="fn">pars</span><span class="pn">)</span> <span class="k">-&gt;</span>
+            <span class="k">for</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="56" class="fn">ps</span> <span class="k">in</span> <span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="57" class="fn">pars</span> <span class="k">do</span>
+                <span class="k">for</span> <span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="58" class="fn">p</span> <span class="k">in</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="59" class="fn">ps</span> <span class="k">do</span>
+                    <span class="k">yield!</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="60" class="fn">collectParLinks</span> <span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="61" class="fn">p</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="62" class="m">MarkdownPatterns</span><span class="pn">.</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="63" class="id">ParagraphSpans</span> <span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="64" class="fn">spans</span><span class="pn">)</span> <span class="k">-&gt;</span>
+            <span class="k">for</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="65" class="fn">s</span> <span class="k">in</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="66" class="fn">spans</span> <span class="k">do</span>
+                <span class="k">yield!</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="67" class="fn">collectSpanLinks</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="68" class="fn">s</span>
+    <span class="pn">}</span>
+
+<span class="c">// Collect links in the entire document</span>
+<span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="69" class="m">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs37" data-fsdocs-tip-unique="70" class="id">collect</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="71" class="fn">collectParLinks</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="72" class="id">parsed</span><span class="pn">.</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="73" class="id">Paragraphs</span>
+<span class="fsi">val it : seq&lt;string&gt; =</span>
+<span class="fsi">  seq [&quot;http://fsharp.net&quot;; &quot;http://fsharp.org&quot;]</span>
+</code></pre></div>
+<p>The <code>collectSpanLinks</code> function works on individual span elements that contain inline
+formatting (emphasis, strong) and also links. The <code>DirectLink</code> node from <a href="./reference/fsharp-formatting-markdown-markdownspan.html">MarkdownSpan</a> represents an inline
+link like the one pointing to <a href="http://fsharp.net">http://fsharp.net</a> while <code>IndirectLink</code> represents a
+link that uses one of the link definitions. The function simply returns the URL associated
+with the link.</p>
+<p>Some span nodes (like emphasis) can contain other formatting, so we need to recursively
+process children. This is done by matching against <code>MarkdownPatterns.SpanNodes</code> which is an active
+pattern that recognizes any node with children. The library also provides a <em>function</em>
+named <code>MarkdownPatterns.SpanNode</code> that can be used to reconstruct the same node (when you want
+to transform a document). This is similar to how the <code>ExprShape</code> module for working with
+F# quotations works.</p>
+<p>The function <code>collectParLinks</code> processes paragraphs - a paragraph cannot directly be a
+link so we just need to process all spans. This time, there are three options.
+<code>ParagraphLeaf</code> represents a case where the paragraph does not contain any spans
+(a code block or, for example, a <code>&lt;hr&gt;</code> line); the <code>ParagraphNested</code> case is used for paragraphs
+that contain other paragraphs (quotation) and <code>ParagraphSpans</code> is used for all other
+paragraphs that contain normal text - here we call <code>collectSpanLinks</code> on all nested spans.</p>
+<h2 data-fsdocs-heading="5"><a name="Generating-HTML-output" class="anchor" href="#Generating-HTML-output">Generating HTML output</a></h2>
+<p>Finally, the <a href="./reference/fsharp-formatting-markdown-markdown.html">Markdown</a> type also includes a method <a href="./reference/fsharp-formatting-markdown-markdown.html#ToHtml">Markdown.ToHtml</a> that can be used
+to generate an HTML document from the Markdown input. The following example shows how to call it:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="74" class="id">html</span> <span class="o">=</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="75" class="rt">Markdown</span><span class="pn">.</span><span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="76" class="id">ToHtml</span><span class="pn">(</span><span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="77" class="id">parsed</span><span class="pn">)</span>
+</code></pre></div>
+<p>There are also methods to generate <code>.fsx</code>, <code>.ipynb</code>, <code>.md</code> and <code>.tex</code>.</p>
+
+        <div popover class="fsdocs-tip" id="fs1">Multiple items<br /><span class="k">namespace</span> <span class="m">FSharp</span><br /><br />--------------------<br /><span class="k">namespace</span> <span class="m">Microsoft.FSharp</span></div>
+<div popover class="fsdocs-tip" id="fs2"><span class="k">namespace</span> <span class="m">FSharp.Formatting</span></div>
+<div popover class="fsdocs-tip" id="fs3"><span class="k">namespace</span> <span class="m">FSharp.Formatting.Markdown</span></div>
+<div popover class="fsdocs-tip" id="fs4"><span class="k">namespace</span> <span class="m">FSharp.Formatting.Common</span></div>
+<div popover class="fsdocs-tip" id="fs5"><span class="k">val</span> <span class="fn">document</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs6"><span class="k">val</span> <span class="fn">parsed</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span></div>
+<div popover class="fsdocs-tip" id="fs7"><em>Static class that provides methods for formatting<br />and transforming Markdown documents.</em><br /><span class="k">type</span> <span class="rt">Markdown</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Parse</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">text</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parseOptions</span><span class="pn">:</span> <span class="en">MarkdownParseOptions</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownDocument</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToFsx</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToHtml</span><span class="pn">:</span> <span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToLatex</span><span class="pn">:</span> <span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToMd</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToPynb</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">WriteHtml</span><span class="pn">:</span> <span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span> <span class="id">writer</span><span class="pn">:</span> <span class="rt">TextWriter</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">WriteLatex</span><span class="pn">:</span> <span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span> <span class="id">writer</span><span class="pn">:</span> <span class="rt">TextWriter</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload</div>
+<div popover class="fsdocs-tip" id="fs8"><span class="k">static</span> <span class="k">member</span> <span class="rt">Markdown</span><span class="pn">.</span><span class="fn">Parse</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">text</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parseOptions</span><span class="pn">:</span> <span class="en">MarkdownParseOptions</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownDocument</span></div>
+<div popover class="fsdocs-tip" id="fs9"><em>Returns a dictionary containing explicitly defined links</em><br />property <span class="rt">MarkdownDocument</span><span class="pn">.</span><span class="prop">DefinedLinks</span><span class="pn">:</span> <span class="m">System.Collections.Generic.</span><span class="if">IDictionary</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">,</span><span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span><span class="pn">&gt;</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs10"><span class="k">val</span> <span class="id">par</span><span class="pn">:</span> <span class="rt">MarkdownParagraph</span></div>
+<div popover class="fsdocs-tip" id="fs11"><em>Returns a list of paragraphs in the document</em><br />property <span class="rt">MarkdownDocument</span><span class="pn">.</span><span class="prop">Paragraphs</span><span class="pn">:</span> <span class="rt">MarkdownParagraphs</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs12">union case <span class="rt">MarkdownParagraph</span><span class="pn">.</span><span class="uc">Heading</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="prop">size</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">body</span><span class="pn">:</span> <span class="rt">MarkdownSpans</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">range</span><span class="pn">:</span> <span class="vt">MarkdownRange</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownParagraph</span></div>
+<div popover class="fsdocs-tip" id="fs13">Multiple items<br />union case <span class="rt">MarkdownSpan</span><span class="pn">.</span><span class="uc">Literal</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="prop">text</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">range</span><span class="pn">:</span> <span class="vt">MarkdownRange</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownSpan</span><br /><br />--------------------<br /><span class="k">type</span> <span class="rt">LiteralAttribute</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">Attribute</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">LiteralAttribute</span><br /><br />--------------------<br /><span class="k">new</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">LiteralAttribute</span></div>
+<div popover class="fsdocs-tip" id="fs14"><span class="k">val</span> <span class="id">text</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs15"><span class="k">val</span> <span class="fn">printfn</span><span class="pn">:</span> <span class="id">format</span><span class="pn">:</span> <span class="m">Printf.</span><span class="rt">TextWriterFormat</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs16"><em>Returns all links in a specified span node</em><br /><span class="k">val</span> <span class="fn">collectSpanLinks</span><span class="pn">:</span> <span class="id">span</span><span class="pn">:</span> <span class="rt">MarkdownSpan</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">seq</span></div>
+<div popover class="fsdocs-tip" id="fs17"><span class="k">val</span> <span class="id">span</span><span class="pn">:</span> <span class="rt">MarkdownSpan</span></div>
+<div popover class="fsdocs-tip" id="fs18">Multiple items<br /><span class="k">val</span> <span class="fn">seq</span><span class="pn">:</span> <span class="id">sequence</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">seq</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="rt">seq</span><br /><br />--------------------<br /><span class="k">type</span> <span class="ta">&#39;T</span> <span class="if">seq</span> <span class="o">=</span> <span class="m">System.Collections.Generic.</span><span class="if">IEnumerable</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs19">union case <span class="rt">MarkdownSpan</span><span class="pn">.</span><span class="uc">DirectLink</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="prop">body</span><span class="pn">:</span> <span class="rt">MarkdownSpans</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">link</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">title</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">option</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">range</span><span class="pn">:</span> <span class="vt">MarkdownRange</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownSpan</span></div>
+<div popover class="fsdocs-tip" id="fs20"><span class="k">val</span> <span class="id">url</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs21">union case <span class="rt">MarkdownSpan</span><span class="pn">.</span><span class="uc">IndirectLink</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="prop">body</span><span class="pn">:</span> <span class="rt">MarkdownSpans</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">original</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">key</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;<span class="prop">range</span><span class="pn">:</span> <span class="vt">MarkdownRange</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownSpan</span></div>
+<div popover class="fsdocs-tip" id="fs22"><span class="k">val</span> <span class="id">key</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs23"><span class="k">val</span> <span class="fn">fst</span><span class="pn">:</span> <span class="id">tuple</span><span class="pn">:</span> <span class="pn">(</span><span class="ta">&#39;T1</span> <span class="pn">*</span> <span class="ta">&#39;T2</span><span class="pn">)</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T1</span></div>
+<div popover class="fsdocs-tip" id="fs24"><em>This module provides an easy way of processing Markdown documents.<br />It lets you decompose documents into leafs and nodes with nested paragraphs.</em><br /><span class="k">module</span> <span class="m">MarkdownPatterns</span><br />from FSharp.Formatting.Markdown</div>
+<div popover class="fsdocs-tip" id="fs25">Multiple items<br /><em>Reconstructs a leaf span from its SpanLeafInfo tag</em><br /><span class="k">val</span> <span class="fn">SpanLeaf</span><span class="pn">:</span> <span class="m">MarkdownPatterns.</span><span class="rt">SpanLeafInfo</span> <span class="pn">-&gt;</span> <span class="rt">MarkdownSpan</span><br /><br />--------------------<br /><em>Active pattern that classifies a MarkdownSpan as either a leaf (no children) or a node (with children)</em><br />active recognizer <span class="uc">SpanLeaf</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="rt">MarkdownSpan</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="m">MarkdownPatterns.</span><span class="rt">SpanLeafInfo</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">SpanNodeInfo</span> <span class="pn">*</span> <span class="rt">MarkdownSpans</span><span class="pn">)</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs26">Multiple items<br /><em>Reconstructs a node span from its SpanNodeInfo tag and a (possibly updated) child span list</em><br /><span class="k">val</span> <span class="fn">SpanNode</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="m">MarkdownPatterns.</span><span class="rt">SpanNodeInfo</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">spans</span><span class="pn">:</span> <span class="rt">MarkdownSpans</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownSpan</span><br /><br />--------------------<br /><em>Active pattern that classifies a MarkdownSpan as either a leaf (no children) or a node (with children)</em><br />active recognizer <span class="uc">SpanNode</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="rt">MarkdownSpan</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="m">MarkdownPatterns.</span><span class="rt">SpanLeafInfo</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">SpanNodeInfo</span> <span class="pn">*</span> <span class="rt">MarkdownSpans</span><span class="pn">)</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs27"><span class="k">val</span> <span class="id">spans</span><span class="pn">:</span> <span class="rt">MarkdownSpans</span></div>
+<div popover class="fsdocs-tip" id="fs28"><span class="k">val</span> <span class="id">s</span><span class="pn">:</span> <span class="rt">MarkdownSpan</span></div>
+<div popover class="fsdocs-tip" id="fs29"><em>Returns all links in the specified paragraph node</em><br /><span class="k">val</span> <span class="fn">collectParLinks</span><span class="pn">:</span> <span class="id">par</span><span class="pn">:</span> <span class="rt">MarkdownParagraph</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">seq</span></div>
+<div popover class="fsdocs-tip" id="fs30">Multiple items<br /><em>Reconstructs a leaf paragraph from its ParagraphLeafInfo tag</em><br /><span class="k">val</span> <span class="fn">ParagraphLeaf</span><span class="pn">:</span> <span class="m">MarkdownPatterns.</span><span class="rt">ParagraphLeafInfo</span> <span class="pn">-&gt;</span> <span class="rt">MarkdownParagraph</span><br /><br />--------------------<br /><em>Active pattern that classifies a MarkdownParagraph as spans-container, leaf, or nested-paragraphs container</em><br />active recognizer <span class="uc">ParagraphLeaf</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="rt">MarkdownParagraph</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphLeafInfo</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphNestedInfo</span> <span class="pn">*</span> <span class="rt">MarkdownParagraphs</span> <span class="rt">list</span><span class="pn">)</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphSpansInfo</span> <span class="pn">*</span> <span class="rt">MarkdownSpans</span><span class="pn">)</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs31">Multiple items<br /><em>Reconstructs a nested-paragraph container with an updated flat list of child paragraphs</em><br /><span class="k">val</span> <span class="fn">ParagraphNested</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="m">MarkdownPatterns.</span><span class="rt">ParagraphNestedInfo</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">pars</span><span class="pn">:</span> <span class="rt">MarkdownParagraphs</span> <span class="rt">list</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownParagraph</span><br /><br />--------------------<br /><em>Active pattern that classifies a MarkdownParagraph as spans-container, leaf, or nested-paragraphs container</em><br />active recognizer <span class="uc">ParagraphNested</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="rt">MarkdownParagraph</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphLeafInfo</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphNestedInfo</span> <span class="pn">*</span> <span class="rt">MarkdownParagraphs</span> <span class="rt">list</span><span class="pn">)</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphSpansInfo</span> <span class="pn">*</span> <span class="rt">MarkdownSpans</span><span class="pn">)</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs32"><span class="k">val</span> <span class="id">pars</span><span class="pn">:</span> <span class="rt">MarkdownParagraphs</span> <span class="rt">list</span></div>
+<div popover class="fsdocs-tip" id="fs33"><span class="k">val</span> <span class="id">ps</span><span class="pn">:</span> <span class="rt">MarkdownParagraphs</span></div>
+<div popover class="fsdocs-tip" id="fs34"><span class="k">val</span> <span class="id">p</span><span class="pn">:</span> <span class="rt">MarkdownParagraph</span></div>
+<div popover class="fsdocs-tip" id="fs35">Multiple items<br /><em>Reconstructs a spans-container paragraph with an updated span list</em><br /><span class="k">val</span> <span class="fn">ParagraphSpans</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="m">MarkdownPatterns.</span><span class="rt">ParagraphSpansInfo</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">spans</span><span class="pn">:</span> <span class="rt">MarkdownSpans</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">MarkdownParagraph</span><br /><br />--------------------<br /><em>Active pattern that classifies a MarkdownParagraph as spans-container, leaf, or nested-paragraphs container</em><br />active recognizer <span class="uc">ParagraphSpans</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="rt">MarkdownParagraph</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphLeafInfo</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphNestedInfo</span> <span class="pn">*</span> <span class="rt">MarkdownParagraphs</span> <span class="rt">list</span><span class="pn">)</span><span class="pn">,</span><span class="pn">(</span><span class="m">MarkdownPatterns.</span><span class="rt">ParagraphSpansInfo</span> <span class="pn">*</span> <span class="rt">MarkdownSpans</span><span class="pn">)</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs36"><span class="k">module</span> <span class="m">Seq</span><br />from Microsoft.FSharp.Collections</div>
+<div popover class="fsdocs-tip" id="fs37"><span class="k">val</span> <span class="fn">collect</span><span class="pn">:</span> <span class="id">mapping</span><span class="pn">:</span> <span class="pn">(</span><span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="pn">#</span><span class="rt">seq</span><span class="pn">&lt;</span><span class="ta">&#39;U</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">-&gt;</span> <span class="id">source</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">seq</span> <span class="pn">-&gt;</span> <span class="ta">&#39;U</span> <span class="rt">seq</span></div>
+<div popover class="fsdocs-tip" id="fs38"><span class="k">val</span> <span class="fn">html</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs39"><span class="k">static</span> <span class="k">member</span> <span class="rt">Markdown</span><span class="pn">.</span><span class="fn">ToHtml</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">markdownText</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="m">FSharp.Formatting.Templating.</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span><br /><span class="k">static</span> <span class="k">member</span> <span class="rt">Markdown</span><span class="pn">.</span><span class="fn">ToHtml</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">doc</span><span class="pn">:</span> <span class="rt">MarkdownDocument</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">newline</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="m">FSharp.Formatting.Templating.</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span></div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Markdown-parser">
+      Markdown parser
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Parsing-documents">
+      Parsing documents
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Working-with-parsed-documents">
+      Working with parsed documents
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#Processing-the-document-recursively">
+      Processing the document recursively
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="5">
+    <a href="#Generating-HTML-output">
+      Generating HTML output
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="./content/fsdocs-tips.js"></script>
+<script type="module" src="./content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="./content/fsdocs-details-toggle.js"></script>
+<script type="module" src="./content/fsdocs-theme.js"></script>
+<script type="module" src="./content/fsdocs-search.js"></script>
+<script type="module" src="./content/fsdocs-copy-button.js"></script>
+<script type="module" src="./content/fsdocs-hotkeys.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  // A ```mermaid fenced block renders natively on GitHub, but reaches fsdocs
+  // as a syntax-highlighted code block. Promote those blocks to
+  // <div class="mermaid"> elements so one plain fence works in both places.
+  for (const code of document.querySelectorAll('code[lang="mermaid"]')) {
+    // fsdocs wraps the snippet in <div class="fsdocs-snippet"><pre><code>...;
+    // replace the outermost wrapper so no snippet scaffolding is left around
+    // the diagram.
+    const snippet = code.closest('.fsdocs-snippet') ?? code.closest('pre');
+    if (!snippet) continue;
+    const diagram = document.createElement('div');
+    diagram.className = 'mermaid';
+    // textContent, not innerHTML: the source arrives HTML-escaped
+    // (arrows come through with escaped angle brackets) and mermaid needs
+    // the raw arrows back.
+    diagram.textContent = code.textContent;
+    snippet.replaceWith(diagram);
+  }
+
+  mermaid.initialize({ startOnLoad: true });
+</script>
+
+</body>
+</html>
