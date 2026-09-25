@@ -1,10 +1,5 @@
 # Changelog
 
-## [Unreleased]
-
-### Removed
-* Removed several long-dead commented-out code fragments from earlier refactors (an unused `obsoleteMessage` helper in `GenerateHtml.fs`, unused `signatureTooltip` computations in `SymbolReader.fs`, an unused alternate `ProjectOptions` construction in `CodeFormatAgent.fs`, and an unused `string` alias in `HtmlModel.fs`). No behavior change.
-
 ## [23.0.0-alpha.8] - 2026-09-18
 
 ### Added
