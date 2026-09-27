@@ -44,8 +44,10 @@ type CodeFormat =
         let openTag = defaultArg openTag "<pre class=\"fssnip\">"
 
         let closeTag = defaultArg closeTag "</pre>"
-        let openLinesTag = defaultArg openLinesTag openTag
-        let closeLinesTag = defaultArg closeLinesTag closeTag
+
+        let openLinesTag = defaultArg openLinesTag "<pre class=\"fsdocs-snippet-lines\" aria-hidden=\"true\">"
+
+        let closeLinesTag = defaultArg closeLinesTag "</pre>"
         let lineNumbers = defaultArg lineNumbers true
         let addErrors = defaultArg addErrors false
         let tokenKindToCss = defaultArg tokenKindToCss CodeFormatHelper.defaultTokenMap

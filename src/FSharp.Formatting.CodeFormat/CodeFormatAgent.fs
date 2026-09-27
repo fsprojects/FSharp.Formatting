@@ -470,16 +470,6 @@ module CodeFormatter =
                         OtherOptions = [| yield! Helpers.parseOptions str; yield! opts.OtherOptions |]
                     }
                 | _ -> opts
-            //// add our file
-            //let opts =
-            //    { opts with
-            //        UseScriptResolutionRules = true
-            //        //UnresolvedReferences = Some ( UnresolvedReferencesSet.UnresolvedAssemblyReference [])
-            //        ProjectFileNames = [| filePath |] }
-
-            //logger.Debugf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
-            //let! results = fsChecker.ParseAndCheckProject(opts)
-            //let _errors = results.Errors
 
             for diagnostic in diagnostics do
                 logger.Warnf "error from GetProjectOptionsFromScript '%s'" (formatDiagnostic diagnostic)

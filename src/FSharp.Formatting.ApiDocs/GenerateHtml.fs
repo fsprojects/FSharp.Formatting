@@ -114,11 +114,33 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
 
-    //let obsoleteMessage msg =
-    //  div [Class "alert alert-warning"] [
-    //      strong [] [!!"NOTE:"]
-    //      p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
-    //  ]
+    // Grouping every namespace and entity by category is the same answer for the whole lifetime of
+    // the renderer: the model it reads is a constructor argument and never changes. Rendering asks
+    // for it once per page, so without this it ran once per page of the whole API reference.
+    let categorised = lazy (Categorise.model model)
+
+    let documentedNamespaces = lazy (categorised.Value |> List.map (fun (_, ns) -> ns.Name) |> Set.ofList)
+
+    // The namespaces the menu lists. One nested in another documented namespace folds into it, so
+    // a library such as Fantomas shows six entries instead of twenty. The API reference index is
+    // still the list of every namespace.
+    let menuNamespaces =
+        lazy
+            (categorised.Value
+             |> List.filter (fun (_, ns) -> menuNamespaceOf documentedNamespaces.Value ns.Name = ns.Name))
+
+    /// Whether the menu entry for a namespace is the one the reader is inside: the namespace itself,
+    /// or one nested in it that the menu folded away.
+    let isActiveMenuNamespace (nsOpt: ApiDocNamespace option) (ns: ApiDocNamespace) =
+        match nsOpt with
+        | None -> false
+        | Some current -> menuNamespaceOf documentedNamespaces.Value current.Name = ns.Name
+
+    /// The namespaces nested in this one, at any depth. The menu shows the outermost namespace only,
+    /// so the page of that namespace is where the reader finds the ones it stands for.
+    let nestedNamespaces (name: string) =
+        categorised.Value
+        |> List.filter (fun (_, ns: ApiDocNamespace) -> ns.Name.StartsWith(name + ".", StringComparison.Ordinal))
 
     // Grouping every namespace and entity by category is the same answer for the whole lifetime of
     // the renderer: the model it reads is a constructor argument and never changes. Rendering asks

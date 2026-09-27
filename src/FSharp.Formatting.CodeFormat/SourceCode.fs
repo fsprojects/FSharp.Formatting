@@ -13,10 +13,14 @@ open FSharp.Formatting.CodeFormat.Constants
 /// A tool tip consists of a list of items reported from the compiler
 type ToolTipSpans = ToolTipSpan list
 
-/// A tool tip span can be emphasized text, plain text Literal or a line brak
+/// A tool tip span can be emphasized text, plain text Literal, a classified
+/// Token or a line break
 type ToolTipSpan =
     | Emphasis of ToolTipSpans
     | Literal of string
+    /// A run of tool tip text the compiler classified, rendered with the same colors
+    /// as the equivalent token in a code snippet
+    | Token of kind: TokenKind * body: string
     | HardLineBreak
 
 /// Classifies tokens reported by the FCS

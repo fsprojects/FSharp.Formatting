@@ -63,7 +63,7 @@ module internal ParsePynb =
             match x.TryGetProperty("text/plain") with
             | true, text ->
                 let text = text.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat ""
-                Some $"""<table class="pre"><tbody><tr><td><pre><code>%s{text}</code></pre></td></tr></tbody></table>"""
+                Some $"""<div class="fsdocs-snippet"><pre><code>%s{text}</code></pre></div>"""
             | _ -> None
 
         /// Matches a display-data output cell and returns its rendered HTML or plain-text content.
@@ -91,8 +91,7 @@ module internal ParsePynb =
                         | true, xs -> xs.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat ""
                         | _ -> failwith "no text property"
 
-                    Some
-                        $"""<table class="pre"><tbody><tr><td><pre><code>%s{text}</code></pre></td></tr></tbody></table>"""
+                    Some $"""<div class="fsdocs-snippet"><pre><code>%s{text}</code></pre></div>"""
                 else
                     None
             | _ -> failwith "no output_type property"
