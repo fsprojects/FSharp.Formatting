@@ -114,12 +114,6 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
 
-    //let obsoleteMessage msg =
-    //  div [Class "alert alert-warning"] [
-    //      strong [] [!!"NOTE:"]
-    //      p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
-    //  ]
-
     // Grouping every namespace and entity by category is the same answer for the whole lifetime of
     // the renderer: the model it reads is a constructor argument and never changes. Rendering asks
     // for it once per page, so without this it ran once per page of the whole API reference.

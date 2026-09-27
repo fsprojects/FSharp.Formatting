@@ -5,6 +5,9 @@
 ### Added
 * Support nested navigation categories using `/` as a separator in the `category` front-matter field (e.g. `category: Collections/Lists`). The part before the `/` renders as a top-level nav header; the part after it renders as an indented sub-header beneath it. Documents without a sub-category, or using a flat `category` with no `/`, continue to render exactly as before. [#927](https://github.com/fsprojects/FSharp.Formatting/issues/927)
 
+### Changed
+* Avoided a per-character `Seq.windowed`/`String()` allocation in `StartsWithNTimesTrimIgnoreStartWhitespace`, the active pattern used to count repeated fence characters (`` ` `` / `~`) when parsing code fences and headers. The count is now computed with `String.CompareOrdinal` over string offsets, with no intermediate substring allocations. Behavior is unchanged.
+
 ## [23.0.0-alpha.8] - 2026-09-18
 
 ### Added
