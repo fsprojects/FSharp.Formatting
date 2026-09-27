@@ -177,6 +177,14 @@ The default template can be used from the keyboard:
 | `h` / `l`          | Move the focus to the main menu / the content / the page menu     |
 | `j` / `k` in a menu| Go to the next / previous link of the menu; `Enter` follows it    |
 
+On pages that have few headings of their own, `j` / `k` also stop at the links of the listing: the namespaces on the
+API reference index, and the types and modules on a namespace page. Any link in your own content can join in by
+carrying a `data-fsdocs-nav` attribute.
+
+The API reference pages carry an "On this page" menu of their own. A namespace page lists its types and modules, each
+linking to its own page, and a type or module page lists its sections. The index of all namespaces has no menu, since
+the page is already that list.
+
 The hotkeys are ignored while typing in a text box. They are implemented in `fsdocs-hotkeys.js`, which expects the
 `main`, `#content`, `#fsdocs-main-menu` and `#fsdocs-page-menu` elements of the default template. To add them to your
 own `_template.html`, include the script:

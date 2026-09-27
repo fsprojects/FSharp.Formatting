@@ -5,6 +5,7 @@ open fsdocs
 open NUnit.Framework
 open FsUnitTyped
 open FSharp.Formatting.Literate
+open FSharp.Formatting.Common
 
 let (</>) a b = Path.Combine(a, b)
 
@@ -218,6 +219,94 @@ let ``scanTitle of notebook uses the heading of the markdown cell`` () =
     source |> shouldEqual TitleSource.Heading
     title |> shouldEqual (titleFromModel file)
 
+/// A folder of its own, so the menu templates do not reach the tests that expect none.
+let templatedMenuDir =
+    let dir = Path.GetTempPath() </> "fsdocs-tool-tests" </> "templated-menu"
+    Directory.CreateDirectory dir |> ignore
+
+    File.WriteAllText(
+        dir </> "_menu_template.html",
+        """<ul class="{{fsdocs-menu-header-active-class}}">
+<li class="home"><a href="{{root}}reference/index.html">{{fsdocs-menu-header-content}}</a></li>
+{{fsdocs-menu-items}}
+</ul>"""
+    )
+
+    File.WriteAllText(
+        dir </> "_menu-item_template.html",
+        """<li class="nav-item {{fsdocs-menu-item-active-class}}"><a href="{{fsdocs-menu-item-link}}" title="{{fsdocs-menu-item-title}}">{{fsdocs-menu-item-content}}</a></li>"""
+    )
+
+    dir
+
+[<Test>]
+let ``a templated menu escapes an item once and resolves the substitutions of the page`` () =
+    let items =
+        [
+            {
+                Menu.MenuItem.Link = "a.html"
+                Menu.MenuItem.Content = "B & co"
+                Menu.MenuItem.Title = Some "B & co, in full"
+                Menu.MenuItem.IsActive = true
+            }
+            {
+                Menu.MenuItem.Link = "b.html"
+                Menu.MenuItem.Content = "Plain"
+                Menu.MenuItem.Title = None
+                Menu.MenuItem.IsActive = false
+            }
+        ]
+
+    let html = Menu.createMenu templatedMenuDir [ FSharp.Formatting.Templating.ParamKeys.root, "../" ] true "Docs" items
+
+    // Encoded by createMenu, and only by createMenu.
+    html |> shouldContainText "B &amp; co"
+    html |> shouldNotContainText "&amp;amp;"
+
+    // A title of its own is encoded the same way; an item without one gets an empty attribute.
+    html |> shouldContainText "title=\"B &amp; co, in full\""
+    html |> shouldContainText "title=\"\""
+
+    // The page substitutions reach both templates, so a menu can link across the site.
+    html |> shouldContainText "href=\"../reference/index.html\""
+    html |> shouldNotContainText "{{root}}"
+
+    // The menu keeps its own keys.
+    html |> shouldContainText "nav-item active"
+
+[<Test>]
+let ``the navigation factory escapes a page title once and gives the menu the page root`` () =
+    let page path title index : NavPage =
+        {
+            NavPage.InputPath = path
+            OutputPath = Path.GetFileNameWithoutExtension path + ".html"
+            Title = title
+            Category = Some "Docs"
+            CategoryIndex = Some 1
+            Index = Some index
+        }
+
+    let pages = [ page "/docs/b.md" "B & co" 1; page "/docs/a.md" "A" 2 ]
+
+    let render =
+        Content.getNavigationEntriesFactory (
+            templatedMenuDir,
+            pages,
+            false,
+            [],
+            [ FSharp.Formatting.Templating.ParamKeys.root ]
+        )
+
+    let html = render "../" (Some "/docs/b.md")
+
+    // Only createMenu escapes the title; the list of documents must not escape it beforehand.
+    html |> shouldContainText "B &amp; co"
+    html |> shouldNotContainText "&amp;amp;"
+
+    // The page root reaches the menu template.
+    html |> shouldContainText "href=\"../reference/index.html\""
+    html |> shouldNotContainText "{{root}}"
+
 [<Test>]
 let ``navigation factory excludes index pages and marks the active page`` () =
     let page path title category index =
@@ -233,7 +322,9 @@ let ``navigation factory excludes index pages and marks the active page`` () =
     let pages =
         [ page "/docs/index.md" "Home" "Docs" 1; page "/docs/b.md" "B & co" "Docs" 2; page "/docs/a.md" "A" "Docs" 1 ]
 
-    let render = Content.getNavigationEntriesFactory (tempDir, pages, false)
+    let render =
+        Content.getNavigationEntriesFactory (tempDir, pages, false, [], [ FSharp.Formatting.Templating.ParamKeys.root ])
+
     let html = render "../" (Some "/docs/b.md")
     html |> shouldContainText "href=\"../a.html\""
     html |> shouldNotContainText "Home"

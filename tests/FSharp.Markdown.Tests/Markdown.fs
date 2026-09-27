@@ -1358,12 +1358,12 @@ let ``Inline code and subsequent literal have correct column ranges`` () =
     Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
 
 [<Test>]
-let ``Don't replace links in generated code block in table`` () =
-    let doc = "<table class=\"pre\" link=\"valid link though.md\">content</table>"
+let ``Don't replace links in generated code block in snippet`` () =
+    let doc = "<div class=\"fsdocs-snippet\" link=\"valid link though.md\">content</div>"
     let mdlinkResolver _ = failwith "should not be reached!"
 
     let actual =
-        "<table class=\"pre\" link=\"valid link though.md\">content</table>\r\n"
+        "<div class=\"fsdocs-snippet\" link=\"valid link though.md\">content</div>\r\n"
         |> properNewLines
 
     Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual

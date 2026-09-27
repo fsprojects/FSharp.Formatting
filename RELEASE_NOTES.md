@@ -5,6 +5,75 @@
 ### Added
 * Added unit tests for `Markdown.ToLatex` covering `OtherBlock` (raw paragraph content, wrapped in `\begin{lstlisting}`) and `InlineHtmlBlock` (verbatim passthrough), which previously had no direct test coverage.
 
+## [23.0.0-alpha.8] - 2026-09-18
+
+### Added
+* Tool tips on F# snippets are syntax highlighted. The compiler hands a signature over as runs it has already classified, and `ToolTipReader` was flattening them into one string, so `val printfn: format: Printf.TextWriterFormat<'T> -> 'T` rendered as undifferentiated text. The runs keep their classification now and a tip is colored by the same `--code-*` rules as the snippet it describes, so a keyword, a type, a function and a type parameter look the same whether you read them in the code or in the tip. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A signature too wide for its tool tip is laid out over several lines instead of wrapping wherever the line runs out. It breaks after the name, after each parameter and before the result, the parameters indented under the name and the result under them, the way a formatter would write it. The compiler's own parser decides where those points are, so the breaks land on syntax rather than a guess, and a line that fits, or that is not a signature, is left as it was. Nearly every line this touched was a member of a type: one with six optional parameters ran to 600 characters. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+### Changed
+* A tool tip opens with the doc comment and the signature follows it, where the signature used to come first. The doc text is shown in the color a comment has in a snippet. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* Code snippets are no longer laid out with a table. A snippet is a `<div class="fsdocs-snippet">` holding one `<pre class="fsdocs-snippet-lines">` for the line numbers and one `<pre class="fssnip">` for the code, placed side by side with CSS grid. Markdown code blocks, notebook output and non-F# snippets use the same wrapper, so one selector covers every code block on the page. A stylesheet that targets `table.pre`, `td.lines`, `td.snippet`, or the `.code-block-wrapper` the copy button used to insert, needs updating, and a script that looks for a snippet, such as the Mermaid recipe in the documentation, should look for `.fsdocs-snippet` instead of `table.pre`. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* Line numbers lost the `: ` suffix and sit in a column marked `aria-hidden`, so a screen reader reads the code and not the numbering. The code column scrolls on its own, so the line numbers stay in view while a wide snippet scrolls. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* The default stylesheet ships a new syntax palette built from GitHub's light and dark hues. The previous one had grown a separate hue per token kind, eight of them teal or purple, on top of a dark green default text color in light mode. Tokens are grouped into roles instead: keywords, types, the modules and namespaces that hold them, callables, values, strings, and one mute for comments, fsi output, inactive code and line numbers. Modules take the green GitHub reserves for tags, so `List.map String.trim` reads as container then function rather than one orange run. Identifiers, operators and punctuation read as plain text. Every color is a `--code-*` custom property, so a site can restyle the whole scheme without touching a selector. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* `ToolTipSpan` gained a `Token of kind: TokenKind * body: string` case for a classified run of tool tip text, and `ToolTipReader.stripParameterAttributes` now takes and returns those runs instead of a string. Code that matches on `ToolTipSpan` has to handle the new case. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+### Fixed
+* A type abbreviation in a tool tip was colored as an identifier rather than as a type, so `int` and `bool` were orange while `string`, `option`, `list`, `array` and `unit` were plain, in the same position of the same signature. The compiler tags an abbreviation apart from the type it stands for, and the tag was being grouped with parameters and locals. The `System.` qualifier of a fully written name takes the module color instead of plain for the same reason. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A tool tip lost every line break in the signature it was showing. The compiler does not hand the break over in a tag of its own, it arrives inside a `Text` or `Space` run with the indentation of the next line attached, and only the `Space` case was split on. A tip is flowing text, so the browser collapsed the rest and `type List<'T>` ran its cases, interfaces and members together on one line. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A doc comment reached the tool tip as the raw XML it was written as, so `<summary>` and `<param>` tags showed up in the tip. The comment is read as XML now and a `<see cref="..."/>` keeps the name it points at, rather than leaving a hole in the sentence it sits in. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* Several syntax token classes had no matching rule in the default stylesheet and were rendered in the plain code color: union cases (`uc`), F# preprocessor directives (`pp`), escaped characters (`esc`), enumeration cases (`en`), mutable bindings (`mv`), and identifiers in every non-F# language (`i`), which is the bulk of a C#, JavaScript, TypeScript or HTML snippet. The stylesheet was matching `u`, `prep`, `e` and `v`, names the formatters stopped emitting. Compiler errors (`cerr`) and omitted code (`omitted`) are styled for the first time. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+* A code block rendered from an `OtherBlock` opened its wrapper element without ever closing it, leaving unbalanced HTML on the page whenever code snippet wrapping was on. [#1336](https://github.com/fsprojects/FSharp.Formatting/pull/1336)
+
+## [23.0.0-alpha.7] - 2026-09-15
+
+### Changed
+* The API Reference section of the menu leaves out a namespace nested in another documented namespace: `Fantomas.FCS.Syntax` folds into `Fantomas.FCS`, and the menu of a library such as Fantomas is six entries instead of twenty truncated ones. A page of a folded namespace marks the entry it sits in as the active one. [#1331](https://github.com/fsprojects/FSharp.Formatting/pull/1331)
+
+* A namespace page opens with a "Namespaces" table of the namespaces nested in it, the ones the menu folds away, each linking to its own page. The "On this page" menu and the `j` / `k` hotkeys walk them like the types and modules below. A namespace holding nothing but other namespaces gets that table too, where its page used to be empty. [#1331](https://github.com/fsprojects/FSharp.Formatting/pull/1331)
+
+## [23.0.0-alpha.6] - 2026-09-15
+
+### Fixed
+* The Markdown output marks the namespace of the page in the menu. The menu of the page was overwritten by the site-wide one, which marks nothing, the way the HTML output was until 23.0.0-alpha.5. [#1330](https://github.com/fsprojects/FSharp.Formatting/pull/1330)
+
+* API docs keep the comment of a member whose signature has a type abbreviation of a function type in the range of a function type, such as `(string -> IsPathIgnored) * (unit -> int)` with `type IsPathIgnored = string -> bool`. Reading the member threw `ArgumentOutOfRangeException` and the comment was dropped. The abbreviation is now shown under its own name, as it is everywhere else. [#1327](https://github.com/fsprojects/FSharp.Formatting/issues/1327)
+
+### Changed
+* The API Reference section of the menu lists the namespaces on every page of the site. The content pages got a single "All Namespaces" link instead, and only a collection named `FSharp.Core` got the list there, which made the menu of a content page a different menu from the one of an API page. No entry is marked active while the reader is on a content page. [#1330](https://github.com/fsprojects/FSharp.Formatting/pull/1330)
+
+* The header of that section reads "API Reference" on the API pages as well, where 23.0.0-alpha.5 made it "Namespaces". A menu template sees the same `{{fsdocs-menu-header-content}}` and `{{fsdocs-menu-header-id}}` (`api_reference`) on every page of the site now. The built-in menu keeps the header as the link to the index of all namespaces. [#1330](https://github.com/fsprojects/FSharp.Formatting/pull/1330)
+
+## [23.0.0-alpha.5] - 2026-09-15
+
+### Added
+* The API reference pages have an "On this page" menu, like the content pages do. A namespace page lists its types and modules, each linking to its own page; a type or module page lists its sections, which now carry anchors of their own (`Static members`, `Nested modules`, `Inherited members` had none). The index of all namespaces keeps the wide layout, since the page is already that list. The inline "Table of contents" and "Contents" blocks are gone, the menu replaces them. The menu marks the section the reader is in through the same scroll-driven animations as the content pages, over the section headings only: each tracked element costs three generated CSS rules, so a module with hundreds of members stays cheap. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* `_menu_template.html` and `_menu-item_template.html` are rendered with the substitutions of the page they go into, `{{root}}` among them, so a menu can link anywhere on the site and not only where fsdocs hands it a link. `{{root}}` is relative to the page being rendered, so `{{root}}reference/index.html` resolves from every depth. A key a menu template defines for itself still wins over a site-wide one of the same name. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* `_menu-item_template.html` can use `{{fsdocs-menu-item-title}}`, the hover text of an item. The API reference fills it with the full name of a namespace, where the menu shortened the entry to what tells it apart from its neighbours, and leaves it empty for an item whose text already says where it leads. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+### Fixed
+* The API reference menu on the left lists the namespaces again. Every API page computed that menu and then had it silently replaced: the global substitutions define `fsdocs-list-of-namespaces` as well, with the single "All Namespaces" link meant for the content pages, and the last value for a key wins. The entries drop the prefix that all the namespaces share (`FSharp.Formatting.` here, `Microsoft.FSharp.` for FSharp.Core), which otherwise left a column of identically truncated names, and the full name is the `title` of the entry. The entries of the "On this page" menu carry one too, since that menu is narrow enough to cut them off. The header links to the index of all namespaces. The list of entities that used to expand under the current namespace is gone, the "On this page" menu covers it. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* The API reference menu built from `_menu_template.html` and `_menu-item_template.html` marks the namespace of the page the reader is on, and marks its own section as active so a template that folds a section away opens the one the reader is inside. It shortens an entry to the part that tells it apart from its neighbours, with the full name on the `title`. The Markdown output builds the same menu from the same templates and gained all of it too. Note that a templated menu renders its header as a label, where the built-in menu makes the "Namespaces" header the link to the index of all namespaces; see "Customizing menu items by template" for adding that link back. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* A menu built from `_menu-item_template.html` no longer escapes the text of a documentation page twice. `Menu.createMenu` encodes the content of an item, and the list of documents encoded it again beforehand, so a title carrying `&`, `<`, `>` or `"` reached the page as the escape sequence itself. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+* The `j` / `k` hotkeys continue through the tables of the API reference: the namespaces on the index page and the types and modules on a namespace page, which have few headings of their own to stop at. The pages of a module or a type keep to their headings. The generator marks the links that take part with `data-fsdocs-nav`, so a link in your own content can join in as well. A marked link is only scrolled into view when it is off screen, a run of key presses walks the table instead of paging it. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
+### Changed
+* `Menu.createMenu` takes the substitutions of the page as its second argument, and `Menu.MenuItem` carries a `Title` field. Both are breaking for code that builds menus through `FSharp.Formatting.Common`. [#1328](https://github.com/fsprojects/FSharp.Formatting/pull/1328)
+
 ## [23.0.0-alpha.4] - 2026-09-13
 
 ### Added

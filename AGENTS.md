@@ -4,6 +4,8 @@
 
 Update `RELEASE_NOTES.md` when making user-visible changes:
 - Add entries under the `## [Unreleased]` section
+- A `## [x.y.z] - date` heading is a version that is already published. Never add an entry to one, not even the topmost, and never edit the entries it holds
+- The release commit renames `## [Unreleased]` to the version it ships, so right after a release the file has no `## [Unreleased]` section. Add one above the topmost version heading rather than appending to that version
 - Use categories: `### Added`, `### Changed`, `### Fixed`, `### Removed`
 - Include PR links: `[#123](https://github.com/fsprojects/FSharp.Formatting/pull/123)`
 
@@ -35,8 +37,14 @@ dotnet fsi build.fsx
 # Just lint and test
 dotnet fsi build.fsx -- -p Verify
 
-# Run analyzers (G-Research.FSharp.Analyzers, Ionide.Analyzers)
+# Run analyzers (G-Research.FSharp.Analyzers, Ionide.Analyzers) over the whole solution.
+# This is what CI does, and it takes minutes.
 dotnet msbuild /t:AnalyzeSolution
+
+# The same analyzers over the files the working tree touched, which takes seconds.
+# Use this while working; it cannot see a finding your change causes in a file you did
+# not edit, so run the full one above before opening a pull request.
+dotnet fsi build.fsx -- -p AnalyzeChanged
 ```
 
 Individual steps:

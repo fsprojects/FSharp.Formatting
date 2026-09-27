@@ -201,6 +201,10 @@ module ParamKeys =
     let ``fsdocs-menu-item-id`` = ParamKey "fsdocs-menu-item-id"
 
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    /// This will be an empty string if the item has no hover text of its own.
+    let ``fsdocs-menu-item-title`` = ParamKey "fsdocs-menu-item-title"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
     /// /// This will be an empty string if the item is not active.
     let ``fsdocs-menu-item-active-class`` = ParamKey "fsdocs-menu-item-active-class"
 

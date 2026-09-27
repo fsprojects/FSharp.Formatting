@@ -25,6 +25,11 @@ open FSharp.Literate.Tests.Setup
 open FsUnitTyped
 open FSharp.Formatting
 
+/// Tool tips are now marked up with the same token classes as the snippet they
+/// describe, so strip the tags before asserting on what a tip actually says.
+let private withoutTags (html: string) =
+    System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", "")
+
 do TestHelpers.enableLogging ()
 
 let properNewLines (text: string) =
@@ -640,9 +645,9 @@ let a2 = 2"""
 
     let html = Literate.ToHtml(doc, lineNumbers = true)
     html |> shouldContainText "<p>Hello</p>"
-    html |> shouldContainText "1:"
-    html |> shouldContainText "2:"
-    html |> shouldNotContainText "3:"
+    html |> shouldContainText "<span class=\"l\">1</span>"
+    html |> shouldContainText "<span class=\"l\">2</span>"
+    html |> shouldNotContainText "<span class=\"l\">3</span>"
 
 [<Test>]
 let ``Generates line numbers for non-F# code snippets`` () =
@@ -659,9 +664,9 @@ var a2 = 2;
 
     let html = Literate.ToHtml(doc, lineNumbers = true)
     html |> shouldContainText "<p>Hello</p>"
-    html |> shouldContainText "1:"
-    html |> shouldContainText "2:"
-    html |> shouldNotContainText "3:"
+    html |> shouldContainText "<span class=\"l\">1</span>"
+    html |> shouldContainText "<span class=\"l\">2</span>"
+    html |> shouldNotContainText "<span class=\"l\">3</span>"
 
 [<Test>]
 let ``HTML for line numbers generated for F# and non-F# is the same`` () =
@@ -676,8 +681,10 @@ let ``HTML for line numbers generated for F# and non-F# is the same`` () =
 
     let html2 = Literate.ToHtml(doc2, lineNumbers = true)
 
-    html1.Substring(0, html1.IndexOf("1:")) |> shouldEqual
-    <| html2.Substring(0, html2.IndexOf("1:"))
+    let firstLineNumber = "<span class=\"l\">1</span>"
+
+    html1.Substring(0, html1.IndexOf(firstLineNumber)) |> shouldEqual
+    <| html2.Substring(0, html2.IndexOf(firstLineNumber))
 
 [<Test>]
 let ``HTML for snippets generated for F# and non-F# has 'fssnip' class`` () =
@@ -692,10 +699,10 @@ let ``HTML for snippets generated for F# and non-F# has 'fssnip' class`` () =
 
     let html2 = Literate.ToHtml(doc2, lineNumbers = true)
 
-    // the 'fssnip' class appears for both <pre> with lines and <pre> with code
-    html1.Split([| "fssnip" |], StringSplitOptions.None).Length |> shouldEqual 3
+    // the 'fssnip' class appears once, on the <pre> holding the code
+    html1.Split([| "fssnip" |], StringSplitOptions.None).Length |> shouldEqual 2
 
-    html2.Split([| "fssnip" |], StringSplitOptions.None).Length |> shouldEqual 3
+    html2.Split([| "fssnip" |], StringSplitOptions.None).Length |> shouldEqual 2
 
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
@@ -737,7 +744,7 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using substitut
     Literate.ConvertMarkdownFile(simpleMd, templateHtml, temp.File)
     temp.Content |> shouldContainText "</a>"
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> withoutTags |> shouldContainText "val hello: string"
 
     temp.Content |> shouldContainText "<title>Heading"
 
@@ -751,7 +758,7 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using substitu
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
     temp.Content |> shouldContainText "</a>"
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> withoutTags |> shouldContainText "val hello: string"
 
     temp.Content |> shouldContainText "<title>Heading"
 
@@ -842,7 +849,7 @@ let ``Can process fsx file using HTML template`` () =
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, docPageTemplate, temp.File, substitutions = info)
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> withoutTags |> shouldContainText "val hello: string"
 
     temp.Content |> shouldContainText "<title>Heading"
 
@@ -855,7 +862,7 @@ let ``Can process md file using HTML template`` () =
     use temp = new TempFile()
     Literate.ConvertMarkdownFile(simpleMd, docPageTemplate, temp.File, substitutions = info)
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> withoutTags |> shouldContainText "val hello: string"
 
     temp.Content |> shouldContainText "<title>Heading"
 

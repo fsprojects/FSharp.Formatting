@@ -229,3 +229,18 @@ module Abbreviations =
 
     /// A file name
     type FileName = string
+
+/// Type abbreviations of function types used as the range of a function type (issue 1327)
+module FunctionTypeAbbreviations =
+    /// An abbreviation for a function type
+    type IsPathIgnored = string -> bool
+
+    /// A generic abbreviation for a function type
+    type Transform<'T, 'U> = 'T -> 'U
+
+    /// Returns a loader for the given checker
+    let makeLoader (isIgnored: IsPathIgnored) : (string -> IsPathIgnored) * (unit -> int) =
+        (fun _ -> isIgnored), (fun () -> 0)
+
+    /// Returns a lookup for the given transform
+    let lookupTransform (transform: Transform<'T, 'U>) : (string -> Transform<'T, 'U>) * int = (fun _ -> transform), 0
