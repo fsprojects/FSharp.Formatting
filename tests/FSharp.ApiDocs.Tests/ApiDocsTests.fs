@@ -9,6 +9,11 @@ open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Templating
 open FsUnitTyped
 
+/// Tool tips are now marked up with the same token classes as the snippet they
+/// describe, so strip the tags before asserting on what a tip actually says.
+let private withoutTags (html: string) =
+    System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", "")
+
 // --------------------------------------------------------------------------------------
 // Run the metadata formatter on sample project
 // --------------------------------------------------------------------------------------
@@ -1586,6 +1591,7 @@ let ``ApiDocs highlights code snippets in Markdown comments`` (format: OutputFor
     |> shouldContainText """<span class="k">var</span>"""
 
     files.[(sprintf "fslib-myclass.%s" format.Extension)]
+    |> withoutTags
     |> shouldContainText """val a: FsLib.MyClass"""
 
 [<Test>]

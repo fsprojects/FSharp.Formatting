@@ -37,8 +37,14 @@ dotnet fsi build.fsx
 # Just lint and test
 dotnet fsi build.fsx -- -p Verify
 
-# Run analyzers (G-Research.FSharp.Analyzers, Ionide.Analyzers)
+# Run analyzers (G-Research.FSharp.Analyzers, Ionide.Analyzers) over the whole solution.
+# This is what CI does, and it takes minutes.
 dotnet msbuild /t:AnalyzeSolution
+
+# The same analyzers over the files the working tree touched, which takes seconds.
+# Use this while working; it cannot see a finding your change causes in a file you did
+# not edit, so run the full one above before opening a pull request.
+dotnet fsi build.fsx -- -p AnalyzeChanged
 ```
 
 Individual steps:

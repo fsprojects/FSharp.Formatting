@@ -341,13 +341,6 @@ module internal SymbolReader =
                     | None -> None
                     | Some html -> Some(retType, html)
 
-
-        //let signatureTooltip =
-        //  match argInfos with
-        //  | [] -> retTypeText
-        //  | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && isUnitType x.Type -> retTypeText
-        //  | _  -> (formatArgsUsageAsText true v argInfos) + " -> " + retTypeText
-
         let extendedType =
             if v.IsExtensionMember then
                 try
@@ -419,15 +412,10 @@ module internal SymbolReader =
                 Choice2Of2 fld, nm, html)
 
         let returnType = None
-        //if isUnitType retType then None else Some retTypeText
 
         let modifiers = List.empty
         let typeParams = List.empty
 
-        //let signatureTooltip =
-        //   match fields with
-        //   | [] -> retTypeText
-        //   | _ -> (fields |> List.map (fun field -> formatTypeAsText field.FieldType) |> String.concat " * ") + " -> " + retTypeText
         let loc = tryGetLocation case
 
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
@@ -458,7 +446,6 @@ module internal SymbolReader =
             ]
 
         let typeParams = List.empty
-        //let signatureTooltip = formatTypeAsText field.FieldType
         let paramTypes = []
 
         let retType = field.FieldType
@@ -521,7 +508,6 @@ module internal SymbolReader =
         let typeParams = List.empty
         let paramTypes = []
         let returnType = None
-        //let signatureTooltip = formatTypeAsText staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
 
         let loc = tryGetLocation staticParam
 

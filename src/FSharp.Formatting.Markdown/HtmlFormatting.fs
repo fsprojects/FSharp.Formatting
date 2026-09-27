@@ -202,7 +202,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
                 code
 
         if ctx.WrapCodeSnippets then
-            ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+            ctx.Writer.Write("<div class=\"fsdocs-snippet\">")
 
         if String.IsNullOrWhiteSpace(language) then
             ctx.Writer.Write("<pre><code>")
@@ -214,18 +214,18 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write("</code></pre>")
 
         if ctx.WrapCodeSnippets then
-            ctx.Writer.Write("</td></tr></table>")
+            ctx.Writer.Write("</div>")
     | OutputBlock(code, "text/html", _) -> ctx.Writer.Write(code)
     | OutputBlock(code, _, _) ->
         if ctx.WrapCodeSnippets then
-            ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+            ctx.Writer.Write("<div class=\"fsdocs-snippet\">")
 
         ctx.Writer.Write("<pre><code>")
         ctx.Writer.Write(htmlEncode code)
         ctx.Writer.Write("</code></pre>")
 
         if ctx.WrapCodeSnippets then
-            ctx.Writer.Write("</td></tr></table>")
+            ctx.Writer.Write("</div>")
     | TableBlock(headers, alignments, rows, _) ->
         let aligns =
             alignments
@@ -316,7 +316,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
     | InlineHtmlBlock(code, _, _) -> ctx.Writer.Write(code)
     | OtherBlock(lines, _) ->
         if ctx.WrapCodeSnippets then
-            ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+            ctx.Writer.Write("<div class=\"fsdocs-snippet\">")
 
         ctx.Writer.Write("<pre><code>")
 
@@ -324,6 +324,9 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
             ctx.Writer.Write(htmlEncode code)
 
         ctx.Writer.Write("</code></pre>")
+
+        if ctx.WrapCodeSnippets then
+            ctx.Writer.Write("</div>")
     | YamlFrontmatter(_lines, _) -> ()
 
     ctx.LineBreak()

@@ -22,19 +22,29 @@ let containsSpan f snips =
     snips
     |> Seq.exists (fun (Snippet(_, lines)) -> lines |> Seq.exists (fun (Line(_, spans)) -> spans |> Seq.exists f))
 
-// Check that tool tips contains a specified token
+// Check that tool tips contains a specified token. The signature arrives as runs the
+// compiler classified, so flatten the tip to its text before looking for the token.
+let rec private toolTipText spans =
+    spans
+    |> List.map (function
+        | Literal text -> text
+        | Token(_, text) -> text
+        | Emphasis inner -> toolTipText inner
+        | HardLineBreak -> "\n")
+    |> String.concat ""
+
 [<return: Struct>]
 let (|ToolTipWithLiteral|_|) text tips =
-    if
-        Seq.exists
-            (function
-            | Literal(tip) -> tip.Contains(text: string)
-            | _ -> false)
-            tips
-    then
+    if (toolTipText tips).Contains(text: string) then
         ValueSome()
     else
         ValueNone
+
+/// Tool tips are now marked up with the same token classes as the snippet they
+/// describe, so strip the tags before asserting on what a tip actually says.
+let private withoutTags (html: string) =
+    System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", "")
+
 
 // --------------------------------------------------------------------------------------
 // Test that some basic things work
@@ -140,7 +150,7 @@ let ``Simple code snippet is formatted as HTML`` () =
 
     content |> shouldContainText (sprintf "<span class=\"%s\">10</span>" CSS.Number)
 
-    tooltip |> shouldContainText "val hello: int"
+    tooltip |> withoutTags |> shouldContainText "val hello: int"
 
 [<Test>]
 let ``Non-unicode characters do not cause exception`` () =
@@ -305,7 +315,7 @@ let ``Simple code snippet is formatted as HTML - custom CSS`` () =
 
     content |> shouldContainText (sprintf "<span class=\"%s\">10</span>" "Number")
 
-    tooltip |> shouldContainText "val hello: int"
+    tooltip |> withoutTags |> shouldContainText "val hello: int"
 
 
 [<Test>]
@@ -435,32 +445,109 @@ let ``Simple code snippet is formatted as code cell content`` () =
 
 open FSharp.Formatting.CodeFormat.ToolTipReader
 
+/// The stripper works on the classified runs the compiler hands us. These cases only
+/// care about the text, so they go in as one unclassified run and come back as a string.
+let private stripText (line: string) =
+    stripParameterAttributes [ TokenKind.Default, line ]
+    |> List.map snd
+    |> String.concat ""
+
 [<Test>]
 let ``stripParameterAttributes removes Optional attribute annotation`` () =
-    stripParameterAttributes "[<Optional>] x: obj" |> shouldEqual " x: obj"
+    stripText "[<Optional>] x: obj" |> shouldEqual " x: obj"
 
 [<Test>]
 let ``stripParameterAttributes removes DefaultParameterValue attribute annotation`` () =
-    stripParameterAttributes "[<DefaultParameterValue(null)>] x: obj"
-    |> shouldEqual " x: obj"
+    stripText "[<DefaultParameterValue(null)>] x: obj" |> shouldEqual " x: obj"
 
 [<Test>]
 let ``stripParameterAttributes removes attribute annotation with leading whitespace`` () =
-    stripParameterAttributes "    [<Optional>]" |> shouldEqual ""
+    stripText "    [<Optional>]" |> shouldEqual ""
 
 [<Test>]
 let ``stripParameterAttributes leaves array types unaffected`` () =
-    stripParameterAttributes "x: int[]" |> shouldEqual "x: int[]"
+    stripText "x: int[]" |> shouldEqual "x: int[]"
 
 [<Test>]
 let ``stripParameterAttributes leaves plain parameter type unaffected`` () =
-    stripParameterAttributes "member Foo.Bar: x: int -> int"
+    stripText "member Foo.Bar: x: int -> int"
     |> shouldEqual "member Foo.Bar: x: int -> int"
 
 [<Test>]
 let ``stripParameterAttributes removes inline attribute from method signature`` () =
-    stripParameterAttributes "member Foo.Bar: [<Optional>] x: obj -> obj"
+    stripText "member Foo.Bar: [<Optional>] x: obj -> obj"
     |> shouldEqual "member Foo.Bar: x: obj -> obj"
+
+[<Test>]
+let ``stripParameterAttributes keeps the classification of the runs it leaves behind`` () =
+    // the attribute is spread over several runs, and the runs on either side of it must
+    // come back with the kind they went in with
+    let runs =
+        [
+            TokenKind.Keyword, "member"
+            TokenKind.Default, " "
+            TokenKind.Punctuation, "["
+            TokenKind.Operator, "<"
+            TokenKind.ReferenceType, "Optional"
+            TokenKind.Operator, ">"
+            TokenKind.Punctuation, "]"
+            TokenKind.Default, " "
+            TokenKind.Identifier, "x"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.ValueType, "int"
+        ]
+
+    stripParameterAttributes runs
+    |> shouldEqual
+        [
+            TokenKind.Keyword, "member"
+            TokenKind.Default, " "
+            TokenKind.Identifier, "x"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.ValueType, "int"
+        ]
+
+// --------------------------------------------------------------------------------------
+// Tests for splitting the compiler's tagged tool tip text into lines
+// --------------------------------------------------------------------------------------
+
+let private tagged (tag: FSharp.Compiler.Text.TextTag, text: string) =
+    FSharp.Compiler.Text.TaggedText(tag, text)
+
+[<Test>]
+let ``linesFromTaggedText splits a line break carried by a text run`` () =
+    // the compiler hands the break to us inside a Text run with the next line's
+    // indentation attached, not as a tag of its own
+    let tags =
+        [|
+            tagged (FSharp.Compiler.Text.TextTag.Keyword, "type")
+            tagged (FSharp.Compiler.Text.TextTag.Space, " ")
+            tagged (FSharp.Compiler.Text.TextTag.Class, "List")
+            tagged (FSharp.Compiler.Text.TextTag.Text, "\n  ")
+            tagged (FSharp.Compiler.Text.TextTag.UnionCase, "op_Nil")
+        |]
+
+    linesFromTaggedText tags
+    |> List.ofSeq
+    |> shouldEqual
+        [
+            [ TokenKind.Keyword, "type"; TokenKind.Default, " "; TokenKind.ReferenceType, "List" ]
+            [ TokenKind.Default, "  "; TokenKind.UnionCase, "op_Nil" ]
+        ]
+
+[<Test>]
+let ``linesFromTaggedText splits a run holding several line breaks`` () =
+    let tags =
+        [|
+            tagged (FSharp.Compiler.Text.TextTag.Module, "List")
+            tagged (FSharp.Compiler.Text.TextTag.Text, "\n\nfrom Microsoft.FSharp.Collections")
+        |]
+
+    linesFromTaggedText tags
+    |> List.ofSeq
+    |> shouldEqual [ [ TokenKind.Module, "List" ]; []; [ TokenKind.Default, "from Microsoft.FSharp.Collections" ] ]
 
 [<Test>]
 let ``Parameter attribute annotations are stripped from HTML tooltips`` () =
@@ -479,6 +566,181 @@ c.Method()
     // Attribute annotations should not appear in rendered tooltips
     tooltip |> shouldNotContainText "[&lt;Optional"
     tooltip |> shouldNotContainText "[&lt;DefaultParameterValue"
+
+// --------------------------------------------------------------------------------------
+// Tests for laying out a wide signature over several lines
+// --------------------------------------------------------------------------------------
+
+/// The layout works on classified runs. These cases care about where the lines break, so the
+/// text goes in as one run and comes back as the lines it was cut into.
+let private lay (width: int) (text: string) =
+    NiceSignaturePrint.layout width [ TokenKind.Default, text ]
+    |> List.map (fun line -> line |> List.map snd |> String.concat "")
+    |> String.concat "\n"
+
+[<Test>]
+let ``a signature that fits is left alone`` () =
+    lay 80 "val add: x: int -> y: int -> int"
+    |> shouldEqual "val add: x: int -> y: int -> int"
+
+[<Test>]
+let ``a wide val breaks after the name, between the parameters and before the result`` () =
+    lay
+        80
+        "val ParseAndCheckSource: file: string * source: string * options: string option * defines: string option * onError: (string -> unit) -> Snippet array * SourceError array"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [
+                "val ParseAndCheckSource:"
+                "    file: string *"
+                "    source: string *"
+                "    options: string option *"
+                "    defines: string option *"
+                "    onError: (string -> unit) ->"
+                "        Snippet array * SourceError array"
+            ]
+    )
+
+[<Test>]
+let ``a member keeps the name the tip qualified it with`` () =
+    // the compiler never parses `Literate.ConvertScriptFile` as a member name, so only the type
+    // is handed to it and the name is carried through untouched
+    lay
+        80
+        "static member Literate.ConvertScriptFile: input: string * ?template: string * ?outputKind: OutputKind -> unit"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [
+                "static member Literate.ConvertScriptFile:"
+                "    input: string *"
+                "    ?template: string *"
+                "    ?outputKind: OutputKind ->"
+                "        unit"
+            ]
+    )
+
+[<Test>]
+let ``a member indented under its type stays there, and its lines indent from it`` () =
+    // the compiler shows the members of a type two columns in, and breaking one must not
+    // pull it back to the margin
+    lay 60 "  static member FormatHtml: snippets: Snippet array * prefix: string * ?openTag: string -> FormattedContent"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [
+                "  static member FormatHtml:"
+                "      snippets: Snippet array *"
+                "      prefix: string *"
+                "      ?openTag: string ->"
+                "          FormattedContent"
+            ]
+    )
+
+[<Test>]
+let ``a union case breaks like any other signature`` () =
+    lay 60 "union case Snippet.Snippet: title: string * lines: Line list -> Snippet"
+    |> shouldEqual (
+        String.concat
+            "\n"
+            [ "union case Snippet.Snippet:"; "    title: string *"; "    lines: Line list ->"; "        Snippet" ]
+    )
+
+[<Test>]
+let ``a curried signature breaks at each arrow`` () =
+    lay 40 "val map: mapping: ('T -> 'U) -> source: 'T list -> 'U list"
+    |> shouldEqual (
+        String.concat "\n" [ "val map:"; "    mapping: ('T -> 'U) ->"; "    source: 'T list ->"; "        'U list" ]
+    )
+
+[<Test>]
+let ``a line the compiler cannot read a type out of is left alone`` () =
+    let prose = "Performs operations on String instances that contain file or directory path information."
+
+    lay 40 prose |> shouldEqual prose
+
+[<Test>]
+let ``the classification of every run survives the layout`` () =
+    let runs =
+        [
+            TokenKind.Keyword, "val"
+            TokenKind.Default, " "
+            TokenKind.Function, "veryLongFunctionNameIndeed"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.Identifier, "first"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.ReferenceType, "string"
+            TokenKind.Default, " "
+            TokenKind.Punctuation, "*"
+            TokenKind.Default, " "
+            TokenKind.Identifier, "second"
+            TokenKind.Punctuation, ":"
+            TokenKind.Default, " "
+            TokenKind.ReferenceType, "string"
+            TokenKind.Default, " "
+            TokenKind.Punctuation, "->"
+            TokenKind.Default, " "
+            TokenKind.ReferenceType, "string"
+        ]
+
+    let laid = NiceSignaturePrint.layout 40 runs
+
+    // more than one line, and no run lost the kind it went in with
+    laid.Length |> shouldBeGreaterThan 1
+
+    let kept =
+        laid
+        |> List.collect id
+        |> List.filter (fun (_, text) -> text.Trim() <> "")
+        |> List.map fst
+
+    let expected = runs |> List.filter (fun (_, text) -> text.Trim() <> "") |> List.map fst
+
+    kept |> shouldEqual expected
+
+// --------------------------------------------------------------------------------------
+// Tests for rendering doc comments in tooltips
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Doc comment markup does not reach the tooltip`` () =
+    let source =
+        """
+/// <summary>Adds the two numbers</summary>
+/// <param name="x">the first number</param>
+/// <returns>the sum</returns>
+let add x y = x + y
+
+let result = add 1 2
+"""
+
+    let _content, tooltip = getContentAndToolTip source
+    tooltip |> shouldNotContainText "&lt;summary&gt;"
+    tooltip |> shouldNotContainText "&lt;param"
+    tooltip |> shouldNotContainText "&lt;returns&gt;"
+    tooltip |> shouldContainText "Adds the two numbers"
+    tooltip |> shouldContainText "x: the first number"
+    tooltip |> shouldContainText "returns: the sum"
+
+[<Test>]
+let ``A cref keeps its name in the sentence it sits in`` () =
+    // the reference holds its text in an attribute, so asking the element for its text
+    // would leave a hole where it was
+    let source =
+        """
+type Marker = class end
+
+/// Produces a <see cref="T:Marker"/> value
+let make () = Unchecked.defaultof<Marker>
+
+let m = make ()
+"""
+
+    let _content, tooltip = getContentAndToolTip source
+    tooltip |> shouldContainText "Produces a Marker value"
 
 // --------------------------------------------------------------------------------------
 // Tests for cross-assembly type resolution in tooltips (issue #1085)
@@ -504,10 +766,12 @@ let private renderTips (spans: ToolTipSpans) =
     spans
     |> List.map (function
         | Literal s -> s
+        | Token(_, s) -> s
         | Emphasis inner ->
             inner
             |> List.map (function
                 | Literal s -> s
+                | Token(_, s) -> s
                 | _ -> "")
             |> String.concat ""
         | HardLineBreak -> "\n")
