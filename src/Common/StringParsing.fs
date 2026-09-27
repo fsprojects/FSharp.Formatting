@@ -232,11 +232,23 @@ module StringPosition =
             if String.IsNullOrWhiteSpace(beforeStart) then
                 let startAndRest = text.Substring(beforeStart.Length)
 
+                // Count matches of `start` at consecutive offsets 0, 1, 2, ... in `startAndRest`
+                // (same semantics as the previous Seq.windowed-based implementation), without
+                // allocating a substring per offset.
                 let startNum =
-                    Seq.windowed start.Length startAndRest
-                    |> Seq.map (fun chars -> System.String(chars))
-                    |> Seq.takeWhile ((=) start)
-                    |> Seq.length
+                    let mutable count = 0
+                    let mutable keepGoing = true
+
+                    while keepGoing do
+                        if
+                            count + start.Length <= startAndRest.Length
+                            && String.CompareOrdinal(startAndRest, count, start, 0, start.Length) = 0
+                        then
+                            count <- count + 1
+                        else
+                            keepGoing <- false
+
+                    count
 
                 Some(
                     startNum,

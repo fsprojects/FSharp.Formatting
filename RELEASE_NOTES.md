@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+* Avoided a per-character `Seq.windowed`/`String()` allocation in `StartsWithNTimesTrimIgnoreStartWhitespace`, the active pattern used to count repeated fence characters (`` ` `` / `~`) when parsing code fences and headers. The count is now computed with `String.CompareOrdinal` over string offsets, with no intermediate substring allocations. Behavior is unchanged.
+
 ## [23.0.0-alpha.8] - 2026-09-18
 
 ### Added
