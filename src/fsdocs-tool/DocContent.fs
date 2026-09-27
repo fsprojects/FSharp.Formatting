@@ -556,8 +556,13 @@ module internal Content =
     /// The pages must be HTML pages outside multi-language folders; 'index' pages are excluded here.
     /// The render function takes the root of the page the menu is for and the active page.
     let getNavigationEntriesFactory
-        (input: string, pages: NavPage list, ignoreUncategorized: bool)
-        : string -> string option -> string =
+        (
+            input: string,
+            pages: NavPage list,
+            ignoreUncategorized: bool,
+            siteSubstitutions: Substitutions,
+            rootKeys: ParamKey list
+        ) : string -> string option -> string =
 
         let baseModels =
             [
@@ -610,20 +615,25 @@ module internal Content =
                         model, isActive))
 
             if useTemplating then
+                // The menu templates get what the page gets, root included, so they can link
+                // anywhere on the site and not only where fsdocs hands them a link.
+                let pageSubstitutions = withPageRoot rootKeys root siteSubstitutions
+
                 let createGroup (isCategoryActive: bool) (header: string) (items: (NavPage * bool) list) : string =
                     let menuItems =
                         items
                         |> List.map (fun (model: NavPage, isActive) ->
                             let link = model.Uri(root)
-                            let title = System.Web.HttpUtility.HtmlEncode model.Title
 
                             {
                                 Menu.MenuItem.Link = link
-                                Menu.MenuItem.Content = title
+                                // Menu.createMenu encodes the content, so it goes in as it is.
+                                Menu.MenuItem.Content = model.Title
+                                Menu.MenuItem.Title = None
                                 Menu.MenuItem.IsActive = isActive
                             })
 
-                    Menu.createMenu input isCategoryActive header menuItems
+                    Menu.createMenu input pageSubstitutions isCategoryActive header menuItems
 
                 if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                     let _, items = modelsByCategory.[0]
@@ -1073,4 +1083,10 @@ type internal DocContent
                         yield Content.navPageOfModel inputFileFullPath model
             ]
 
-        Content.getNavigationEntriesFactory (input, pages, ignoreUncategorized)
+        Content.getNavigationEntriesFactory (
+            input,
+            pages,
+            ignoreUncategorized,
+            contentOptions.Substitutions,
+            contentOptions.RootKeys
+        )

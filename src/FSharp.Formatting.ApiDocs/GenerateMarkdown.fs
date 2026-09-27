@@ -1,5 +1,3 @@
-/// Internal module that generates Markdown documentation output from an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>.
-/// Produces one Markdown file per namespace and per entity, plus an index file.
 module internal FSharp.Formatting.ApiDocs.GenerateMarkdown
 
 open System
@@ -10,32 +8,42 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
-/// HTML-encodes a string and additionally escapes pipe characters for safe use in Markdown tables.
 let encode (x: string) =
     HttpUtility.HtmlEncode(x).Replace("|", "&#124;")
 
-/// URL-encodes a string (for use in anchor hrefs).
 let urlEncode (x: string) = HttpUtility.UrlEncode x
-/// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value.
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
-/// Returns the trimmed HTML text of an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value,
-/// with newlines replaced by <c>&lt;br /&gt;</c> and pipe characters escaped for Markdown tables.
 let htmlStringSafe (x: ApiDocHtml) =
     (x.HtmlText.Trim()).Replace("\n", "<br />").Replace("|", "&#124;")
 
-/// Wraps an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value as a Markdown DSL node.
 let embed (x: ApiDocHtml) = !!(htmlString x)
-/// Wraps an <see cref="T:FSharp.Formatting.ApiDocs.ApiDocHtml"/> value as a Markdown DSL node,
-/// escaping characters that would break Markdown table cells.
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
-/// A Markdown DSL node representing an HTML line break.
 let br = !!"<br />"
 
-/// Renders Markdown API documentation for all namespaces and entities in an
-/// <see cref="T:FSharp.Formatting.ApiDocs.ApiDocModel"/>. Writes one file per namespace
-/// and per entity to <paramref name="outDir"/> using the supplied template.
 type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
+
+    // Same answer for the lifetime of the renderer, see the note in GenerateHtml.
+    let categorised = lazy (Categorise.model model)
+
+    let documentedNamespaces = lazy (categorised.Value |> List.map (fun (_, ns) -> ns.Name) |> Set.ofList)
+
+    // The menu folds a namespace into the documented one it is nested in, see GenerateHtml.
+    let menuNamespaces =
+        lazy
+            (categorised.Value
+             |> List.filter (fun (_, ns) -> GenerateHtml.menuNamespaceOf documentedNamespaces.Value ns.Name = ns.Name))
+
+    let isActiveMenuNamespace (nsOpt: ApiDocNamespace option) (ns: ApiDocNamespace) =
+        match nsOpt with
+        | None -> false
+        | Some current -> GenerateHtml.menuNamespaceOf documentedNamespaces.Value current.Name = ns.Name
+
+    /// The namespaces nested in this one, at any depth, see GenerateHtml.
+    let nestedNamespaces (name: string) =
+        categorised.Value
+        |> List.filter (fun (_, ns: ApiDocNamespace) -> ns.Name.StartsWith(name + ".", StringComparison.Ordinal))
+
     let root = model.Root
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
@@ -87,14 +95,13 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     match m.ReturnInfo.ReturnType with
                     | None -> ()
                     | Some(_, returnTypeHtml) ->
-                        p
-                            [
-                                !!(if m.Kind <> ApiDocMemberKind.RecordField then
-                                       "Returns: "
-                                   else
-                                       "Field type: ")
-                                embed returnTypeHtml
-                            ]
+                        p [
+                            !!(if m.Kind <> ApiDocMemberKind.RecordField then
+                                   "Returns: "
+                               else
+                                   "Field type: ")
+                            embed returnTypeHtml
+                        ]
 
                         match m.ReturnInfo.ReturnDocs with
                         | None -> ()
@@ -117,13 +124,12 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                     if not m.Comment.Exceptions.IsEmpty then
                         for (nm, url, html) in m.Comment.Exceptions do
-                            p
-                                [
-                                    match url with
-                                    | None -> ()
-                                    | Some href -> link [ !!nm ] href
-                                    embed html
-                                ]
+                            p [
+                                match url with
+                                | None -> ()
+                                | Some href -> link [ !!nm ] href
+                                embed html
+                            ]
 
                     for e in m.Comment.Notes do
                         ``#####`` [ !!"Note" ]
@@ -132,15 +138,14 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     if not m.Comment.SeeAlso.IsEmpty then
                         ``#####`` [ !!"See also" ]
 
-                        ul
-                            [
-                                for (nm, url, html) in m.Comment.SeeAlso do
-                                    [
-                                        match url with
-                                        | Some href -> p [ link [ !!nm ] href ]
-                                        | None -> p [ embed html ]
-                                    ]
-                            ]
+                        ul [
+                            for (nm, url, html) in m.Comment.SeeAlso do
+                                [
+                                    match url with
+                                    | Some href -> p [ link [ !!nm ] href ]
+                                    | None -> p [ embed html ]
+                                ]
+                        ]
 
                     for e in m.Comment.Examples do
                         ``#####`` [ !!"Example" ]
@@ -163,42 +168,38 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 table
                     [
                         [
-                            p
-                                [
-                                    !!(if hasTypes && hasModules then "Type/Module"
-                                       elif hasTypes then "Type"
-                                       else "Modules")
-                                ]
+                            p [
+                                !!(if hasTypes && hasModules then "Type/Module"
+                                   elif hasTypes then "Type"
+                                   else "Modules")
+                            ]
                             p [ !!"Description" ]
                             p [ !!"Source" ]
                         ]
-                    ]
-                    [ AlignLeft; AlignLeft; AlignCenter ]
-                    [
+                    ] [ AlignLeft; AlignLeft; AlignCenter ] [
                         let nameCounts = entities |> List.countBy (fun e -> e.Name) |> dict
 
                         for e in entities do
                             [
                                 [
-                                    p
-                                        [
-                                            let nm = e.Name
+                                    p [
+                                        let nm = e.Name
 
-                                            let multi = nameCounts.[nm] > 1
+                                        let multi = nameCounts.[nm] > 1
 
-                                            let nmWithSiffix =
-                                                if multi then
-                                                    (if e.IsTypeDefinition then
-                                                         nm + " (Type)"
-                                                     else
-                                                         nm + " (Module)")
-                                                else
-                                                    nm
+                                        let nmWithSiffix =
+                                            if multi then
+                                                (if e.IsTypeDefinition then
+                                                     nm + " (Type)"
+                                                 else
+                                                     nm + " (Module)")
+                                            else
+                                                nm
 
-                                            link
-                                                [ !!nmWithSiffix ]
-                                                (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-                                        ]
+                                        link
+                                            [ !!nmWithSiffix ]
+                                            (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                                    ]
                                 ]
                                 [ p [ embedSafe e.Comment.Summary ] ]
                                 [ p [ yield! (sourceLink e.SourceLocation) ] ]
@@ -223,25 +224,23 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
         [
             ``##`` [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
-            p
-                [
-                    !!"Namespace: "
-                    link
-                        [ !!info.Namespace.Name ]
-                        (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-                ]
+            p [
+                !!"Namespace: "
+                link
+                    [ !!info.Namespace.Name ]
+                    (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+            ]
             p [ !!("Assembly: " + entity.Assembly.Name + ".dll") ]
 
             match info.ParentModule with
             | None -> ()
             | Some parentModule ->
-                p
-                    [
-                        !!"Parent Module: "
-                        link
-                            [ !!parentModule.Name ]
-                            (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
-                    ]
+                p [
+                    !!"Parent Module: "
+                    link
+                        [ !!parentModule.Name ]
+                        (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                ]
 
             match entity.AbbreviatedType with
             | Some(_, abbreviatedTyp) -> p [ !!"Abbreviation For: "; embed abbreviatedTyp ]
@@ -254,15 +253,14 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             match entity.AllInterfaces with
             | [] -> ()
             | l ->
-                p
-                    [
-                        !!"All Interfaces: "
-                        for (i, (_, interfaceTyHtml)) in Seq.indexed l do
-                            if i <> 0 then
-                                !!", "
+                p [
+                    !!"All Interfaces: "
+                    for (i, (_, interfaceTyHtml)) in Seq.indexed l do
+                        if i <> 0 then
+                            !!", "
 
-                            embed interfaceTyHtml
-                    ]
+                        embed interfaceTyHtml
+                ]
 
             if entity.Symbol.IsValueType then
                 p [ !!("Kind: Struct") ]
@@ -298,15 +296,14 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             if not entity.Comment.SeeAlso.IsEmpty then
                 ``#####`` [ !!"See also" ]
 
-                ul
-                    [
-                        for (nm, url, html) in entity.Comment.SeeAlso do
-                            [
-                                match url with
-                                | Some href -> p [ link [ !!nm ] href ]
-                                | None -> p [ embed html ]
-                            ]
-                    ]
+                ul [
+                    for (nm, url, html) in entity.Comment.SeeAlso do
+                        [
+                            match url with
+                            | Some href -> p [ link [ !!nm ] href ]
+                            | None -> p [ embed html ]
+                        ]
+                ]
 
             for example in entity.Comment.Examples do
                 ``#####`` [ !!"Example" ]
@@ -316,11 +313,10 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 // If there is more than 1 category in the type, generate TOC
                 ``###`` [ !!"Table of contents" ]
 
-                ul
-                    [
-                        for (index, _, name) in byCategory do
-                            [ p [ link [ !!(sprintf "#section%d" index) ] (name) ] ]
-                    ]
+                ul [
+                    for (index, _, name) in byCategory do
+                        [ p [ link [ !!(sprintf "#section%d" index) ] (name) ] ]
+                ]
 
             //<!-- Render nested types and modules, if there are any -->
 
@@ -328,15 +324,14 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
             if (nestedEntities.Length > 0) then
 
-                ``###``
-                    [
-                        !!(if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then
-                               "Nested modules"
-                           elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then
-                               "Types"
-                           else
-                               "Types and nested modules")
-                    ]
+                ``###`` [
+                    !!(if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then
+                           "Nested modules"
+                       elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then
+                           "Types"
+                       else
+                           "Types and nested modules")
+                ]
 
                 yield! renderEntities nestedEntities
 
@@ -381,7 +376,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     if not (List.isEmpty instMembers) || not (List.isEmpty statMembers) then
                         Some(baseTypeHtml, instMembers, statMembers)
                     else
-                        None)
+                        None
+                )
 
             if not (List.isEmpty inheritedMemberGroups) then
                 ``###`` [ !!"Inherited members" ]
@@ -396,9 +392,10 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     /// and one section per category of entities.
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
+        let nested = nestedNamespaces ns.Name
 
         [
-            if allByCategory.Length > 0 then
+            if allByCategory.Length > 0 || not nested.IsEmpty then
                 ``##`` [ !!(ns.Name + " Namespace") ]
 
                 match ns.NamespaceDocs with
@@ -410,14 +407,31 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     | None -> ()
                 | None -> ()
 
+                // The menu lists this namespace and not the ones inside it, so they are listed here
+                // instead: without this the page is a dead end and the index is the only way on.
+                if not nested.IsEmpty then
+                    ``###`` [ !!"Namespaces" ]
+
+                    for _allByCategory, nestedNs in nested do
+                        p [
+                            link
+                                [ !!nestedNs.Name ]
+                                (nestedNs.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+
+                            match nestedNs.NamespaceDocs with
+                            | Some nsdocs ->
+                                !!" - "
+                                embed nsdocs.Summary
+                            | None -> ()
+                        ]
+
                 if (allByCategory.Length > 1) then
                     ``###`` [ !!"Contents" ]
 
-                    ul
-                        [
-                            for category in allByCategory do
-                                [ p [ link [ !!category.CategoryName ] ("#category-" + category.CategoryIndex) ] ]
-                        ]
+                    ul [
+                        for category in allByCategory do
+                            [ p [ link [ !!category.CategoryName ] ("#category-" + category.CategoryIndex) ] ]
+                    ]
 
                 for category in allByCategory do
                     if (allByCategory.Length > 1) then
@@ -428,76 +442,60 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
     /// Builds the list-of-namespaces Markdown fragment (for sidebar navigation or index page).
     /// When <paramref name="nav"/> is <c>true</c> the active namespace is expanded to show its entities.
-    let listOfNamespacesAux (root: string) otherDocs nav (nsOpt: ApiDocNamespace option) =
+    let listOfNamespacesAux (root: string) nav (nsOpt: ApiDocNamespace option) =
         [
-            // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
-            //
-            // For non-FSharp.Core we only show one link "API Reference" in the nav menu
-            if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
-                p
-                    [
-                        !!"API Reference"
-                        link
-                            [ !!"All Namespaces" ]
-                            (model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl))
-                    ]
-            else
+            // The index page lists every namespace; the menu shows the ones the reader navigates by.
+            let categorise = if nav then menuNamespaces.Value else categorised.Value
 
-                let categorise = Categorise.model model
+            let someExist = categorise.Length > 0
 
-                let someExist = categorise.Length > 0
+            if someExist && nav then
+                p [ !!"API Reference" ]
 
-                if someExist && nav then
-                    p [ !!"Namespaces" ]
+            for allByCategory, ns in categorise do
 
-                for allByCategory, ns in categorise do
+                // Generate the entry for the namespace
+                p [
+                    link [ !!ns.Name ] (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
 
-                    // Generate the entry for the namespace
-                    p
-                        [
-                            link [ !!ns.Name ] (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                    // If not in the navigation list then generate the summary text as well
+                    if not nav then
+                        !!" - "
 
-                            // If not in the navigation list then generate the summary text as well
-                            if not nav then
-                                !!" - "
+                        match ns.NamespaceDocs with
+                        | Some nsdocs -> embed nsdocs.Summary
+                        | None -> ()
+                ]
 
-                                match ns.NamespaceDocs with
-                                | Some nsdocs -> embed nsdocs.Summary
-                                | None -> ()
+                // In the navigation bar generate the expanded list of entities
+                // for the active namespace
+                if nav then
+                    match nsOpt with
+                    | Some ns2 when ns.Name = ns2.Name ->
+                        ul [
+                            for category in allByCategory do
+                                for e in category.CategoryEntites do
+                                    [
+                                        p [
+                                            link
+                                                [ !!e.Name ]
+                                                (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                                        ]
+                                    ]
                         ]
-
-                    // In the navigation bar generate the expanded list of entities
-                    // for the active namespace
-                    if nav then
-                        match nsOpt with
-                        | Some ns2 when ns.Name = ns2.Name ->
-                            ul
-                                [
-                                    for category in allByCategory do
-                                        for e in category.CategoryEntites do
-                                            [
-                                                p
-                                                    [
-                                                        link
-                                                            [ !!e.Name ]
-                                                            (e.Url(
-                                                                root,
-                                                                collectionName,
-                                                                qualify,
-                                                                model.FileExtensions.InUrl
-                                                            ))
-                                                    ]
-                                            ]
-                                ]
-                        | _ -> ()
+                    | _ -> ()
         ]
 
     /// Returns the list-of-namespaces string, using a menu template when available.
     let listOfNamespacesWithRoot (root: string) otherDocs nav (nsOpt: ApiDocNamespace option) =
         let noTemplatingFallback () =
-            listOfNamespacesAux root otherDocs nav nsOpt
+            listOfNamespacesAux root nav nsOpt
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
+
+        // What the page itself is rendered with, but with the root of this page, so a menu template
+        // can use {{root}} and the other site-wide substitutions to reach the rest of the site.
+        let menuSubstitutions = [ yield! model.Substitutions; yield ParamKeys.root, root ]
 
         match menuTemplateFolder with
         | None -> noTemplatingFallback ()
@@ -506,67 +504,54 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
             if not isTemplatingAvailable then
                 noTemplatingFallback ()
-            else if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
-                let menuItems =
-                    let title = "All Namespaces"
-                    let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
-
-                    [
-                        {
-                            Menu.MenuItem.Link = link
-                            Menu.MenuItem.Content = title
-                            Menu.MenuItem.IsActive = false
-                        }
-                    ]
-
-                Menu.createMenu menuTemplateFolder false "API Reference" menuItems
-
             else
-                let categorise = Categorise.model model
+                let categorise = menuNamespaces.Value
 
                 if categorise.Length = 0 then
                     ""
                 else
+                    let prefix = GenerateHtml.commonNamespacePrefix [ for _, ns in categorise -> ns.Name ]
+
                     let menuItems =
-                        categorise
-                        |> List.map (fun (_, ns) ->
-                            let link = ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
-                            let name = ns.Name
+                        [
+                            for _, ns in categorise do
+                                {
+                                    Menu.MenuItem.Link =
+                                        ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
+                                    Menu.MenuItem.Content = ns.Name.Substring(prefix.Length)
+                                    Menu.MenuItem.Title = (if String.IsNullOrEmpty prefix then None else Some ns.Name)
+                                    Menu.MenuItem.IsActive = isActiveMenuNamespace nsOpt ns
+                                }
+                        ]
 
-                            {
-                                Menu.MenuItem.Link = link
-                                Menu.MenuItem.Content = name
-                                Menu.MenuItem.IsActive = false
-                            })
-
-                    Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
+                    // A template can fold a section away, and the reader arriving on an API page is
+                    // inside this one. Mark the category active so the section it renders is the one
+                    // that opens. The other docs render the same list while the reader is elsewhere.
+                    Menu.createMenu menuTemplateFolder menuSubstitutions (not otherDocs) "API Reference" menuItems
 
     let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
         listOfNamespacesWithRoot root otherDocs nav nsOpt
 
-    /// The substitutions relevant to all pages, with the namespace links built for the given root
-    /// (a content page deeper in the site needs a different relative root than the API pages).
     member _.GlobalSubstitutionsFor(root: string) : Substitutions =
         let toc = listOfNamespacesWithRoot root true true None
         [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
 
-    /// Get the substitutions relevant to all
     member x.GlobalSubstitutions: Substitutions = x.GlobalSubstitutionsFor root
 
-    /// The pages of the API documentation: the output file relative to the output folder
-    /// (forward slashes) and a function rendering the page for a template and global substitutions.
-    /// Nothing is rendered until the function is called.
     member _.Pages(collectionName: string) : (string * (string option -> Substitutions -> string)) list =
 
         let getSubstitutons parameters toc (content: MarkdownDocument) pageTitle globalParameters =
             [|
                 yield! parameters
-                yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
                 yield (ParamKeys.``fsdocs-content``, Markdown.ToMd(content))
                 yield (ParamKeys.``fsdocs-source``, "")
                 yield (ParamKeys.``fsdocs-tooltips``, "")
                 yield (ParamKeys.``fsdocs-page-title``, pageTitle)
                 yield! globalParameters
+                // Last one wins (the substitutions become a dictionary), so the namespace menu of the
+                // page goes after the global substitutions: those carry the same list with nothing
+                // marked active, which would otherwise take the place of the one marking this page.
+                yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
             |]
 
         let page outFile parameters toc (content: unit -> MarkdownDocument) pageTitle =
@@ -585,7 +570,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     [
                         ``#`` [ !!"API Reference" ]
                         ``##`` [ !!"Available Namespaces" ]
-                        ul [ (listOfNamespacesAux root false false None) ]
+                        ul [ (listOfNamespacesAux root false None) ]
                     ],
                     Map.empty
                 )
@@ -623,8 +608,6 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 page outFile info.Entity.Substitutions toc content pageTitle
         ]
 
-    /// Writes all API documentation Markdown files (index, one per namespace, one per entity)
-    /// to <paramref name="outDir"/>, applying <paramref name="templateOpt"/> to each page.
     member x.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
         for (relativeFile, render) in x.Pages(collectionName) do
             let outFile = Path.Combine(outDir, relativeFile)

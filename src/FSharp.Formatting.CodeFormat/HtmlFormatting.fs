@@ -64,9 +64,27 @@ type FormattingContext =
 // --------------------------------------------------------------------------------------
 
 /// Formats tool tip information and returns a string
-let formatToolTipSpans spans =
+let formatToolTipSpans (tokenKindToCss: TokenKind -> string) spans =
     let sb = StringBuilder()
     use wr = new StringWriter(sb)
+
+    // A tool tip is laid out as flowing text rather than preformatted, so the browser
+    // would collapse the indentation of a continuation line. Keep it with nbsp, but only
+    // at the start of a line: doing it to every space would stop the tip wrapping at all.
+    let mutable atLineStart = true
+
+    let writeText (text: string) =
+        if atLineStart then
+            let spaces = text.Length - text.TrimStart(' ').Length
+
+            wr.Write(String.replicate spaces "&#160;")
+            wr.Write(HttpUtility.HtmlEncode(text.Substring(spaces)))
+        else
+            wr.Write(HttpUtility.HtmlEncode(text))
+
+        if not (String.IsNullOrWhiteSpace text) then
+            atLineStart <- false
+
     // Inner recursive function that does the formatting
     let rec format spans =
         spans
@@ -75,12 +93,22 @@ let formatToolTipSpans spans =
                 wr.Write("<em>")
                 format spans
                 wr.Write("</em>")
-            | Literal(string) ->
-                let spaces = string.Length - string.TrimStart(' ').Length
+            | Token(_, body) when String.IsNullOrWhiteSpace body -> writeText body
+            | Token(kind, body) ->
+                let css = tokenKindToCss kind
 
-                wr.Write(String.replicate spaces "&#160;")
-                wr.Write(HttpUtility.HtmlEncode(string.Substring(spaces)))
-            | HardLineBreak -> wr.Write("<br />"))
+                if String.IsNullOrEmpty css then
+                    writeText body
+                else
+                    wr.Write("<span class=\"")
+                    wr.Write(css)
+                    wr.Write("\">")
+                    writeText body
+                    wr.Write("</span>")
+            | Literal(string) -> writeText string
+            | HardLineBreak ->
+                wr.Write("<br />")
+                atLineStart <- true)
 
     format spans
     sb.ToString()
@@ -91,7 +119,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
         | TokenSpan.Error(_kind, message, body) when ctx.GenerateErrors ->
             let tip = ToolTipReader.formatMultilineString (message.Trim().Split('\n'))
 
-            let tipAttributes = ctx.FormatTip tip formatToolTipSpans
+            let tipAttributes = ctx.FormatTip tip (formatToolTipSpans ctx.TokenKindToCss)
 
             ctx.Writer.Write("<span ")
             ctx.Writer.Write(tipAttributes)
@@ -109,7 +137,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
         | TokenSpan.Omitted(body, hidden) ->
             let tip = ToolTipReader.formatMultilineString (hidden.Trim().Split('\n'))
 
-            let tipAttributes = ctx.FormatTip tip formatToolTipSpans
+            let tipAttributes = ctx.FormatTip tip (formatToolTipSpans ctx.TokenKindToCss)
 
             ctx.Writer.Write("<span ")
             ctx.Writer.Write(tipAttributes)
@@ -121,7 +149,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
             // Generate additional attributes for ToolTip
             let tipAttributes =
                 match tip with
-                | Some(tip) -> ctx.FormatTip tip formatToolTipSpans
+                | Some(tip) -> ctx.FormatTip tip (formatToolTipSpans ctx.TokenKindToCss)
                 | _ -> ""
 
             // Get CSS class name of the token
@@ -161,26 +189,22 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet array) =
                 if String.IsNullOrEmpty(tag) |> not then
                     ctx.Writer.Write(tag)
 
-            // If we're adding lines, then generate two column table
-            // (so that the body can be easily copied)
-            if ctx.GenerateLineNumbers then
-                ctx.Writer.Write("<table class=\"pre\">")
-                ctx.Writer.Write("<tr>")
-                ctx.Writer.Write("<td class=\"lines\">")
+            // A snippet is a wrapper holding one or two <pre> elements, laid out as a
+            // grid by the stylesheet. Line numbers get their own <pre> so that they
+            // stay out of any text the reader selects and copies.
+            ctx.Writer.Write("<div class=\"fsdocs-snippet\">")
 
-                // Generate <pre> tag for the snippet
+            if ctx.GenerateLineNumbers then
+                // Generate <pre> tag for the line numbers
                 emitTag ctx.OpenLinesTag
                 // Print all line numbers of the snippet
                 for index in 0 .. linesLength - 1 do
                     // Add line number to the beginning
                     let lineStr = (index + 1).ToString().PadLeft(numberLength)
 
-                    ctx.Writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
+                    ctx.Writer.WriteLine("<span class=\"l\">{0}</span>", lineStr)
 
                 emitTag ctx.CloseLinesTag
-                ctx.Writer.WriteLine("</td>")
-                ctx.Writer.Write("<td class=\"snippet\">")
-
 
             // Print all lines of the snippet inside <pre>..</pre>
             emitTag ctx.OpenTag
@@ -192,11 +216,7 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet array) =
 
             emitTag ctx.CloseTag
 
-            if ctx.GenerateLineNumbers then
-                // Close the table if we are adding lines
-                ctx.Writer.WriteLine("</td>")
-                ctx.Writer.WriteLine("</tr>")
-                ctx.Writer.Write("</table>")
+            ctx.Writer.Write("</div>")
 
             ctx.Writer.Close()
             yield key, mainStr.ToString()

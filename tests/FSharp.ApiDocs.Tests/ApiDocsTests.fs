@@ -9,6 +9,11 @@ open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Templating
 open FsUnitTyped
 
+/// Tool tips are now marked up with the same token classes as the snippet they
+/// describe, so strip the tags before asserting on what a tip actually says.
+let private withoutTags (html: string) =
+    System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", "")
+
 // --------------------------------------------------------------------------------------
 // Run the metadata formatter on sample project
 // --------------------------------------------------------------------------------------
@@ -572,6 +577,36 @@ let ``ApiDocs reads comments of type abbreviations to tuples, lists and BCL type
         entity.AbbreviatedType.IsSome |> shouldEqual true
         // An abbreviation declares no members; the target type's members must not leak in
         entity.AllMembers |> shouldEqual []
+
+[<Test>]
+let ``ApiDocs reads comments of members returning a function-type abbreviation (issue 1327)`` () =
+    let libraries = [ testBin </> "FsLib2.dll" ]
+    let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = false, warn = true) ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "FsLib", substitutions = substitutions, libDirs = [ testBin ])
+
+    let entity =
+        model.Collection.Namespaces.[0].Entities
+        |> List.find (fun e -> e.Name = "FunctionTypeAbbreviations")
+
+    let find name =
+        entity.AllMembers |> List.find (fun m -> m.Name = name)
+
+    // Formatting the return type used to throw, which dropped the comment of the whole member
+    let makeLoader = find "makeLoader"
+    makeLoader.Comment.Summary.HtmlText |> shouldContainText "Returns a loader"
+
+    let returnTypeHtml (m: ApiDocMember) =
+        m.ReturnInfo.ReturnType |> Option.map (fun (_, html) -> html.HtmlText)
+
+    // The abbreviation is shown under its own name, not expanded into its target type
+    returnTypeHtml makeLoader |> Option.get |> shouldContainText "IsPathIgnored"
+
+    // A generic abbreviation carries two type arguments, which are not a domain and a range
+    let lookupTransform = find "lookupTransform"
+    lookupTransform.Comment.Summary.HtmlText |> shouldContainText "Returns a lookup"
+    returnTypeHtml lookupTransform |> Option.get |> shouldContainText "Transform"
 
 [<Test>]
 [<TestCaseSource("formats")>]
@@ -1556,6 +1591,7 @@ let ``ApiDocs highlights code snippets in Markdown comments`` (format: OutputFor
     |> shouldContainText """<span class="k">var</span>"""
 
     files.[(sprintf "fslib-myclass.%s" format.Extension)]
+    |> withoutTags
     |> shouldContainText """val a: FsLib.MyClass"""
 
 [<Test>]
@@ -1933,17 +1969,108 @@ ACTIVE: {{fsdocs-menu-item-active-class}}
             |> Array.map (fun s -> s.Trim())
             |> String.concat "\n"
 
+    // The global substitutions go on the content pages, which list the namespaces just as the API
+    // pages do; nothing is marked active there, the reader is on a page of their own.
     Assert.AreEqual(
         $"""HEADER: API Reference
 HEADER ID: api_reference
 ITEMS:
-LINK: /reference/index{format.ExtensionInUrl}
-LINK ID: all_namespaces
-CONTENT: All Namespaces
+LINK: /reference/fslib{format.ExtensionInUrl}
+LINK ID: fslib
+CONTENT: FsLib
 ACTIVE:"""
             .Replace("\r", ""),
         listOfNamespaces
     )
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``The menu of the content pages lists the namespaces`` (format: OutputFormat) =
+    let library = testBin </> "FsLib1.dll" |> fullpath
+    let inputs = ApiDocInput.FromFile(library)
+    let output = getOutputDir format "PhasedContentMenu"
+
+    let phased =
+        match format with
+        | OutputFormat.Html -> ApiDocs.GenerateHtmlPhased([ inputs ], output, "Collection", [])
+        | OutputFormat.Markdown -> ApiDocs.GenerateMarkdownPhased([ inputs ], output, "Collection", [])
+
+    let listOfNamespaces =
+        phased.GlobalSubstitutions
+        |> Seq.pick (fun (key, content) ->
+            if key = ParamKeys.``fsdocs-list-of-namespaces`` then
+                Some content
+            else
+                None)
+
+    // The content pages get the same list as the API pages, where they used to get a single link.
+    listOfNamespaces
+    |> shouldContainText (sprintf "reference/fslib%s" format.ExtensionInUrl)
+
+    listOfNamespaces |> shouldContainText "API Reference"
+    listOfNamespaces |> shouldNotContainText "All Namespaces"
+    // The reader is on a content page, so no entry of this menu is the page they are on.
+    listOfNamespaces |> shouldNotContainText "active"
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``The menu leaves out a namespace nested in another namespace`` (format: OutputFormat) =
+    // Deedle documents 'Deedle' plus five namespaces inside it. Only the outermost one belongs in
+    // the menu that every page carries; the API reference index stays the list of all of them.
+    let library = root </> "files" </> "Deedle.dll"
+    let inputs = ApiDocInput.FromFile(library, mdcomments = true)
+    let output = getOutputDir format "PhasedNestedNamespaces"
+
+    let phased =
+        match format with
+        | OutputFormat.Html -> ApiDocs.GenerateHtmlPhased([ inputs ], output, "Deedle", [], libDirs = [ testBin ])
+        | OutputFormat.Markdown ->
+            ApiDocs.GenerateMarkdownPhased([ inputs ], output, "Deedle", [], libDirs = [ testBin ])
+
+    let listOfNamespaces =
+        phased.GlobalSubstitutions
+        |> Seq.pick (fun (key, content) ->
+            if key = ParamKeys.``fsdocs-list-of-namespaces`` then
+                Some content
+            else
+                None)
+
+    listOfNamespaces
+    |> shouldContainText (sprintf "reference/deedle%s" format.ExtensionInUrl)
+
+    for nested in [ "deedle-indices"; "deedle-indices-linear"; "deedle-internal"; "deedle-keys"; "deedle-vectors" ] do
+        listOfNamespaces |> shouldNotContainText nested
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``A namespace page lists the namespaces nested in it`` (format: OutputFormat) =
+    // The counterpart of the menu folding them away: the page of the outermost namespace is where
+    // the reader finds the ones it stands for.
+    let library = root </> "files" </> "Deedle.dll"
+    let input = ApiDocInput.FromFile(library, mdcomments = true)
+    let output = getOutputDir format "NestedNamespacePage"
+
+    let _model, _index =
+        DocsGenerator(format)
+            .Run(
+                [ input ],
+                output,
+                collectionName = "Deedle",
+                template = docTemplate format,
+                substitutions = substitutions,
+                libDirs = [ testBin ]
+            )
+
+    let deedlePage = File.ReadAllText(output </> "reference" </> sprintf "deedle.%s" format.Extension)
+
+    deedlePage |> shouldContainText "Deedle.Vectors"
+    deedlePage |> shouldContainText "Deedle.Vectors.ArrayVector"
+    deedlePage |> shouldContainText "Deedle.Indices"
+    deedlePage |> shouldContainText "Deedle.Internal"
+    deedlePage |> shouldContainText "Deedle.Keys"
+
+    deedlePage
+    |> shouldContainText (sprintf "deedle-vectors%s" format.ExtensionInUrl)
 
 [<Test>]
 let ``ApiDocs includes type whose name matches its namespace (issue 944)`` () =

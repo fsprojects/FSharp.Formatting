@@ -31,7 +31,10 @@ let private headingSelector (index: int) = $"[data-fsdocs-heading=\"%i{index}\"]
 /// The scroll timeline of the content scroller, named in fsdocs-default.css.
 let private mainTimeline = "--fsdocs-main"
 
-let private scrollSpyStyle (headingCount: int) =
+/// The `<style>` that drives the scroll-driven marking of the current section. Every heading in the
+/// content and its menu item must carry a matching `data-fsdocs-heading` index from 1 to
+/// `headingCount`. The API doc generator builds its own menu and calls this directly.
+let scrollSpyStyle (headingCount: int) =
     let scope =
         [ yield! List.map timelineName [ 1..headingCount ]; yield mainTimeline ]
         |> String.concat ", "
