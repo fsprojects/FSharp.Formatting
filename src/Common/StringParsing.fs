@@ -232,11 +232,23 @@ module StringPosition =
             if String.IsNullOrWhiteSpace(beforeStart) then
                 let startAndRest = text.Substring(beforeStart.Length)
 
+                // Count matches of `start` at consecutive offsets 0, 1, 2, ... in `startAndRest`
+                // (same semantics as the previous Seq.windowed-based implementation), without
+                // allocating a substring per offset.
                 let startNum =
-                    Seq.windowed start.Length startAndRest
-                    |> Seq.map (fun chars -> System.String(chars))
-                    |> Seq.takeWhile ((=) start)
-                    |> Seq.length
+                    let mutable count = 0
+                    let mutable keepGoing = true
+
+                    while keepGoing do
+                        if
+                            count + start.Length <= startAndRest.Length
+                            && String.CompareOrdinal(startAndRest, count, start, 0, start.Length) = 0
+                        then
+                            count <- count + 1
+                        else
+                            keepGoing <- false
+
+                    count
 
                 Some(
                     startNum,
@@ -398,12 +410,7 @@ module Lines =
     /// the number of spaces the first line started with.
     let (|TakeCodeBlock|_|) (input: (string * MarkdownRange) list) =
         let spaceNum = 4
-        //match input with
-        //| h :: _ ->
-        //  let head = (input |> List.head).Replace("\t", "    ") |> Seq.toList
-        //  let spaces, _ = List.partitionWhile (fun s -> s = ' ') head
-        //  spaces.Length
-        //| _ -> 0
+
         let startsWithSpaces (s: string) =
             let normalized = s.Replace("\t", "    ")
 
@@ -411,7 +418,7 @@ module Lines =
             && normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
 
         match List.partitionWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
-        | matching, rest when matching <> [] && spaceNum >= 4 -> Some(spaceNum, matching, rest)
+        | matching, rest when matching <> [] -> Some(spaceNum, matching, rest)
         | _ -> None
 
     /// Removes whitespace lines from the beginning of the list
