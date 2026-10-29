@@ -6,8 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- locking the version of F# Core as FCS does this anyway and in practise all will be using the same version -->
-    <PackageVersion Include="FSharp.Core" Version="[10.1.402]" />
-    <PackageVersion Include="FSharp.Compiler.Service" Version="[43.12.402]" />
+    <PackageVersion Include="FSharp.Core" Version="[10.1.403]" />
+    <PackageVersion Include="FSharp.Compiler.Service" Version="[43.12.403]" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="Microsoft.Build" Version="" PrivateAssets="all" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="" PrivateAssets="all" />
@@ -17,9 +17,9 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="Suave" Version="3.7.2" />
     <PackageVersion Include="FSharp.Data.Adaptive" Version="1.2.27" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
     <PackageVersion Include="System.Memory" Version="4.6.3" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.13" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.14" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
     <PackageVersion Include="NUnit" Version="5.0.0" />
     <PackageVersion Include="FsUnit" Version="8.0.0" />
