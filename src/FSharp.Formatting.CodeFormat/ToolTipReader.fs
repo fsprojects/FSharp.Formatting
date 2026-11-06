@@ -196,8 +196,8 @@ let private tryReadXmlDoc (text: string) =
         // document, so give it a root of its own before parsing
         let root = XElement.Parse("<fsdocs>" + text + "</fsdocs>", LoadOptions.PreserveWhitespace)
 
-        // a <see cref="T:Foo.Bar"/> keeps its text in an attribute, so it would leave a
-        // hole in the sentence around it once we ask an element for its text
+        // a <see cref="T:Foo.Bar"/> or a <see langword="true"/> keeps its text in an attribute,
+        // so it would leave a hole in the sentence around it once we ask an element for its text
         for reference in List.ofSeq (root.Descendants()) do
             match reference.Name.LocalName with
             | "see"
@@ -205,7 +205,7 @@ let private tryReadXmlDoc (text: string) =
             | "paramref"
             | "typeparamref" ->
                 let named =
-                    [ "cref"; "name" ]
+                    [ "cref"; "name"; "langword" ]
                     |> List.tryPick (fun name ->
                         match reference.Attribute(XName.Get name) with
                         | null -> None

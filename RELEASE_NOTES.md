@@ -1,10 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [23.0.0-alpha.9] - 2026-11-06
 
 ### Changed
 * Avoid recomputing `List.length` on the shrinking remainder for every scanned character when splitting a Markdown pipe-table row into cells (`pipeTableFindSplits` in `MarkdownTableParser.fs`). The scan now tracks the number of consumed characters incrementally, turning an O(n²) split into an O(n) one for rows with many delimiters, with no behavior change.
 * Avoided a per-character `Seq.windowed`/`String()` allocation in `StartsWithNTimesTrimIgnoreStartWhitespace`, the active pattern used to count repeated fence characters (`` ` `` / `~`) when parsing code fences and headers. The count is now computed with `String.CompareOrdinal` over string offsets, with no intermediate substring allocations. Behavior is unchanged.
+
+### Fixed
+* A `<see langword="..."/>` in a doc comment rendered as nothing, so `Returns <see langword="true"/> when …` read "Returns  when …". The API docs show the keyword as inline code, the same as `<c>true</c>`, and a tool tip on a code snippet keeps the word. [#1371](https://github.com/fsprojects/FSharp.Formatting/pull/1371)
 
 ## [23.0.0-alpha.8] - 2026-09-18
 

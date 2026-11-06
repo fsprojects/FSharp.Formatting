@@ -159,3 +159,9 @@ type Class10() =
 /// </summary>
 type Class11() =
     member this.X = "F#"
+
+/// <summary>
+/// Returns <see langword="true"/> when it works, otherwise <see langword="false"/>.
+/// </summary>
+type Class12() =
+    member this.X = "F#"
