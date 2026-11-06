@@ -211,6 +211,14 @@ module internal XmlDocReader =
                             urlMap.ResolveCref cname |> ignore
                             let crefAsHtml = HttpUtility.HtmlEncode cref.Value
                             html.Append(crefAsHtml) |> ignore
+                    else
+                        // a keyword such as <see langword="true"/> has nothing to link to,
+                        // so it reads as code, the same as <c>true</c>
+                        match elem.Attribute(XName.Get "langword") with
+                        | null -> ()
+                        | langword ->
+                            html.AppendFormat("<code>{0}</code>", HttpUtility.HtmlEncode langword.Value)
+                            |> ignore
                 | "c" ->
                     html.Append("<code>") |> ignore
 

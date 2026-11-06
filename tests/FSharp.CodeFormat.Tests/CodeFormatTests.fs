@@ -742,6 +742,19 @@ let m = make ()
     let _content, tooltip = getContentAndToolTip source
     tooltip |> shouldContainText "Produces a Marker value"
 
+[<Test>]
+let ``A see langword keeps its keyword in the sentence it sits in`` () =
+    let source =
+        """
+/// Returns <see langword="true"/> when it works
+let works () = true
+
+let w = works ()
+"""
+
+    let _content, tooltip = getContentAndToolTip source
+    tooltip |> shouldContainText "Returns true when it works"
+
 // --------------------------------------------------------------------------------------
 // Tests for cross-assembly type resolution in tooltips (issue #1085)
 // --------------------------------------------------------------------------------------

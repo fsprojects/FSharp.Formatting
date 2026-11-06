@@ -1323,6 +1323,44 @@ let ``Math in XML generated ok`` (format: OutputFormat) =
 
 [<Test>]
 [<TestCaseSource("formats")>]
+let ``See langword renders as inline code`` (format: OutputFormat) =
+    let libraries = [ testBin </> "crefLib1.dll"; testBin </> "crefLib2.dll" ] |> fullpaths
+
+    let output = getOutputDir format "crefLibs_langword"
+    printfn "Output: %s" output
+
+    let inputs =
+        [
+            for lib in libraries ->
+                ApiDocInput.FromFile(
+                    lib,
+                    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+                    sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+                    mdcomments = false
+                )
+        ]
+
+    let _model, _searchIndex =
+        DocsGenerator(format)
+            .Run(
+                inputs,
+                output,
+                collectionName = "CrefLibs",
+                template = docTemplate format,
+                substitutions = substitutions,
+                libDirs = ([ testBin ] |> fullpaths)
+            )
+
+    let fileNames = Directory.GetFiles(output </> "reference")
+
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+    // a keyword has no cref to link, so it reads as code, the same as <c>true</c>
+    files.[(sprintf "creflib2-class12.%s" format.Extension)]
+    |> shouldContainText "Returns <code>true</code> when it works, otherwise <code>false</code>."
+
+[<Test>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs test that csharp (publiconly) support works`` (format: OutputFormat) =
     let libraries = [ testBin </> "csharpSupport.dll" ] |> fullpaths
 
