@@ -4,7 +4,14 @@
     "labelling_after": null,
     "investigation_after": null
   },
-  "issues": [],
+  "issues": [
+    {
+      "number": 1372,
+      "state": "commented",
+      "updated_at": "2026-11-11",
+      "note": "Root cause commented (compiled-name based URLs); awaiting maintainer decision on URL scheme"
+    }
+  ],
   "fixes": [],
   "checks": [],
   "completed_actions": [],
