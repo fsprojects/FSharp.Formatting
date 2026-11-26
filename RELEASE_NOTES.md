@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+* Update FCS to 43.13.404 and FSharp.Core to 10.1.404. [#1379](https://github.com/fsprojects/FSharp.Formatting/pull/1379)
+
 ## [23.0.0-alpha.9] - 2026-11-06
 
 ### Changed
