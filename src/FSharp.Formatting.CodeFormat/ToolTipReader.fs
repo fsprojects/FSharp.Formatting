@@ -66,7 +66,8 @@ let private tokenKindOfTextTag (tag: TextTag) =
     | TextTag.Text
     | TextTag.Space
     | TextTag.LineBreak
-    | TextTag.UnknownType -> TokenKind.Default
+    | TextTag.UnknownType
+    | TextTag.UnresolvedName -> TokenKind.Default
 
 /// Converts an array of <see cref="T:FSharp.Compiler.Text.TaggedText"/> values emitted by
 /// the F# compiler into lines of runs. Each run keeps the token kind its tag maps to, so
@@ -317,7 +318,7 @@ let private formatElement tooltip =
                 yield! formatComment it.XmlDoc
 
                 yield!
-                    it.MainDescription
+                    it.MainDescription.Parts
                     |> linesFromTaggedText
                     |> Seq.choose (fun line ->
                         // a line left holding nothing but whitespace carries no information,
