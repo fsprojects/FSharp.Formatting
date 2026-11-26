@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en" data-root="./">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="Literate Scripts
+" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="Literate Scripts
+">
+    
+    <title>Literate Scripts
+ | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="./img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="./content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="./content/fsdocs-details-set-expanded.js"></script>
+    <link href="./content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="./content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./mermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-apidocs.html" title="FSharp.Formatting.ApiDocs">
+      ApiDocs
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-csharpformat.html" title="FSharp.Formatting.CSharpFormat">
+      CSharpFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-codeformat.html" title="FSharp.Formatting.CodeFormat">
+      CodeFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-common.html" title="FSharp.Formatting.Common">
+      Common
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-literate.html" title="FSharp.Formatting.Literate">
+      Literate
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-markdown.html" title="FSharp.Formatting.Markdown">
+      Markdown
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-templating.html" title="FSharp.Formatting.Templating">
+      Templating
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Logo" src="./img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./mermaid.html">
+    Mermaid Diagrams
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-apidocs.html" title="FSharp.Formatting.ApiDocs">
+      ApiDocs
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-csharpformat.html" title="FSharp.Formatting.CSharpFormat">
+      CSharpFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-codeformat.html" title="FSharp.Formatting.CodeFormat">
+      CodeFormat
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-common.html" title="FSharp.Formatting.Common">
+      Common
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-literate.html" title="FSharp.Formatting.Literate">
+      Literate
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-markdown.html" title="FSharp.Formatting.Markdown">
+      Markdown
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-formatting-templating.html" title="FSharp.Formatting.Templating">
+      Templating
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<p><a href="literate.html"><img src="img/badge-script.svg" alt="Script" /></a></p>
+<h1 data-fsdocs-heading="1"><a name="Literate-Scripts" class="anchor" href="#Literate-Scripts">Literate Scripts</a></h1>
+<p>The following example shows most of the features that can be used in a literate
+F# script file with <code>.fsx</code> extension. Most of the features should be quite self-explanatory:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">(**</span>
+<span class="c"># First-level heading</span>
+<span class="c">Some more documentation using `Markdown`.</span>
+<span class="c">*)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="fn">helloWorld</span><span class="pn">(</span><span class="pn">)</span> <span class="o">=</span> <span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="fn">printfn</span> <span class="s">&quot;Hello world!&quot;</span>
+
+<span class="c">(**</span>
+<span class="c">## Second-level heading</span>
+<span class="c">With some more documentation</span>
+<span class="c">*)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">numbers</span> <span class="o">=</span> <span class="pn">[</span> <span class="n">0</span> <span class="o">..</span> <span class="n">99</span> <span class="pn">]</span>
+<span class="c">(*** include-value: numbers ***)</span>
+
+<span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="4" class="m">List</span><span class="pn">.</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="5" class="id">sum</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="6" class="id">numbers</span>
+<span class="c">(*** include-it ***)</span>
+</code></pre></div>
+<p>The F# script files are processed as follows:</p>
+<ul>
+<li>
+<p>A multi-line comment starting with <code>(**</code> and ending with <code>*)</code> is
+turned into text and is processed using the F# Markdown processor
+(which supports standard Markdown commands).</p>
+</li>
+<li>
+<p>A single-line comment starting with <code>(***</code> and ending with <code>***)</code>
+is treated as a special command. The command can consist of
+<code>key</code>, <code>key: value</code> or <code>key=value</code> pairs.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Literate Command</p></th>
+<th align="left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>(** ... *)</code></p></td>
+<td align="left"><p>Markdown</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** condition: prepare ***)</code></p></td>
+<td align="left"><p>Utilise a code snippet when analyzing for tooltips or executing for outputs</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** condition: ipynb ***)</code></p></td>
+<td align="left"><p>Include a code snippet when making a .ipynb notebook</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** condition: tex ***)</code></p></td>
+<td align="left"><p>Include a code snippet when making a .tex output</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** condition: html ***)</code></p></td>
+<td align="left"><p>Include a code snippet when making HTML output</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** hide ***)</code></p></td>
+<td align="left"><p>Hide the subsequent snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** raw ***)</code></p></td>
+<td align="left"><p>The subsequent code is treated as raw text</p></td>
+</tr>
+</tbody>
+</table>
+
+<h3 data-fsdocs-heading="2"><a name="Naming-and-including-snippets" class="anchor" href="#Naming-and-including-snippets">Naming and including snippets</a></h3>
+<p>The command <code>define</code> defines a named snippet (such as <code>final-sample</code>) and removes the command together with
+the following F# code block from the main document. The snippet can then
+be referred to in 'include'. This makes it
+possible to write documents without the ordering requirements of the
+F# language.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Literate Command</p></th>
+<th align="left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>(*** define: snippet-name ***)</code></p></td>
+<td align="left"><p>Define a named snippet</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include: snippet-name ***)</code></p></td>
+<td align="left"><p>Include the code of the named snippet</p></td>
+</tr>
+</tbody>
+</table>
+
+<h3 data-fsdocs-heading="3"><a name="Naming-and-including-outputs" class="anchor" href="#Naming-and-including-outputs">Naming and including outputs</a></h3>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Literate Command</p></th>
+<th align="left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>(*** define-output: output-name ***)</code></p></td>
+<td align="left"><p>Define a name for the outputs of the preceding snippet</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-output ***)</code></p></td>
+<td align="left"><p>The console output of the preceding snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** include-output: output-name ***)</code></p></td>
+<td align="left"><p>The console output of the snippet (named with define-output)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-fsi-output ***)</code></p></td>
+<td align="left"><p>The F# Interactive output of the preceding snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** include-fsi-output: output-name ***)</code></p></td>
+<td align="left"><p>The F# Interactive output of the snippet (named with define-output)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-fsi-merged-output ***)</code></p></td>
+<td align="left"><p>The merge of console output and F# Interactive output of the preceding snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** include-fsi-merged-output: output-name ***)</code></p></td>
+<td align="left"><p>The merge of console output and F# Interactive output of the snippet (named with define-output)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-it ***)</code></p></td>
+<td align="left"><p>The formatted result of the preceding snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** include-it: output-name ***)</code></p></td>
+<td align="left"><p>The formatted result of the snippet (named with define-output)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-it-raw ***)</code></p></td>
+<td align="left"><p>The unformatted result of the preceding snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** include-it-raw: output-name ***)</code></p></td>
+<td align="left"><p>The unformatted result of the snippet (named with define-output)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-value: value-name ***)</code></p></td>
+<td align="left"><p>The formatted value, an F# identifier name</p></td>
+</tr>
+</tbody>
+</table>
+
+<h4 data-fsdocs-heading="4"><a name="Hiding-code-snippets" class="anchor" href="#Hiding-code-snippets">Hiding code snippets</a></h4>
+<p>The command <code>hide</code> specifies that the following F# code block (until the next comment or command) should be
+omitted from the output.</p>
+<h4 data-fsdocs-heading="5"><a name="Evaluating-and-formatting-results" class="anchor" href="#Evaluating-and-formatting-results">Evaluating and formatting results</a></h4>
+<p>The commands to evaluate and format results are explained in <a href="evaluation.html">evaluation</a>.
+You must build your documentation with evaluation turned on using <code>--eval</code>.</p>
+<h4 data-fsdocs-heading="6"><a name="Substitutions" class="anchor" href="#Substitutions">Substitutions</a></h4>
+<p>Substitutions are applied to content, see <a href="content.html">content</a>.</p>
+<h3 data-fsdocs-heading="7"><a name="Literate-Markdown-Documents" class="anchor" href="#Literate-Markdown-Documents">Literate Markdown Documents</a></h3>
+<p>For files with <code>.md</code> extension, the entire file is a Markdown document, which may
+contain F# code snippets (but also other code snippets). As usual, snippets are
+indented with four spaces. In addition, the snippets can be annotated with special
+commands. Some of them are demonstrated in the following example:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="text"># First-level heading
+
+    [hide]
+    let print s = printfn "%s" s
+
+Some more documentation using `Markdown`.
+
+    [module=Hello]
+    let helloWorld() = print "Hello world!"
+
+## Second-level heading
+With some more documentation
+
+    [lang=csharp]
+    Console.WriteLine("Hello world!");
+</code></pre></div>
+<p>When processing the document, all F# snippets are copied to a separate file that
+is type-checked using the F# compiler (to obtain colours and tooltips).
+The commands are written on the first line of the named snippet, wrapped in <code>[...]</code>:</p>
+<ul>
+<li>
+<p>The <code>hide</code> command specifies that the F# snippet should not be included in the
+final document. This can be used to include code that is needed to type-check
+the code, but is not visible to the reader.</p>
+</li>
+</ul>
+<ul>
+<li>
+<p>The <code>module=Foo</code> command can be used to specify F# <code>module</code> where the snippet
+is placed. Use this command if you need multiple versions of the same snippet
+or if you need to separate code from different snippets.</p>
+</li>
+</ul>
+<ul>
+<li>
+The <code>lang=foo</code> command specifies the language of the named snippet. If the language
+is other than <code>fsharp</code>, the snippet is copied to the output as <code>&lt;pre&gt;</code> HTML
+tag without any processing.
+</li>
+</ul>
+<h3 data-fsdocs-heading="8"><a name="LaTeX-in-Literate-Scripts-and-Markdown-Documents" class="anchor" href="#LaTeX-in-Literate-Scripts-and-Markdown-Documents">LaTeX in Literate Scripts and Markdown Documents</a></h3>
+<p>Literate Scripts may contain LaTeX sections in Markdown using these forms:</p>
+<ol>
+<li><p>Single line latex starting with <code>$$</code>.</p></li>
+<li><p>A block delimited by <code>\begin{equation}...\end{equation}</code> or <code>\begin{align}...\end{align}</code>.</p></li>
+<li>
+<p>An indented paragraph starting with <code>$$$</code>.  This is F#-literate-specific and corresponds to
+<code>\begin{equation}...\end{equation}</code>.</p>
+</li>
+</ol>
+<p>For example</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="text">$$\frac{x}{y}$$
+
+\begin{equation}
+   \frac{d}{dx} \left. \left( x \left( \left. \frac{d}{dy} x y \; \right|_{y=3} \right) \right) \right|_{x=2}
+\end{equation}
+</code></pre></div>
+<p>Becomes</p>
+<p><span class="math">\[\frac{x}{y}\]</span></p>
+<p><span class="math">\[   \frac{d}{dx} \left. \left( x \left( \left. \frac{d}{dy} x y \; \right|_{y=3} \right) \right) \right|_{x=2}\]</span></p>
+<p>The LaTeX will also be used in HTML and iPython notebook outputs.</p>
+<h3 data-fsdocs-heading="9"><a name="Making-literate-scripts-work-for-different-outputs" class="anchor" href="#Making-literate-scripts-work-for-different-outputs">Making literate scripts work for different outputs</a></h3>
+<p>Literate scripts and markdown can be turned into LaTex, Python Notebooks and F# scripts.</p>
+<p>A header may be needed to get the code to load, a typical example is this:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="text">    (*** condition: prepare ***)
+    #nowarn "211"
+    #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
+    #r "FSharp.Formatting.Common.dll"
+    #r "FSharp.Formatting.Markdown.dll"
+    #r "FSharp.Formatting.CodeFormat.dll"
+    #r "FSharp.Formatting.Literate.dll"
+    (*** condition: fsx ***)
+#if FSX
+    #r "nuget: FSharp.Formatting,1.0.0"
+#endif // FSX
+    (*** condition: ipynb ***)
+#if IPYNB
+    #r "nuget: FSharp.Formatting,1.0.0"
+#endif // IPYNB
+</code></pre></div>
+<h3 data-fsdocs-heading="10"><a name="Processing-literate-files-programmatically" class="anchor" href="#Processing-literate-files-programmatically">Processing literate files programmatically</a></h3>
+<p>To process files use the two static methods to turn single documents into HTML
+as follows using functionality from the <a href="./reference/fsharp-formatting-literate-literate.html">Literate</a> type:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="7" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="8" class="id">IO</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="9" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="10" class="id">Formatting</span><span class="pn">.</span><span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="11" class="id">Literate</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="12" class="id">source</span> <span class="o">=</span> <span class="k">__SOURCE_DIRECTORY__</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="13" class="id">template</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="14" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="15" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="16" class="id">source</span><span class="pn">,</span> <span class="s">&quot;template.html&quot;</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="17" class="id">script</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="18" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="19" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="20" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/script.fsx&quot;</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="21" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="22" class="id">ConvertScriptFile</span><span class="pn">(</span><span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="23" class="id">script</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="24" class="id">template</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="25" class="id">doc</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="26" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="27" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="28" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/document.md&quot;</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="29" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="30" class="id">ConvertMarkdownFile</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="31" class="id">doc</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="32" class="id">template</span><span class="pn">)</span>
+</code></pre></div>
+<p>The following sample also uses the optional parameter <code>parameters</code> to specify additional
+keywords that will be replaced in the template file (this matches the <code>template-project.html</code>
+file which is included as a sample in the package):</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Load the template &amp; specify project information</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="33" class="id">projTemplate</span> <span class="o">=</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="34" class="id">source</span> <span class="o">+</span> <span class="s">&quot;template-project.html&quot;</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="35" class="id">projInfo</span> <span class="o">=</span>
+    <span class="pn">[</span> <span class="s">&quot;fsdocs-authors&quot;</span><span class="pn">,</span> <span class="s">&quot;Tomas Petricek&quot;</span>
+      <span class="s">&quot;fsdocs-source-link&quot;</span><span class="pn">,</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting&quot;</span>
+      <span class="s">&quot;fsdocs-collection-name&quot;</span><span class="pn">,</span> <span class="s">&quot;F# Formatting&quot;</span> <span class="pn">]</span>
+</code></pre></div>
+<p>The methods used above (<a href="./reference/fsharp-formatting-literate-literate.html#ConvertScriptFile">Literate.ConvertScriptFile</a>, <a href="./reference/fsharp-formatting-literate-literate.html#ConvertMarkdownFile">Literate.ConvertMarkdownFile</a>)
+produce HTML output by default, but they can be also used to produce LaTeX output. This is done
+by setting the output kind. The following
+example shows how to call the methods to generate LaTeX documents:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="36" class="id">templateTex</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="37" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="38" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="39" class="id">source</span><span class="pn">,</span> <span class="s">&quot;template.tex&quot;</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="40" class="id">scriptTex</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="41" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="42" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="43" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/script.fsx&quot;</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="44" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="45" class="id">ConvertScriptFile</span><span class="pn">(</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="46" class="id">scriptTex</span><span class="pn">,</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="47" class="id">templateTex</span><span class="pn">,</span> <span class="fn">outputKind</span> <span class="o">=</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="48" class="vt">OutputKind</span><span class="pn">.</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="49" class="id">Latex</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="50" class="id">docTex</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="51" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="52" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="53" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/document.md&quot;</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="54" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="55" class="id">ConvertMarkdownFile</span><span class="pn">(</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="56" class="id">docTex</span><span class="pn">,</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="57" class="id">templateTex</span><span class="pn">,</span> <span class="fn">outputKind</span> <span class="o">=</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="58" class="vt">OutputKind</span><span class="pn">.</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="59" class="id">Latex</span><span class="pn">)</span>
+</code></pre></div>
+<p>The methods used above (<code>ConvertScriptFile</code>, <code>ConvertMarkdownFile</code>)
+can also produce iPython Notebook output. This is done
+by setting the named parameter <code>format</code> to <code>OutputKind.Pynb</code>:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Process script file, Markdown document and a directory</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="60" class="id">scriptPynb</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="61" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="62" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="63" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/script.fsx&quot;</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="64" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="65" class="id">ConvertScriptFile</span><span class="pn">(</span><span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="66" class="id">scriptPynb</span><span class="pn">,</span> <span class="fn">outputKind</span> <span class="o">=</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="67" class="vt">OutputKind</span><span class="pn">.</span><span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="68" class="id">Pynb</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="69" class="id">docPynb</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="70" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="71" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="72" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/document.md&quot;</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="73" class="rt">Literate</span><span class="pn">.</span><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="74" class="id">ConvertMarkdownFile</span><span class="pn">(</span><span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="75" class="id">docPynb</span><span class="pn">,</span> <span class="fn">outputKind</span> <span class="o">=</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="76" class="vt">OutputKind</span><span class="pn">.</span><span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="77" class="id">Pynb</span><span class="pn">)</span>
+</code></pre></div>
+<p>All of the three methods discussed in the previous two sections take a number of optional
+parameters that can be used to tweak how the formatting works</p>
+<h2 data-fsdocs-heading="11"><a name="Using-Literate-scripts-as-doc-tests" class="anchor" href="#Using-Literate-scripts-as-doc-tests">Using Literate scripts as doc tests</a></h2>
+<p>Because Literate scripts execute embedded F# code via F# Interactive when the <code>eval</code> option
+(or <code>fsdocs build --eval</code> / <code>fsdocs watch --eval</code>) is enabled, they double as a lightweight
+form of "doc testing": the code samples in your documentation are run for real, and any
+exceptions raised during evaluation cause the build to fail (or, with the <code>(*** include-output ***)</code>
+directive, the <em>actual</em> output of the snippet is captured and included verbatim in the
+generated page). This means documentation examples can't silently drift out of sync with
+the API they describe — if a sample stops compiling or throws, you'll find out the next
+time the docs are built.</p>
+<p>This is not a full doc-test framework (there's no built-in support for asserting expected
+output against actual output), but combined with <code>(*** include-output ***)</code> and
+<code>(*** include-value ***)</code> it gives a useful low-effort way to keep documentation examples
+honest.</p>
+
+        <div popover class="fsdocs-tip" id="fs1"><span class="k">val</span> <span class="fn">helloWorld</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs2"><span class="k">val</span> <span class="fn">printfn</span><span class="pn">:</span> <span class="id">format</span><span class="pn">:</span> <span class="m">Printf.</span><span class="rt">TextWriterFormat</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs3"><span class="k">val</span> <span class="fn">numbers</span><span class="pn">:</span> <span class="vt">int</span> <span class="rt">list</span></div>
+<div popover class="fsdocs-tip" id="fs4">Multiple items<br /><span class="k">module</span> <span class="m">List</span><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br /><span class="k">type</span> List<span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="pn">|</span> <span class="uc">op_Nil</span><br />&#160;&#160;<span class="pn">|</span> <span class="uc">op_ColonColon</span> <span class="k">of</span> <span class="prop">Head</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="o">*</span> <span class="prop">Tail</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">list</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IReadOnlyList</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IReadOnlyCollection</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IEnumerable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IEnumerable</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetReverseIndex</span><span class="pn">:</span> <span class="id">rank</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span> <span class="id">offset</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetSlice</span><span class="pn">:</span> <span class="id">startIndex</span><span class="pn">:</span> <span class="vt">int</span> <span class="rt">option</span> <span class="pn">*</span> <span class="id">endIndex</span><span class="pn">:</span> <span class="vt">int</span> <span class="rt">option</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="rt">list</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Cons</span><span class="pn">:</span> <span class="id">head</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">*</span> <span class="id">tail</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">list</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="rt">list</span><br />&#160;&#160;<span class="k">member</span> <span class="prop">Head</span><span class="pn">:</span> <span class="ta">&#39;T</span><br />&#160;&#160;<span class="k">member</span> <span class="prop">IsEmpty</span><span class="pn">:</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">member</span> <span class="prop">Item</span><span class="pn">:</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="k">with</span> get<br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs5"><span class="k">val</span> <span class="fn">sum</span><span class="pn">:</span> <span class="id">list</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">list</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="pn">(</span><span class="o">+</span><span class="pn">)</span> <span class="k">and</span> <span class="k">member</span> <span class="fn">Zero</span><span class="pn">)</span></div>
+<div popover class="fsdocs-tip" id="fs6"><span class="k">namespace</span> <span class="m">System</span></div>
+<div popover class="fsdocs-tip" id="fs7"><span class="k">namespace</span> <span class="m">System.IO</span></div>
+<div popover class="fsdocs-tip" id="fs8">Multiple items<br /><span class="k">namespace</span> <span class="m">FSharp</span><br /><br />--------------------<br /><span class="k">namespace</span> <span class="m">Microsoft.FSharp</span></div>
+<div popover class="fsdocs-tip" id="fs9"><span class="k">namespace</span> <span class="m">FSharp.Formatting</span></div>
+<div popover class="fsdocs-tip" id="fs10"><span class="k">namespace</span> <span class="m">FSharp.Formatting.Literate</span></div>
+<div popover class="fsdocs-tip" id="fs11"><span class="k">val</span> <span class="fn">source</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs12"><span class="k">val</span> <span class="fn">template</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs13"><em>Performs operations on String instances that contain file or directory path information. These operations are performed in a cross-platform manner.</em><br /><span class="k">type</span> <span class="rt">Path</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ChangeExtension</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">extension</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Combine</span><span class="pn">:</span> <span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 4 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">EndsInDirectorySeparator</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Exists</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetDirectoryName</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetExtension</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetFileName</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetFileNameWithoutExtension</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetFullPath</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetInvalidFileNameChars</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">char</span> <span class="rt">array</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs14"><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">paths</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span> <span class="id">paths</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path3</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path3</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path4</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs15"><span class="k">val</span> <span class="fn">script</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs16"><em>&#160;This type provides three simple methods for calling the literate programming tool.<br />&#160;The ConvertMarkdownFile and ConvertScriptFile methods process a single Markdown document<br />&#160;and F# script, respectively. The ConvertDirectory method handles an entire directory tree<br />&#160;(looking for *.fsx and *.md files).<br /><br />Functionality to support literate programming for F# scripts</em><br /><span class="k">type</span> <span class="rt">Literate</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ConvertMarkdownFile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">input</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">template</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">output</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">outputKind</span><span class="pn">:</span> <span class="vt">OutputKind</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">prefix</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">generateAnchors</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">imageSaver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">filesWithFrontMatter</span><span class="pn">:</span> <span class="rt">FrontMatterFile</span> <span class="rt">array</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ConvertPynbFile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">input</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">template</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">output</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">outputKind</span><span class="pn">:</span> <span class="vt">OutputKind</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">prefix</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">generateAnchors</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">imageSaver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">filesWithFrontMatter</span><span class="pn">:</span> <span class="rt">FrontMatterFile</span> <span class="rt">array</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ConvertScriptFile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">input</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">template</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">output</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">outputKind</span><span class="pn">:</span> <span class="vt">OutputKind</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">prefix</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fsiEvaluator</span><span class="pn">:</span> <span class="if">IFsiEvaluator</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">generateAnchors</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">imageSaver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">filesWithFrontMatter</span><span class="pn">:</span> <span class="rt">FrontMatterFile</span> <span class="rt">array</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ParseAndCheckScriptFile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">definedSymbols</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fsiEvaluator</span><span class="pn">:</span> <span class="if">IFsiEvaluator</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parseOptions</span><span class="pn">:</span> <span class="en">MarkdownParseOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">LiterateDocument</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ParseMarkdownFile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">definedSymbols</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fsiEvaluator</span><span class="pn">:</span> <span class="if">IFsiEvaluator</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parseOptions</span><span class="pn">:</span> <span class="en">MarkdownParseOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">LiterateDocument</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ParseMarkdownString</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">content</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">definedSymbols</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fsiEvaluator</span><span class="pn">:</span> <span class="if">IFsiEvaluator</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parseOptions</span><span class="pn">:</span> <span class="en">MarkdownParseOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">LiterateDocument</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ParsePynbString</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">content</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">definedSymbols</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parseOptions</span><span class="pn">:</span> <span class="en">MarkdownParseOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">LiterateDocument</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ParseScriptString</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">content</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">definedSymbols</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fsiEvaluator</span><span class="pn">:</span> <span class="if">IFsiEvaluator</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parseOptions</span><span class="pn">:</span> <span class="en">MarkdownParseOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">LiterateDocument</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToFsx</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">doc</span><span class="pn">:</span> <span class="rt">LiterateDocument</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToHtml</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">doc</span><span class="pn">:</span> <span class="rt">LiterateDocument</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">prefix</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">generateAnchors</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">tokenKindToCss</span><span class="pn">:</span> <span class="pn">(</span><span class="vt">TokenKind</span> <span class="pn">-&gt;</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs17"><span class="k">static</span> <span class="k">member</span> <span class="rt">Literate</span><span class="pn">.</span><span class="fn">ConvertScriptFile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">input</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">template</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">output</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">outputKind</span><span class="pn">:</span> <span class="vt">OutputKind</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">prefix</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fsiEvaluator</span><span class="pn">:</span> <span class="m">Evaluation.</span><span class="if">IFsiEvaluator</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="m">FSharp.Formatting.Templating.</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">generateAnchors</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">imageSaver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">filesWithFrontMatter</span><span class="pn">:</span> <span class="m">FSharp.Formatting.Templating.</span><span class="rt">FrontMatterFile</span> <span class="rt">array</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs18"><span class="k">val</span> <span class="fn">doc</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs19"><span class="k">static</span> <span class="k">member</span> <span class="rt">Literate</span><span class="pn">.</span><span class="fn">ConvertMarkdownFile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">input</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">template</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">output</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">outputKind</span><span class="pn">:</span> <span class="vt">OutputKind</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">prefix</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fscOptions</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">lineNumbers</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">references</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">substitutions</span><span class="pn">:</span> <span class="pn">(</span><span class="m">FSharp.Formatting.Templating.</span><span class="vt">ParamKey</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">generateAnchors</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">imageSaver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">rootInputFolder</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">crefResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">mdlinkResolver</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">option</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">onError</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">filesWithFrontMatter</span><span class="pn">:</span> <span class="m">FSharp.Formatting.Templating.</span><span class="rt">FrontMatterFile</span> <span class="rt">array</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs20"><span class="k">val</span> <span class="fn">projTemplate</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs21"><span class="k">val</span> <span class="fn">projInfo</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">string</span> <span class="pn">*</span> <span class="rt">string</span><span class="pn">)</span> <span class="rt">list</span></div>
+<div popover class="fsdocs-tip" id="fs22"><span class="k">val</span> <span class="fn">templateTex</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs23"><span class="k">val</span> <span class="fn">scriptTex</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs24"><em>Defines the possible output types from literate script (HTML, Latex, Pynb)</em><br /><span class="k">type</span> <span class="vt">OutputKind</span> <span class="o">=</span><br />&#160;&#160;<span class="pn">|</span> <span class="uc">Html</span><br />&#160;&#160;<span class="pn">|</span> <span class="uc">Latex</span><br />&#160;&#160;<span class="pn">|</span> <span class="uc">Pynb</span><br />&#160;&#160;<span class="pn">|</span> <span class="uc">Fsx</span><br />&#160;&#160;<span class="pn">|</span> <span class="uc">Markdown</span><br />&#160;&#160;<span class="k">member</span> <span class="prop">Extension</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs25"><em>Requests LaTeX output</em><br />union case <span class="vt">OutputKind</span><span class="pn">.</span><span class="uc">Latex</span><span class="pn">:</span> <span class="vt">OutputKind</span></div>
+<div popover class="fsdocs-tip" id="fs26"><span class="k">val</span> <span class="fn">docTex</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs27"><span class="k">val</span> <span class="fn">scriptPynb</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs28"><em>Requests Notebook output</em><br />union case <span class="vt">OutputKind</span><span class="pn">.</span><span class="uc">Pynb</span><span class="pn">:</span> <span class="vt">OutputKind</span></div>
+<div popover class="fsdocs-tip" id="fs29"><span class="k">val</span> <span class="fn">docPynb</span><span class="pn">:</span> <span class="rt">string</span></div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Literate-Scripts">
+      Literate Scripts
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="2">
+    <a href="#Naming-and-including-snippets">
+      Naming and including snippets
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="3">
+    <a href="#Naming-and-including-outputs">
+      Naming and including outputs
+    </a>
+  </li>
+  <li class="level-4" data-fsdocs-heading="4">
+    <a href="#Hiding-code-snippets">
+      Hiding code snippets
+    </a>
+  </li>
+  <li class="level-4" data-fsdocs-heading="5">
+    <a href="#Evaluating-and-formatting-results">
+      Evaluating and formatting results
+    </a>
+  </li>
+  <li class="level-4" data-fsdocs-heading="6">
+    <a href="#Substitutions">
+      Substitutions
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="7">
+    <a href="#Literate-Markdown-Documents">
+      Literate Markdown Documents
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="8">
+    <a href="#LaTeX-in-Literate-Scripts-and-Markdown-Documents">
+      LaTeX in Literate Scripts and Markdown Documents
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="9">
+    <a href="#Making-literate-scripts-work-for-different-outputs">
+      Making literate scripts work for different outputs
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="10">
+    <a href="#Processing-literate-files-programmatically">
+      Processing literate files programmatically
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="11">
+    <a href="#Using-Literate-scripts-as-doc-tests">
+      Using Literate scripts as doc tests
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-heading-9, --fsdocs-heading-10, --fsdocs-heading-11, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-heading-9; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="9"] { view-timeline-name: --fsdocs-heading-9; }
+#fsdocs-page-menu [data-fsdocs-heading="9"] { animation-timeline: --fsdocs-heading-9, --fsdocs-heading-10; }
+body:has(#content [data-fsdocs-heading="9"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="9"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="10"] { view-timeline-name: --fsdocs-heading-10; }
+#fsdocs-page-menu [data-fsdocs-heading="10"] { animation-timeline: --fsdocs-heading-10, --fsdocs-heading-11, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="10"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="10"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="11"] { view-timeline-name: --fsdocs-heading-11; }
+#fsdocs-page-menu [data-fsdocs-heading="11"] { animation-timeline: --fsdocs-heading-11, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="11"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="11"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="./content/fsdocs-tips.js"></script>
+<script type="module" src="./content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="./content/fsdocs-details-toggle.js"></script>
+<script type="module" src="./content/fsdocs-theme.js"></script>
+<script type="module" src="./content/fsdocs-search.js"></script>
+<script type="module" src="./content/fsdocs-copy-button.js"></script>
+<script type="module" src="./content/fsdocs-hotkeys.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  // A ```mermaid fenced block renders natively on GitHub, but reaches fsdocs
+  // as a syntax-highlighted code block. Promote those blocks to
+  // <div class="mermaid"> elements so one plain fence works in both places.
+  for (const code of document.querySelectorAll('code[lang="mermaid"]')) {
+    // fsdocs wraps the snippet in <div class="fsdocs-snippet"><pre><code>...;
+    // replace the outermost wrapper so no snippet scaffolding is left around
+    // the diagram.
+    const snippet = code.closest('.fsdocs-snippet') ?? code.closest('pre');
+    if (!snippet) continue;
+    const diagram = document.createElement('div');
+    diagram.className = 'mermaid';
+    // textContent, not innerHTML: the source arrives HTML-escaped
+    // (arrows come through with escaped angle brackets) and mermaid needs
+    // the raw arrows back.
+    diagram.textContent = code.textContent;
+    snippet.replaceWith(diagram);
+  }
+
+  mermaid.initialize({ startOnLoad: true });
+</script>
+
+</body>
+</html>
